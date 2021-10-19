@@ -7,7 +7,7 @@ from multiprocessing import (shared_memory, cpu_count, Queue, Process, Value)
 
 from tqdm import tqdm
 
-from .utils import chunks
+from .utils import chunks, is_power_of_2
 from .fields import Field
 from .memory_allocator import MemoryAllocator
 from .types import (TYPE_ID_HANDLER, get_metadata_type, HeaderType,
@@ -48,16 +48,16 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
 
 class DatasetWriter():
     def __init__(self, num_samples: int, fname: str, fields: List[Field],
-                 page_size: int = 5 * MIN_PAGE_SIZE):
+                 page_size: int = 4 * MIN_PAGE_SIZE):
         self.num_samples = num_samples
         self.fields = fields
         self.fname = fname
         self.metadata_type = get_metadata_type(self.fields)
 
-        if page_size % MIN_PAGE_SIZE != 0:
-            raise ValueError(f'page_size isnt a multiple of {MIN_PAGE_SIZE}')
+        if not is_power_of_2(page_size):
+            raise ValueError(f'page_size isnt a power of 2')
         if page_size < MIN_PAGE_SIZE:
-            raise ValueError(f"page_size has to be bigger than {MIN_PAGE_SIZE}")
+            raise ValueError(f"page_size can't be lower than{MIN_PAGE_SIZE}")
 
         self.page_size = page_size
 
