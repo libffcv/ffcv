@@ -46,7 +46,9 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
             with done_number.get_lock():
                 done_number.value += len(chunk)
 
+    print("PUTTING")
     allocations_queue.put(allocator.allocations)
+    print("DONE")
 
 
 class DatasetWriter():
@@ -109,7 +111,7 @@ class DatasetWriter():
 
 
     def write_pytorch_dataset(self, dataset, num_workers=-1,
-                              order: List[int]=None, chunksize=1000):
+                              order: List[int]=None, chunksize=100):
 
         # We use all cores by default
         if num_workers == -1:
@@ -169,8 +171,8 @@ class DatasetWriter():
             sleep(0.1)
         progress.close()
 
-        # Wait for all the workers to be done
-        [p.join() for p in processes]
+        # Wait for all the workers to be done and get their allocations
+        allocations = [allocations_queue.get() for p in processes]
 
         # Writing metadata
         with open(self.fname, 'r+b') as fp:
@@ -182,7 +184,6 @@ class DatasetWriter():
             # Look at the current address
             allocation_table_location = fp.tell()
             # Retrieve all the allocations from the workers
-            allocations = [allocations_queue.get() for p in processes]
             # Turn them into a numpy array
             allocation_table = np.concatenate([
                 np.array(x).astype(ALLOC_TABLE_TYPE) for x in allocations

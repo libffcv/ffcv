@@ -1,7 +1,7 @@
 from typing import NamedTuple, List
 import numpy as np
 from collections import namedtuple
-from .fields import FloatField, IntField, Field
+from .fields import FloatField, IntField, Field, RGBImageField
 from numpy.typing  import NDArray
 
 CURRENT_VERSION = 1
@@ -31,9 +31,11 @@ FieldDescType = np.dtype([
     ('arguments', ('<u1', (1024, )))
 ], align=True)
 
+# Map from type_id to the handler for that kind of data
 TYPE_ID_HANDLER = {
     0: FloatField,
-    1: IntField
+    1: IntField,
+    2: RGBImageField
 }
 
 # Parse the fields descriptors from the header of the dataset
