@@ -46,7 +46,7 @@ class MemoryAllocator():
                 self.my_page = self.next_page_allocated.value
                 self.next_page_allocated.value = self.my_page + 1
 
-            print(f"I got assigned page {self.my_page}")
+            # print(f"I got assigned page {self.my_page}")
 
             self.page_offset = 0
             # This is a new page so we erate the content of the buffer
@@ -74,7 +74,7 @@ class MemoryAllocator():
         # Wait until it's my turn to write
         while self.next_page_written.value != self.my_page:
             sleep(0.1)
-            print("waiting", self.next_page_written)
+            # print("waiting", self.next_page_written)
 
         # Now it's my turn to write
 
@@ -83,18 +83,18 @@ class MemoryAllocator():
         # in order to be aligned with page size
         # If this is the first page we have to pad with zeros
         if self.my_page == 0:
-            print("Padding headers to align with page size")
+            # print("Padding headers to align with page size")
             current_location = self.fp.seek(0, SEEK_END)
             null_bytes_to_write = expected_file_offset - current_location
             self.fp.write(np.zeros(null_bytes_to_write, dtype='<u1').tobytes())
-            print(f"current file pointer is no {self.fp.tell()} and should be {expected_file_offset}")
+            # print(f"current file pointer is no {self.fp.tell()} and should be {expected_file_offset}")
 
 
         self.fp.seek(expected_file_offset)
 
-        print(f"Writing page {self.my_page} at offset {self.fp.tell()}")
+        # print(f"Writing page {self.my_page} at offset {self.fp.tell()}")
         self.fp.write(self.page_data.tobytes())
-        print(f"Done writing {self.my_page} at offset {self.fp.tell()}")
+        # print(f"Done writing {self.my_page} at offset {self.fp.tell()}")
 
         # We warn other processes that they are free to write the next page
         with self.next_page_written.get_lock():

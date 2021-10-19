@@ -46,9 +46,7 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
             with done_number.get_lock():
                 done_number.value += len(chunk)
 
-    print("PUTTING")
     allocations_queue.put(allocator.allocations)
-    print("DONE")
 
 
 class DatasetWriter():
@@ -190,7 +188,7 @@ class DatasetWriter():
             allocation_table = np.concatenate([
                 np.array(x).astype(ALLOC_TABLE_TYPE) for x in allocations
             ])
-            print(allocation_table)
+            # print(allocation_table)
             fp.write(allocation_table.tobytes())
             self.header['alloc_table_ptr'] = allocation_table_location
             # We go at the start of the file
