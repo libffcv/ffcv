@@ -29,10 +29,11 @@ def resizer(image, target_resolution):
 
 class RGBImageField(Field):
 
-    def __init__(self, write_mode='raw', smart_factor=2,
-                 max_resolution: int=None) -> None:
+    def __init__(self, write_mode='raw', smart_factor:float = None,
+                 max_resolution: int=None, smart_threshold: int=None) -> None:
         self.write_mode = write_mode
         self.smart_factor = smart_factor
+        self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
 
     @property
@@ -73,13 +74,18 @@ class RGBImageField(Field):
 
         if write_mode == 'smart':
             as_jpg = encode_jpeg(image)
-            if as_jpg.nbytes * self.smart_factor > image.nbytes:
-                write_mode = 'raw'
-            else:
-                write_mode = 'jpg'
+            write_mode = 'raw'
+            if self.smart_factor is not None:
+                if as_jpg.nbytes * self.smart_factor <= image.nbytes:
+                    write_mode = 'jpg'
+            if self.smart_threshold is not None:
+                if image.nbytes > self.smart_threshold:
+                    write_mode = 'jpg'
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
+
+        print(write_mode)
 
         if write_mode == 'jpg':
             if as_jpg is None:
