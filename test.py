@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     my_dataset = CIFAR10(root="./data")
     writer = DatasetWriter(len(my_dataset), '/tmp/test.beton', (
-        RGBImageField(write_mode='smart', smart_factor=2, max_resolution=16),
+        RGBImageField(write_mode='smart', smart_factor=2, max_resolution=16, smart_threshold=800),
         IntField(),
     ))
     with writer:
