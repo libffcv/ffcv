@@ -10,6 +10,10 @@ class Reader:
         self.read_metadata()
         self.read_allocation_table()
 
+    @property
+    def file_name(self):
+        return self._fname
+
     def read_header(self):
         header = np.fromfile(self._fname, dtype=HeaderType, count=1)[0]
         header.setflags(write=False)
@@ -44,7 +48,7 @@ class Reader:
     def read_allocation_table(self):
         offset = self.header['alloc_table_ptr']
         alloc_table = np.fromfile(self._fname, dtype=ALLOC_TABLE_TYPE,
-                                  offset=offset).reshape(-1, 3)
+                                  offset=offset)
         alloc_table.setflags(write=False)
         self.alloc_table = alloc_table
 
