@@ -81,6 +81,8 @@ class DatasetWriter():
 
             # We will write the header at the end because we need to know where
             # The memory allocation table is in the file
+            # We still write it here to make space for it later
+            fp.write(self.header.tobytes())
 
 
             # Writes the information about the fields
