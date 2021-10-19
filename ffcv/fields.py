@@ -71,7 +71,7 @@ IMAGE_MODES = {
 
 class RGBImageField(Field):
 
-    def __init__(self, write_mode) -> None:
+    def __init__(self, write_mode='raw') -> None:
         pass
 
     @property
@@ -98,7 +98,7 @@ class RGBImageField(Field):
                 destination['data_ptr'], storage = malloc(len(contents))
                 storage[:] = contents
                 destination['mode'] = IMAGE_MODES['jpg']
-                destination['height'], destination['height'] = image.size
+                destination['height'], destination['width'] = image.size
 
         else:
             raise TypeError(f"Unsupported image type {type(image)}")
