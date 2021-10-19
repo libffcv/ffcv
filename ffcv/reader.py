@@ -1,5 +1,5 @@
 import numpy as np
-from .types import (HeaderType, CURRENT_VERSION, FieldDescType, get_handlers, get_metadata_type)
+from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION, FieldDescType, get_handlers, get_metadata_type)
 from .memory_allocator import align_to_page
 
 class Reader:
@@ -9,6 +9,7 @@ class Reader:
         self.read_header()
         self.read_field_descriptors()
         self.read_metadata()
+        self.read_allocation_table()
 
     def read_header(self):
         header = np.fromfile(self._fname, dtype=HeaderType, count=1)[0]
@@ -40,4 +41,12 @@ class Reader:
         self.metadta = np.fromfile(self._fname, dtype=self.metadata_type,
                                    count=self.num_samples, offset=offset)
         self.metadta.setflags(write=False)
+
+    def read_allocation_table(self):
+        offset = self.header['alloc_table_ptr']
+        alloc_table = np.fromfile(self._fname, dtype=ALLOC_TABLE_TYPE,
+                                  offset=offset).reshape(-1, 3)
+        alloc_table.setflags(write=False)
+        self.alloc_table = alloc_table
+
 

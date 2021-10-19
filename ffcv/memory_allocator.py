@@ -22,9 +22,14 @@ class MemoryAllocator():
         self.my_page = -1
 
         self.page_data = np.zeros(self.page_size, '<u1')
+        self.allocations = []
+        self.current_sample_id = None
 
     def __enter__(self):
         self.fp = open(self.fname, 'ab', buffering=0)
+
+    def set_current_sample(self, current_sample_id):
+        self.current_sample_id = current_sample_id
 
     @property
     def space_left_in_page(self):
@@ -61,6 +66,7 @@ class MemoryAllocator():
 
         # We return the pointer to the location in file and where to write
         # the data
+        self.allocations.append((self.current_sample_id, ptr, size))
         return ptr, buffer
 
     def flush_page(self):

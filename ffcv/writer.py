@@ -11,13 +11,13 @@ from .utils import chunks, is_power_of_2
 from .fields import Field
 from .memory_allocator import MemoryAllocator
 from .types import (TYPE_ID_HANDLER, get_metadata_type, HeaderType,
-                    FieldDescType, CURRENT_VERSION)
+                    FieldDescType, CURRENT_VERSION, ALLOC_TABLE_TYPE)
 
 MIN_PAGE_SIZE = 1 << 21  # 2MiB, which is the most common HugePage size
 
 
 def worker_job(input_queue, metadata_sm, metadata_type, fields,
-               allocator, done_number, dataset):
+               allocator, done_number, dataset, allocations_queue):
 
     metadata = np.frombuffer(metadata_sm.buf, dtype=metadata_type)
     field_names = metadata_type.names
@@ -34,6 +34,7 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
 
             # For each sample in the chunk
             for dest_ix, source_ix in chunk:
+                allocator.set_current_sample(dest_ix)
                 # We extract the sample in question from the dataset
                 sample = dataset[source_ix]
                 # We write each field individually to the metadata region
@@ -44,6 +45,8 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
             # We warn the main thread of our progress
             with done_number.get_lock():
                 done_number.value += len(chunk)
+
+    allocations_queue.put(allocator.allocations)
 
 
 class DatasetWriter():
@@ -66,13 +69,16 @@ class DatasetWriter():
         with open(self.fname, 'wb') as fp:
 
 
-            # Write the header data
+            # Prepare the header data
             header = np.zeros(1, dtype=HeaderType)[0]
             header['version'] = CURRENT_VERSION
             header['num_samples'] = self.num_samples
             header['num_fields'] = len(self.fields)
             header['page_size'] = self.page_size
-            fp.write(header.tobytes())
+            self.header = header
+
+            # We will write the header at the end because we need to know where
+            # The memory allocation table is in the file
 
 
             # Writes the information about the fields
@@ -123,6 +129,10 @@ class DatasetWriter():
         for chunk in chunks(order, chunksize):
             workqueue.put(chunk)
 
+        # This will contain all the memory allocations each worker
+        # produced. This will go at the end of the file
+        allocations_queue = Queue()
+
         # We add a token for each worker to warn them that there
         # is no more work to be done
         for _ in range(num_workers):
@@ -138,7 +148,7 @@ class DatasetWriter():
         worker_args = (workqueue, self.metadata_sm,
                        self.metadata_type, self.fields,
                        allocator, done_number,
-                       dataset)
+                       dataset, allocations_queue)
 
         # Create the workers
         processes = [Process(target=worker_job, args=worker_args)
@@ -165,9 +175,25 @@ class DatasetWriter():
         # Writing metadata
         with open(self.fname, 'r+b') as fp:
             fp.seek(self.metadata_start)
-            print(fp.tell())
             fp.write(self.metadata_sm.buf)
-            print(fp.tell())
+
+            # We go at the end of the file
+            fp.seek(0, SEEK_END)
+            # Look at the current address
+            allocation_table_location = fp.tell()
+            # Retrieve all the allocations from the workers
+            allocations = [allocations_queue.get() for p in processes]
+            # Turn them into a numpy array
+            allocation_table = np.concatenate([
+                np.array(x).astype(ALLOC_TABLE_TYPE) for x in allocations
+            ])
+            print(allocation_table)
+            fp.write(allocation_table.tobytes())
+            self.header['alloc_table_ptr'] = allocation_table_location
+            # We go at the start of the file
+            fp.seek(0)
+            # And write the header
+            fp.write(self.header.tobytes())
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):

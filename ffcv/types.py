@@ -18,7 +18,10 @@ HeaderType = np.dtype([
     ('num_fields', '<u2'),
     ('page_size', '<u4'),
     ('num_samples', '<u8'),
+    ('alloc_table_ptr', '<u8')
 ], align=True)
+
+ALLOC_TABLE_TYPE = np.dtype('<u8')
 
 FieldDescType = np.dtype([
     # This identifier will inform us on how to decode that field
