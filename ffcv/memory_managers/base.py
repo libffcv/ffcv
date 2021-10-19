@@ -36,8 +36,11 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
     def schedule_epoch(self, schedule):
         raise NotImplemented()
 
-    @abstractmethod
     def read(self, address):
+        return self._read_impl(address, self.ptr_to_size[address])
+
+    @abstractmethod
+    def _read_impl(self, address, size):
         raise NotImplemented()
 
     @abstractmethod
