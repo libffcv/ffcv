@@ -1,18 +1,7 @@
 from torch.utils.data import Dataset
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
-from torchvision.datasets import ImageFolder, CIFAR10
-
-class TestDataset(Dataset):
-
-    def __init__(self):
-        super().__init__()
-
-    def __len__(self):
-        return 100
-
-    def __getitem__(self, index):
-        return (index, 3.2, 42, -0.66)
+from torchvision.datasets import CIFAR10
 
 if __name__ == '__main__':
 
