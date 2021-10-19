@@ -8,7 +8,7 @@ from multiprocessing import (shared_memory, cpu_count, Queue, Process, Value)
 from tqdm import tqdm
 
 from .utils import chunks, is_power_of_2
-from .fields import Field
+from .fields.base import Field
 from .memory_allocator import MemoryAllocator
 from .types import (TYPE_ID_HANDLER, get_metadata_type, HeaderType,
                     FieldDescType, CURRENT_VERSION, ALLOC_TABLE_TYPE)

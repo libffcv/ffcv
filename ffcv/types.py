@@ -1,8 +1,10 @@
-from typing import NamedTuple, List
+from typing import List
+
 import numpy as np
-from collections import namedtuple
-from .fields import FloatField, IntField, Field, RGBImageField
 from numpy.typing  import NDArray
+
+from .fields.base import Field
+from .fields import FloatField, IntField, RGBImageField
 
 CURRENT_VERSION = 1
 
