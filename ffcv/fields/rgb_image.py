@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 from PIL.Image import Image
-import io
 
 from .base import Field, ARG_TYPE
 
@@ -18,11 +17,23 @@ def encode_jpeg(numpy_image):
 
     return result.reshape(-1)
 
+def resizer(image, target_resolution):
+    if target_resolution is None:
+        return image
+    original_size = np.array([image.shape[1], image.shape[0]])
+    ratio = target_resolution / original_size.max()
+    if ratio < 1:
+        new_size = (ratio * original_size).astype(int)
+        image = cv2.resize(image, new_size)
+    return image
+
 class RGBImageField(Field):
 
-    def __init__(self, write_mode='raw', smart_factor=2) -> None:
+    def __init__(self, write_mode='raw', smart_factor=2,
+                 max_resolution: int=None) -> None:
         self.write_mode = write_mode
         self.smart_factor = smart_factor
+        self.max_resolution = max_resolution
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -55,6 +66,8 @@ class RGBImageField(Field):
 
         assert image.dtype == np.uint8
 
+        image = resizer(image, self.max_resolution)
+
         write_mode = self.write_mode
         as_jpg = None
 
@@ -68,7 +81,6 @@ class RGBImageField(Field):
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
 
-        print('using', write_mode)
         if write_mode == 'jpg':
             if as_jpg is None:
                 as_jpg = encode_jpeg(image)
