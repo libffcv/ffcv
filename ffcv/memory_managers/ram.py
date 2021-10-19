@@ -8,7 +8,7 @@ class RAMMemoryManager(MemoryManager):
         return super().schedule_epoch(schedule)
 
     def __enter__(self):
-        self.mmap = np.memmap(self.dataset_path, 'uint8', mode='r')
+        self.mmap = np.memmap(self.reader.file_name, 'uint8', mode='r')
         return super().__enter__()
 
     def __exit__(self, __exc_type, __exc_value, __traceback):
