@@ -56,15 +56,3 @@ def get_handlers(field_descriptors: NDArray[FieldDescType]):
 def get_metadata_type(handlers: List[Field]) -> np.dtype:
     return np.dtype([('', handler.metadata_type) for handler in handlers],
                     align=True)
-
-
-if __name__ == '__main__':
-    data = np.zeros(10, dtype=FieldDescType)
-
-    field_descriptors = np.zeros(3, dtype = FieldDescType)
-    field_descriptors[0]['type_id'] = 1
-    field_descriptors[1]['type_id'] = 1
-
-    handlers = get_handlers(field_descriptors)
-    metadata_type = get_metadata_type(handlers)
-    print(metadata_type)
