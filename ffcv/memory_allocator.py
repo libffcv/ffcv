@@ -1,0 +1,107 @@
+import numpy as np
+from time import sleep
+from os import SEEK_END
+from multiprocessing import Value
+import ctypes
+
+def align_to_page(ptr, page_size):
+    # If we are not aligned with the start of a page:
+    if ptr % page_size != 0:
+        ptr = ptr  + page_size - ptr % page_size
+    return ptr
+
+class MemoryAllocator():
+    def __init__(self, fname, offset_start, page_size):
+        self.fname = fname
+        self.offset = align_to_page(offset_start, page_size)
+        self.next_page_allocated  = Value(ctypes.c_uint64, 0)
+        self.next_page_written  = Value(ctypes.c_uint64, 0)
+
+        self.page_size = page_size
+        self.page_offset = 0
+        self.my_page = -1
+
+        self.page_data = np.zeros(self.page_size, '<u1')
+
+    def __enter__(self):
+        self.fp = open(self.fname, 'ab', buffering=0)
+
+    @property
+    def space_left_in_page(self):
+        # We don't have a page allocated yet
+        if self.my_page < 0:
+            return 0
+        return self.page_size - self.page_offset
+
+    def malloc(self, size):
+        # print(f"Allocating {size} bytes")
+        if size > self.page_size:
+            raise ValueError(f"Tried allocating {size} but" +
+                             " page size is {self.page_size}")
+
+        if size > self.space_left_in_page:
+            self.flush_page()
+            # We book the next available page in the file
+            with self.next_page_allocated.get_lock():
+                self.my_page = self.next_page_allocated.value
+                self.next_page_allocated.value = self.my_page + 1
+
+            print(f"I got assigned page {self.my_page}")
+
+            self.page_offset = 0
+            # This is a new page so we erate the content of the buffer
+            self.page_data.fill(0)
+
+        previous_offset = self.page_offset
+        self.page_offset += size
+
+        buffer = self.page_data[previous_offset:self.page_offset]
+        # print(f"allocated data in page {self.my_page} at offset {previous_offset}")
+        ptr = self.offset + self.my_page * self.page_size + previous_offset
+
+        # We return the pointer to the location in file and where to write
+        # the data
+        return ptr, buffer
+
+    def flush_page(self):
+        # If we haven't allocated any page we end there
+        if self.my_page < 0:
+            return
+
+        # We shouldn't have allocated a page and have nothing to write on it
+        assert self.page_offset != 0
+        # Wait until it's my turn to write
+        while self.next_page_written.value != self.my_page:
+            sleep(0.1)
+            print("waiting", self.next_page_written)
+
+        # Now it's my turn to write
+
+
+        expected_file_offset = self.offset + self.my_page * self.page_size
+        # in order to be aligned with page size
+        # If this is the first page we have to pad with zeros
+        if self.my_page == 0:
+            print("Padding headers to align with page size")
+            current_location = self.fp.seek(0, SEEK_END)
+            null_bytes_to_write = expected_file_offset - current_location
+            self.fp.write(np.zeros(null_bytes_to_write, dtype='<u1').tobytes())
+            print(f"current file pointer is no {self.fp.tell()} and should be {expected_file_offset}")
+
+
+        self.fp.seek(expected_file_offset)
+
+        print(f"Writing page {self.my_page} at offset {self.fp.tell()}")
+        self.fp.write(self.page_data.tobytes())
+        print(f"Done writing {self.my_page} at offset {self.fp.tell()}")
+
+        # We warn other processes that they are free to write the next page
+        with self.next_page_written.get_lock():
+            self.next_page_written.value += 1
+
+
+
+    # Flush the last page and
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.flush_page()
+        self.fp.close()
