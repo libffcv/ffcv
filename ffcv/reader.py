@@ -37,9 +37,9 @@ class Reader:
 
     def read_metadata(self):
         offset = HeaderType.itemsize + self.field_descriptors.nbytes
-        self.metadta = np.fromfile(self._fname, dtype=self.metadata_type,
+        self.metadata = np.fromfile(self._fname, dtype=self.metadata_type,
                                    count=self.num_samples, offset=offset)
-        self.metadta.setflags(write=False)
+        self.metadata.setflags(write=False)
 
     def read_allocation_table(self):
         offset = self.header['alloc_table_ptr']
