@@ -72,7 +72,7 @@ IMAGE_MODES = {
 class RGBImageField(Field):
 
     def __init__(self, write_mode='raw') -> None:
-        pass
+        self.write_mode = write_mode
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -92,13 +92,23 @@ class RGBImageField(Field):
 
     def encode(self, destination, image, malloc):
         if isinstance(image, Image):
-            with io.BytesIO() as output:
-                image.save(output, format="GIF")
-                contents = np.frombuffer(output.getvalue(), dtype='<u1')
-                destination['data_ptr'], storage = malloc(len(contents))
-                storage[:] = contents
-                destination['mode'] = IMAGE_MODES['jpg']
-                destination['height'], destination['width'] = image.size
+            destination['height'], destination['width'] = image.size
+            destination['mode'] = IMAGE_MODES[self.write_mode]
+
+            if self.write_mode == 'jpg':
+                with io.BytesIO() as output:
+                    image.save(output, format="GIF")
+                    contents = np.frombuffer(output.getvalue(), dtype='<u1')
+                    destination['data_ptr'], storage = malloc(len(contents))
+                    storage[:] = contents
+            elif self.write_mode == 'raw':
+                image_np = np.array(image).transpose(2, 0, 1)
+                assert image_np.dtype == np.uint8
+                image_np = np.ascontiguousarray(image_np).view('<u1').reshape(-1)
+                destination['data_ptr'], storage = malloc(len(image_np))
+                storage[:] = image_np
+            else:
+                raise ValueError(f"Unsupported write mode {self.write_mode}")
 
         else:
             raise TypeError(f"Unsupported image type {type(image)}")
