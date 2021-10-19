@@ -1,6 +1,5 @@
 import numpy as np
 from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION, FieldDescType, get_handlers, get_metadata_type)
-from .memory_allocator import align_to_page
 
 class Reader:
 
