@@ -12,4 +12,3 @@ if __name__ == '__main__':
     ))
     with writer:
         writer.write_pytorch_dataset(my_dataset, num_workers=16, chunksize=100)
-    print("done")
