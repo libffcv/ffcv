@@ -73,7 +73,9 @@ class MemoryAllocator():
         assert self.page_offset != 0
         # Wait until it's my turn to write
         while self.next_page_written.value != self.my_page:
-            sleep(0.1)
+            # Essentially a spin lock
+            # TODO we could replace it with like exponential backoff
+            pass
             # print("waiting", self.next_page_written)
 
         # Now it's my turn to write
