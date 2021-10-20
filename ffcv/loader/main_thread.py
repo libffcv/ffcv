@@ -5,6 +5,7 @@ from enum import Enum, unique, auto
 import torch as ch
 import numpy as np
 
+from .iterator import EpochIterator
 from ..memory_managers.ram import RAMMemoryManager
 from ..memory_managers.base import MemoryManager
 from ..reader import Reader
@@ -78,12 +79,6 @@ class Loader:
         
     def __iter__(self):
         cur_epoch = self.next_epoch
-        print(self.traversal_order.sample_order(cur_epoch))
         self.next_epoch += 1
-        return self
-    
-    def __next__(self):
-        raise StopIteration()
-        pass
-    
-    
+        order = self.traversal_order.sample_order(cur_epoch)
+        return EpochIterator(self, cur_epoch, order)
