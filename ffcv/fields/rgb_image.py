@@ -1,8 +1,15 @@
+from dataclasses import replace
+from typing import Optional, Callable
+
 import cv2
 import numpy as np
 from PIL.Image import Image
 
 from .base import Field, ARG_TYPE
+from ..pipeline.operation import Operation
+from ..pipeline.state import State
+from ..pipeline.stage import Stage
+from ..pipeline.allocation_query import AllocationQuery
 
 IMAGE_MODES = {
     'jpg': 0,
@@ -27,6 +34,20 @@ def resizer(image, target_resolution):
         image = cv2.resize(image, tuple(new_size))
     return image
 
+
+class RGBImageDecoder(Operation):
+
+    def allocate_output(self) -> Optional[AllocationQuery]:
+        AllocationQuery((256, 256, 3), np.dtype('<u1'))
+        
+    def advance_state(self, previous_state: State) -> State:
+        return replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True)
+    
+    def generate_code(self) -> Callable:
+        def decode(field, memory, destination):
+            return destination
+
+
 class RGBImageField(Field):
 
     def __init__(self, write_mode='raw', smart_factor:float = None,
@@ -44,6 +65,9 @@ class RGBImageField(Field):
             ('height', '<u2'),
             ('data_ptr', '<u8'),
         ])
+        
+    def get_decoder(self) -> Operation:
+        return RGBImageDecoder()
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:

@@ -11,6 +11,9 @@ from ..memory_managers.base import MemoryManager
 from ..reader import Reader
 from ..traversal_order.base import TraversalOrder
 from ..traversal_order import Random, Sequential
+from ..pipeline import Pipeline
+from ..pipeline.operation import Operation
+from ..fields.base import Field
 
 
 @unique
@@ -41,6 +44,19 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.SEQUENTIAL: Sequential
 }
 
+class Pipelines():
+    def __init__(self, fields: Mapping[str, Field]):
+        self.fields: Mapping[str, Field] = fields
+
+        self.pipelines: Mapping[str, Pipeline] = {
+            k: None for k in self.fields.keys()
+        }
+
+    def __setitem__(self, name: str, value: Sequence[Operation]) -> None:
+        if name not in self.pipelines:
+            raise KeyError(f"Unknown field: {name}")
+        
+        self.pipelines[name] = Pipeline([self.fields[name].get_decoder(), *value])
 
 class Loader:
 
@@ -54,14 +70,13 @@ class Loader:
                  indices: Sequence[int] = None,  # For subset selection
                  device: ch.device = ch.device('cpu')):
 
-        self.fname = fname
-        self.seed = seed
-        self.reader = Reader(self.fname)
+        self.fname: str = fname
+        self.seed: int = seed
+        self.reader: Reader = Reader(self.fname)
+        self.num_workers: int = num_workers
 
-        if num_workers < 1:
+        if self.num_workers < 1:
             self.num_workers = cpu_count()
-        else:
-            self.num_workers = num_workers
             
         if indices is None:
             self.indices = np.arange(self.reader.num_samples, dtype='uint64')
@@ -75,10 +90,12 @@ class Loader:
         self.memory_manager: MemoryManager = MEMORY_MANAGER_MAP[memory_manager](self.reader)
         self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
         
-        self.next_epoch = 0
+        self.next_epoch: int = 0
+        self.pipelines: Pipelines = Pipelines(self.reader.handlers)
         
     def __iter__(self):
         cur_epoch = self.next_epoch
         self.next_epoch += 1
         order = self.traversal_order.sample_order(cur_epoch)
         return EpochIterator(self, cur_epoch, order)
+    

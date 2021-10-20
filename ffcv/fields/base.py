@@ -2,6 +2,8 @@ from __future__ import annotations
 import numpy as np
 from abc import ABC, abstractmethod
 
+from ..pipeline.operation import Operation
+
 ARG_TYPE = np.dtype('<u1', 1024)
 
 class Field(ABC):
@@ -23,3 +25,8 @@ class Field(ABC):
     @abstractmethod
     def encode(field, metadata_destination, malloc):
         raise NotImplemented()
+    
+    @abstractmethod
+    def get_decoder(self) -> Operation:
+        raise NotImplemented()
+        
