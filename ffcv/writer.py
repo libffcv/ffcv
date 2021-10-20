@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Mapping
 from os import SEEK_END, path
 import numpy as np
 from time import sleep
@@ -38,7 +38,7 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
                 # We extract the sample in question from the dataset
                 sample = dataset[source_ix]
                 # We write each field individually to the metadata region
-                for field_name, field, field_value in zip(field_names, fields, sample):
+                for field_name, field, field_value in zip(field_names, fields.values(), sample):
                     destination = metadata[field_name][dest_ix: dest_ix + 1]
                     field.encode(destination, field_value, allocator.malloc)
 
@@ -50,12 +50,12 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
 
 
 class DatasetWriter():
-    def __init__(self, num_samples: int, fname: str, fields: List[Field],
+    def __init__(self, num_samples: int, fname: str, fields: Mapping[str, Field],
                  page_size: int = 4 * MIN_PAGE_SIZE):
         self.num_samples = num_samples
         self.fields = fields
         self.fname = fname
-        self.metadata_type = get_metadata_type(self.fields)
+        self.metadata_type = get_metadata_type(list(self.fields.values()))
 
         if not is_power_of_2(page_size):
             raise ValueError(f'page_size isnt a power of 2')
@@ -87,9 +87,17 @@ class DatasetWriter():
             fields_descriptor = np.zeros(len(self.fields),
                                               dtype=FieldDescType)
             field_type_to_type_id = {v: k for (k, v) in TYPE_ID_HANDLER.items()}
-            for i, field in enumerate(self.fields):
+            
+            fieldname_max_len = fields_descriptor[0]['name'].shape[0]
+
+            for i, (name, field) in enumerate(self.fields.items()):
                 type_id = field_type_to_type_id[type(field)]
+                encoded_name = name.encode('ascii')
+                encoded_name = np.frombuffer(encoded_name, dtype='<u1')
+                actual_length = min(fieldname_max_len, len(encoded_name))
                 fields_descriptor[i]['type_id'] = type_id
+                fields_descriptor[i]['name'][:actual_length] = (
+                    encoded_name[:actual_length])
                 fields_descriptor[i]['arguments'] = field.to_binary()
 
             fp.write(fields_descriptor.tobytes())

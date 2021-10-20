@@ -32,6 +32,7 @@ ALLOC_TABLE_TYPE = np.dtype([
 FieldDescType = np.dtype([
     # This identifier will inform us on how to decode that field
     ('type_id', '<u1'),
+    ('name', ('<u1', 16)),
     # Data that will depend on the type of the field (some might need arguments
     # like images, but some might not like integers and floats)
     ('arguments', ('<u1', (1024, )))
