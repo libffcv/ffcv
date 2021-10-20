@@ -2,12 +2,17 @@ from abc import ABC, abstractmethod
 from typing import Sequence
 from ..reader import Reader
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..loader.main_thread import Loader
+
 class TraversalOrder(ABC):
     
-    def __init__(self, indices: Sequence[int], reader: Reader, seed: int=42):
-        self.indices = indices
-        self.reader = reader
-        self.seed = seed
+    def __init__(self, loader: 'Loader'):
+        self.loader = loader
+        self.indices = self.loader.indices
+        self.seed = self.loader.seed
         
     @abstractmethod
     def sample_order(self, epoch:int) -> Sequence[int]:

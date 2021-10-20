@@ -1,5 +1,6 @@
 import numpy as np
-from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION, FieldDescType, get_handlers, get_metadata_type)
+from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION,
+                    FieldDescType, get_handlers, get_metadata_type)
 
 class Reader:
 
@@ -47,6 +48,8 @@ class Reader:
 
     def read_allocation_table(self):
         offset = self.header['alloc_table_ptr']
+        alloc_table = np.fromfile(self._fname, dtype='<u8',
+                                  offset=offset)
         alloc_table = np.fromfile(self._fname, dtype=ALLOC_TABLE_TYPE,
                                   offset=offset)
         alloc_table.setflags(write=False)
