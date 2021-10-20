@@ -9,6 +9,7 @@ class EpochIterator(Thread):
     def __init__(self, loader: 'Loader', epoch: int, order:Sequence[int]):
         self.loader = loader
         self.order = order
+        self.idx_iter = iter(order)
         
     def __next__(self):
         raise StopIteration()

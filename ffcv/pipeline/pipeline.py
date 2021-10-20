@@ -18,15 +18,18 @@ class Pipeline:
         current_state = self.original_state
         self.operations = operations
         
-        self.memory_buffers = {}
+        self.memory_buffers = []
 
         # For validation purposes
         for operation in operations:
             current_state = operation.advance_state(current_state)
             
-    def allocate_memory(self):
-
+    def allocate_memory(self, batch_size):
+        for operation in self.operations:
+            print(operation)
         
+    def run(self):
+        pass
         
     def compile(self):
         pass
