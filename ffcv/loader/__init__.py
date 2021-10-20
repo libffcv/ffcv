@@ -1,3 +1,3 @@
-from .main_thread import Loader
+from .loader import Loader, OrderOption
 
-__all__ = ['Loader']
+__all__ = ['Loader', 'OrderOption']

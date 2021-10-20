@@ -5,7 +5,7 @@ from enum import Enum, unique, auto
 import torch as ch
 import numpy as np
 
-from .iterator import EpochIterator
+from .epoch_iterator import EpochIterator
 from ..memory_managers.ram import RAMMemoryManager
 from ..memory_managers.base import MemoryManager
 from ..reader import Reader

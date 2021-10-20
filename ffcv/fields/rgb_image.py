@@ -46,6 +46,7 @@ class RGBImageDecoder(Operation):
     def generate_code(self) -> Callable:
         def decode(field, memory, destination):
             return destination
+        return decode
 
 
 class RGBImageField(Field):
