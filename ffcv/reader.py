@@ -1,4 +1,6 @@
 import numpy as np
+
+from .utils import decode_null_terminated_string
 from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION,
                     FieldDescType, get_handlers, get_metadata_type)
 
@@ -38,7 +40,10 @@ class Reader:
 
         self.field_descriptors = field_descriptors
         self.metadata_type = get_metadata_type(handlers)
-        self.handlers = handlers
+        self.field_names = list(map(decode_null_terminated_string,
+                                    self.field_descriptors['name']))
+        self.handlers = dict(zip(self.field_names, handlers))
+        print(self.handlers)
 
     def read_metadata(self):
         offset = HeaderType.itemsize + self.field_descriptors.nbytes
