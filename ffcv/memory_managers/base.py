@@ -12,8 +12,10 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
 
     def __init__(self, reader:Reader):
         self.reader = reader
-        print(self.reader.alloc_table)
         alloc_table = self.reader.alloc_table
+        
+        # Table mapping any address in the file to the size of the data region
+        # That was allocated there
         self.ptr_to_size = dict(zip(alloc_table['ptr'], alloc_table['size']))
 
         # We extract the page number by shifting the address corresponding
@@ -23,6 +25,10 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
 
         sample_to_pages: Mapping[int, Set[int]] = defaultdict(set)
         page_to_samples: Mapping[int, Set[int]] = defaultdict(set)
+        
+        # We create a mapping that goes from sample id to the pages it has data
+        # Stored to
+        # (And the same for the other way around)
         for sid, pid in zip(alloc_table['sample_id'], page_locations):
             sample_to_pages[sid].add(pid)
             page_to_samples[pid].add(sid)
