@@ -24,7 +24,7 @@ def resizer(image, target_resolution):
     ratio = target_resolution / original_size.max()
     if ratio < 1:
         new_size = (ratio * original_size).astype(int)
-        image = cv2.resize(image, new_size)
+        image = cv2.resize(image, tuple(new_size))
     return image
 
 class RGBImageField(Field):
@@ -84,8 +84,6 @@ class RGBImageField(Field):
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
-
-        print(write_mode)
 
         if write_mode == 'jpg':
             if as_jpg is None:
