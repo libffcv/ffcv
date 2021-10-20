@@ -17,6 +17,6 @@ class RAMMemoryManager(MemoryManager):
         # Writing to it it's pointless
         return super().__exit__(__exc_type, __exc_value, __traceback)
 
-    def read_impl(self, address, length):
+    def _read_impl(self, address, length):
         return self.mmap[address:address + length]
 
