@@ -12,11 +12,11 @@ class Operation(ABC):
     # Return the code to run this operation
     @abstractmethod
     def generate_code(self) -> Callable:
-        raise NotImplemented()
+        raise NotImplementedError
     
     @abstractmethod
     def advance_state(self, previous_state: State) -> State: 
-        raise NotImplemented()
+        raise NotImplementedError
     
     def allocate_output(self) -> Optional[AllocationQuery]:
         pass
