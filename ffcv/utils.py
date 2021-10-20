@@ -1,3 +1,5 @@
+import numpy as np
+
 def chunks(lst, n):
     for i in range(0, len(lst), n):
         yield lst[i:i + n]
@@ -10,3 +12,6 @@ def align_to_page(ptr, page_size):
     if ptr % page_size != 0:
         ptr = ptr  + page_size - ptr % page_size
     return ptr
+
+def decode_null_terminated_string(bytes: np.ndarray):
+    return bytes.tobytes().decode('ascii').split('\x00')[0]

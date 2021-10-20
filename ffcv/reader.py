@@ -43,7 +43,6 @@ class Reader:
         self.field_names = list(map(decode_null_terminated_string,
                                     self.field_descriptors['name']))
         self.handlers = dict(zip(self.field_names, handlers))
-        print(self.handlers)
 
     def read_metadata(self):
         offset = HeaderType.itemsize + self.field_descriptors.nbytes

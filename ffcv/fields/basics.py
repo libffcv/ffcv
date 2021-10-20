@@ -1,6 +1,23 @@
+from typing import Callable
+from dataclasses import replace
+
 import numpy as np
 
 from .base import Field, ARG_TYPE
+from ..pipeline.operation import Operation
+from ..pipeline.state import State
+from ..pipeline.stage import Stage
+
+class BasicDecoder(Operation):
+    
+    def advance_state(self, previous_state: State) -> State:
+        return replace(previous_state, jit_mode=True, stage=Stage.INDIVIDUAL)
+    
+    def generate_code(self) -> Callable:
+        def decoder(field, memory):
+            return field[0]
+        
+        return decoder
 
 class FloatField(Field):
     def __init__(self):
@@ -19,6 +36,9 @@ class FloatField(Field):
 
     def encode(self, destination, field, malloc):
         destination[0] = field
+        
+    def get_decoder(self) -> Operation:
+        return BasicDecoder()
 
 class IntField(Field):
     @property
@@ -35,3 +55,7 @@ class IntField(Field):
     def encode(self, destination, field, malloc):
         # We just allocate 1024bytes for fun
         destination[0] = field
+
+    def get_decoder(self) -> Operation:
+        return BasicDecoder()
+
