@@ -186,7 +186,7 @@ class DatasetWriter():
             # Retrieve all the allocations from the workers
             # Turn them into a numpy array
             allocation_table = np.concatenate([
-                np.array(x).astype(ALLOC_TABLE_TYPE) for x in allocations
+                np.array(x).view(ALLOC_TABLE_TYPE) for x in allocations
             ])
             # print(allocation_table)
             fp.write(allocation_table.tobytes())
