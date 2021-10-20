@@ -13,6 +13,7 @@ class State:
     jit_mode: bool
     device: ch.device
     shape: Tuple[int, ...]
+    random_seed: int
     
     # Assess the validity of a pipeline stage
     def __post_init__(self):
