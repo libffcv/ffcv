@@ -1,0 +1,3 @@
+"""
+Fast random resized crop
+"""
