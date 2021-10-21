@@ -10,10 +10,11 @@ class EpochIterator(Thread):
         self.loader: 'loader' = loader
         self.order = order
         self.idx_iter = iter(order)
-        for name, handler in self.loader.reader.handlers.items():
-            print(name)
-
-        print(self.loader.pipelines['image'])
+        self.allocate_memory()
+        
+    def allocate_memory(self):
+        for name in self.loader.reader.handlers:
+            self.loader.pipelines[name].allocate_memory(self.loader.batch_size)
         
     def __next__(self):
         raise StopIteration()

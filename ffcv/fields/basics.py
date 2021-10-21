@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Tuple
 from dataclasses import replace
 
 import numpy as np
@@ -7,14 +7,18 @@ from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from ..pipeline.stage import Stage
+from ..pipeline.allocation_query import AllocationQuery
 
 class BasicDecoder(Operation):
     
-    def advance_state(self, previous_state: State) -> State:
-        return replace(previous_state, jit_mode=True, stage=Stage.INDIVIDUAL)
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
+        return (
+            replace(previous_state, jit_mode=True, stage=Stage.INDIVIDUAL),
+            None
+        )
     
     def generate_code(self) -> Callable:
-        def decoder(field, memory):
+        def decoder(field, destination, memory):
             return field[0]
         
         return decoder

@@ -47,16 +47,20 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
 class Pipelines():
     def __init__(self, fields: Mapping[str, Field]):
         self.fields: Mapping[str, Field] = fields
+        
+        self.decoders: Mapping[str, Operation] = {
+            k: self.fields[k].get_decoder() for k in self.fields
+        }
 
         self.pipelines: Mapping[str, Pipeline] = {
-            k: None for k in self.fields.keys()
+            k: Pipeline([self.decoders[k]]) for k in self.fields.keys()
         }
 
     def __setitem__(self, name: str, value: Sequence[Operation]) -> None:
         if name not in self.pipelines:
             raise KeyError(f"Unknown field: {name}")
         
-        self.pipelines[name] = Pipeline([self.fields[name].get_decoder(), *value])
+        self.pipelines[name] = Pipeline([self.decoders[name], *value])
         
     def __getitem__(self, key: str):
         return self.pipelines[key]
