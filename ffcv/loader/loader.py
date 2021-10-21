@@ -45,11 +45,11 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
 }
 
 class Pipelines():
-    def __init__(self, fields: Mapping[str, Field]):
+    def __init__(self, fields: Mapping[str, Field], metadata: np.ndarray):
         self.fields: Mapping[str, Field] = fields
         
         self.decoders: Mapping[str, Operation] = {
-            k: self.fields[k].get_decoder() for k in self.fields
+            k: self.fields[k].get_decoder(metadata[f'f{i}']) for (i, k) in enumerate(self.fields)
         }
 
         self.pipelines: Mapping[str, Pipeline] = {
@@ -103,7 +103,8 @@ class Loader:
         self.memory_manager.__enter__()
         
         self.next_epoch: int = 0
-        self.pipelines: Pipelines = Pipelines(self.reader.handlers)
+        self.pipelines: Pipelines = Pipelines(self.reader.handlers,
+                                              self.reader.metadata)
         
     def __iter__(self):
         cur_epoch = self.next_epoch

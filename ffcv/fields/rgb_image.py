@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import Optional, Callable, Tuple
+from typing import Optional, Callable, TYPE_CHECKING, Tuple
 
 import cv2
 import numpy as np
@@ -10,6 +10,9 @@ from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from ..pipeline.stage import Stage
 from ..pipeline.allocation_query import AllocationQuery
+
+if TYPE_CHECKING:
+    from ..reader import Reader
 
 IMAGE_MODES = {
     'jpg': 0,
@@ -36,10 +39,22 @@ def resizer(image, target_resolution):
 
 
 class RGBImageDecoder(Operation):
+    def __init__(self, metadata: np.ndarray):
+        super().__init__()
+        self.metadata = metadata
+
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
+        widths = self.metadata['width']
+        heights = self.metadata['height']
+        max_width = widths.max()
+        max_height = heights.max()
+        
+        biggest_shape = (max_height, max_width, 3)
+        
         return (
-            replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True),
-            AllocationQuery((32, 32, 3), np.dtype('<u1'))
+            replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True,
+                    shape=biggest_shape),
+            AllocationQuery(biggest_shape, np.dtype('<u1'))
         )
     
     def generate_code(self) -> Callable:
@@ -73,8 +88,8 @@ class RGBImageField(Field):
             ('data_ptr', '<u8'),
         ])
         
-    def get_decoder(self) -> Operation:
-        return RGBImageDecoder()
+    def get_decoder(self, metadata: np.ndarray) -> Operation:
+        return RGBImageDecoder(metadata)
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:
