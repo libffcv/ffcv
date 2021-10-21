@@ -1,7 +1,6 @@
 from typing import List
 
 import numpy as np
-from numpy.typing  import NDArray
 
 from .fields.base import Field
 from .fields import FloatField, IntField, RGBImageField
@@ -47,7 +46,7 @@ TYPE_ID_HANDLER = {
 
 # Parse the fields descriptors from the header of the dataset
 # Return the corresponding handlers
-def get_handlers(field_descriptors: NDArray[FieldDescType]):
+def get_handlers(field_descriptors):
     handlers = []
     for field_descriptor in field_descriptors:
         type_id = field_descriptor['type_id']

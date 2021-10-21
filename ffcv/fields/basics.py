@@ -10,16 +10,20 @@ from ..pipeline.stage import Stage
 from ..pipeline.allocation_query import AllocationQuery
 
 class BasicDecoder(Operation):
+
+    def __init__(self, dtype):
+        self.dtype = dtype
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         return (
             replace(previous_state, jit_mode=True, stage=Stage.INDIVIDUAL),
-            None
+            AllocationQuery((1,), dtype=self.dtype)
         )
     
     def generate_code(self) -> Callable:
         def decoder(field, destination, memory):
-            return field[0]
+            destination[:] = field
+            return destination
         
         return decoder
 
@@ -42,7 +46,7 @@ class FloatField(Field):
         destination[0] = field
         
     def get_decoder(self) -> Operation:
-        return BasicDecoder()
+        return BasicDecoder(np.float64)
 
 class IntField(Field):
     @property
@@ -61,5 +65,5 @@ class IntField(Field):
         destination[0] = field
 
     def get_decoder(self) -> Operation:
-        return BasicDecoder()
+        return BasicDecoder(np.int64)
 
