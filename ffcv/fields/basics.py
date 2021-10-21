@@ -45,7 +45,7 @@ class FloatField(Field):
     def encode(self, destination, field, malloc):
         destination[0] = field
         
-    def get_decoder(self) -> Operation:
+    def get_decoder(self, metadata: np.array) -> Operation:
         return BasicDecoder(np.float64)
 
 class IntField(Field):
@@ -64,6 +64,6 @@ class IntField(Field):
         # We just allocate 1024bytes for fun
         destination[0] = field
 
-    def get_decoder(self) -> Operation:
+    def get_decoder(self, metadata: np.array) -> Operation:
         return BasicDecoder(np.int64)
 

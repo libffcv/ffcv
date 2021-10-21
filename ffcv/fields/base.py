@@ -27,6 +27,6 @@ class Field(ABC):
         raise NotImplemented()
     
     @abstractmethod
-    def get_decoder(self) -> Operation:
+    def get_decoder(self, metadta: np.ndarray) -> Operation:
         raise NotImplemented()
         
