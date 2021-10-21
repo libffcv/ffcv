@@ -20,46 +20,51 @@ class Pipeline:
                                     device=ch.device('cpu'),
                                     shape=None)
         
-        current_state = self.original_state
         self.operations = operations
         
         # Contains the actual allocated memory
-        self.memory_buffers: List[np.ndarray] = []
+        self.memory_buffers: Mapping[int, np.ndarray] = {}
         # Where we remember what each operation in the pipeline needs
-        self.memory_allocations : Mapping[int, Optional[AllocationQuery]] = {}
+
+        # Compile the pipeline
+        self.compiled_code = None
+        
+    def before_epoch(self, batch_size: int, batches_ahead: int):
+
+        memory_allocations : Mapping[int, Optional[AllocationQuery]] = {}
+        current_state = self.original_state
 
         # We read the content of the pipeline, validate and collect
         # Memory allocations
-        for op_id, operation in enumerate(operations):
+        for op_id, operation in enumerate(self.operations):
             current_state, memory_allocation = operation.declare_state_and_memory(current_state)
-            self.memory_allocations[op_id] = memory_allocation
+            memory_allocations[op_id] = memory_allocation
+
             
-        # Compile the pipeline
-        self.compiled_code = None
-            
-    def allocate_memory(self, batch_size: int, batches_ahead: int):
-        # TODO: maybe broken
-        result = None
-        for op_id, memory_allocation in self.memory_allocations.items():
-            # if memory_allocation is None:
-                # result = None
-            # else:
+        for op_id, memory_allocation in memory_allocations.items():
             if memory_allocation is not None:
-                print(memory_allocation)
                 final_shape = [batches_ahead,
                                batch_size, *memory_allocation.shape]
-                print(op_id, final_shape)
-                result = np.empty(final_shape,
-                                  dtype=memory_allocation.dtype)
-            self.memory_buffers.append(result)
-        
-    def run(self):
-        pass
+                result = None
+                # We only allocate memory if:
+                # - it wansn't previously or
+                # - the new request is different than what was allocated
+                if op_id in self.memory_buffers:
+                    current_buffer = self.memory_buffers[op_id]
+                    if (current_buffer.shape == final_shape and
+                            current_buffer.dtype == memory_allocation.dtype):
+                        result = self.memory_buffers[op_id]
+                if result is None:
+                    result = np.empty(final_shape,
+                                      dtype=memory_allocation.dtype)
+                self.memory_buffers[op_id] = result
         
     def generate_code(self, memory):
         
         # BIG METAPROGRAMMING PARTY INCOMING
         
+        # TODO do not recompile multiple times
+
         arguments = [ast.arg('result')]
         body = []
         functions = {}
