@@ -111,3 +111,6 @@ class Loader:
         order = self.traversal_order.sample_order(cur_epoch)
         return EpochIterator(self, cur_epoch, order)
     
+    def __len__(self):
+        return len(self.indices) // self.batch_size
+    

@@ -2,7 +2,7 @@
 Mixup augmentation [CITE]
 """
 import numpy as np
-from numpy.random import default_rng, Generator
+from numpy.random import permutation, rand
 from typing import Callable, Optional, Tuple
 from ffcv.pipeline.allocation_query import AllocationQuery
 from ffcv.pipeline.operation import Operation
@@ -15,10 +15,9 @@ class LabelMixup(Operation):
         self.alpha = alpha
     
     def generate_code(self) -> Callable:
-        def label_mixup(state, lab_batch, dst):
-            rng: Generator = default_rng(state.random_seed)
-            mixup_order = rng.permtuation(lab_batch.shape[0])
-            lam = rng.rand(lab_batch.shape[0])
+        def label_mixup(lab_batch, dst):
+            mixup_order = permutation(lab_batch.shape[0])
+            lam = rand(lab_batch.shape[0])
             dst[:,0] = lab_batch
             dst[:,1] = lab_batch[mixup_order]
             dst[:,2] = lam
@@ -35,16 +34,13 @@ class Mixup(Operation):
         self.alpha = alpha
     
     def generate_code(self) -> Callable:
-        def mixup_batch(state: State, image_batch, dst):
-            # Use the same random seed for image and label permutation
-            rng: Generator = default_rng(state.random_seed)
-
+        def mixup_batch(image_batch, dst):
             # Generate image permtuation and fill dst
-            mixup_order = rng.permutation(image_batch.shape[0])
+            mixup_order = permutation(image_batch.shape[0])
             dst[:] = image_batch[mixup_order]
 
             # Generate mixing probabilities, also with seed
-            lam = rng.rand(image_batch.shape[0], 1, 1, 1)
+            lam = rand(image_batch.shape[0], 1, 1, 1)
             
             # Perform mixup
             image_batch *= lam
