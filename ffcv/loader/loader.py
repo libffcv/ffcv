@@ -57,11 +57,15 @@ class Pipelines():
             raise KeyError(f"Unknown field: {name}")
         
         self.pipelines[name] = Pipeline([self.fields[name].get_decoder(), *value])
+        
+    def __getitem__(self, key: str):
+        return self.pipelines[key]
 
 class Loader:
 
     def __init__(self,
                  fname: str,
+                 batch_size: int,
                  num_workers: int = -1,
                  memory_manager: MEMORY_MANAGER_TYPE = MemoryManagerOption.RAM,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
@@ -71,6 +75,7 @@ class Loader:
                  device: ch.device = ch.device('cpu')):
 
         self.fname: str = fname
+        self.batch_size:int = batch_size
         self.seed: int = seed
         self.reader: Reader = Reader(self.fname)
         self.num_workers: int = num_workers
