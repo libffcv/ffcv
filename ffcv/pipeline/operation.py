@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from typing import Callable, Tuple
 
 from .state import State
 from .allocation_query import AllocationQuery
@@ -15,8 +15,5 @@ class Operation(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def advance_state(self, previous_state: State) -> State: 
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]: 
         raise NotImplementedError
-    
-    def allocate_output(self) -> Optional[AllocationQuery]:
-        pass

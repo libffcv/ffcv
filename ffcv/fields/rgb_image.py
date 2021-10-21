@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple
 
 import cv2
 import numpy as np
@@ -36,15 +36,15 @@ def resizer(image, target_resolution):
 
 
 class RGBImageDecoder(Operation):
-
-    def allocate_output(self) -> Optional[AllocationQuery]:
-        AllocationQuery((256, 256, 3), np.dtype('<u1'))
         
-    def advance_state(self, previous_state: State) -> State:
-        return replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True)
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
+        return (
+            replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True),
+            AllocationQuery((256, 256, 3), np.dtype('<u1'))
+        )
     
     def generate_code(self) -> Callable:
-        def decode(field, memory, destination):
+        def decode(field, destination, memory):
             return destination
         return decode
 

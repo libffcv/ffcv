@@ -1,9 +1,12 @@
-from typing import Sequence
+from typing import Sequence, Mapping
+
 import torch as ch
+import numpy as np
 
 from .state import State
 from .stage import Stage
 from .operation import Operation
+from .allocation_query import AllocationQuery
 
 class Pipeline:
 
@@ -18,15 +21,25 @@ class Pipeline:
         current_state = self.original_state
         self.operations = operations
         
-        self.memory_buffers = []
+        # Contains the actual allocated memory
+        self.memory_buffers = {}
+        # Where we remember what each operation in the pipeline needs
+        self.memory_allocations : Mapping[int, AllocationQuery] = {}
 
-        # For validation purposes
-        for operation in operations:
-            current_state = operation.advance_state(current_state)
+        # We read the content of the pipeline, validate and collect
+        # Memory allocations
+        for op_id, operation in enumerate(operations):
+            current_state, memory_allocation = operation.declare_state_and_memory(current_state)
+            self.memory_allocations[op_id] = memory_allocation
             
     def allocate_memory(self, batch_size):
-        for operation in self.operations:
-            print(operation)
+        for op_id, memory_allocation in self.memory_allocations.items():
+            if memory_allocation is None:
+                result = None
+            else:
+             result = np.empty(memory_allocation.shape,
+                               dtype=memory_allocation.dtype)
+            self.memory_buffers[op_id] = result
         
     def run(self):
         pass
