@@ -135,13 +135,13 @@ class DatasetWriter():
         order = list(enumerate(order))
 
         # We publish all the work that has to be done into a queue
-        workqueue = Queue()
+        workqueue: Queue = Queue()
         for chunk in chunks(order, chunksize):
             workqueue.put(chunk)
 
         # This will contain all the memory allocations each worker
         # produced. This will go at the end of the file
-        allocations_queue = Queue()
+        allocations_queue: Queue = Queue()
 
         # We add a token for each worker to warn them that there
         # is no more work to be done
@@ -164,7 +164,7 @@ class DatasetWriter():
         processes = [Process(target=worker_job, args=worker_args)
                      for _ in range(num_workers)]
         # start the workers
-        [p.start() for p in processes]
+        for p in processes: p.start()
         # Wait for all the workers to be done
 
         # Display progress
