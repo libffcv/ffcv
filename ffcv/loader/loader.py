@@ -99,6 +99,9 @@ class Loader:
         self.memory_manager: MemoryManager = MEMORY_MANAGER_MAP[memory_manager](self.reader)
         self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
         
+        # TODO EXIT eventually
+        self.memory_manager.__enter__()
+        
         self.next_epoch: int = 0
         self.pipelines: Pipelines = Pipelines(self.reader.handlers)
         

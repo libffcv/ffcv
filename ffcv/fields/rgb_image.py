@@ -40,11 +40,18 @@ class RGBImageDecoder(Operation):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         return (
             replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True),
-            AllocationQuery((256, 256, 3), np.dtype('<u1'))
+            AllocationQuery((16, 16, 3), np.dtype('<u1'))
         )
     
     def generate_code(self) -> Callable:
         def decode(field, destination, memory):
+            image_data = memory.read(field['data_ptr'])
+            if field['mode'] == IMAGE_MODES['jpg']:
+                image_result = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
+                # TODO
+            else:
+                image_result = image_data.reshape((field['height'], field['width'], 3))
+            destination[:] = image_result[:]
             return destination
         return decode
 
