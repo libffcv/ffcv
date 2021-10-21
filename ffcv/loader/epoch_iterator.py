@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class EpochIterator(Thread):
 
     def __init__(self, loader: 'Loader', epoch: int, order:Sequence[int]):
-        self.loader: 'loader' = loader
+        self.loader: 'Loader' = loader
         self.order = order
         self.idx_iter = iter(order)
         self.batches_ahead = 3
@@ -42,7 +42,8 @@ class EpochIterator(Thread):
                     field_value = sample[p_ix]
                     mem_banks = []
                     for mem in memories[p_ix]:
-                        mem_banks.append(mem[batch_slot, dest_ix])
+                        assert mem is not None
+                        mem_banks.append(mem[batch_slot, dest_ix] if mem is not None else None)
                     pipelines[p_ix](field_value, *mem_banks)
                     
             return memories

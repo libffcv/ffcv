@@ -1,5 +1,5 @@
 import ast
-from typing import Sequence, Mapping
+from typing import List, Optional, Sequence, Mapping
 
 import torch as ch
 import numpy as np
@@ -24,9 +24,9 @@ class Pipeline:
         self.operations = operations
         
         # Contains the actual allocated memory
-        self.memory_buffers = []
+        self.memory_buffers: List[np.ndarray] = []
         # Where we remember what each operation in the pipeline needs
-        self.memory_allocations : Mapping[int, AllocationQuery] = {}
+        self.memory_allocations : Mapping[int, Optional[AllocationQuery]] = {}
 
         # We read the content of the pipeline, validate and collect
         # Memory allocations
@@ -38,10 +38,14 @@ class Pipeline:
         self.compiled_code = None
             
     def allocate_memory(self, batch_size: int, batches_ahead: int):
+        # TODO: maybe broken
+        result = None
         for op_id, memory_allocation in self.memory_allocations.items():
-            if memory_allocation is None:
-                result = None
-            else:
+            # if memory_allocation is None:
+                # result = None
+            # else:
+            if memory_allocation is not None:
+                print(memory_allocation)
                 final_shape = [batches_ahead,
                                batch_size, *memory_allocation.shape]
                 print(op_id, final_shape)
