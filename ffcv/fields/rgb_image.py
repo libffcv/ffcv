@@ -36,11 +36,10 @@ def resizer(image, target_resolution):
 
 
 class RGBImageDecoder(Operation):
-        
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         return (
             replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True),
-            AllocationQuery((16, 16, 3), np.dtype('<u1'))
+            AllocationQuery((32, 32, 3), np.dtype('<u1'))
         )
     
     def generate_code(self) -> Callable:
