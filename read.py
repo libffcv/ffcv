@@ -5,7 +5,7 @@ from ffcv.fields import IntField, FloatField
 from ffcv.reader import Reader
 from ffcv.loader import Loader, OrderOption
 from ffcv.memory_managers import RAMMemoryManager
-from ffcv.transforms import Cutout, Collate
+from ffcv.transforms import Cutout, Collate, ToTensor
 import numpy as np
 
 import matplotlib as mpl
@@ -17,9 +17,10 @@ if __name__ == '__main__':
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
         Cutout(8),
-        Collate()
+        Collate(),
+        ToTensor()
     ]
-
+    
     for i in range(1):
         for image, label in tqdm(loader):
             print(image.shape)

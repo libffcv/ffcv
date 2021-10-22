@@ -37,7 +37,7 @@ class ToTensor(CoreOp):
         super().__init__()
     
     def generate_code(self) -> Callable:
-        def to_tensor(image, dst, _):
+        def to_tensor(image, dst):
             return ch.from_numpy(image)
         return to_tensor
     

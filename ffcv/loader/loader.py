@@ -14,7 +14,7 @@ from ..traversal_order import Random, Sequential
 from ..pipeline import Pipeline
 from ..pipeline.operation import Operation
 from ..fields.base import Field
-from ..transforms.ops import Collate
+from ..transforms.ops import Collate, ToTensor
 
 
 @unique
@@ -56,7 +56,7 @@ class Pipelines():
 
         # This is the default pipeline: Decode and collate
         self.pipelines: Mapping[str, Pipeline] = {
-            k: Pipeline([self.decoders[k], Collate()]) for k in self.fields.keys()
+            k: Pipeline([self.decoders[k], Collate(), ToTensor()]) for k in self.fields.keys()
         }
 
     def __setitem__(self, name: str, value: Sequence[Operation]) -> None:
