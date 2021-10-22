@@ -7,10 +7,10 @@ General operations:
 import torch as ch
 import numpy as np
 from typing import Callable, Optional, Tuple
-from ffcv.pipeline.allocation_query import AllocationQuery
-from ffcv.pipeline.operation import Operation
-from ffcv.pipeline.stage import Stage
-from ffcv.pipeline.state import State
+from ..pipeline.allocation_query import AllocationQuery
+from ..pipeline.operation import Operation
+from ..pipeline.stage import Stage
+from ..pipeline.state import State
 from dataclasses import replace
 
 class Collate(Operation):

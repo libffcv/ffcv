@@ -4,10 +4,10 @@ Mixup augmentation [CITE]
 import numpy as np
 from numpy.random import permutation, rand
 from typing import Callable, Optional, Tuple
-from ffcv.pipeline.allocation_query import AllocationQuery
-from ffcv.pipeline.operation import Operation
-from ffcv.pipeline.stage import Stage
-from ffcv.pipeline.state import State
+from ..pipeline.allocation_query import AllocationQuery
+from ..pipeline.operation import Operation
+from ..pipeline.stage import Stage
+from ..pipeline.state import State
 
 class LabelMixup(Operation):
     def __init__(self, alpha: float):
