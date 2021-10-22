@@ -84,7 +84,6 @@ class Pipeline:
     def before_epoch(self, batch_size: int, batches_ahead: int):
         
         _, memory_allocations = self.parse_pipeline()
-        # print(memory_allocations)
             
         for op_id, memory_allocation in memory_allocations.items():
             if memory_allocation is None:
@@ -183,9 +182,6 @@ class Pipeline:
         namespace = {
             **functions,
         }
-        
-        # from astor import to_source
-        # print(to_source(module))
         
         exec(compile(module, '', 'exec'), namespace)
         return Compiler.compile(namespace['compute_pipeline'])
