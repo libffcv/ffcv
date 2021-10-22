@@ -1,4 +1,6 @@
 import ast
+from collections import defaultdict
+from dataclasses import replace
 from typing import List, Optional, Sequence, Mapping
 
 import torch as ch
@@ -6,9 +8,12 @@ import numpy as np
 
 from .state import State
 from .compiler import Compiler
-from .stage import Stage
+from .stage import Stage, ALL_STAGES
 from .operation import Operation
 from .allocation_query import AllocationQuery
+from ..transforms.ops import Collate, ToTensor, CoreOp
+
+BAD_COLLATION_MESSAGE: str = "Each pipeline needs one and one only Collate operation"
 
 class Pipeline:
 
@@ -18,9 +23,13 @@ class Pipeline:
         self.original_state = State(stage=Stage.INDIVIDUAL,
                                     jit_mode=True,
                                     device=ch.device('cpu'),
+                                    dtype=np.dtype('u1'),
                                     shape=None)
         
         self.operations = operations
+        self.per_stage_operations: Mapping[ALL_STAGES, List[Operation]] = self.parse_pipeline()[0]
+        
+        print(self.per_stage_operations)
         
         # Contains the actual allocated memory
         self.memory_buffers: Mapping[int, np.ndarray] = {}
@@ -29,20 +38,56 @@ class Pipeline:
         # Compile the pipeline
         self.compiled_code = None
         
-    def before_epoch(self, batch_size: int, batches_ahead: int):
-
+    def parse_pipeline(self, batch_size=16):
         memory_allocations : Mapping[int, Optional[AllocationQuery]] = {}
-        current_state = self.original_state
+        current_state: State = self.original_state
+
+        per_stage_operations: Mapping[ALL_STAGES, List[Operation]] = defaultdict(list)
+        
+        has_collate: bool = False
+        
 
         # We read the content of the pipeline, validate and collect
         # Memory allocations
         for op_id, operation in enumerate(self.operations):
+            previous_state = current_state
             current_state, memory_allocation = operation.declare_state_and_memory(current_state)
             memory_allocations[op_id] = memory_allocation
+            
+            # Check that the operation is not changing the pipeline
+            # When it should not
+            if (not isinstance(operation, CoreOp)
+                    and current_state.stage != previous_state.stage):
+                raise AssertionError("You are not allowed to change the stage")
+            
+            # Add batch size to the shape when collating
+            if isinstance(operation, Collate):
+                # We can't have a second
+                if has_collate:
+                    raise ValueError(BAD_COLLATION_MESSAGE)
+                has_collate = True
+                final_shape = (batch_size,) + current_state.shape
+                # We allocate memory for the collated data
+                memory_allocations[op_id] = AllocationQuery(final_shape,current_state.dtype)
+                current_state = replace(current_state,
+                                        shape=final_shape)
 
+            per_stage_operations[previous_state.stage].append(operation)
+
+        if not has_collate:
+            raise ValueError(BAD_COLLATION_MESSAGE)
+            
+        return per_stage_operations, memory_allocations
+        
+    def before_epoch(self, batch_size: int, batches_ahead: int):
+        
+        _, memory_allocations = self.parse_pipeline()
+        print(memory_allocations)
             
         for op_id, memory_allocation in memory_allocations.items():
-            if memory_allocation is not None:
+            if memory_allocation is None:
+                self.memory_buffers[op_id] = None
+            else:
                 final_shape = [batches_ahead,
                                batch_size, *memory_allocation.shape]
                 result = None
@@ -58,13 +103,19 @@ class Pipeline:
                     result = np.empty(final_shape,
                                       dtype=memory_allocation.dtype)
                 self.memory_buffers[op_id] = result
-        
-    def generate_code(self, memory):
-        
-        # BIG METAPROGRAMMING PARTY INCOMING
+
+    def generate_code(self, stage:ALL_STAGES):
         
         # TODO do not recompile multiple times
+        if stage == Stage.INDIVIDUAL:
+            return self.generate_code_for_samples()
+        if stage==Stage.BATCH:
+            return self.generate_code_for_batches()
 
+        
+                
+    def generate_code_for_samples(self):
+        # BIG METAPROGRAMMING PARTY INCOMING
         arguments = [ast.arg('result')]
         body = []
         functions = {}
@@ -78,9 +129,9 @@ class Pipeline:
                                    value=ast.Call(func=ast.Name(id=func_name, ctx=ast.Load()),
                                                   keywords=[],
                                                   args=[ast.Name('result', ctx=ast.Load()),
-                                                        ast.Name( id=dst_name, ctx=ast.Load()),
-                                                        ast.Name( id='memory', ctx=ast.Load())
+                                                        ast.Name( id=dst_name, ctx=ast.Load())
                                                         ])))
+        body.append(ast.Return(value=ast.Name(id='result', ctx=ast.Load())))
             
         final_function = ast.FunctionDef(name='compute_pipeline',
                                          args=ast.arguments(args=arguments,
@@ -98,9 +149,11 @@ class Pipeline:
         
         namespace = {
             **functions,
-            'memory': memory
         }
+        
+        from astor import to_source
+        # print(to_source(module))
         
         exec(compile(module, '', 'exec'), namespace)
         return Compiler.compile(namespace['compute_pipeline'])
-        
+    

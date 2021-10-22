@@ -12,6 +12,9 @@ from ..pipeline.stage import Stage
 from ..pipeline.allocation_query import AllocationQuery
 
 if TYPE_CHECKING:
+    from ..memory_managers.base import MemoryManager
+
+if TYPE_CHECKING:
     from ..reader import Reader
 
 IMAGE_MODES = {
@@ -39,9 +42,10 @@ def resizer(image, target_resolution):
 
 
 class RGBImageDecoder(Operation):
-    def __init__(self, metadata: np.ndarray):
+    def __init__(self, metadata: np.ndarray, memory: 'MemoryManager'):
         super().__init__()
         self.metadata = metadata
+        self.memory: 'MemoryManager' = memory
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
@@ -50,15 +54,17 @@ class RGBImageDecoder(Operation):
         max_height = heights.max()
         
         biggest_shape = (max_height, max_width, 3)
+        my_dtype = np.dtype('<u1')
         
         return (
             replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True,
-                    shape=biggest_shape),
-            AllocationQuery(biggest_shape, np.dtype('<u1'))
+                    shape=biggest_shape, dtype=my_dtype),
+            AllocationQuery(biggest_shape, my_dtype)
         )
     
     def generate_code(self) -> Callable:
-        def decode(field, destination, memory):
+        memory = self.memory
+        def decode(field, destination):
             image_data = memory.read(field['data_ptr'])
             if field['mode'] == IMAGE_MODES['jpg']:
                 image_result = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
@@ -88,8 +94,8 @@ class RGBImageField(Field):
             ('data_ptr', '<u8'),
         ])
         
-    def get_decoder(self, metadata: np.ndarray) -> Operation:
-        return RGBImageDecoder(metadata)
+    def get_decoder(self, metadata: np.ndarray, memory: 'MemoryManager') -> Operation:
+        return RGBImageDecoder(metadata, memory)
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:
