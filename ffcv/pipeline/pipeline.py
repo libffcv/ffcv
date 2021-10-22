@@ -66,11 +66,10 @@ class Pipeline:
                 if has_collate:
                     raise ValueError(BAD_COLLATION_MESSAGE)
                 has_collate = True
-                final_shape = (batch_size,) + current_state.shape
                 # We allocate memory for the collated data
-                memory_allocations[op_id] = AllocationQuery(final_shape,current_state.dtype)
+                memory_allocations[op_id] = AllocationQuery(current_state.shape,current_state.dtype)
                 current_state = replace(current_state,
-                                        shape=final_shape)
+                                        shape=current_state.shape)
 
             per_stage_operations[previous_state.stage].append(operation)
 
@@ -103,7 +102,7 @@ class Pipeline:
                     result = np.empty(final_shape,
                                       dtype=memory_allocation.dtype)
                 self.memory_buffers[op_id] = result
-
+                
     def generate_code(self, stage:ALL_STAGES):
         
         # TODO do not recompile multiple times
