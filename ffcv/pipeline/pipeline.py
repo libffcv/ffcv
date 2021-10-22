@@ -1,10 +1,11 @@
 import ast
 from collections import defaultdict
 from dataclasses import replace
-from typing import List, Optional, Sequence, Mapping
+from typing import Any, List, Optional, Sequence, Mapping, Tuple
 
 import torch as ch
 import numpy as np
+from torch._C import device
 
 from .state import State
 from .compiler import Compiler
@@ -29,9 +30,8 @@ class Pipeline:
         self.operations = operations
         self.operation_to_stage: Mapping[Operation, ALL_STAGES] = self.parse_pipeline()[0]
         
-        
         # Contains the actual allocated memory
-        self.memory_buffers: Mapping[int, np.ndarray] = {}
+        self.memory_buffers: Mapping[int, Any] = {}
         # Where we remember what each operation in the pipeline needs
 
         # Compile the pipeline
@@ -66,7 +66,7 @@ class Pipeline:
                     raise ValueError(BAD_COLLATION_MESSAGE)
                 has_collate = True
                 # We allocate memory for the collated data
-                memory_allocations[op_id] = AllocationQuery(current_state.shape,current_state.dtype)
+                memory_allocations[op_id] = AllocationQuery(current_state.shape, current_state.dtype)
                 current_state = replace(current_state,
                                         shape=current_state.shape)
 
@@ -94,12 +94,28 @@ class Pipeline:
                 # - the new request is different than what was allocated
                 if op_id in self.memory_buffers:
                     current_buffer = self.memory_buffers[op_id]
-                    if (current_buffer.shape == final_shape and
-                            current_buffer.dtype == memory_allocation.dtype):
+                    is_pytorch = isinstance(current_buffer, ch.Tensor)
+
+                    # Check to make sure the buffer fits the bill
+                    shape_matches = current_buffer.shape == final_shape
+                    type_matches = is_pytorch == isinstance(memory_allocation.dtype, ch.dtype)
+                    dtype_matches = current_buffer.dtype == memory_allocation.dtype
+                    device_matches = (not is_pytorch) or (current_buffer.device == memory_allocation.device) 
+
+                    if (not isinstance(memory_allocation.dtype, ch.dtype)) and (not memory_allocation.device == 'cpu'):
+                        raise ValueError('Numpy allocations must be made on CPU.')
+
+                    if shape_matches and dtype_matches and type_matches and device_matches:
                         result = self.memory_buffers[op_id]
                 if result is None:
-                    result = np.empty(final_shape,
-                                      dtype=memory_allocation.dtype)
+                    if isinstance(memory_allocation.dtype, ch.dtype):
+                        result = ch.empty(*final_shape, 
+                                          dtype=memory_allocation.dtype, 
+                                          device=memory_allocation.device)
+                    else:
+                        result = np.empty(final_shape,
+                                          dtype=memory_allocation.dtype)
+
                 self.memory_buffers[op_id] = result
                 
     def memory_for_stage(self, stage: ALL_STAGES):

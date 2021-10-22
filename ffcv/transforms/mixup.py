@@ -52,6 +52,6 @@ class Mixup(Operation):
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         assert previous_state.jit_mode
-        assert previous_state.stage == Stage.BATCHES
+        assert previous_state.stage == Stage.BATCH
         # TODO: what to do with dtype?
         return previous_state, AllocationQuery(previous_state.shape)

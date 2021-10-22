@@ -1,9 +1,10 @@
 import torch as ch
 import torchvision
 from torch.cuda.amp import GradScaler
+from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
-from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate
+from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToDevice, Squeeze
 from fastargs import get_current_config
 from fastargs.decorators import param
 from argparse import ArgumentParser
@@ -21,7 +22,15 @@ class CIFARTrainer(Trainer):
             Cutout(8),
             RandomHorizontalFlip(0.5),
             Collate(),
-            ToTensor()
+            ToTensor(),
+            ToTorchImage(),
+            ToDevice('cuda:0')
+        ]
+        loader.pipelines['label'] = [
+            Collate(),
+            ToTensor(),
+            Squeeze(-1),
+            ToDevice('cuda:0')
         ]
         return loader
 
@@ -35,6 +44,18 @@ class CIFARTrainer(Trainer):
                         batch_size=batch_size,
                         num_workers=num_workers,
                         order=OrderOption.RANDOM)
+        loader.pipelines['image'] = [
+            Collate(),
+            ToTensor(),
+            ToTorchImage(),
+            ToDevice('cuda:0')
+        ]
+        loader.pipelines['label'] = [
+            Collate(),
+            ToTensor(),
+            Squeeze(-1),
+            ToDevice('cuda:0')
+        ]
         return loader
 
     @param('training.architecture')
