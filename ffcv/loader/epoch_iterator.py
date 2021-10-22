@@ -27,12 +27,21 @@ class EpochIterator(Thread):
             
     def generate_code(self):
         pipelines_sample = []
-        memories = []
+        pipelines_batch = []
+        pipelines_pytorch = []
+        memories_sample = []
+        memories_batch = []
+        memories_pytorch = []
 
+        # TODO stop copy/paste please G.
         for name in self.loader.reader.handlers:
             pipeline = self.loader.pipelines[name]
             pipelines_sample.append(pipeline.generate_code(Stage.INDIVIDUAL))
-            memories.append(pipeline.memory_buffers)
+            pipelines_batch.append(pipeline.generate_code(Stage.BATCH))
+            pipelines_pytorch.append(pipeline.generate_code(Stage.PYTORCH))
+            memories_sample.append(pipeline.memory_for_stage(Stage.INDIVIDUAL))
+            memories_batch.append(pipeline.memory_for_stage(Stage.BATCH))
+            memories_pytorch.append(pipeline.memory_for_stage(Stage.PYTORCH))
             
             
         metadata = self.loader.reader.metadata
@@ -45,7 +54,7 @@ class EpochIterator(Thread):
                 for p_ix in range(len(pipelines_sample)):
                     field_value = sample[p_ix]
                     memory_banks = []
-                    for mem in memories[p_ix].values():
+                    for mem in memories_sample[p_ix]:
                         if mem is None:
                             memory_banks.append(None)
                         else:
@@ -53,12 +62,29 @@ class EpochIterator(Thread):
                     pipelines_sample[p_ix](field_value, *memory_banks)
                     
             final_result = []
-            for res in memories:
-                last_key = next(iter(reversed(res.keys())))
-                final_result.append(res[last_key][batch_slot, :len(batch_indices)])
+            for res in memories_sample:
+                final_result.append(res[-1][batch_slot, :len(batch_indices)])
             return final_result
             
-        return compute_sample
+        def compute_batch(batch_slot, batch_indices):
+            batches = compute_sample(batch_slot, batch_indices)
+            
+            result = []
+            for batch, op, mems in zip(batches, pipelines_batch, memories_batch):
+                result.append(op(batch, *mems))
+
+            return tuple(result)
+
+        def compute_pytorch(batch_slot, batch_indices):
+            batches = compute_batch(batch_slot, batch_indices)
+            
+            result = []
+            for batch, op, mems in zip(batches, pipelines_pytorch, memories_pytorch):
+                result.append(op(batch, *mems))
+
+            return tuple(result)
+            
+        return compute_pytorch
 
                     
         

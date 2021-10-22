@@ -27,9 +27,8 @@ class Pipeline:
                                     shape=None)
         
         self.operations = operations
-        self.per_stage_operations: Mapping[ALL_STAGES, List[Operation]] = self.parse_pipeline()[0]
+        self.operation_to_stage: Mapping[Operation, ALL_STAGES] = self.parse_pipeline()[0]
         
-        print(self.per_stage_operations)
         
         # Contains the actual allocated memory
         self.memory_buffers: Mapping[int, np.ndarray] = {}
@@ -42,7 +41,7 @@ class Pipeline:
         memory_allocations : Mapping[int, Optional[AllocationQuery]] = {}
         current_state: State = self.original_state
 
-        per_stage_operations: Mapping[ALL_STAGES, List[Operation]] = defaultdict(list)
+        operation_to_stage: Mapping[Operation, ALL_STAGES] = {}
         
         has_collate: bool = False
         
@@ -71,12 +70,12 @@ class Pipeline:
                 current_state = replace(current_state,
                                         shape=current_state.shape)
 
-            per_stage_operations[previous_state.stage].append(operation)
-
+            operation_to_stage[operation] = previous_state.stage
+            
         if not has_collate:
             raise ValueError(BAD_COLLATION_MESSAGE)
             
-        return per_stage_operations, memory_allocations
+        return operation_to_stage, memory_allocations
         
     def before_epoch(self, batch_size: int, batches_ahead: int):
         
@@ -103,23 +102,38 @@ class Pipeline:
                                       dtype=memory_allocation.dtype)
                 self.memory_buffers[op_id] = result
                 
+    def memory_for_stage(self, stage: ALL_STAGES):
+        result = []
+        for op_ix, op in enumerate(self.operations):
+            if self.operation_to_stage[op] == stage:
+                result.append(self.memory_buffers[op_ix])
+
+        return result
+
+                
     def generate_code(self, stage:ALL_STAGES):
+        
+        relevant_ops = []
+        for op in self.operations:
+            if self.operation_to_stage[op] == stage:
+                relevant_ops.append(op)
         
         # TODO do not recompile multiple times
         if stage == Stage.INDIVIDUAL:
-            return self.generate_code_for_samples()
+            return self.generate_composition(relevant_ops)
         if stage==Stage.BATCH:
-            return self.generate_code_for_batches()
+            return self.generate_composition(relevant_ops)
+        if stage==Stage.PYTORCH:
+            return self.generate_composition(relevant_ops)
 
-        
                 
-    def generate_code_for_samples(self):
+    def generate_composition(self, operations):
         # BIG METAPROGRAMMING PARTY INCOMING
         arguments = [ast.arg('result')]
         body = []
         functions = {}
 
-        for op_id, op in enumerate(self.operations):
+        for op_id, op in enumerate(operations):
             func_name = f'pipeline_stage_{op_id}'
             functions[func_name] = Compiler.compile(op.generate_code())
             dst_name = f"dest_{op_id}"
@@ -151,7 +165,7 @@ class Pipeline:
         }
         
         from astor import to_source
-        # print(to_source(module))
+        print(to_source(module))
         
         exec(compile(module, '', 'exec'), namespace)
         return Compiler.compile(namespace['compute_pipeline'])
