@@ -58,6 +58,6 @@ class EpochIterator(Thread):
         final_result = []
         for res in result:
             last_key = next(iter(reversed(res.keys())))
-            final_result.append(res[last_key])
+            final_result.append(res[last_key][slot])
             
         return final_result
