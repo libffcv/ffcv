@@ -55,7 +55,7 @@ class EpochIterator(Thread):
             final_result = []
             for res in memories:
                 last_key = next(iter(reversed(res.keys())))
-                final_result.append(memories[last_key])
+                final_result.append(res[last_key][batch_slot, :len(batch_indices)])
             return final_result
             
         return compute_sample

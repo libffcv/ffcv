@@ -23,8 +23,9 @@ class Collate(CoreOp):
     
     def generate_code(self) -> Callable:
         # Should do nothing
-        def collate(batch, *_):
-            return batch
+        def collate(batch, destination):
+            destination[:] = batch
+            return destination
         return collate
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
