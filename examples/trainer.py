@@ -71,25 +71,12 @@ Section('validation', 'Validation parameters stuff').params(
     resolution=Param(int, 'The size of the final resized validation image', default=224)
 )
 
-@section('training.resolution_schedule')
-@param('min_resolution')
-@param('max_resolution')
-@param('end_ramp')
-def get_resolution_schedule(min_resolution, max_resolution, end_ramp):
-    def schedule(epoch):
-        diff = max_resolution - min_resolution
-        result =  min_resolution
-        result +=  min(1, epoch / end_ramp) * diff
-        result = int(np.round(result / 32) * 32)
-        return result
-    return schedule
-
 class Trainer():
     @param('data.gpu')
     def __init__(self, all_params, gpu):
         self.all_params = all_params
         self.gpu = gpu
-        self.create_model()
+        self.model = self.create_model()
         self.train_loader = self.create_train_loader()
         self.create_optimizer(len(self.train_loader))
         self.val_loader = self.create_val_loader()
@@ -147,9 +134,6 @@ class Trainer():
         for _, (images, target) in enumerate(tqdm(self.train_loader)):
             self.optimizer.zero_grad(set_to_none=True)
 
-            images = images.float()
-            # images = self.normalization(images)
-
             with autocast():
                 output = self.model(images)
                 loss_train = F.cross_entropy(output, target)
@@ -174,8 +158,6 @@ class Trainer():
         with ch.inference_mode():
             for images, target in tqdm(self.val_loader):
                 self.optimizer.zero_grad(set_to_none=True)
-                images = images.float()
-                # images = self.normalization(images)
 
                 with autocast():
                     output = self.model(images)
@@ -211,14 +193,13 @@ class Trainer():
     def train(self, epochs):
         for epoch in range(epochs):
             train_loss, train_acc = self.train_loop()
-            val_loss, val_acc, val_top5 = self.val_loop()
+            val_loss, val_stats = self.val_loop()
             self.log({
                 'train_loss': train_loss,
                 'train_acc': train_acc,
                 'val_loss': val_loss,
-                'val_acc': val_acc,
-                'val_top5': val_top5,
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'current_resolution': get_resolution_schedule()(epoch),
-                'epoch': epoch
+                'epoch': epoch,
+                **val_stats
             })

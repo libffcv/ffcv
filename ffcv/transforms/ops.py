@@ -44,7 +44,8 @@ class ToTensor(CoreOp):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         new_dtype = ch.from_numpy(np.empty((), dtype=previous_state.dtype)).dtype
         assert previous_state.stage == Stage.BATCH
-        return replace(previous_state, stage=Stage.PYTORCH, dtype=new_dtype), None
+        # TODO: is this the right place to turn off jit?
+        return replace(previous_state, stage=Stage.PYTORCH, jit_mode=False, dtype=new_dtype), None
 
 class ToDevice(CoreOp):
     def __init__(self, device, non_blocking=True):
@@ -61,7 +62,7 @@ class ToDevice(CoreOp):
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         assert previous_state.stage == Stage.PYTORCH
-        return previous_state, AllocationQuery(previous_state.shape, dtype=previous_state.dtype, device=self.device)
+        return replace(previous_state, device=self.device), AllocationQuery(previous_state.shape, dtype=previous_state.dtype, device=self.device)
 
 class ToTorchImage(CoreOp):
     def __init__(self, channels_last=True):
@@ -90,6 +91,17 @@ class ToTorchImage(CoreOp):
             alloc = AllocationQuery((C, H, W), dtype=previous_state.dtype)
         return replace(previous_state, shape=(C, H, W)), alloc
     
-
-
+class Convert(CoreOp):
+    def __init__(self, target_dtype):
+        super().__init__()
+        self.target_dtype = target_dtype
     
+    def generate_code(self) -> Callable:
+        def convert(inp, dst):
+            return inp.type(self.target_dtype)
+
+        return convert
+    
+    # TODO: something weird about device to allocate on
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
+        return replace(previous_state, dtype=self.target_dtype), None

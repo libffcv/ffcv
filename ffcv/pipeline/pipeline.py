@@ -13,6 +13,7 @@ from .stage import Stage, ALL_STAGES
 from .operation import Operation
 from .allocation_query import AllocationQuery
 from ..transforms.ops import Collate, ToTensor, CoreOp
+from ..transforms.module import ModuleWrapper
 
 BAD_COLLATION_MESSAGE: str = "Each pipeline needs one and one only Collate operation"
 
@@ -28,6 +29,9 @@ class Pipeline:
                                     shape=None)
         
         self.operations = operations
+        for i, op in enumerate(self.operations):
+            if isinstance(op, ch.nn.Module):
+                self.operations[i] = ModuleWrapper(op) 
         self.operation_to_stage: Mapping[Operation, ALL_STAGES] = self.parse_pipeline()[0]
         
         # Contains the actual allocated memory
@@ -102,7 +106,7 @@ class Pipeline:
                     dtype_matches = current_buffer.dtype == memory_allocation.dtype
                     device_matches = (not is_pytorch) or (current_buffer.device == memory_allocation.device) 
 
-                    if (not isinstance(memory_allocation.dtype, ch.dtype)) and (not memory_allocation.device == 'cpu'):
+                    if (not isinstance(memory_allocation.dtype, ch.dtype)) and (memory_allocation.device != ch.device('cpu')):
                         raise ValueError('Numpy allocations must be made on CPU.')
 
                     if shape_matches and dtype_matches and type_matches and device_matches:
