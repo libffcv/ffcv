@@ -17,7 +17,7 @@ if __name__ == '__main__':
                     batch_size=128,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
-        Cutout(8)
+        Cutout(8),
         Collate()
     ]
 
