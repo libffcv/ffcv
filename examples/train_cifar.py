@@ -4,7 +4,8 @@ from torch.cuda.amp import GradScaler
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
-from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToDevice, Squeeze
+from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToDevice, Squeeze, Convert
+from torchvision.transforms import Normalize
 from fastargs import get_current_config
 from fastargs.decorators import param
 from argparse import ArgumentParser
@@ -24,7 +25,11 @@ class CIFARTrainer(Trainer):
             Collate(),
             ToTensor(),
             ToTorchImage(),
-            ToDevice('cuda:0')
+            ToDevice(ch.device('cuda:0')),
+            Convert(ch.float16),
+            Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
+                      std=[0.229 * 255, 0.224 * 255, 0.225 * 255],
+                      inplace=True).to('cuda:0')
         ]
         loader.pipelines['label'] = [
             Collate(),
@@ -48,13 +53,16 @@ class CIFARTrainer(Trainer):
             Collate(),
             ToTensor(),
             ToTorchImage(),
-            ToDevice('cuda:0')
+            ToDevice('cuda:0'),
+            Convert(ch.float16),
+            Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
+                      std=[0.229 * 255, 0.224 * 255, 0.225 * 255]).to('cuda:0')
         ]
         loader.pipelines['label'] = [
             Collate(),
             ToTensor(),
             Squeeze(-1),
-            ToDevice('cuda:0')
+            ToDevice(ch.device('cuda:0'))
         ]
         return loader
 
@@ -66,7 +74,7 @@ class CIFARTrainer(Trainer):
         # if tta: model = TTAModel(model)
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
-        self.model = model
+        return model
 
 if __name__ == "__main__":
     config = get_current_config()

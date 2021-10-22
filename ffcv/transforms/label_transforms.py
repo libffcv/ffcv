@@ -14,7 +14,7 @@ class Squeeze(Operation):
     
     def generate_code(self) -> Callable:
         def squeeze(inp, _):
-            inp.squeeze_(dims=self.dims)
+            inp.squeeze_(*self.dims)
             return inp
         return squeeze
     
