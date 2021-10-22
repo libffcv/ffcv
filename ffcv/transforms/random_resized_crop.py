@@ -15,7 +15,6 @@ class RandomResizedCrop(Operation):
     
     def generate_code(self) -> Callable:
         def random_resized_crop(im, dst, _):
-            print(im.shape)
             i, j, h, w = fast_crop.get_random_crop(im.shape[0], 
                                                 im.shape[1],
                                                 self.scale,

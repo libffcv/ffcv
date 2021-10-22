@@ -63,7 +63,7 @@ class EpochIterator(Thread):
                         else:
                             memory_banks.append(mem[batch_slot, dest_ix])
 
-                    np.random.seed(self.loader.reader.num_samples * self.epoch + ix + self.loader.seed)
+                    np.random.seed(int(self.loader.reader.num_samples * self.epoch + ix + self.loader.seed))
                     pipelines_sample[p_ix](field_value, *memory_banks)
                     
             final_result = []

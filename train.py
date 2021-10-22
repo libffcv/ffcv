@@ -8,7 +8,6 @@ from time import time
 import json
 from torch.cuda.amp import GradScaler, autocast
 
-import os
 from os import path
 from argparse import ArgumentParser, Namespace
 
@@ -19,7 +18,6 @@ ch.autograd.profiler.emit_nvtx(False)
 ch.autograd.profiler.profile(False)
 
 import torch.nn.functional as F
-import torch.nn.parallel
 import torch.optim as optim
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
@@ -100,13 +98,13 @@ def get_resolution_schedule(min_resolution, max_resolution, end_ramp):
 def get_train_dataset(train_dataset, batch_size, num_workers):
     loader = Loader(train_dataset,
                     batch_size=batch_size,
-                    # num_workers=num_workers,
+                    num_workers=16,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
         Cutout(8),
         RandomHorizontalFlip(0.5),
-        # Collate(),
-        # ToTensor()
+        Collate(),
+        ToTensor()
     ]
     return loader
 
@@ -116,12 +114,10 @@ def get_train_dataset(train_dataset, batch_size, num_workers):
 @param('validation.crop_size')
 @param('validation.resolution')
 def get_val_dataset(val_dataset, batch_size, num_workers, crop_size, resolution):
-    loader = Loader('/tmp/test.beton',
-                    batch_size=512,
+    loader = Loader(val_dataset,
+                    batch_size=batch_size,
+                    num_workers=num_workers,
                     order=OrderOption.RANDOM)
-    loader.pipelines['image'] = [
-        Cutout(8),
-    ]
     return loader
 
 class TTAModel(nn.Module):
@@ -170,13 +166,7 @@ class Trainer():
                          weight_decay, epochs, lr_peak_epoch):
         optimizer = optimizer.lower()
         assert optimizer in ['lamb', 'sgd']
-        if optimizer == 'lamb':
-            # opt_builder = bnb.optim.LAMB
-            raise ValueError('uhhhhhhhh')
-        elif optimizer == 'sgd':
-            opt_builder = optim.SGD
-
-        self.optimizer = opt_builder(self.model.parameters(),
+        self.optimizer = optim.SGD(self.model.parameters(),
                                      lr=lr,
                                      momentum=momentum,
                                      weight_decay=weight_decay)
@@ -197,8 +187,8 @@ class Trainer():
         losses = []
         for iii, (images, target) in enumerate(tqdm(self.train_loader)):
             # TODO: replace with collation in the pipeline
-            images = ch.from_numpy(images.transpose([0, 3, 1, 2]))
-            target = ch.from_numpy(target.squeeze())
+            images = images.permute([0, 3, 1, 2])
+            target = target.squeeze()
             # TODO: will gpu stuff still be here?
             images = images.cuda(self.gpu, non_blocking=True)
             target = target.cuda(self.gpu, non_blocking=True)
@@ -231,8 +221,8 @@ class Trainer():
         with ch.inference_mode():
             for images, target in tqdm(self.val_loader):
                 # TODO: replace with collation in the pipeline
-                images = ch.from_numpy(images.transpose([0, 3, 1, 2]))
-                target = ch.from_numpy(target.squeeze())
+                images = images.permute([0, 3, 1, 2])
+                target = target.squeeze()
                 # TODO: will gpu stuff still be here?
                 images = images.cuda(self.gpu, non_blocking=True)
                 target = target.cuda(self.gpu, non_blocking=True)

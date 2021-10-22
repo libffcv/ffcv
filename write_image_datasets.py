@@ -10,7 +10,7 @@ from fastargs.validation import And, OneOf
 from fastargs.decorators import param, section
 from fastargs import get_current_config
 
-Section('writer', 'arguments to give the writer').params(
+Section('', 'arguments to give the writer').params(
     dataset=Param(And(str, OneOf(['cifar', 'imagenet'])), 'Which dataset to write', required=True),
     data_dir=Param(str, 'Where to find the PyTorch dataset', required=True),
     write_dir=Param(str, 'Where to write the new dataset', required=True),
@@ -20,7 +20,7 @@ Section('writer', 'arguments to give the writer').params(
     chunk_size=Param(int, 'Chunk size for writing', default=100)
 )
 
-@section('writer')
+@section('')
 @param('dataset')
 @param('data_dir')
 @param('max_resolution')
