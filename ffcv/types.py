@@ -51,7 +51,7 @@ def get_handlers(field_descriptors):
     for field_descriptor in field_descriptors:
         type_id = field_descriptor['type_id']
         Handler = TYPE_ID_HANDLER[type_id]
-        print(type_id, Handler)
+        # print(type_id, Handler)
         handlers.append(Handler.from_binary(field_descriptor['arguments']))
     return handlers
 
