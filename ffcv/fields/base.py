@@ -16,17 +16,17 @@ class Field(ABC):
     @staticmethod
     @abstractmethod
     def from_binary(binary: ARG_TYPE) -> Field:
-        raise NotImplemented()
+        raise NotImplementedError
 
     @abstractmethod
     def to_binary(self) -> ARG_TYPE:
-        raise NotImplemented()
+        raise NotImplementedError
 
     @abstractmethod
     def encode(field, metadata_destination, malloc):
-        raise NotImplemented()
+        raise NotImplementedError
     
     @abstractmethod
     def get_decoder(self, metadta: np.ndarray) -> Operation:
-        raise NotImplemented()
+        raise NotImplementedError
         

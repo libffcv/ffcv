@@ -67,6 +67,11 @@ class EpochIterator(Thread):
                     pipelines_sample[p_ix](field_value, *memory_banks)
                     
             final_result = []
+
+            # Because we know that the last per-sample operation is Collate()
+            # which allocates its own memory, we can just look in the final
+            # allocated memory slot for the final result
+
             # TODO select the proper subset of the instead of the whole thing!
             for res in memories_sample:
                 final_result.append(res[-1][batch_slot, :len(batch_indices)])
@@ -74,19 +79,17 @@ class EpochIterator(Thread):
             
         def compute_batch(batch_slot, batch_indices):
             batches = compute_sample(batch_slot, batch_indices)
-            
             result = []
             for batch, op, mems in zip(batches, pipelines_batch, memories_batch):
-                result.append(op(batch, *mems))
+                result.append(op(batch, *[None if mem is None else mem[batch_slot] for mem in mems]))
 
             return tuple(result)
 
         def compute_pytorch(batch_slot, batch_indices):
             batches = compute_batch(batch_slot, batch_indices)
-            
             result = []
             for batch, op, mems in zip(batches, pipelines_pytorch, memories_pytorch):
-                result.append(op(batch, *mems))
+                result.append(op(batch, *[None if mem is None else mem[batch_slot] for mem in mems]))
 
             return tuple(result)
             

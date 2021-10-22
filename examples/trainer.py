@@ -11,8 +11,6 @@ import json
 from torch.cuda.amp import autocast
 
 from os import path
-from argparse import Namespace
-
 import torch as ch
 ch.backends.cudnn.benchmark = True
 ch.autograd.set_detect_anomaly(False)
@@ -24,7 +22,6 @@ import torch.optim as optim
 import torch.nn as nn
 import torch.optim.lr_scheduler as lr_scheduler
 
-import torchvision
 import torchmetrics
 
 from fastargs import Section, Param
@@ -87,15 +84,6 @@ def get_resolution_schedule(min_resolution, max_resolution, end_ramp):
         return result
     return schedule
 
-class TTAModel(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-
-    def forward(self, x):
-        if self.training: return self.model(x)
-        return self.model(x) + self.model(ch.flip(x, dims=[3]))
-
 class Trainer():
     @param('data.gpu')
     def __init__(self, all_params, gpu):
@@ -108,8 +96,10 @@ class Trainer():
         # self.normalization = transforms.Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
                                                 #   std=[0.229 * 255, 0.224 * 255, 0.225 * 255]).cuda(gpu)
         self.train_accuracy = torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu)
-        self.val_accuracy = torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu)
-        self.val_top5 = torchmetrics.Accuracy(compute_on_step=False, top_k=5).cuda(self.gpu)
+        self.val_meters = {
+            'top_1': torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu),
+            'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).cuda(self.gpu)
+        }
         self.uid = str(uuid4())
         self.initialize_logger()
     
@@ -154,13 +144,7 @@ class Trainer():
         model = self.model
         model.train()
         losses = []
-        for iii, (images, target) in enumerate(tqdm(self.train_loader)):
-            # TODO: replace with collation in the pipeline
-            images = images.permute([0, 3, 1, 2])
-            target = target.squeeze()
-            # TODO: will gpu stuff still be here?
-            images = images.cuda(self.gpu, non_blocking=True)
-            target = target.cuda(self.gpu, non_blocking=True)
+        for _, (images, target) in enumerate(tqdm(self.train_loader)):
             self.optimizer.zero_grad(set_to_none=True)
 
             images = images.float()
@@ -189,14 +173,7 @@ class Trainer():
 
         with ch.inference_mode():
             for images, target in tqdm(self.val_loader):
-                # TODO: replace with collation in the pipeline
-                images = images.permute([0, 3, 1, 2])
-                target = target.squeeze()
-                # TODO: will gpu stuff still be here?
-                images = images.cuda(self.gpu, non_blocking=True)
-                target = target.cuda(self.gpu, non_blocking=True)
                 self.optimizer.zero_grad(set_to_none=True)
-
                 images = images.float()
                 # images = self.normalization(images)
 
@@ -204,15 +181,12 @@ class Trainer():
                     output = self.model(images)
                     loss_val = F.cross_entropy(output, target)
                     losses.append(loss_val.detach())
-                    self.val_accuracy(output, target)
-                    self.val_top5(output, target)
+                    [meter(output, target) for meter in self.val_meters.values()]
 
-        accuracy = self.val_accuracy.compute().item()
-        self.val_accuracy.reset()
-        top_5 = self.val_top5.compute().item()
-        self.val_top5.reset()
+        stats = {k: meter.compute().item() for k, meter in self.val_meters.items()}
+        [meter.reset() for meter in self.val_meters.values()]
         loss = ch.stack(losses).mean().item()
-        return loss, accuracy, top_5
+        return loss, stats
 
     @param('logging.folder')
     def initialize_logger(self, folder):
