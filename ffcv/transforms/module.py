@@ -15,15 +15,12 @@ class ModuleWrapper(Operation):
         self.module = module
     
     def generate_code(self) -> Callable:
-        def apply_module(inp, dst):
-            self.module(inp)
-            return inp
+        def apply_module(inp, _):
+            res = self.module(inp)
+            return res
 
         return apply_module
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         assert previous_state.stage == Stage.PYTORCH
         return previous_state, None 
-                             # AllocationQuery(previous_state.shape, 
-                               #                dtype=previous_state.dtype,
-                               #                device=previous_state.device)
