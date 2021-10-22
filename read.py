@@ -12,16 +12,12 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
-    loader = Loader('/tmp/test_imagenet.beton',
+    loader = Loader('/tmp/test.beton',
                     batch_size=128,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
-<<<<<<< HEAD
-        # Cutout(8)
-=======
         Cutout(8),
         Collate()
->>>>>>> b20425481b5023e8ec991615ef519aba7ff29a48
     ]
 
     for i in range(1):

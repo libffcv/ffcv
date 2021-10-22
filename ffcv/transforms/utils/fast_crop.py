@@ -5,7 +5,8 @@ from ctypes import CDLL, c_int64
 # from ffcv.transforms.utils import libfastercv
 
 # libfastercv = CDLL(libfastercv.__file__)
-libfastercv = CDLL('/mnt/nfs/home/engstrom/src/fastercv/build/lib.linux-x86_64-3.8/libfastercv.cpython-38-x86_64-linux-gnu.so')
+# libfastercv = CDLL('/mnt/nfs/home/engstrom/src/fastercv/build/lib.linux-x86_64-3.8/libfastercv.cpython-38-x86_64-linux-gnu.so')
+libfastercv = None
 ctypes_resize = libfastercv.resize
 ctypes_resize.argtypes = 11 * [c_int64]
 
