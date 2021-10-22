@@ -76,7 +76,7 @@ class Trainer():
     def __init__(self, all_params, gpu):
         self.all_params = all_params
         self.gpu = gpu
-        self.model = self.create_model()
+        self.model, self.scaler = self.create_model_and_scaler()
         self.train_loader = self.create_train_loader()
         self.create_optimizer(len(self.train_loader))
         self.val_loader = self.create_val_loader()

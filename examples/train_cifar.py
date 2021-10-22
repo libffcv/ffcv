@@ -67,14 +67,12 @@ class CIFARTrainer(Trainer):
         return loader
 
     @param('training.architecture')
-    @param('optimizations.tta')
-    def create_model(self, architecture, tta):
-        self.scaler = GradScaler()
+    def create_model_and_scaler(self, architecture):
+        scaler = GradScaler()
         model = torchvision.models.__dict__[architecture]()
-        # if tta: model = TTAModel(model)
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
-        return model
+        return model, scaler
 
 if __name__ == "__main__":
     config = get_current_config()
