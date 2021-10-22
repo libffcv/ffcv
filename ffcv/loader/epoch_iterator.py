@@ -1,6 +1,8 @@
 from threading import Thread
 from typing import Sequence, TYPE_CHECKING
 
+import numpy as np
+
 from ..utils import chunks
 from ..pipeline.state import Stage
 
@@ -18,6 +20,7 @@ class EpochIterator(Thread):
         self.before_epoch()
         self.generated_code = self.generate_code()
         self.current_batch_slot = 0
+        self.epoch = epoch
         self.iter_ixes = iter(chunks(order, self.loader.batch_size))
         
     def before_epoch(self):
@@ -59,6 +62,8 @@ class EpochIterator(Thread):
                             memory_banks.append(None)
                         else:
                             memory_banks.append(mem[batch_slot, dest_ix])
+
+                    np.random.seed(self.loader.reader.num_samples * self.epoch + ix + self.loader.seed)
                     pipelines_sample[p_ix](field_value, *memory_banks)
                     
             final_result = []
