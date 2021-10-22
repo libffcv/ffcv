@@ -1,5 +1,5 @@
 from multiprocessing import cpu_count
-from typing import Mapping, Sequence, Union, Literal
+from typing import Mapping, Sequence, TYPE_CHECKING, Union, Literal
 from enum import Enum, unique, auto
 
 import torch as ch
@@ -14,6 +14,7 @@ from ..traversal_order import Random, Sequential
 from ..pipeline import Pipeline
 from ..pipeline.operation import Operation
 from ..fields.base import Field
+from ..transforms.ops import Collate
 
 
 @unique
@@ -45,15 +46,17 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
 }
 
 class Pipelines():
-    def __init__(self, fields: Mapping[str, Field], metadata: np.ndarray):
+    def __init__(self, fields: Mapping[str, Field], metadata: np.ndarray,
+                 memory: MemoryManager):
         self.fields: Mapping[str, Field] = fields
         
         self.decoders: Mapping[str, Operation] = {
-            k: self.fields[k].get_decoder(metadata[f'f{i}']) for (i, k) in enumerate(self.fields)
+            k: self.fields[k].get_decoder(metadata[f'f{i}'], memory) for (i, k) in enumerate(self.fields)
         }
 
+        # This is the default pipeline: Decode and collate
         self.pipelines: Mapping[str, Pipeline] = {
-            k: Pipeline([self.decoders[k]]) for k in self.fields.keys()
+            k: Pipeline([self.decoders[k], Collate()]) for k in self.fields.keys()
         }
 
     def __setitem__(self, name: str, value: Sequence[Operation]) -> None:
@@ -104,7 +107,8 @@ class Loader:
         
         self.next_epoch: int = 0
         self.pipelines: Pipelines = Pipelines(self.reader.handlers,
-                                              self.reader.metadata)
+                                              self.reader.metadata,
+                                              self.memory_manager)
         
     def __iter__(self):
         cur_epoch = self.next_epoch

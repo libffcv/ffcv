@@ -3,16 +3,17 @@ from dataclasses import dataclass
 from typing import Literal, Tuple
 
 import torch as ch
+import numpy as np
 
-from .stage import Stage
+from .stage import Stage, ALL_STAGES
 
 @dataclass
 class State:
-    stage: Literal[Stage.INDIVIDUAL,
-                   Stage.BATCHES]
+    stage: ALL_STAGES
     jit_mode: bool
     device: ch.device
     shape: Tuple[int, ...]
+    dtype: np.dtype
     
     # Assess the validity of a pipeline stage
     def __post_init__(self):
