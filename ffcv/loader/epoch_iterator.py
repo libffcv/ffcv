@@ -62,6 +62,7 @@ class EpochIterator(Thread):
                     pipelines_sample[p_ix](field_value, *memory_banks)
                     
             final_result = []
+            # TODO select the proper subset of the instead of the whole thing!
             for res in memories_sample:
                 final_result.append(res[-1][batch_slot, :len(batch_indices)])
             return final_result
