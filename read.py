@@ -13,11 +13,11 @@ mpl.use('module://imgcat')
 from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
-    loader = Loader('/tmp/test.beton',
+    loader = Loader('/tmp/test_imagenet.beton',
                     batch_size=128,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
-        Cutout(8)
+        # Cutout(8)
     ]
     
     for i in range(1):
