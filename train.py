@@ -100,7 +100,7 @@ def get_resolution_schedule(min_resolution, max_resolution, end_ramp):
 def get_train_dataset(train_dataset, batch_size, num_workers):
     loader = Loader(train_dataset,
                     batch_size=batch_size,
-                    num_workers=num_workers,
+                    # num_workers=num_workers,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
         Cutout(8),
@@ -120,6 +120,7 @@ def get_val_dataset(val_dataset, batch_size, num_workers, crop_size, resolution)
                     batch_size=512,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
+        Cutout(8),
     ]
     return loader
 
@@ -229,6 +230,10 @@ class Trainer():
 
         with ch.inference_mode():
             for images, target in tqdm(self.val_loader):
+                # TODO: replace with collation in the pipeline
+                images = ch.from_numpy(images.transpose([0, 3, 1, 2]))
+                target = ch.from_numpy(target.squeeze())
+                # TODO: will gpu stuff still be here?
                 images = images.cuda(self.gpu, non_blocking=True)
                 target = target.cuda(self.gpu, non_blocking=True)
                 self.optimizer.zero_grad(set_to_none=True)
