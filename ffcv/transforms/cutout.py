@@ -14,11 +14,15 @@ class Cutout(Operation):
         self.crop_size = crop_size
     
     def generate_code(self) -> Callable:
+        crop_size = self.crop_size
         def cutout_square(image, *_):
             # Generate random origin
-            coord = randint(image.shape[0] - self.crop_size, size=(2,))
+            coord = (
+                randint(image.shape[0] - crop_size),
+                randint(image.shape[1] - crop_size),
+            )
             # Black out image in-place
-            image[coord[0]:coord[0] + self.crop_size, coord[1]:coord[1] + self.crop_size] = 0
+            image[coord[0]:coord[0] + crop_size, coord[1]:coord[1] + crop_size] = 0
             return image
 
         return cutout_square

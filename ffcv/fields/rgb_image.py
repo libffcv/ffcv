@@ -3,24 +3,24 @@ from typing import Optional, Callable, TYPE_CHECKING, Tuple
 
 import cv2
 import numpy as np
+from numba.typed import Dict
 from PIL.Image import Image
 
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from ..pipeline.stage import Stage
+from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
+from ..libffcv import imdecode
 
 if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
-
-if TYPE_CHECKING:
     from ..reader import Reader
 
-IMAGE_MODES = {
-    'jpg': 0,
-    'raw': 1
-}
+IMAGE_MODES = Dict()
+IMAGE_MODES['jpg']= 0
+IMAGE_MODES['raw']= 1
 
 def encode_jpeg(numpy_image):
     success, result = cv2.imencode('.jpg', numpy_image)
@@ -52,26 +52,36 @@ class RGBImageDecoder(Operation):
         heights = self.metadata['height']
         max_width = widths.max()
         max_height = heights.max()
-        
+
         biggest_shape = (max_height, max_width, 3)
         my_dtype = np.dtype('<u1')
-        
+
         return (
             replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True,
                     shape=biggest_shape, dtype=my_dtype),
             AllocationQuery(biggest_shape, my_dtype)
         )
-    
+
     def generate_code(self) -> Callable:
-        memory = self.memory
+        mem_read = self.memory
+        imdecode_c = Compiler.compile(imdecode)
+
+        jpg = IMAGE_MODES['jpg']
+        raw = IMAGE_MODES['raw']
+
         def decode(field, destination):
-            image_data = memory.read(field['data_ptr'])
-            if field['mode'] == IMAGE_MODES['jpg']:
-                image_result = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
-                # TODO
+            image_data = mem_read(field['data_ptr'])
+            height, width = field['height'], field['width']
+
+            destination = destination.reshape(destination.shape[0] * destination.shape[1] * destination.shape[2])
+            destination = destination[:3 * height * width]
+            destination = destination.reshape(height, width, 3)
+
+            if field['mode'] == jpg:
+                imdecode_c(image_data, destination)
             else:
-                image_result = image_data.reshape((field['height'], field['width'], 3))
-            destination[:] = image_result[:]
+                destination[:] = image_data.reshape(height, width, 3)
+
             return destination
         return decode
 

@@ -12,7 +12,7 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
-    loader = Loader('/tmp/test.beton',
+    loader = Loader('/tmp/cifar_test_jpg.beton',
                     batch_size=128,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
@@ -20,7 +20,8 @@ if __name__ == '__main__':
         Collate(),
         ToTensor()
     ]
-    
+    print("Ratio raw", loader.reader.metadata['f0']['mode'].mean())
+
     for i in range(1):
         for image, label in tqdm(loader):
-            print(image.shape)
+            pass
