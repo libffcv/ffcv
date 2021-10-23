@@ -1,5 +1,5 @@
 from multiprocessing.sharedctypes import Value
-from torch.utils.data import Dataset
+from torch.utils.data import Subset
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
 from torchvision.datasets import CIFAR10, ImageFolder
@@ -34,7 +34,7 @@ def main(dataset, split, data_dir, write_path, max_resolution, smart_threshold, 
     if dataset == 'cifar':
         my_dataset = CIFAR10(root=data_dir, train=(split == 'train'), download=True)
     elif dataset == 'imagenet':
-        my_dataset = ImageFolder(root=data_dir)
+        my_dataset = Subset(ImageFolder(root=data_dir), list(range(200)))
     else:
         raise ValueError('Unrecognized dataset', dataset)
 
