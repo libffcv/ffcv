@@ -15,11 +15,12 @@ class RandomResizedCrop(Operation):
         self.size = size
     
     def generate_code(self) -> Callable:
+        scale, ratio = self.scale, self.ratio
         def random_resized_crop(im, dst):
             i, j, h, w = fast_crop.get_random_crop(im.shape[0], 
                                                 im.shape[1],
-                                                self.scale,
-                                                self.ratio)
+                                                scale,
+                                                ratio)
             fast_crop.resize_crop(im, i, i + h, j, j + w, dst)
             return dst
 
