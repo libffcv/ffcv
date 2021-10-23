@@ -20,7 +20,8 @@ if __name__ == '__main__':
         Collate(),
         ToTensor()
     ]
-    
-    for i in range(2):
+    print("Ratio raw", loader.reader.metadata['f0']['mode'].mean())
+
+    for i in range(1):
         for image, label in tqdm(loader):
             pass

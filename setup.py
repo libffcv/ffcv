@@ -1,3 +1,4 @@
+from setuptools import find_packages
 import subprocess
 from glob import glob
 
@@ -27,7 +28,7 @@ print(extension_kwargs)
 libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
 
-setup(name='fastercv',
+setup(name='ffcv',
       version='0.1',
       description='Training go BrrRr',
       author='Guillaume Leclerc',
@@ -36,6 +37,6 @@ setup(name='fastercv',
       long_description='''
 Load and train computer vision fast
        ''',
-      packages=['ffcv'],
+      packages=find_packages(),
       ext_modules=[libffcv]
       )

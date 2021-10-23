@@ -1,6 +1,7 @@
 import numpy as np
 
 from .base import MemoryManager
+from ..pipeline.compiler import Compiler
 
 class RAMMemoryManager(MemoryManager):
 
@@ -17,6 +18,13 @@ class RAMMemoryManager(MemoryManager):
         # Writing to it it's pointless
         return super().__exit__(__exc_type, __exc_value, __traceback)
 
-    def _read_impl(self, address, length):
-        return self.mmap[address:address + length]
+    def compile_reader(self):
+        ptrs = self.ptrs
+        sizes = self.sizes
+        mmap = self.mmap
+        def read(address):
+            six = np.searchsorted(ptrs, address)
+            return mmap[address:address + sizes[six]]
+
+        return Compiler.compile(read)
 

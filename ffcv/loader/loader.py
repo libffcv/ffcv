@@ -104,11 +104,12 @@ class Loader:
         
         # TODO EXIT eventually
         self.memory_manager.__enter__()
+        self.memory_read = self.memory_manager.compile_reader()
         
         self.next_epoch: int = 0
         self.pipelines: Pipelines = Pipelines(self.reader.handlers,
                                               self.reader.metadata,
-                                              self.memory_manager)
+                                              self.memory_read)
         
     def __iter__(self):
         cur_epoch = self.next_epoch

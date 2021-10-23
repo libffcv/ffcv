@@ -3,20 +3,23 @@ from contextlib import AbstractContextManager
 from collections import defaultdict
 from typing import Mapping, Set
 
-
 import numpy as np
+from numba.typed import Dict
+from numba import types
 
 from ..reader import Reader
+from ..pipeline.compiler import Compiler
 
 class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
 
     def __init__(self, reader:Reader):
         self.reader = reader
         alloc_table = self.reader.alloc_table
-        
+
         # Table mapping any address in the file to the size of the data region
         # That was allocated there
-        self.ptr_to_size = dict(zip(alloc_table['ptr'], alloc_table['size']))
+        self.ptrs = alloc_table['ptr']
+        self.sizes = alloc_table['size']
 
         # We extract the page number by shifting the address corresponding
         # to the page width
@@ -25,7 +28,7 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
 
         sample_to_pages: Mapping[int, Set[int]] = defaultdict(set)
         page_to_samples: Mapping[int, Set[int]] = defaultdict(set)
-        
+
         # We create a mapping that goes from sample id to the pages it has data
         # Stored to
         # (And the same for the other way around)
@@ -42,11 +45,8 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
     def schedule_epoch(self, schedule):
         raise NotImplemented()
 
-    def read(self, address):
-        return self._read_impl(address, self.ptr_to_size[address])
-
     @abstractmethod
-    def _read_impl(self, address, size):
+    def compile_reader(self, address, size):
         raise NotImplemented()
 
     @abstractmethod
