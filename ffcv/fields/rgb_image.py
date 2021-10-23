@@ -71,7 +71,7 @@ class RGBImageDecoder(Operation):
                 # TODO
             else:
                 image_result = image_data.reshape((field['height'], field['width'], 3))
-            destination[:] = image_result[:]
+            destination[:image_result.shape[0],:image_result.shape[1]] = image_result[:]
             return destination
         return decode
 

@@ -1,3 +1,17 @@
+Section('training.resolution_schedule',
+        'How the resolution increases during training').params(
+            min_resolution=Param(int, 'resolution at the first epoch', default=160),
+            end_ramp=Param(int, 'At which epoch should we end increasing the resolution',
+                           default=20),
+            max_resolution=Param(int, 'Resolution we reach at end', default=160),
+        )
+
+Section('optimizations').params(
+    label_smoothing=Param(float, 'alpha for label smoothing'),
+    blurpool=Param(int, 'Whether to use blurpool layers', default=1),
+    tta=Param(int, 'Whether to use test-time augmentation', default=1)
+)
+
 class TTAModel(nn.Module):
     def __init__(self, model):
         super().__init__()

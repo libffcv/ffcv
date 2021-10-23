@@ -1,16 +1,20 @@
 """
 Generic class for model training.
 """
+import json
 from abc import abstractmethod
-from tqdm import tqdm
+from os import path
+from time import time
+from uuid import uuid4
 
 import numpy as np
-from uuid import uuid4
-from time import time
-import json
+import torchmetrics
+from fastargs import Param, Section
+from fastargs.decorators import param
+from fastargs.validation import And, OneOf
 from torch.cuda.amp import autocast
+from tqdm import tqdm
 
-from os import path
 import torch as ch
 ch.backends.cudnn.benchmark = True
 ch.autograd.set_detect_anomaly(False)
@@ -19,14 +23,6 @@ ch.autograd.profiler.profile(False)
 
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.nn as nn
-import torch.optim.lr_scheduler as lr_scheduler
-
-import torchmetrics
-
-from fastargs import Section, Param
-from fastargs.validation import And, OneOf
-from fastargs.decorators import param, section
 
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
@@ -35,13 +31,9 @@ Section('data', 'data related stuff').params(
     gpu=Param(int, 'Which GPU to use', default=0)
 )
 
-Section('logging', 'how to log stuff').params(
-    folder=Param(str, 'Where to put the logs', default='/tmp')
-)
+Section('logging', 'how to log stuff').params(folder=Param(str, 'log location', default='/tmp'))
 
 Section('training', 'training hyper param stuff').params(
-    architecture=Param(And(str, OneOf(['cifar_resnet9', 'cifar_resnet18', 'resnet18', 'resnet50'])),
-                       'The architecture to use', default='resnet50'),
     batch_size=Param(int, 'The batch size', default=512),
     optimizer=Param(And(str, OneOf(['sgd', 'lamb', 'sam'])), 'The optimizer', default='sgd'),
     lr=Param(float, 'learning rate', default=0.1),
@@ -50,20 +42,6 @@ Section('training', 'training hyper param stuff').params(
     epochs=Param(int, 'The number of epochs', default=30),
     lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=1.),
 )
-
-Section('optimizations').params(
-    label_smoothing=Param(float, 'alpha for label smoothing'),
-    blurpool=Param(int, 'Whether to use blurpool layers', default=1),
-    tta=Param(int, 'Whether to use test-time augmentation', default=1)
-)
-
-Section('training.resolution_schedule',
-        'How the resolution increases during training').params(
-            min_resolution=Param(int, 'resolution at the first epoch', default=160),
-            end_ramp=Param(int, 'At which epoch should we end increasing the resolution',
-                           default=20),
-            max_resolution=Param(int, 'Resolution we reach at end', default=160),
-        )
 
 Section('validation', 'Validation parameters stuff').params(
     batch_size=Param(int, 'The batch size for validation', default=512),
@@ -119,13 +97,7 @@ class Trainer():
         
         schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
-        def lambda_schedule(t):
-            return schedule[t]
-            # return np.interp(float(t + 1) / iters_per_epoch, [0, lr_peak_epoch, epochs], [0, 1, 0])
-        
-        self.scheduler = lr_scheduler.LambdaLR(self.optimizer,
-                                               lambda_schedule)
-        # self.scheduler = lr_scheduler.CosineAnnealingLR(self.optimizer, epochs * iters_per_epoch)
+        self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
 
     def train_loop(self):
         model = self.model
@@ -188,7 +160,6 @@ class Trainer():
         self.logging_fp.write('\n')
         self.logging_fp.flush()
 
-
     @param('training.epochs')
     def train(self, epochs):
         for epoch in range(epochs):
@@ -199,7 +170,6 @@ class Trainer():
                 'train_acc': train_acc,
                 'val_loss': val_loss,
                 'current_lr': self.optimizer.param_groups[0]['lr'],
-                'current_resolution': get_resolution_schedule()(epoch),
                 'epoch': epoch,
                 **val_stats
             })

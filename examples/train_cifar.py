@@ -8,7 +8,13 @@ from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToD
 from torchvision.transforms import Normalize
 from fastargs import get_current_config
 from fastargs.decorators import param
+from fastargs import Param, Section
+from fastargs.validation import And, OneOf
 from argparse import ArgumentParser
+
+Section('model', 'model details').params(
+    arch=Param(And(str, OneOf(['resnet9', 'resnet18'])), 'the architecture to use', required=True)
+)
 
 class CIFARTrainer(Trainer):
     @param('data.train_dataset')
@@ -66,10 +72,10 @@ class CIFARTrainer(Trainer):
         ]
         return loader
 
-    @param('training.architecture')
-    def create_model_and_scaler(self, architecture):
+    @param('model.arch')
+    def create_model_and_scaler(self, arch):
         scaler = GradScaler()
-        model = torchvision.models.__dict__[architecture]()
+        model = torchvision.models.__dict__[arch]()
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
         return model, scaler
