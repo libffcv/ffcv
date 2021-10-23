@@ -105,7 +105,8 @@ class Pipeline:
                     dtype_matches = current_buffer.dtype == memory_allocation.dtype
                     device_matches = (not is_pytorch) or (current_buffer.device == memory_allocation.device) 
 
-                    if (not isinstance(memory_allocation.dtype, ch.dtype)) and (memory_allocation.device != ch.device('cpu')):
+                    if (not isinstance(memory_allocation.dtype, ch.dtype)) and (memory_allocation.device is not None):
+                        import ipdb; ipdb.set_trace()
                         raise ValueError('Numpy allocations must be made on CPU.')
 
                     if shape_matches and dtype_matches and type_matches and device_matches:

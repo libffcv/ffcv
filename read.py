@@ -5,22 +5,22 @@ from ffcv.fields import IntField, FloatField
 from ffcv.reader import Reader
 from ffcv.loader import Loader, OrderOption
 from ffcv.memory_managers import RAMMemoryManager
-from ffcv.transforms import Cutout, Collate, ToTensor
+from ffcv.transforms import Cutout, Collate, ToTensor, RandomResizedCrop
 import numpy as np
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
-    loader = Loader('/tmp/test.beton',
-                    batch_size=128,
+    loader = Loader('/tmp/imagenet_train.beton',
+                    batch_size=512,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
-        Cutout(8),
+        # RandomResizedCrop((0.08, 1.0), np.array([2/3., 4/3.]), 224),
         Collate(),
         ToTensor()
     ]
     
-    for i in range(1):
+    for i in range(2):
         for image, label in tqdm(loader):
-            print(image.shape)
+            pass
