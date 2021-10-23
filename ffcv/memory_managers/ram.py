@@ -23,8 +23,8 @@ class RAMMemoryManager(MemoryManager):
         sizes = self.sizes
         mmap = self.mmap
         def read(address):
-            six = np.searchsorted(ptrs, address)
-            return mmap[address:address + sizes[six]]
+            size = sizes[np.searchsorted(ptrs, address)]
+            return mmap[address:address + size]
 
         return Compiler.compile(read)
 
