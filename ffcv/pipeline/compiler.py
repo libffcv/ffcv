@@ -5,6 +5,6 @@ class Compiler:
 
     @staticmethod
     def compile(code):
-        return code
+        # return code
         # Compilation is disabled for now
-        # return njit(fastmath=True)(code)
+        return njit(fastmath=True)(code)

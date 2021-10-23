@@ -20,6 +20,12 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
         # That was allocated there
         self.ptrs = alloc_table['ptr']
         self.sizes = alloc_table['size']
+        order = np.argsort(self.ptrs)
+        # Order them so that we can use search sorted
+        self.ptrs = self.ptrs[order]
+        self.sizes =  self.sizes[order]
+
+        self.ptr_to_size = dict(zip(self.ptrs, self.sizes))
 
         # We extract the page number by shifting the address corresponding
         # to the page width

@@ -34,5 +34,3 @@ if __name__ == '__main__':
             plt.cla()
             break
             """
-            import ipdb; ipdb.set_trace()
-            break
