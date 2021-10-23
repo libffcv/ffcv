@@ -1,11 +1,9 @@
 import ast
-from collections import defaultdict
 from dataclasses import replace
 from typing import Any, List, Optional, Sequence, Mapping, Tuple
 
 import torch as ch
 import numpy as np
-from torch._C import device
 
 from .state import State
 from .compiler import Compiler
@@ -192,5 +190,7 @@ class Pipeline:
         }
 
         exec(compile(module, '', 'exec'), namespace)
-        return namespace['compute_pipeline']
-        # return Compiler.compile(namespace['compute_pipeline'])
+        code = namespace['compute_pipeline']
+        if do_compile:
+            code = Compiler.compile(code)
+        return code
