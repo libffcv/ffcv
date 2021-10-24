@@ -1,4 +1,5 @@
 import ast
+from functools import partial
 from threading import Thread
 from typing import Sequence, TYPE_CHECKING
 
@@ -57,6 +58,10 @@ class EpochIterator(Thread):
             'my_range': Compiler.get_iterator(),
             'metadata': metadata
         }
+
+        extra_arguments = []
+        mem_banks_to_pass = {}
+
         return_values = []
         for p_ix in range(len(pipelines_sample)):
             mem_bank_exprs = []
@@ -65,6 +70,8 @@ class EpochIterator(Thread):
             for mem_id, mem in enumerate(memories_sample[p_ix]):
                 mem_identifier = f"mem_bank_p_{p_ix}_id_{mem_id}"
                 per_sample_namespace[mem_identifier] = mem
+                extra_arguments.append(ast.arg(arg=mem_identifier))
+                mem_banks_to_pass[mem_identifier] = mem
                 if mem is None:
                     mem_bank_exprs.append(
                         ast.Constant(value=None)
@@ -98,15 +105,18 @@ def compute_sample(batch_slot, batch_indices):
         # Add the proper return statement
         base_code.body[0].body.append(ast.Return(value=ast.Tuple(elts=return_values,
                                                                  ctx=ast.Load())))
+        # Add the destination arguments
+
+        base_code.body[0].args.args.extend(extra_arguments)
         base_code = ast.fix_missing_locations(base_code)
 
         import astor
         print(astor.to_source(base_code))
 
         exec(compile(base_code, '', 'exec'), per_sample_namespace)
-
-        compute_sample = Compiler.compile(per_sample_namespace['compute_sample'])
-        # compute_sample = per_sample_namespace['compute_sample']
+        compute_sample = per_sample_namespace['compute_sample']
+        compute_sample = Compiler.compile(compute_sample)
+        compute_sample = partial(compute_sample, **mem_banks_to_pass)
 
         def compute_batch(batch_slot, batch_indices):
             batches = compute_sample(batch_slot, batch_indices)
