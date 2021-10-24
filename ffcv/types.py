@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 
 from .fields.base import Field
-from .fields import FloatField, IntField, RGBImageField
+from .fields import FloatField, IntField, RGBImageField, BytesField
 
 CURRENT_VERSION = 1
 
@@ -41,7 +41,8 @@ FieldDescType = np.dtype([
 TYPE_ID_HANDLER = {
     0: FloatField,
     1: IntField,
-    2: RGBImageField
+    2: RGBImageField,
+    3: BytesField
 }
 
 # Parse the fields descriptors from the header of the dataset
