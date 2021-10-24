@@ -52,7 +52,6 @@ class EpochIterator(Thread):
 
         metadata = self.loader.reader.metadata
 
-        import astor
         function_calls = []
         per_sample_namespace = {
             'my_range': Compiler.get_iterator(),
@@ -83,29 +82,31 @@ class EpochIterator(Thread):
             return_values.append(ast.Name(id=mem_identifier, ctx=ast.Load()))
             f_call = ast.Call(func=ast.Name(id=pipeline_identifier, ctx=ast.Load()),
                               keywords=[],
-                              args=[ast.Subscript(value=ast.Name(id='sample', ctx=ast.Load()), slice=ast.Index(value=ast.Constant(p_ix), ctx=ast.Load()), ctx=ast.Load()), *mem_bank_exprs])
+                              args=[ast.Subscript(value=ast.Subscript(ast.Name(id='metadata', ctx=ast.Load()), slice=ast.Index(value=ast.Constant(f'f{p_ix}'), ctx=ast.Load()), ctx=ast.Load()),
+                                                  slice=ast.Index(value=ast.Name(id='ix', ctx=ast.Load()), ctx=ast.Load()), ctx=ast.Load()), *mem_bank_exprs])
             f_call = ast.Expr(value=f_call, decorator_list=[], lineno=p_ix+2)
             function_calls.append(f_call)
 
-        base_code = ast.parse("""
+        base_code = ast.parse(f"""
 def compute_sample(batch_slot, batch_indices):
     for dest_ix in my_range(len(batch_indices)):
         ix = batch_indices[dest_ix]
-        sample = metadata[ix]
         """)
         # Append the content of the pipeline to the for loop
         base_code.body[0].body[0].body.extend(function_calls)
 
+        # Add the proper return statement
         base_code.body[0].body.append(ast.Return(value=ast.Tuple(elts=return_values,
                                                                  ctx=ast.Load())))
         base_code = ast.fix_missing_locations(base_code)
 
-        # Add the proper return statement
+        import astor
         print(astor.to_source(base_code))
 
         exec(compile(base_code, '', 'exec'), per_sample_namespace)
 
-        compute_sample = per_sample_namespace['compute_sample']
+        compute_sample = Compiler.compile(per_sample_namespace['compute_sample'])
+        # compute_sample = per_sample_namespace['compute_sample']
 
         def compute_batch(batch_slot, batch_indices):
             batches = compute_sample(batch_slot, batch_indices)
