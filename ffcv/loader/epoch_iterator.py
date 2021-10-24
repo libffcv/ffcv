@@ -83,7 +83,7 @@ class EpochIterator(Thread):
             return_values.append(ast.Name(id=mem_identifier, ctx=ast.Load()))
             f_call = ast.Call(func=ast.Name(id=pipeline_identifier, ctx=ast.Load()),
                               keywords=[],
-                              args=[ast.Subscript(value=ast.Name(id='sample', ctx=ast.Load()), slice=ast.Constant(p_ix), ctx=ast.Load()), *mem_bank_exprs])
+                              args=[ast.Subscript(value=ast.Name(id='sample', ctx=ast.Load()), slice=ast.Index(value=ast.Constant(p_ix), ctx=ast.Load()), ctx=ast.Load()), *mem_bank_exprs])
             f_call = ast.Expr(value=f_call, decorator_list=[], lineno=p_ix+2)
             function_calls.append(f_call)
 
