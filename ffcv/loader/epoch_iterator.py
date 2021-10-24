@@ -55,7 +55,8 @@ class EpochIterator(Thread):
         import astor
         function_calls = []
         per_sample_namespace = {
-            'my_range': Compiler.get_iterator()
+            'my_range': Compiler.get_iterator(),
+            'metadata': metadata
         }
         return_values = []
         for p_ix in range(len(pipelines_sample)):
@@ -71,19 +72,25 @@ class EpochIterator(Thread):
                     )
                 else:
                     mem_bank_exprs.append(
-                        ast.parse(f"{mem_identifier}[batch_slot, dest_ix]")
+                        ast.parse(f"{mem_identifier}[batch_slot, dest_ix]").body[0].value
                     )
+
+            # Because we know that the last per-sample operation is Collate()
+            # which allocates its own memory, we can just look in the final
+            # allocated memory slot for the final result
+
+            # TODO select the proper subset of the instead of the whole thing!
             return_values.append(ast.Name(id=mem_identifier, ctx=ast.Load()))
             f_call = ast.Call(func=ast.Name(id=pipeline_identifier, ctx=ast.Load()),
                               keywords=[],
-                              args=[ast.Name(id='field_value', ctx=ast.Load()), *mem_bank_exprs])
+                              args=[ast.Subscript(value=ast.Name(id='sample', ctx=ast.Load()), slice=ast.Constant(p_ix), ctx=ast.Load()), *mem_bank_exprs])
             f_call = ast.Expr(value=f_call, decorator_list=[], lineno=p_ix+2)
             function_calls.append(f_call)
 
         base_code = ast.parse("""
-def compute_samplewise(batch_slot, batch_indices):
-    for ix in my_range(len(batch_indices)):
-        dest_ix = batch_indices[ix]
+def compute_sample(batch_slot, batch_indices):
+    for dest_ix in my_range(len(batch_indices)):
+        ix = batch_indices[dest_ix]
         sample = metadata[ix]
         """)
         # Append the content of the pipeline to the for loop
@@ -98,35 +105,8 @@ def compute_samplewise(batch_slot, batch_indices):
 
         exec(compile(base_code, '', 'exec'), per_sample_namespace)
 
+        compute_sample = per_sample_namespace['compute_sample']
 
-        def compute_sample(batch_slot, batch_indices):
-            # For each sample
-            for dest_ix, ix in enumerate(batch_indices):
-                sample = metadata[ix]
-                # For each field/pipline
-                for p_ix in range(len(pipelines_sample)):
-                    field_value = sample[p_ix]
-                    memory_banks = []
-                    for mem in memories_sample[p_ix]:
-                        if mem is None:
-                            memory_banks.append(None)
-                        else:
-                            memory_banks.append(mem[batch_slot, dest_ix])
-
-                    np.random.seed(int(self.loader.reader.num_samples * self.epoch + ix + self.loader.seed))
-                    pipelines_sample[p_ix](field_value, *memory_banks)
-
-            final_result = []
-
-            # Because we know that the last per-sample operation is Collate()
-            # which allocates its own memory, we can just look in the final
-            # allocated memory slot for the final result
-
-            # TODO select the proper subset of the instead of the whole thing!
-            for res in memories_sample:
-                final_result.append(res[-1][batch_slot, :len(batch_indices)])
-            return final_result
-            
         def compute_batch(batch_slot, batch_indices):
             batches = compute_sample(batch_slot, batch_indices)
             result = []
