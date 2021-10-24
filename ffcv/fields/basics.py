@@ -32,7 +32,7 @@ class BasicDecoder(Operation):
         def decoder(field, destination):
             destination[:] = field
             return destination
-        
+
         return decoder
 
 class FloatField(Field):
