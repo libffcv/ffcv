@@ -48,6 +48,3 @@ def test_write_simple():
         assert_that(reader.metadata).is_length(length)
         assert_that((reader.metadata['f0'] == np.arange(length).astype('int')).all()).is_true()
         assert_that((np.sin(reader.metadata['f0']) == reader.metadata['f1']).all()).is_true()
-
-        print(reader.metadata)
-
