@@ -94,6 +94,7 @@ def benchmark(length, size, do_compile):
         r2 = bench()
         total = time() - start
         throughput = N / total
+        print("MEMORY READ_THROUGHPUT", throughput, "im/sec")
         assert_that(throughput).is_greater_than(80000)
         assert_that(r1).is_equal_to(r2)
 
