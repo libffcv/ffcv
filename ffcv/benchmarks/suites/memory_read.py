@@ -41,7 +41,7 @@ class DummyDataset(Dataset):
     'random_reads': [True, False],
     'n': [30000]
 })
-class MemoryReadBytes(Benchmark):
+class MemoryReadBytesBench(Benchmark):
 
     def __init__(self, num_samples, size_bytes, random_reads, n):
         self.num_samples = num_samples
@@ -71,7 +71,7 @@ class MemoryReadBytes(Benchmark):
             read_fn = manager.compile_reader()
 
         if self.random_reads:
-            indices = np.random.choice(self.num_samples, self.n)
+            indices = np.random.choice(self.num_samples, self.n, replace=False)
         else:
             indices = np.arange(self.num_samples)[:self.n]
 
