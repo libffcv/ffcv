@@ -11,17 +11,26 @@ def pkgconfig(package, kw):
         'pkg-config --cflags --libs {}'.format(package))
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
+    print(output)
     return kw
 
 
 sources = ['./libffcv/libffcv.cpp']
 
-extension_kwargs = {
-    'sources': sources,
-}
+try:
+    extension_kwargs = {
+        'sources': sources,
+    }
+    extension_kwargs = pkgconfig('opencv', extension_kwargs)
+    extension_kwargs['include_dirs'].append('/usr/include')
+except:
+    extension_kwargs = {
+        'sources': sources,
+    }
 
-extension_kwargs = pkgconfig('opencv', extension_kwargs)
-extension_kwargs['include_dirs'].append('/usr/include')
+    extension_kwargs = pkgconfig('opencv4', extension_kwargs)
+    extension_kwargs['include_dirs'].append('/usr/include')
+
 
 print(extension_kwargs)
 
