@@ -14,7 +14,7 @@ from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
     loader = Loader('../imagenet_train_tiny.beton',
-                    batch_size=100,
+                    batch_size=20,
                     order=OrderOption.RANDOM)
     loader.pipelines['image'] = [
         RandomResizedCrop((0.08, 1.0), np.array([2/3., 4/3.]), 224),
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     ]
     print("Ratio raw", loader.reader.metadata['f0']['mode'].mean())
 
-    for i in range(1):
+    for i in range(2):
         for image, label in tqdm(loader):
             """
             for j in range(4):

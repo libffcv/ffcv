@@ -110,8 +110,8 @@ def compute_sample(batch_slot, batch_indices):
         base_code.body[0].args.args.extend(extra_arguments)
         base_code = ast.fix_missing_locations(base_code)
 
-        import astor
-        print(astor.to_source(base_code))
+        # import astor
+        # print(astor.to_source(base_code))
 
         exec(compile(base_code, '', 'exec'), per_sample_namespace)
         compute_sample = per_sample_namespace['compute_sample']
@@ -122,7 +122,7 @@ def compute_sample(batch_slot, batch_indices):
             batches = compute_sample(batch_slot, batch_indices)
             result = []
             for batch, op, mems in zip(batches, pipelines_batch, memories_batch):
-                result.append(op(batch, *[None if mem is None else mem[batch_slot] for mem in mems]))
+                result.append(op(batch[batch_slot], *[None if mem is None else mem[batch_slot] for mem in mems]))
 
             return tuple(result)
 
