@@ -193,9 +193,12 @@ class DatasetWriter():
             allocation_table_location = fp.tell()
             # Retrieve all the allocations from the workers
             # Turn them into a numpy array
-            allocation_table = np.concatenate([
-                np.array(x).view(ALLOC_TABLE_TYPE) for x in allocations
-            ])
+            try:
+                allocation_table = np.concatenate([
+                    np.array(x).view(ALLOC_TABLE_TYPE) for x in allocations if len(x)
+                ])
+            except:
+                allocation_table = np.array([]).view(ALLOC_TABLE_TYPE)
             # print(allocation_table)
             fp.write(allocation_table.tobytes())
             self.header['alloc_table_ptr'] = allocation_table_location
