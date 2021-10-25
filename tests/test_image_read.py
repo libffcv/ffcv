@@ -71,7 +71,7 @@ def create_and_validate(length, mode='raw'):
                 assert_that(dist.mean()).is_less_than(60)
             else:
                 assert_that(np.all(ref_image == result)).is_true()
-        
+                
 def test_simple_image_dataset_raw():
     create_and_validate(500, 'raw')
 
