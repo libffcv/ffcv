@@ -93,8 +93,10 @@ class ImageReadBench(Benchmark):
             self.indices = np.arange(self.n)
             
         def code(indices, buff):
+            result = 0
             for i in indices:
-                decode(reader.metadata['f1'][i], buff).min()
+                result += decode(reader.metadata['f1'][i], buff)[5, 5]
+            return result
                 
         self.code = code
 
