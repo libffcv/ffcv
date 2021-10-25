@@ -8,7 +8,7 @@ from tempfile import NamedTemporaryFile
 
 from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
-from ffcv.fields import IntField, FloatField
+from ffcv.fields import IntField, FloatField, BytesField
 
 numba_logger = logging.getLogger('numba')
 numba_logger.setLevel(logging.WARNING)
@@ -25,6 +25,19 @@ class DummyDataset(Dataset):
         if index > self.l:
             raise IndexError()
         return (index, np.sin(index))
+
+class DummyDatasetWithData(Dataset):
+
+    def __init__(self, l):
+        self.l = l
+
+    def __len__(self):
+        return self.l
+
+    def __getitem__(self, index):
+        if index > self.l:
+            raise IndexError()
+        return (index, np.zeros(2))
 
 def validate_simple_dataset(name, length):
     reader = Reader(name)
@@ -79,5 +92,20 @@ def test_super_long():
 
         with writer:
             writer.write_pytorch_dataset(dataset, num_workers=30, chunksize=10000)
+
+        validate_simple_dataset(name, length)
+
+def test_small_chunks_multiple_workers():
+    length = 600
+    with NamedTemporaryFile() as handle:
+        name = handle.name
+        dataset = DummyDatasetWithData(length)
+        writer = DatasetWriter(length, name, {
+            'index': IntField(),
+            'value': BytesField()
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(dataset, num_workers=30, chunksize=1)
 
         validate_simple_dataset(name, length)
