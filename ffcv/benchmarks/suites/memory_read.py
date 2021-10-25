@@ -32,14 +32,14 @@ class DummyDataset(Dataset):
         return index, np.random.randint(0, 255, size=self.size, dtype='u1')
 
 @benchmark({
-    'num_samples': [10000],
+    'num_samples': [30000],
     'size_bytes': [
         32 * 32 * 3, # CIFAR RAW image size,
         500 * 300 * 3, # IMAGENET raw image size,
         128 * 1024, # IMAGENET jpg image size,
     ],
     'random_reads': [True, False],
-    'n': [100000]
+    'n': [30000]
 })
 class MemoryReadBytes(Benchmark):
 
