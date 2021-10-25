@@ -107,5 +107,3 @@ def test_small_chunks_multiple_workers():
 
         with writer:
             writer.write_pytorch_dataset(dataset, num_workers=30, chunksize=1)
-
-        validate_simple_dataset(name, length)
