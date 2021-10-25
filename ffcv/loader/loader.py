@@ -1,5 +1,5 @@
 from multiprocessing import cpu_count
-from typing import Mapping, Sequence, TYPE_CHECKING, Union, Literal
+from typing import Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
 from enum import Enum, unique, auto
 
 import torch as ch
@@ -77,13 +77,13 @@ class Loader:
                  memory_manager: MEMORY_MANAGER_TYPE = MemoryManagerOption.RAM,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
-                 seed: int = 42,  # For ordering of samples
+                 seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
                  device: ch.device = ch.device('cpu')):
 
         self.fname: str = fname
         self.batch_size:int = batch_size
-        self.seed: int = seed
+        self.seed: Optional[int] = seed
         self.reader: Reader = Reader(self.fname)
         self.num_workers: int = num_workers
 
@@ -115,6 +115,7 @@ class Loader:
         cur_epoch = self.next_epoch
         self.next_epoch += 1
         order = self.traversal_order.sample_order(cur_epoch)
+        print(order)
         return EpochIterator(self, cur_epoch, order)
     
     def __len__(self):
