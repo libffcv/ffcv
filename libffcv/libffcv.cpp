@@ -19,7 +19,6 @@ extern "C" {
         cv::Mat dest_matrix(height, width, CV_8UC3, (uint8_t*) dst_data);
         cv::InputArray source_input(source_matrix);
         cv::imdecode(source_input, cv::IMREAD_COLOR, &dest_matrix);
-        cv::cvtColor(dest_matrix, dest_matrix, cv::COLOR_BGR2RGB);
     }
 
     static PyMethodDef libffcvMethods[] = {
