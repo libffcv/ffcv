@@ -54,50 +54,6 @@ def create_and_validate(length, size, do_compile):
 
         # We skip the first which is compilation
 
-def benchmark(length, size, do_compile):
-
-    dataset = DummyDataset(length, size)
-
-    with NamedTemporaryFile() as handle:
-        name = handle.name
-        writer = DatasetWriter(length, name, {
-            'index': IntField(),
-            'value': BytesField()
-        })
-
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
-
-        reader = Reader(name)
-        manager = RAMMemoryManager(reader)
-
-        Compiler.set_enabled(do_compile)
-
-        with manager:
-            read_fn = manager.compile_reader()
-
-        N = 100000
-        indices = np.random.choice(length, N)
-        addresses = reader.alloc_table['ptr'][:N]
-
-        def bench():
-            result = 0
-            for i in range(addresses.shape[0]):
-                result += read_fn(addresses[i]).min()
-
-            return result
-
-        bench = Compiler.compile(bench)
-
-        r1 = bench()
-        start = time()
-        r2 = bench()
-        total = time() - start
-        throughput = N / total
-        print("MEMORY READ_THROUGHPUT", throughput, "im/sec")
-        assert_that(throughput).is_greater_than(80000)
-        assert_that(r1).is_equal_to(r2)
-
 def test_simple():
     create_and_validate(600, 76, False)
 
@@ -109,7 +65,3 @@ def test_many():
 
 def test_many_compiled():
     create_and_validate(1000000, 1, True)
-
-def test_benchmark_compiled():
-    # Average JPEG Image size
-    benchmark(100000, 1024 * 134, True)
