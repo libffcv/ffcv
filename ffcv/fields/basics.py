@@ -1,4 +1,4 @@
-from typing import Callable, TYPE_CHECKING, Tuple
+from typing import Callable, TYPE_CHECKING, Tuple, Type
 from dataclasses import replace
 
 import numpy as np
@@ -14,10 +14,6 @@ if TYPE_CHECKING:
 
 class BasicDecoder(Operation):
 
-    def __init__(self, dtype, memory:'MemoryManager'):
-        self.dtype = dtype
-        self.memory: 'MemoryManager' = memory
-    
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         my_shape = (1,)
         return (
@@ -34,6 +30,12 @@ class BasicDecoder(Operation):
             return destination
 
         return decoder
+        
+class IntDecoder(BasicDecoder):
+    dtype = np.dtype('<i8')
+
+class FloatDecoder(BasicDecoder):
+    dtype = np.dtype('<f8')
 
 class FloatField(Field):
     def __init__(self):
@@ -53,8 +55,8 @@ class FloatField(Field):
     def encode(self, destination, field, malloc):
         destination[0] = field
         
-    def get_decoder(self, metadata: np.array, memory: 'MemoryManager') -> Operation:
-        return BasicDecoder(np.dtype('f8'), memory)
+    def get_decoder_class(self, metadata: np.array, memory: 'MemoryManager') -> Type[Operation]:
+        return FloatDecoder
 
 class IntField(Field):
     @property
@@ -72,6 +74,6 @@ class IntField(Field):
         # We just allocate 1024bytes for fun
         destination[0] = field
 
-    def get_decoder(self, metadata: np.array, memory: 'MemoryManager') -> Operation:
-        return BasicDecoder(np.dtype('i8'), memory)
+    def get_decoder_class(self) -> Type[Operation]:
+        return IntDecoder
 
