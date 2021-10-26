@@ -34,15 +34,19 @@ class Pipeline:
         self.memory_buffers: Mapping[int, Any] = {}
         # Where we remember what each operation in the pipeline needs
 
+        self.operation_blocks, _ = self.parse_pipeline()
+
+        print(self.operation_blocks)
+
         # Compile the pipeline
         self.compiled_code = None
 
     def parse_pipeline(self, batch_size=16):
         memory_allocations: Mapping[int, Optional[AllocationQuery]] = {}
+        operation_blocs = []
+
         current_state: State = self.original_state
-
-
-        has_collate: bool = False
+        current_block = []
 
         # We read the content of the pipeline, validate and collect
         # Memory allocations
@@ -50,35 +54,22 @@ class Pipeline:
             previous_state = current_state
             current_state, memory_allocation = operation.declare_state_and_memory(
                 current_state)
+
+            if current_state.jit_mode != previous_state.jit_mode:
+                if current_block:
+                    operation_blocs.append((previous_state.jit_mode, current_block))
+                current_block = [op_id]
+            else:
+                current_block.append(op_id)
+
             memory_allocations[op_id] = memory_allocation
 
-            # Check that the operation is not changing the pipeline
-            # When it should not
-            if (not isinstance(operation, CoreOp)
-                    and current_state.stage != previous_state.stage):
-                raise AssertionError("You are not allowed to change the stage")
+        if current_block:
+            operation_blocs.append((current_state.jit_mode, current_block))
 
-            # Add batch size to the shape when collating
-            if isinstance(operation, Collate):
-                # We can't have a second
-                if has_collate:
-                    raise ValueError(BAD_COLLATION_MESSAGE)
-                has_collate = True
-                # We allocate memory for the collated data
-                memory_allocations[op_id] = AllocationQuery(
-                    current_state.shape, current_state.dtype)
-                current_state = replace(current_state,
-                                        shape=current_state.shape)
-
-            operation_to_stage[operation] = previous_state.stage
-
-        if not has_collate:
-            raise ValueError(BAD_COLLATION_MESSAGE)
-
-        return operation_to_stage, memory_allocations
+        return operation_blocs, memory_allocations
 
     def before_epoch(self, batch_size: int, batches_ahead: int):
-
         _, memory_allocations = self.parse_pipeline()
 
         for op_id, memory_allocation in memory_allocations.items():
@@ -119,56 +110,3 @@ class Pipeline:
                                           dtype=memory_allocation.dtype)
 
                 self.memory_buffers[op_id] = result
-
-    def memory_for_stage(self):
-        return None
-
-    def generate_code(self):
-        return None
-
-    def generate_composition(self, operations, do_compile):
-        # BIG METAPROGRAMMING PARTY INCOMING
-        arguments = [ast.arg('result')]
-        body = []
-        functions = {}
-
-        for op_id, op in enumerate(operations):
-            func_name = f'pipeline_stage_{op_id}'
-            code = op.generate_code()
-            if do_compile:
-                code = Compiler.compile(code)
-            functions[func_name] = code
-            dst_name = f"dest_{op_id}"
-            arguments.append(ast.arg(dst_name))
-            body.append(ast.Assign(targets=[ast.Name(id='result', ctx=ast.Store())],
-                                   value=ast.Call(func=ast.Name(id=func_name, ctx=ast.Load()),
-                                                  keywords=[],
-                                                  args=[ast.Name('result', ctx=ast.Load()),
-                                                        ast.Name(
-                                                            id=dst_name, ctx=ast.Load())
-                                                        ])))
-        body.append(ast.Return(value=ast.Name(id='result', ctx=ast.Load())))
-
-        final_function = ast.FunctionDef(name='compute_pipeline',
-                                         args=ast.arguments(args=arguments,
-                                                            posonlyargs=[],
-                                                            kwonlyargs=[],
-                                                            kw_defaults=[],
-                                                            defaults=[]),
-                                         body=body,
-                                         decorator_list=[])
-
-        module = ast.fix_missing_locations(
-            ast.Module(body=[final_function],
-                       type_ignores=[])
-        )
-
-        namespace = {
-            **functions,
-        }
-
-        exec(compile(module, '', 'exec'), namespace)
-        code = namespace['compute_pipeline']
-        if do_compile:
-            code = Compiler.compile(code)
-        return code
