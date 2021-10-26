@@ -41,6 +41,7 @@ extern "C" {
                       __uint32_t crop_height, __uint32_t crop_width,
                       __uint32_t offset_x, __uint32_t offset_y,
                       __uint32_t scale_num, __uint32_t scale_denom,
+                      bool enable_crop,
                       bool hflip)
     {
         pthread_once(&key_once, make_keys);
@@ -75,10 +76,22 @@ extern "C" {
         unsigned char *dstBuf = NULL;
         unsigned long dstSize = 0;
 
-        tjTransform(tj_transformer, input_buffer, input_size, 1, &dstBuf, &dstSize, &xform, TJFLAG_FASTDCT);
-        return tjDecompress2(tj_decompressor, dstBuf, dstSize, output_buffer,
+        bool do_transform = enable_crop || hflip;
+
+        if (do_transform) {
+            tjTransform(tj_transformer, input_buffer, input_size, 1, &dstBuf, &dstSize, &xform, TJFLAG_FASTDCT);
+        } else {
+            dstBuf = input_buffer;
+            dstSize = input_size;
+        }
+        int result =  tjDecompress2(tj_decompressor, dstBuf, dstSize, output_buffer,
                 TJSCALED(crop_width, scaling), 0, TJSCALED(crop_height, scaling),
                 TJPF_RGB, TJFLAG_FASTDCT | TJFLAG_NOREALLOC);
+
+        if (do_transform) {
+             tjFree(dstBuf);
+        }
+        return result;
     }
 
     static PyMethodDef libffcvMethods[] = {

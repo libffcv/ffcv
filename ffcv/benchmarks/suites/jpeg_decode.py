@@ -12,11 +12,11 @@ from ...pipeline.compiler import Compiler
 from ...libffcv import imdecode
 
 @benchmark({
-    'n': [1000],
+    'n': [500],
     'source_image': ['../../../test_data/pig.png'],
     'image_width': [500, 256, 1024],
     'quality': [50, 90],
-    'compile': [True, False]
+    'compile': [True]
 })
 class JPEGDecodeBenchmark(Benchmark):
 
