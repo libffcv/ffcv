@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Type
 import numpy as np
 from abc import ABC, abstractmethod
 
@@ -27,6 +28,6 @@ class Field(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def get_decoder(self, metadta: np.ndarray) -> Operation:
+    def get_decoder_class(self, metadta: np.ndarray) -> Type[Operation]:
         raise NotImplementedError
         

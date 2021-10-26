@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import Optional, Callable, TYPE_CHECKING, Tuple
+from typing import Optional, Callable, TYPE_CHECKING, Tuple, Type
 
 import cv2
 import numpy as np
@@ -42,10 +42,8 @@ def resizer(image, target_resolution):
 
 
 class RGBImageDecoder(Operation):
-    def __init__(self, metadata: np.ndarray, memory: 'MemoryManager'):
+    def __init__(self):
         super().__init__()
-        self.metadata = metadata
-        self.memory: 'MemoryManager' = memory
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
@@ -63,7 +61,7 @@ class RGBImageDecoder(Operation):
         )
 
     def generate_code(self) -> Callable:
-        mem_read = self.memory
+        mem_read = self.memory_read
         imdecode_c = Compiler.compile(imdecode)
 
         jpg = IMAGE_MODES['jpg']
@@ -104,8 +102,8 @@ class RGBImageField(Field):
             ('data_ptr', '<u8'),
         ])
         
-    def get_decoder(self, metadata: np.ndarray, memory: 'MemoryManager') -> Operation:
-        return RGBImageDecoder(metadata, memory)
+    def get_decoder_class(self) -> Type[Operation]:
+        return RGBImageDecoder
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:

@@ -54,7 +54,10 @@ def create_and_validate(length, mode='raw'):
         reader = Reader(name)
         manager = RAMMemoryManager(reader)
         with manager:
-            decoder = RGBImageField().get_decoder(reader.metadata, manager.compile_reader())
+            Decoder = RGBImageField().get_decoder_class()
+            decoder = Decoder()
+            decoder.accept_globals(reader.metadata, manager.compile_reader())
+
         decode = decoder.generate_code()
 
         assert_that(reader.metadata).is_length(length)
