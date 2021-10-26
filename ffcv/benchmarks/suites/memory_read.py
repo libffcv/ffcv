@@ -38,16 +38,18 @@ class DummyDataset(Dataset):
         500 * 300 * 3, # IMAGENET raw image size,
         128 * 1024, # IMAGENET jpg image size,
     ],
+    'compiled': [True, False],
     'random_reads': [True, False],
     'n': [30000]
 })
 class MemoryReadBytesBench(Benchmark):
 
-    def __init__(self, num_samples, size_bytes, random_reads, n):
+    def __init__(self, num_samples, size_bytes, random_reads, n, compiled):
         self.num_samples = num_samples
         self.size_bytes = size_bytes
         self.random_reads = random_reads
         self.n = n
+        self.compiled = compiled
         
     def __enter__(self):
         self.handle = NamedTemporaryFile()
@@ -60,12 +62,12 @@ class MemoryReadBytesBench(Benchmark):
         })
 
         with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
+            writer.write_pytorch_dataset(dataset, num_workers=-1, chunksize=100)
 
         reader = Reader(name)
         manager = RAMMemoryManager(reader)
 
-        Compiler.set_enabled(True)
+        Compiler.set_enabled(self.compiled)
 
         with manager:
             read_fn = manager.compile_reader()
