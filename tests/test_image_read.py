@@ -54,7 +54,10 @@ def create_and_validate(length, mode='raw'):
         reader = Reader(name)
         manager = RAMMemoryManager(reader)
         with manager:
-            decoder = RGBImageField().get_decoder(reader.metadata, manager.compile_reader())
+            Decoder = RGBImageField().get_decoder_class()
+            decoder = Decoder()
+            decoder.accept_globals(reader.metadata, manager.compile_reader())
+
         decode = decoder.generate_code()
 
         assert_that(reader.metadata).is_length(length)
@@ -67,7 +70,7 @@ def create_and_validate(length, mode='raw'):
             assert_that(result.shape).is_equal_to(ref_image.shape)
             if mode == 'jpg':
                 dist = np.abs(ref_image.astype('float') - result.astype('float'))
-                assert_that(dist.mean()).is_less_than(60)
+                assert_that(dist.mean()).is_less_than(80)
             else:
                 assert_that(np.all(ref_image == result)).is_true()
                 
