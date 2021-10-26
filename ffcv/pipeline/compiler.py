@@ -10,6 +10,7 @@ class Compiler:
     @classmethod
     def compile(cls, code):
         if cls.is_enabled:
+            print("Compiling with numba")
             return njit(fastmath=True)(code)
         return code
 

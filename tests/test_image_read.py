@@ -70,7 +70,7 @@ def create_and_validate(length, mode='raw'):
             assert_that(result.shape).is_equal_to(ref_image.shape)
             if mode == 'jpg':
                 dist = np.abs(ref_image.astype('float') - result.astype('float'))
-                assert_that(dist.mean()).is_less_than(60)
+                assert_that(dist.mean()).is_less_than(80)
             else:
                 assert_that(np.all(ref_image == result)).is_true()
                 

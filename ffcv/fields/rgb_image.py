@@ -76,7 +76,8 @@ class RGBImageDecoder(Operation):
             destination = destination.reshape(height, width, 3)
 
             if field['mode'] == jpg:
-                imdecode_c(image_data, destination)
+                destination.reshape(-1)[:image_data.shape[0]] = image_data
+                imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False)
             else:
                 destination[:] = image_data.reshape(height, width, 3)
 

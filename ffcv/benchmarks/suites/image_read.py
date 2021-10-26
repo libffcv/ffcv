@@ -17,6 +17,7 @@ from ..benchmark import Benchmark
 from ..decorator import benchmark
 
 
+
 class DummyDataset(Dataset):
 
     def __init__(self, length, min_size, max_size):
@@ -43,12 +44,18 @@ class DummyDataset(Dataset):
 @benchmark({
     'n': [3000],
     'length': [30000],
-    'mode': ['raw', 'jpg'],
+    'mode': [
+        # 'raw',
+        'jpg'
+        ],
     'size_range': [
-        (32, 33),  # CIFAR
+        # (32, 33),  # CIFAR
         (300, 500),  # ImageNet
     ],
-    'random_reads': [True, False]
+    'random_reads': [
+        True,
+        # False
+    ]
 })
 class ImageReadBench(Benchmark):
     
@@ -71,19 +78,22 @@ class ImageReadBench(Benchmark):
         })
 
         with writer:
-            writer.write_pytorch_dataset(self.dataset, num_workers=2, chunksize=5)
+            writer.write_pytorch_dataset(self.dataset, num_workers=-1, chunksize=100)
 
         reader = Reader(name)
         manager = RAMMemoryManager(reader)
 
+        Compiler.set_enabled(True)
+
         with manager:
             memreader = manager.compile_reader()
-            decoder = RGBImageField().get_decoder(reader.metadata, memreader)
+            Decoder = RGBImageField().get_decoder_class()
+            decoder = Decoder()
+            decoder.accept_globals(reader.metadata, memreader)
 
         decode = decoder.generate_code()
         decode = Compiler.compile(decode)
         
-        Compiler.set_enabled(True)
 
         self.buff = np.zeros((500, 500, 3), dtype='uint8')
         
