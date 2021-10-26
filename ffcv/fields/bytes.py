@@ -1,4 +1,4 @@
-from typing import Callable, TYPE_CHECKING, Tuple
+from typing import Callable, TYPE_CHECKING, Tuple, Type
 from dataclasses import replace
 
 import numpy as np
@@ -11,11 +11,6 @@ from ..pipeline.allocation_query import AllocationQuery
 
 
 class BytesDecoder(Operation):
-
-    def __init__(self, dtype, metadata: np.ndarray, memory_read):
-        self.dtype = dtype
-        self.memory_read = memory_read
-        self.metadata = metadata
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         max_size = self.metadata['size'].max()
@@ -58,5 +53,5 @@ class BytesField(Field):
         destination['ptr'] = ptr
         destination['size'] = field.size
 
-    def get_decoder(self, metadata: np.array, read_function) -> Operation:
-        return BytesDecoder(np.dtype('f8'), metadata, read_function)
+    def get_decoder_class(self, metadata: np.array, read_function) -> Type[Operation]:
+        return BytesDecoder()

@@ -1,3 +1,4 @@
+import enum
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
 from enum import Enum, unique, auto
@@ -13,8 +14,7 @@ from ..traversal_order.base import TraversalOrder
 from ..traversal_order import Random, Sequential
 from ..pipeline import Pipeline
 from ..pipeline.operation import Operation
-from ..fields.base import Field
-from ..transforms.ops import Collate, ToTensor
+from ..transforms.ops import ToTensor
 
 
 @unique
@@ -45,28 +45,6 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.SEQUENTIAL: Sequential
 }
 
-class Pipelines():
-    def __init__(self, fields: Mapping[str, Field], metadata: np.ndarray,
-                 memory: MemoryManager):
-        self.fields: Mapping[str, Field] = fields
-        
-        self.decoders: Mapping[str, Operation] = {
-            k: self.fields[k].get_decoder(metadata[f'f{i}'], memory) for (i, k) in enumerate(self.fields)
-        }
-
-        # This is the default pipeline: Decode and collate
-        self.pipelines: Mapping[str, Pipeline] = {
-            k: Pipeline([self.decoders[k], Collate(), ToTensor()]) for k in self.fields.keys()
-        }
-
-    def __setitem__(self, name: str, value: Sequence[Operation]) -> None:
-        if name not in self.pipelines:
-            raise KeyError(f"Unknown field: {name}")
-        
-        self.pipelines[name] = Pipeline([self.decoders[name], *value])
-        
-    def __getitem__(self, key: str):
-        return self.pipelines[key]
 
 class Loader:
 
@@ -79,6 +57,7 @@ class Loader:
                  distributed: bool = False,
                  seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
+                 pipelines: Mapping[str, Sequence[Operation]] = {},
                  device: ch.device = ch.device('cpu')):
 
         self.fname: str = fname
@@ -104,13 +83,41 @@ class Loader:
         
         # TODO EXIT eventually
         self.memory_manager.__enter__()
-        self.memory_read = self.memory_manager.compile_reader()
-        
+
+        memory_read = self.memory_manager.compile_reader()
         self.next_epoch: int = 0
-        self.pipelines: Pipelines = Pipelines(self.reader.handlers,
-                                              self.reader.metadata,
-                                              self.memory_read)
         
+        self.pipelines = {}
+        
+        for (field_name, field) in self.reader.handlers.items():
+            DecoderClass = field.get_decoder_class()
+            try:
+                operations = pipelines[field_name]
+                if not isinstance(operations[0], DecoderClass):
+                    msg = "The first operation of the pipeline for "
+                    msg += f"'{field_name}' has to be a subclass of "
+                    msg += f"{DecoderClass}"
+                    raise ValueError(msg)
+
+            except KeyError:
+                try:
+                    operations = [
+                        DecoderClass(),
+                        ToTensor()
+                    ]
+                except Exception:
+                    msg = f"Impossible to create a default pipeline"
+                    msg += f"{field_name}, please define one manually"
+                    raise ValueError(msg)
+                    
+            for op in operations:
+                op.accept_globals(self.reader.metadata, memory_read)
+                
+            self.pipeline[field_name] = Pipeline(operations)
+        
+    def close(self):
+        self.memory_manager.__exit__(None, None, None)
+
     def __iter__(self):
         cur_epoch = self.next_epoch
         self.next_epoch += 1
@@ -119,5 +126,6 @@ class Loader:
         return EpochIterator(self, cur_epoch, order)
     
     def __len__(self):
+        # TODO handle drop_last
         return int(np.ceil(len(self.indices) / self.batch_size))
     

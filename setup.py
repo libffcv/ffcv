@@ -9,30 +9,25 @@ def pkgconfig(package, kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     output = subprocess.getoutput(
         'pkg-config --cflags --libs {}'.format(package))
+    if 'not found' in output:
+        raise Exception()
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
-    print(output)
     return kw
 
 
 sources = ['./libffcv/libffcv.cpp']
 
-try:
-    extension_kwargs = {
-        'sources': sources,
-    }
-    extension_kwargs = pkgconfig('opencv', extension_kwargs)
-    extension_kwargs['include_dirs'].append('/usr/include')
-except:
-    extension_kwargs = {
-        'sources': sources,
-    }
-
-    extension_kwargs = pkgconfig('opencv4', extension_kwargs)
-    extension_kwargs['include_dirs'].append('/usr/include')
+extension_kwargs = {
+    'sources': sources,
+    'include_dirs': []
+}
+extension_kwargs = pkgconfig('libturbojpeg', extension_kwargs)
 
 
-print(extension_kwargs)
+extension_kwargs['include_dirs'].append('/usr/include')
+extension_kwargs['libraries'].append('pthread')
+
 
 libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
