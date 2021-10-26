@@ -8,7 +8,6 @@ import numpy as np
 from ffcv.pipeline.compiler import Compiler
 
 from ..utils import chunks
-from ..pipeline.state import Stage
 
 if TYPE_CHECKING:
     from .loader import Loader
@@ -42,13 +41,7 @@ class EpochIterator(Thread):
 
         # TODO stop copy/paste please G.
         for name in self.loader.reader.handlers:
-            pipeline = self.loader.pipelines[name]
-            pipelines_sample.append(pipeline.generate_code(Stage.INDIVIDUAL))
-            pipelines_batch.append(pipeline.generate_code(Stage.BATCH))
-            pipelines_pytorch.append(pipeline.generate_code(Stage.PYTORCH))
-            memories_sample.append(pipeline.memory_for_stage(Stage.INDIVIDUAL))
-            memories_batch.append(pipeline.memory_for_stage(Stage.BATCH))
-            memories_pytorch.append(pipeline.memory_for_stage(Stage.PYTORCH))
+            pass
 
 
         metadata = self.loader.reader.metadata

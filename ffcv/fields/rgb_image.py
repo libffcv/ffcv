@@ -9,7 +9,6 @@ from PIL.Image import Image
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
-from ..pipeline.stage import Stage
 from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
 from ..libffcv import imdecode
@@ -55,7 +54,7 @@ class RGBImageDecoder(Operation):
         my_dtype = np.dtype('<u1')
 
         return (
-            replace(previous_state, stage=Stage.INDIVIDUAL, jit_mode=True,
+            replace(previous_state, jit_mode=True,
                     shape=biggest_shape, dtype=my_dtype),
             AllocationQuery(biggest_shape, my_dtype)
         )

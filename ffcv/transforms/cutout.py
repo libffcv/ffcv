@@ -6,7 +6,6 @@ from numpy.random import randint
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
-from ..pipeline.stage import Stage
 from ..pipeline.state import State
 
 class Cutout(Operation):
@@ -32,5 +31,4 @@ class Cutout(Operation):
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         assert previous_state.jit_mode
-        assert previous_state.stage == Stage.INDIVIDUAL
         return previous_state, None

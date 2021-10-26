@@ -3,7 +3,6 @@ import numpy as np
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
-from ..pipeline.stage import Stage
 from ..pipeline.state import State
 from dataclasses import replace
 

@@ -10,7 +10,6 @@ import numpy as np
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
-from ..pipeline.stage import Stage
 from ..pipeline.state import State
 from dataclasses import replace
 
@@ -29,8 +28,7 @@ class Collate(CoreOp):
         return collate
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.stage == Stage.INDIVIDUAL
-        return replace(previous_state, stage=Stage.BATCH), None
+        return replace(previous_state), None
 
 class ToTensor(CoreOp):
     def __init__(self):
@@ -43,9 +41,7 @@ class ToTensor(CoreOp):
     
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         new_dtype = ch.from_numpy(np.empty((), dtype=previous_state.dtype)).dtype
-        assert previous_state.stage == Stage.BATCH
-        # TODO: is this the right place to turn off jit?
-        return replace(previous_state, stage=Stage.PYTORCH, jit_mode=False, dtype=new_dtype), None
+        return replace(previous_state, jit_mode=False, dtype=new_dtype), None
 
 class ToDevice(CoreOp):
     def __init__(self, device, non_blocking=True):
@@ -61,7 +57,6 @@ class ToDevice(CoreOp):
         return to_device
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.stage == Stage.PYTORCH
         return replace(previous_state, device=self.device), AllocationQuery(previous_state.shape, dtype=previous_state.dtype, device=self.device)
 
 class ToTorchImage(CoreOp):

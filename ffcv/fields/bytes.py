@@ -6,7 +6,6 @@ import numpy as np
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
-from ..pipeline.stage import Stage
 from ..pipeline.allocation_query import AllocationQuery
 
 
@@ -16,8 +15,7 @@ class BytesDecoder(Operation):
         max_size = self.metadata['size'].max()
         my_shape = (max_size,)
         return (
-            replace(previous_state, jit_mode=True,
-                    stage=Stage.INDIVIDUAL, shape=my_shape,
+            replace(previous_state, jit_mode=True, shape=my_shape,
                     dtype='<u1'),
             None
         )
@@ -53,5 +51,5 @@ class BytesField(Field):
         destination['ptr'] = ptr
         destination['size'] = field.size
 
-    def get_decoder_class(self, metadata: np.array, read_function) -> Type[Operation]:
+    def get_decoder_class(self) -> Type[Operation]:
         return BytesDecoder()
