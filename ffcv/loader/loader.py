@@ -89,7 +89,7 @@ class Loader:
         
         self.pipelines = {}
         
-        for (field_name, field) in self.reader.handlers.items():
+        for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
             DecoderClass = field.get_decoder_class()
             try:
                 operations = pipelines[field_name]
@@ -109,9 +109,10 @@ class Loader:
                     msg = f"Impossible to create a default pipeline"
                     msg += f"{field_name}, please define one manually"
                     raise ValueError(msg)
-                    
+
             for op in operations:
-                op.accept_globals(self.reader.metadata, memory_read)
+                op.accept_globals(self.reader.metadata[f'f{f_ix}'],
+                                  memory_read)
                 
             self.pipeline[field_name] = Pipeline(operations)
         
