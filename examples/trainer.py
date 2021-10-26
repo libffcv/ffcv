@@ -8,6 +8,7 @@ from time import time
 from uuid import uuid4
 
 import numpy as np
+from torch._C import memory_format
 import torchmetrics
 from fastargs import Param, Section
 from fastargs.decorators import param
@@ -17,12 +18,17 @@ from tqdm import tqdm
 
 import torch as ch
 ch.backends.cudnn.benchmark = True
-ch.autograd.set_detect_anomaly(False)
+ch.autograd.set_detect_anomaly(True)
 ch.autograd.profiler.emit_nvtx(False)
 ch.autograd.profiler.profile(False)
 
 import torch.nn.functional as F
 import torch.optim as optim
+
+import matplotlib as mpl
+mpl.use('module://imgcat')
+from matplotlib import pyplot as plt
+from robustness.tools.vis_tools import show_image_row
 
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
@@ -36,11 +42,11 @@ Section('logging', 'how to log stuff').params(folder=Param(str, 'log location', 
 Section('training', 'training hyper param stuff').params(
     batch_size=Param(int, 'The batch size', default=512),
     optimizer=Param(And(str, OneOf(['sgd', 'lamb', 'sam'])), 'The optimizer', default='sgd'),
-    lr=Param(float, 'learning rate', default=0.1),
+    lr=Param(float, 'learning rate', default=0.5),
     momentum=Param(float, 'SGD momentum', default=0.9),
-    weight_decay=Param(float, 'learning rate', default=1e-4),
-    epochs=Param(int, 'The number of epochs', default=30),
-    lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=1.),
+    weight_decay=Param(float, 'weight decay', default=5e-4),
+    epochs=Param(int, 'number of epochs', default=24),
+    lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
 )
 
 Section('validation', 'Validation parameters stuff').params(
@@ -95,15 +101,19 @@ class Trainer():
                                      momentum=momentum,
                                      weight_decay=weight_decay)
         
-        schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
+        print(iters_per_epoch)
+        # schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
+        schedule = (np.arange(epochs + 1) + 1) 
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
 
     def train_loop(self):
+        print(self.scheduler.get_last_lr())
         model = self.model
         model.train()
         losses = []
-        for _, (images, target) in enumerate(tqdm(self.train_loader)):
+        for images, target in tqdm(self.train_loader):
+            images = images.to(memory_format=ch.channels_last)
             self.optimizer.zero_grad(set_to_none=True)
 
             with autocast():
@@ -115,7 +125,7 @@ class Trainer():
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
-            self.scheduler.step()
+        self.scheduler.step()
 
         accuracy = self.train_accuracy.compute().item()
         self.train_accuracy.reset()
@@ -129,6 +139,7 @@ class Trainer():
 
         with ch.inference_mode():
             for images, target in tqdm(self.val_loader):
+                images = images.to(memory_format=ch.channels_last)
                 self.optimizer.zero_grad(set_to_none=True)
 
                 with autocast():
@@ -140,6 +151,7 @@ class Trainer():
         stats = {k: meter.compute().item() for k, meter in self.val_meters.items()}
         [meter.reset() for meter in self.val_meters.values()]
         loss = ch.stack(losses).mean().item()
+        print(stats)
         return loss, stats
 
     @param('logging.folder')
@@ -147,8 +159,9 @@ class Trainer():
         self.logging_fp = open(path.join(folder, f'{self.uid}.log'), 'w+')
         print(path.join(folder, f'{self.uid}.log'))
         self.start_time = time()
+        hyper_params = {'.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()}
         with open(path.join(folder, f'{self.uid}-params.json'), 'w+') as handle:
-            json.dump(self.all_params, handle)
+            json.dump(hyper_params, handle)
 
     def log(self, content):
         cur_time = time()

@@ -1,5 +1,4 @@
 import torch as ch
-import torchvision
 from torch.cuda.amp import GradScaler
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
@@ -11,10 +10,14 @@ from fastargs.decorators import param
 from fastargs import Param, Section
 from fastargs.validation import And, OneOf
 from argparse import ArgumentParser
+from cifar_models import models, AffineAugmentation
 
 Section('model', 'model details').params(
-    arch=Param(And(str, OneOf(['resnet9', 'resnet18'])), 'the architecture to use', required=True)
+    arch=Param(And(str, OneOf(models.keys())), 'the architecture to use', required=True)
 )
+
+CIFAR_MEAN = [0.4914, 0.4822, 0.4465]
+CIFAR_STD = [0.2023, 0.1994, 0.2010]
 
 class CIFARTrainer(Trainer):
     @param('data.train_dataset')
@@ -26,16 +29,25 @@ class CIFARTrainer(Trainer):
                         num_workers=num_workers,
                         order=OrderOption.RANDOM)
         loader.pipelines['image'] = [
-            Cutout(8),
-            RandomHorizontalFlip(0.5),
+            Cutout(8, (int(CIFAR_MEAN[0] * 255), int(CIFAR_MEAN[1] * 255), int(CIFAR_MEAN[2] * 255))),
+            # RandomHorizontalFlip(0.5),
             Collate(),
             ToTensor(),
-            ToTorchImage(),
-            ToDevice(ch.device('cuda:0')),
+            ToTorchImage(channels_last=False),
+            Convert(ch.float32),
+            Normalize(mean=[0., 0., 0.],
+                      std=[255., 255., 255.],
+                      inplace=False),
             Convert(ch.float16),
-            Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
-                      std=[0.229 * 255, 0.224 * 255, 0.225 * 255],
-                      inplace=True).to('cuda:0')
+            ToDevice(ch.device('cuda:0')),
+            AffineAugmentation(4),
+            # Cutout(8, 8, 1),
+            Normalize(mean=[x for x in CIFAR_MEAN],
+                      std=[x for x in CIFAR_STD],
+                      inplace=False).to('cuda:0'),
+            # Normalize(mean=[0., 0., 0.],
+                    #   std=[255., 255., 255.],
+                    #   inplace=True).to('cuda:0')
         ]
         loader.pipelines['label'] = [
             Collate(),
@@ -58,11 +70,16 @@ class CIFARTrainer(Trainer):
         loader.pipelines['image'] = [
             Collate(),
             ToTensor(),
-            ToTorchImage(),
-            ToDevice('cuda:0'),
+            ToTorchImage(channels_last=False),
+            Convert(ch.float32),
+            Normalize(mean=[0., 0., 0.],
+                      std=[255., 255., 255.],
+                      inplace=False),
             Convert(ch.float16),
-            Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
-                      std=[0.229 * 255, 0.224 * 255, 0.225 * 255]).to('cuda:0')
+            ToDevice('cuda:0'),
+            Normalize(mean=[x for x in CIFAR_MEAN],
+                      std=[x for x in CIFAR_STD],
+                      inplace=False).to('cuda:0'),
         ]
         loader.pipelines['label'] = [
             Collate(),
@@ -75,7 +92,7 @@ class CIFARTrainer(Trainer):
     @param('model.arch')
     def create_model_and_scaler(self, arch):
         scaler = GradScaler()
-        model = torchvision.models.__dict__[arch]()
+        model = models[arch]()
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
         return model, scaler
@@ -87,7 +104,5 @@ if __name__ == "__main__":
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
     config.summary()
-    args = config.get()
-    hyper_params = {'.'.join(k): config[k] for k in config.entries.keys()}
-    trainer = CIFARTrainer(hyper_params)
+    trainer = CIFARTrainer(config)
     trainer.train()
