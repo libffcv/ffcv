@@ -1,15 +1,21 @@
+from dataclasses import replace
 import numpy as np
+from typing import Callable
 from assertpy import assert_that
 from torch.utils.data import Dataset
 import logging
 import os
 from assertpy import assert_that
 from tempfile import NamedTemporaryFile
+from ffcv.pipeline.operation import Operation
+from ffcv.transforms.ops import ToTensor
 
 from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
 from ffcv.loader import Loader
 from ffcv.fields import IntField, FloatField, BytesField
+from ffcv.fields.basics import FloatDecoder
+from ffcv.pipeline.state import State
 
 from test_writer import DummyDataset
 
@@ -28,6 +34,16 @@ def validate_simple_dataset(name, length):
     assert_that((reader.metadata['f0'] == np.arange(length).astype('int')).all()).is_true()
     assert_that((np.sin(reader.metadata['f0']) == reader.metadata['f1']).all()).is_true()
 
+class Doubler(Operation):
+
+    def generate_code(self) -> Callable:
+        def code(x, dst):
+            dst[:] = x * 2
+        return code
+
+    def declare_state_and_memory(self, previous_state: State):
+        return (previous_state, None)
+
 def test_write_simple():
     length = 600
     with NamedTemporaryFile() as handle:
@@ -43,4 +59,10 @@ def test_write_simple():
 
         validate_simple_dataset(name, length)
 
-        loader = Loader(name, 128, 5, seed=17)
+        loader = Loader(name, 128, 5, seed=17,
+        pipelines={
+            'value': [FloatDecoder(), Doubler(), ToTensor()]
+        })
+        it = iter(loader)
+        
+        it.generate_code()
