@@ -61,34 +61,34 @@ class Loader:
                  device: ch.device = ch.device('cpu')):
 
         self.fname: str = fname
-        self.batch_size:int = batch_size
+        self.batch_size: int = batch_size
         self.seed: Optional[int] = seed
         self.reader: Reader = Reader(self.fname)
         self.num_workers: int = num_workers
 
         if self.num_workers < 1:
             self.num_workers = cpu_count()
-            
+
         if indices is None:
             self.indices = np.arange(self.reader.num_samples, dtype='uint64')
         else:
             self.indices = np.array(indices)
-            
+
         if distributed:
             raise NotImplemented("Not implemented yet")
-        
-            
-        self.memory_manager: MemoryManager = MEMORY_MANAGER_MAP[memory_manager](self.reader)
+
+        self.memory_manager: MemoryManager = MEMORY_MANAGER_MAP[memory_manager](
+            self.reader)
         self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
-        
+
         # TODO EXIT eventually
         self.memory_manager.__enter__()
 
         memory_read = self.memory_manager.compile_reader()
         self.next_epoch: int = 0
-        
+
         self.pipelines = {}
-        
+
         for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
             DecoderClass = field.get_decoder_class()
             try:
@@ -113,9 +113,9 @@ class Loader:
             for op in operations:
                 op.accept_globals(self.reader.metadata[f'f{f_ix}'],
                                   memory_read)
-                
-            self.pipeline[field_name] = Pipeline(operations)
-        
+
+            self.pipelines[field_name] = Pipeline(operations)
+
     def close(self):
         self.memory_manager.__exit__(None, None, None)
 
@@ -125,8 +125,7 @@ class Loader:
         order = self.traversal_order.sample_order(cur_epoch)
         print(order)
         return EpochIterator(self, cur_epoch, order)
-    
+
     def __len__(self):
         # TODO handle drop_last
         return int(np.ceil(len(self.indices) / self.batch_size))
-    

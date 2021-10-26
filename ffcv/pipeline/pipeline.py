@@ -7,7 +7,6 @@ import numpy as np
 
 from .state import State
 from .compiler import Compiler
-from .stage import Stage, ALL_STAGES
 from .operation import Operation
 from .allocation_query import AllocationQuery
 from ..transforms.ops import Collate, ToTensor, CoreOp
@@ -21,8 +20,7 @@ class Pipeline:
     def __init__(self, operations: Sequence[Operation]):
 
         # This is the starting state of the pipeline
-        self.original_state = State(stage=Stage.INDIVIDUAL,
-                                    jit_mode=True,
+        self.original_state = State(jit_mode=True,
                                     device=ch.device('cpu'),
                                     dtype=np.dtype('u1'),
                                     shape=None)
@@ -31,8 +29,6 @@ class Pipeline:
         for i, op in enumerate(self.operations):
             if isinstance(op, ch.nn.Module):
                 self.operations[i] = ModuleWrapper(op)
-        self.operation_to_stage: Mapping[Operation, ALL_STAGES] = self.parse_pipeline()[
-            0]
 
         # Contains the actual allocated memory
         self.memory_buffers: Mapping[int, Any] = {}
@@ -45,7 +41,6 @@ class Pipeline:
         memory_allocations: Mapping[int, Optional[AllocationQuery]] = {}
         current_state: State = self.original_state
 
-        operation_to_stage: Mapping[Operation, ALL_STAGES] = {}
 
         has_collate: bool = False
 
@@ -125,28 +120,11 @@ class Pipeline:
 
                 self.memory_buffers[op_id] = result
 
-    def memory_for_stage(self, stage: ALL_STAGES):
-        result = []
-        for op_ix, op in enumerate(self.operations):
-            if self.operation_to_stage[op] == stage:
-                result.append(self.memory_buffers[op_ix])
+    def memory_for_stage(self):
+        return None
 
-        return result
-
-    def generate_code(self, stage: ALL_STAGES):
-
-        relevant_ops = []
-        for op in self.operations:
-            if self.operation_to_stage[op] == stage:
-                relevant_ops.append(op)
-
-        # TODO do not recompile multiple times
-        if stage == Stage.INDIVIDUAL:
-            return self.generate_composition(relevant_ops, True)
-        if stage == Stage.BATCH:
-            return self.generate_composition(relevant_ops, False)
-        if stage == Stage.PYTORCH:
-            return self.generate_composition(relevant_ops, False)
+    def generate_code(self):
+        return None
 
     def generate_composition(self, operations, do_compile):
         # BIG METAPROGRAMMING PARTY INCOMING

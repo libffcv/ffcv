@@ -6,7 +6,6 @@ import numpy as np
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
-from ..pipeline.stage import Stage
 from ..pipeline.allocation_query import AllocationQuery
 
 if TYPE_CHECKING:
@@ -18,7 +17,7 @@ class BasicDecoder(Operation):
         my_shape = (1,)
         return (
             replace(previous_state, jit_mode=True,
-                    stage=Stage.INDIVIDUAL, shape=my_shape,
+                    shape=my_shape,
                     dtype=self.dtype),
             AllocationQuery(my_shape, dtype=self.dtype)
         )
@@ -55,7 +54,7 @@ class FloatField(Field):
     def encode(self, destination, field, malloc):
         destination[0] = field
         
-    def get_decoder_class(self, metadata: np.array, memory: 'MemoryManager') -> Type[Operation]:
+    def get_decoder_class(self) -> Type[Operation]:
         return FloatDecoder
 
 class IntField(Field):

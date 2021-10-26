@@ -28,6 +28,6 @@ class Field(ABC):
         raise NotImplementedError
     
     @abstractmethod
-    def get_decoder_class(self, metadta: np.ndarray) -> Type[Operation]:
+    def get_decoder_class(self) -> Type[Operation]:
         raise NotImplementedError
         
