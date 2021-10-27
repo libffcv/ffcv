@@ -15,7 +15,7 @@ from ..traversal_order import Random, Sequential
 from ..pipeline import Pipeline
 from ..pipeline.operation import Operation
 from ..transforms.ops import ToTensor
-
+from ..transforms.module import ModuleWrapper
 
 @unique
 class MemoryManagerOption(Enum):
@@ -109,6 +109,11 @@ class Loader:
                     msg = f"Impossible to create a default pipeline"
                     msg += f"{field_name}, please define one manually"
                     raise ValueError(msg)
+
+            for i, op in enumerate(operations):
+                assert isinstance(op, (ch.nn.Module, Operation))
+                if isinstance(op, ch.nn.Module):
+                    operations[i] = ModuleWrapper(op)
 
             for op in operations:
                 op.accept_globals(self.reader.metadata[f'f{f_ix}'],
