@@ -20,10 +20,9 @@ from ..decorator import benchmark
 
 class DummyDataset(Dataset):
 
-    def __init__(self, length, min_size, max_size):
+    def __init__(self, length, size):
         self.length = length
-        self.min_size = min_size
-        self.max_size = max_size
+        self.size = size
         
     def __len__(self):
         return self.length
@@ -31,11 +30,8 @@ class DummyDataset(Dataset):
     def __getitem__(self, index):
         if index > self.length:
             raise IndexError
-        
-        np.random.seed(37 + index)
-        dims = np.random.randint(low=self.min_size, high=self.max_size,
-                                 size=(2,))
-        dims = tuple([*dims, 3])
+
+        dims = tuple([*self.size, 3])
         image_data = np.random.randint(low=0, high=255, size=dims, dtype='uint8')
         return index, image_data
 
@@ -43,13 +39,13 @@ class DummyDataset(Dataset):
 
 @benchmark({
     'n': [3000],
-    'length': [30000],
+    'length': [3000],
     'mode': [
-        # 'raw',
+        'raw',
         'jpg'
         ],
-    'size_range': [
-        # (32, 33),  # CIFAR
+    'size': [
+        (32, 32),  # CIFAR
         (300, 500),  # ImageNet
     ],
     'random_reads': [
@@ -59,13 +55,13 @@ class DummyDataset(Dataset):
 })
 class ImageReadBench(Benchmark):
     
-    def __init__(self, n, length, mode, size_range, random_reads):
+    def __init__(self, n, length, mode, size, random_reads):
         self.n = n
         self.mode = mode
         self.length = length
-        self.size_range = size_range
+        self.size = size
         self.random_reads = random_reads
-        self.dataset = DummyDataset(length, size_range[0], size_range[1])
+        self.dataset = DummyDataset(length, size)
         
     def __enter__(self):
         self.handle = NamedTemporaryFile()
@@ -89,13 +85,13 @@ class ImageReadBench(Benchmark):
             memreader = manager.compile_reader()
             Decoder = RGBImageField().get_decoder_class()
             decoder = Decoder()
-            decoder.accept_globals(reader.metadata, memreader)
+            decoder.accept_globals(reader.metadata['f1'], memreader)
 
         decode = decoder.generate_code()
         decode = Compiler.compile(decode)
         
 
-        self.buff = np.zeros((500, 500, 3), dtype='uint8')
+        self.buff = np.zeros((1, *self.size, 3), dtype='uint8')
         
         if self.random_reads:
             self.indices = np.random.choice(self.n, size=self.n, replace=False)
@@ -104,8 +100,10 @@ class ImageReadBench(Benchmark):
             
         def code(indices, buff):
             result = 0
+            arr = np.array([0])
             for i in indices:
-                result += decode(reader.metadata['f1'][i], buff)[5, 5]
+                arr[0] = i
+                result += decode(arr, buff)[0, 5, 5]
             return result
                 
         self.code = code
