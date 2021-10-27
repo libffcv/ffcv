@@ -67,9 +67,10 @@ class RGBImageDecoder(Operation):
         raw = IMAGE_MODES['raw']
 
         metadata = self.metadata
+        my_range = Compiler.get_iterator()
         my_memcpy = Compiler.compile(memcpy)
         def decode(batch_indices, destination):
-            for dst_ix in range(len(batch_indices)):
+            for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
                 image_data = mem_read(field['data_ptr'])
