@@ -42,11 +42,15 @@ class DummyDataset(Dataset):
     'length': [3000],
     'mode': [
         'raw',
-        'jpg'
+        # 'jpg'
         ],
     'size': [
-        (32, 32),  # CIFAR
+        # (32, 32),  # CIFAR
         (300, 500),  # ImageNet
+    ],
+    'compile': [
+        True,
+        False
     ],
     'random_reads': [
         True,
@@ -55,11 +59,12 @@ class DummyDataset(Dataset):
 })
 class ImageReadBench(Benchmark):
     
-    def __init__(self, n, length, mode, size, random_reads):
+    def __init__(self, n, length, mode, size, random_reads, compile):
         self.n = n
         self.mode = mode
         self.length = length
         self.size = size
+        self.compile = compile
         self.random_reads = random_reads
         self.dataset = DummyDataset(length, size)
         
@@ -79,7 +84,7 @@ class ImageReadBench(Benchmark):
         reader = Reader(name)
         manager = RAMMemoryManager(reader)
 
-        Compiler.set_enabled(True)
+        Compiler.set_enabled(self.compile)
 
         with manager:
             memreader = manager.compile_reader()
@@ -100,10 +105,8 @@ class ImageReadBench(Benchmark):
             
         def code(indices, buff):
             result = 0
-            arr = np.array([0])
-            for i in indices:
-                arr[0] = i
-                result += decode(arr, buff)[0, 5, 5]
+            for i in range(len(indices)):
+                result += decode(indices[i:i+1], buff)[0, 5, 5]
             return result
                 
         self.code = code
