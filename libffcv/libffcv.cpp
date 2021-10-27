@@ -33,6 +33,10 @@ extern "C" {
         cv::resize(source_matrix.colRange(start_col, end_col).rowRange(start_row, end_row), dest_matrix, dest_matrix.size());
     }
     */
+    
+    int my_memcpy(void *source, void* dst, uint64_t size) {
+        memcpy(dst, source, size);
+    }
 
     int imdecode(unsigned char *input_buffer, __uint64_t input_size,
                       __uint32_t source_height, __uint32_t source_width,
