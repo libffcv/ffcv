@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 from torchvision.datasets import CIFAR10
 from torch.utils.data import Subset
 from ffcv.fields.basics import IntDecoder
-from ffcv.fields.rgb_image import RGBImageDecoder
+from ffcv.fields.rgb_image import SimpleRGBImageDecoder
 from ffcv.transforms.cutout import Cutout
 
 from ffcv.writer import DatasetWriter
@@ -40,13 +40,13 @@ def run_test(length, pipeline, compile):
 
 def test_cutout():
     run_test(100, [
-        RGBImageDecoder(),
+        SimpleRGBImageDecoder(),
         Cutout(8),
         ToTensor()
     ], True)
 
     run_test(100, [
-        RGBImageDecoder(),
+        SimpleRGBImageDecoder(),
         Cutout(8),
         ToTensor()
     ], False)
