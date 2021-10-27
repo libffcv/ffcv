@@ -32,7 +32,7 @@ class DummyDataset(Dataset):
 
 def create_and_validate(length, mode='raw', reversed=False):
 
-    dataset = DummyDataset(length, 5, 6, reversed=reversed)
+    dataset = DummyDataset(length, 500, 300, reversed=reversed)
 
     with NamedTemporaryFile() as handle:
         name = handle.name
@@ -58,6 +58,8 @@ def create_and_validate(length, mode='raw', reversed=False):
         
         loader = Loader(name, batch_size=5, num_workers=2)
         
+        import pdb
+        
         for res in loader:
             if not reversed:
                 index, images  = res
@@ -65,10 +67,19 @@ def create_and_validate(length, mode='raw', reversed=False):
                 images , index = res
 
             for i, image in zip(index, images):
-                assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
+                if mode == 'raw':
+                    assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
+                else:
+                    assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
                 
 def test_simple_raw_image_pipeline():
     create_and_validate(500, 'raw', False)
 
 def test_simple_raw_image_pipeline_rev():
     create_and_validate(500, 'raw', True)
+
+def test_simple_jpg_image_pipeline():
+    create_and_validate(500, 'jpg', False)
+
+def test_simple_jpg_image_pipeline_rev():
+    create_and_validate(500, 'jpg', True)
