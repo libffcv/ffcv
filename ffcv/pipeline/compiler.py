@@ -30,7 +30,6 @@ class Compiler:
     @classmethod
     def get_iterator(cls):
         if cls.num_threads > 1:
-            print("Return prange")
             return prange
         else:
             return range

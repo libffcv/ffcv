@@ -40,7 +40,7 @@ def resizer(image, target_resolution):
     return image
 
 
-class RGBImageDecoder(Operation):
+class SimpleRGBImageDecoder(Operation):
     def __init__(self):
         super().__init__()
 
@@ -49,6 +49,13 @@ class RGBImageDecoder(Operation):
         heights = self.metadata['height']
         max_width = widths.max()
         max_height = heights.max()
+        min_height = heights.min()
+        min_width = widths.min()
+        if min_width != max_width or max_height != min_height:
+            msg = """SimpleRGBImageDecoder ony supports constant image,
+consider RandomResizedCropImageDecoder or CenterCropImageDecoder
+instead."""
+            raise TypeError(msg)
 
         biggest_shape = (max_height, max_width, 3)
         my_dtype = np.dtype('<u1')
@@ -105,7 +112,7 @@ class RGBImageField(Field):
         ])
         
     def get_decoder_class(self) -> Type[Operation]:
-        return RGBImageDecoder
+        return SimpleRGBImageDecoder
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:
