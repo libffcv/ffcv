@@ -16,3 +16,5 @@ class State:
     def __post_init__(self):
         if self.jit_mode and self.device != ch.device('cpu'):
             raise AssertionError("Can't be in JIT mode and on the GPU")
+        if self.jit_mode and isinstance(self.dtype, ch.dtype):
+            raise AssertionError("Can't allocate a torch tensor in JIT mode")
