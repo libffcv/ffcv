@@ -38,8 +38,11 @@ class DummyDataset(Dataset):
         500 * 300 * 3, # IMAGENET raw image size,
         128 * 1024, # IMAGENET jpg image size,
     ],
-    'compiled': [True, False],
-    'random_reads': [True, False],
+    'compiled': [
+        True,
+        False
+    ],
+    'random_reads': [True],
     'n': [30000]
 })
 class MemoryReadBytesBench(Benchmark):
