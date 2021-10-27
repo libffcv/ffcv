@@ -16,22 +16,18 @@ from ffcv.memory_managers.ram import RAMMemoryManager
 
 class DummyDataset(Dataset):
 
-    def __init__(self, length, min_size, max_size):
+    def __init__(self, length):
         self.length = length
-        self.min_size = min_size
-        self.max_size = max_size
         
     def __len__(self):
         return self.length
 
     def __getitem__(self, index):
-        if index > self.length:
+        if index >= self.length:
             raise IndexError
         
         np.random.seed(37 + index)
-        dims = np.random.randint(low=self.min_size, high=self.max_size,
-                                 size=(2,))
-        dims = tuple([*dims, 3])
+        dims = tuple([128, 128, 3])
         image_data = np.random.randint(low=0, high=255, size=dims, dtype='uint8')
         return index, image_data
 
@@ -39,7 +35,7 @@ class DummyDataset(Dataset):
 
 def create_and_validate(length, mode='raw'):
 
-    dataset = DummyDataset(length, 5, 6)
+    dataset = DummyDataset(length)
 
     with NamedTemporaryFile() as handle:
         name = handle.name
@@ -56,16 +52,15 @@ def create_and_validate(length, mode='raw'):
         with manager:
             Decoder = RGBImageField().get_decoder_class()
             decoder = Decoder()
-            decoder.accept_globals(reader.metadata, manager.compile_reader())
+            decoder.accept_globals(reader.metadata['f1'], manager.compile_reader())
 
         decode = decoder.generate_code()
 
         assert_that(reader.metadata).is_length(length)
-        buff = np.zeros((500, 500, 3), dtype='uint8')
+        buff = np.zeros((1, 128, 128, 3), dtype='uint8')
         
-        bad = 0
         for i in range(length):
-            result = decode(reader.metadata['f1'][i], buff)
+            result = decode(np.array([i]), buff)[0]
             _, ref_image = dataset[i]
             assert_that(result.shape).is_equal_to(ref_image.shape)
             if mode == 'jpg':

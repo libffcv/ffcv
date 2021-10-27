@@ -73,9 +73,11 @@ class RGBImageDecoder(Operation):
                 field = metadata[source_ix]
                 image_data = mem_read(field['data_ptr'])
                 height, width = field['height'], field['width']
-
-                # imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False, False)
-                destination[dst_ix, :] = image_data.reshape(height, width, 3)
+                
+                if field['mode'] == jpg:
+                    imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False, False)
+                else:
+                    destination[dst_ix, :] = image_data.reshape(height, width, 3)
 
             return destination
         return decode
