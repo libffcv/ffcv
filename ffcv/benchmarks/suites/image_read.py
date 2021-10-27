@@ -42,27 +42,36 @@ class DummyDataset(Dataset):
     'length': [3000],
     'mode': [
         'raw',
-        # 'jpg'
+        'jpg'
         ],
+    'num_workers': [
+        1,
+        -1 
+    ],
+    'batch_size': [
+        200
+    ],
     'size': [
-        # (32, 32),  # CIFAR
+        (32, 32),  # CIFAR
         (300, 500),  # ImageNet
     ],
     'compile': [
         True,
-        False
+        # False
     ],
     'random_reads': [
         True,
-        # False
+        False
     ]
 })
 class ImageReadBench(Benchmark):
     
-    def __init__(self, n, length, mode, size, random_reads, compile):
+    def __init__(self, n, length, mode, size, random_reads, compile, num_workers, batch_size):
         self.n = n
         self.mode = mode
         self.length = length
+        self.num_workers = num_workers
+        self.batch_size = batch_size
         self.size = size
         self.compile = compile
         self.random_reads = random_reads
@@ -85,6 +94,7 @@ class ImageReadBench(Benchmark):
         manager = RAMMemoryManager(reader)
 
         Compiler.set_enabled(self.compile)
+        Compiler.set_num_threads(self.num_workers)
 
         with manager:
             memreader = manager.compile_reader()
@@ -96,7 +106,7 @@ class ImageReadBench(Benchmark):
         decode = Compiler.compile(decode)
         
 
-        self.buff = np.zeros((1, *self.size, 3), dtype='uint8')
+        self.buff = np.zeros((self.batch_size, *self.size, 3), dtype='uint8')
         
         if self.random_reads:
             self.indices = np.random.choice(self.n, size=self.n, replace=False)
@@ -105,8 +115,8 @@ class ImageReadBench(Benchmark):
             
         def code(indices, buff):
             result = 0
-            for i in range(len(indices)):
-                result += decode(indices[i:i+1], buff)[0, 5, 5]
+            for i in range(0, len(indices), self.batch_size):
+                result += decode(indices[i:i + self.batch_size], buff)[0, 5, 5]
             return result
                 
         self.code = code

@@ -1,4 +1,5 @@
 import enum
+from ffcv.pipeline.compiler import Compiler
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
 from enum import Enum, unique, auto
@@ -65,6 +66,7 @@ class Loader:
         self.seed: Optional[int] = seed
         self.reader: Reader = Reader(self.fname)
         self.num_workers: int = num_workers
+        Compiler.set_num_threads(self.num_workers)
 
         if self.num_workers < 1:
             self.num_workers = cpu_count()
@@ -122,6 +124,7 @@ class Loader:
     def __iter__(self):
         cur_epoch = self.next_epoch
         self.next_epoch += 1
+        Compiler.set_num_threads(self.num_workers)
         order = self.traversal_order.sample_order(cur_epoch)
         return EpochIterator(self, cur_epoch, order)
 
