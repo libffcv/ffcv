@@ -78,33 +78,35 @@ class Pipeline:
     def before_epoch(self, batch_size: int, batches_ahead: int):
         _, memory_allocations = self.parse_pipeline()
 
+        # For each allocation made by the operations in the pipeline
         for op_id, memory_allocation in memory_allocations.items():
+            # If the operation didn't make a query we stop here
             if memory_allocation is None:
                 self.memory_buffers[op_id] = None
             else:
+                # We compute the total amount of memory needed for this
+                # operation
                 final_shape = [batches_ahead,
                                batch_size, *memory_allocation.shape]
                 result = None
-                # We only allocate memory if:
+
+                # We try to reuse previously allocated memory
                 # - it wansn't previously or
                 # - the new request is different than what was allocated
                 if op_id in self.memory_buffers:
+                    # => There already was a previously allocated
                     current_buffer = self.memory_buffers[op_id]
                     is_pytorch = isinstance(current_buffer, ch.Tensor)
 
                     # Check to make sure the buffer fits the bill
                     shape_matches = current_buffer.shape == final_shape
-                    type_matches = is_pytorch == isinstance(
-                        memory_allocation.dtype, ch.dtype)
                     dtype_matches = current_buffer.dtype == memory_allocation.dtype
-                    device_matches = (not is_pytorch) or (
-                        current_buffer.device == memory_allocation.device)
-
-                    if (not isinstance(memory_allocation.dtype, ch.dtype)) and (memory_allocation.device is not None):
-                        raise ValueError(
-                            'Numpy allocations must be made on CPU.')
-
-                    if shape_matches and dtype_matches and type_matches and device_matches:
+                    device_matchs = True
+                    if is_pytorch:
+                        device_matchs = (current_buffer.device
+                                         == memory_allocation.device)
+                        
+                    if shape_matches and dtype_matches and device_matchs:
                         result = self.memory_buffers[op_id]
                 if result is None:
                     if isinstance(memory_allocation.dtype, ch.dtype):
