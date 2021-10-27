@@ -11,7 +11,7 @@ from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
-from ..libffcv import imdecode
+from ..libffcv import imdecode, memcpy
 
 if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
@@ -67,6 +67,7 @@ class RGBImageDecoder(Operation):
         raw = IMAGE_MODES['raw']
 
         metadata = self.metadata
+        my_memcpy = Compiler.compile(memcpy)
         def decode(batch_indices, destination):
             for dst_ix in range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
@@ -75,9 +76,10 @@ class RGBImageDecoder(Operation):
                 height, width = field['height'], field['width']
                 
                 if field['mode'] == jpg:
-                    imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False, False)
+                    imdecode_c(image_data, destination[dst_ix],
+                               height, width, height, width, 0, 0, 1, 1, False, False)
                 else:
-                    destination[dst_ix, :] = image_data.reshape(height, width, 3)
+                    my_memcpy(image_data, destination[dst_ix])
 
             return destination
         return decode

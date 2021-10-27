@@ -17,7 +17,6 @@ ctypes_imdecode.argtypes = [
     c_uint32, c_uint32, c_uint32, c_uint32, c_bool, c_bool
 ]
 
-
 def imdecode(source: np.ndarray, dst: np.ndarray,
              source_height: int, source_width: int,
              crop_height=None, crop_width=None,
@@ -27,3 +26,11 @@ def imdecode(source: np.ndarray, dst: np.ndarray,
                            source_height, source_width, dst.ctypes.data,
                            crop_height, crop_width, offset_x, offset_y, scale_factor_num, scale_factor_denom,
                            enable_crop, do_flip)
+
+
+ctypes_memcopy = lib.my_memcpy
+ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
+
+def memcpy(source: np.ndarray, dest: np.ndarray):
+    return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size)
+
