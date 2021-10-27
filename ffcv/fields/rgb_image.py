@@ -76,7 +76,8 @@ class RGBImageDecoder(Operation):
                 height, width = field['height'], field['width']
                 
                 if field['mode'] == jpg:
-                    imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False, False)
+                    imdecode_c(image_data, destination[dst_ix],
+                               height, width, height, width, 0, 0, 1, 1, False, False)
                 else:
                     my_memcpy(image_data, destination[dst_ix])
 
