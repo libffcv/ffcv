@@ -3,6 +3,8 @@ import torch as ch
 from torch.utils.data import Dataset
 from assertpy import assert_that
 from tempfile import NamedTemporaryFile
+from torchvision.datasets import CIFAR10
+from torch.utils.data import Subset
 
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
@@ -34,12 +36,11 @@ def create_and_validate(length, mode='raw'):
         name = handle.name
         writer = DatasetWriter(length, name, {
             'index': IntField(),
-            'value': RGBImageField(write_mode=mode)
+            'value': RGBImageField(write_mode=mode, max_resolution=32)
         })
 
         with writer:
             writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
-            
             
         Compiler.set_enabled(False)
         
@@ -49,5 +50,29 @@ def create_and_validate(length, mode='raw'):
             for i, image in zip(index, images):
                 assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
                 
+def make_and_read_cifar_subset(length):
+    my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
+
+    with NamedTemporaryFile() as handle:
+        name = handle.name
+        writer = DatasetWriter(len(my_dataset), name, {
+            'image': RGBImageField(write_mode='smart', 
+                                max_resolution=32),
+            'label': IntField(),
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(my_dataset, num_workers=2, chunksize=10)
+
+        Compiler.set_enabled(False)
+        
+        loader = Loader(name, batch_size=5, num_workers=2)
+        
+        for index, images in loader:
+            pass
+
 def test_simple_raw_image_pipeline():
     create_and_validate(500, 'raw')
+
+def test_cifar_subset():
+    make_and_read_cifar_subset(200)
