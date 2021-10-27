@@ -66,18 +66,16 @@ class RGBImageDecoder(Operation):
         jpg = IMAGE_MODES['jpg']
         raw = IMAGE_MODES['raw']
 
-        def decode(field, destination):
-            image_data = mem_read(field['data_ptr'])
-            height, width = field['height'], field['width']
+        def decode(batch_indices, destination):
+            metadata = self.metadata
+            for dst_ix in range(len(batch_indices)):
+                source_ix = batch_indices[dst_ix]
+                field = metadata[source_ix]
+                image_data = mem_read(field['data_ptr'])
+                height, width = field['height'], field['width']
 
-            destination = destination.reshape(destination.shape[0] * destination.shape[1] * destination.shape[2])
-            destination = destination[:3 * height * width]
-            destination = destination.reshape(height, width, 3)
-
-            if field['mode'] == jpg:
-                imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False, False)
-            else:
-                destination[:] = image_data.reshape(height, width, 3)
+                # imdecode_c(image_data, destination, height, width,height,width,0, 0, 1, 1, False, False)
+                destination[dst_ix, :] = image_data.reshape(height, width, 3)
 
             return destination
         return decode
