@@ -11,7 +11,7 @@ from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
-from ..libffcv import imdecode, memcpy
+from ..libffcv import imdecode, memcpy, resize_crop
 
 if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
@@ -53,7 +53,7 @@ class SimpleRGBImageDecoder(Operation):
         min_width = widths.min()
         if min_width != max_width or max_height != min_height:
             msg = """SimpleRGBImageDecoder ony supports constant image,
-consider RandomResizedCropImageDecoder or CenterCropImageDecoder
+consider RandomResizedCropRGBImageDecoder or CenterCropRGBImageDecoder
 instead."""
             raise TypeError(msg)
 
@@ -89,6 +89,64 @@ instead."""
                 else:
                     my_memcpy(image_data, destination[dst_ix])
 
+            return destination
+        return decode
+
+class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
+    def __init__(self, output_size):
+        super().__init__()
+        self.output_size = output_size
+
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
+        widths = self.metadata['width']
+        heights = self.metadata['height']
+        self.max_width = widths.max()
+        self.max_height = heights.max()
+        output_shape = (self.output_size[0], self.output_size[1], 3)
+        my_dtype = np.dtype('<u1')
+
+        return (
+            replace(previous_state, jit_mode=True,
+                    shape=output_shape, dtype=my_dtype),
+            AllocationQuery(output_shape, my_dtype)
+        )
+
+    def generate_code(self) -> Callable:
+
+        jpg = IMAGE_MODES['jpg']
+        raw = IMAGE_MODES['raw']
+
+        metadata = self.metadata
+
+        mem_read = self.memory_read
+        my_range = Compiler.get_iterator()
+        imdecode_c = Compiler.compile(imdecode)
+        
+        output_height = self.output_size[0]
+        output_width = self.output_size[1]
+        
+        temp_buffer_shape = (self.max_height, self.max_width, 3)
+
+        def decode(batch_indices, destination):
+            for dst_ix in my_range(len(batch_indices)):
+                source_ix = batch_indices[dst_ix]
+                field = metadata[source_ix]
+                image_data = mem_read(field['data_ptr'])
+                height, width = field['height'], field['width']
+                
+                if field['mode'] == jpg:
+                    temp_buffer = np.zeros(temp_buffer_shape, dtype=('<u1'))
+                    imdecode_c(image_data, temp_buffer,
+                               height, width, height, width, 0, 0, 1, 1, False, False)
+                else:
+                    temp_buffer = image_data
+                    
+                selected_size = np.uint32(3) * height * width
+                temp_buffer = temp_buffer.reshape(-1)[:selected_size]
+                temp_buffer = temp_buffer.reshape(height, width, 3)
+
+                resize_crop(temp_buffer, 0, output_height, 0, output_width, destination[dst_ix] )
+                    
             return destination
         return decode
 

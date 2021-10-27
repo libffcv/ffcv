@@ -1,6 +1,6 @@
 #include <cstdint>
 #include <Python.h>
-// #include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +22,7 @@ extern "C" {
         pthread_key_create(&key_tj_decompressor, NULL);
         pthread_key_create(&key_tj_transformer, NULL);
     }
- /*
+
     void resize(int64_t cresizer, int64_t source_p, int64_t sx, int64_t sy,
                 int64_t start_row, int64_t end_row, int64_t start_col, int64_t end_col,
                 int64_t dest_p, int64_t tx, int64_t ty) {
@@ -32,9 +32,8 @@ extern "C" {
         cv::Mat dest_matrix(tx, ty, CV_8UC3, (uint8_t*) dest_p);
         cv::resize(source_matrix.colRange(start_col, end_col).rowRange(start_row, end_row), dest_matrix, dest_matrix.size());
     }
-    */
     
-    int my_memcpy(void *source, void* dst, uint64_t size) {
+    void my_memcpy(void *source, void* dst, uint64_t size) {
         memcpy(dst, source, size);
     }
 
