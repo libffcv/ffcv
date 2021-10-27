@@ -137,6 +137,8 @@ def {fun_name}():
         for stage_ix, stage in schedule.items():
             code_for_stage, mem_banks_ids = self.generate_stage_code(stage, stage_ix,
                                                                      compiled_functions)
+            if stage_ix % 2 == 0:
+                code_for_stage = Compiler.compile(code_for_stage)
             self.code_per_stage[stage_ix] = code_for_stage
             memory_bank_keys_per_stage[stage_ix] = mem_banks_ids
         

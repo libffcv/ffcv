@@ -33,7 +33,7 @@ class DummyDataset(Dataset):
 
 
 
-def create_and_validate(length, mode='raw'):
+def create_and_validate(length, mode='raw', compile=False):
 
     dataset = DummyDataset(length)
 
@@ -49,12 +49,15 @@ def create_and_validate(length, mode='raw'):
             
         reader = Reader(name)
         manager = RAMMemoryManager(reader)
+        
+        Compiler.set_enabled(compile)
+
         with manager:
             Decoder = RGBImageField().get_decoder_class()
             decoder = Decoder()
             decoder.accept_globals(reader.metadata['f1'], manager.compile_reader())
 
-        decode = decoder.generate_code()
+        decode = Compiler.compile(decoder.generate_code())
 
         assert_that(reader.metadata).is_length(length)
         buff = np.zeros((1, 128, 128, 3), dtype='uint8')
@@ -74,3 +77,10 @@ def test_simple_image_dataset_raw():
 
 def test_simple_image_dataset_jpg():
     create_and_validate(100, 'jpg')
+
+def test_simple_image_dataset_raw_compile():
+    create_and_validate(500, 'raw', True)
+
+def test_simple_image_dataset_jpg_compile():
+    create_and_validate(100, 'jpg', True)
+

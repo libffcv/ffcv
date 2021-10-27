@@ -66,8 +66,8 @@ class RGBImageDecoder(Operation):
         jpg = IMAGE_MODES['jpg']
         raw = IMAGE_MODES['raw']
 
+        metadata = self.metadata
         def decode(batch_indices, destination):
-            metadata = self.metadata
             for dst_ix in range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
