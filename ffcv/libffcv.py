@@ -6,9 +6,16 @@ import ffcv._libffcv
 
 lib = CDLL(ffcv._libffcv.__file__)
 
-# ctypes_resize = lib.resize
-# ctypes_resize.argtypes = 11 * [c_int64]
-ctypes_resize = None
+ctypes_resize = lib.resize
+ctypes_resize.argtypes = 11 * [c_int64]
+
+def resize_crop(source, start_row, end_row, start_col, end_col, destination):
+    ctypes_resize(0,
+                  source.ctypes.data,
+                  source.shape[0], source.shape[1],
+                  start_row, end_row, start_col, end_col,
+                  destination.ctypes.data,
+                  destination.shape[0], destination.shape[1])
 
 # Extract and define the interface of imdeocde
 ctypes_imdecode = lib.imdecode

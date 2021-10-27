@@ -1,3 +1,5 @@
+from ffcv.transforms.ops import ToTensor
+from ffcv.fields.rgb_image import RandomResizedCropRGBImageDecoder, SimpleRGBImageDecoder
 import numpy as np
 import torch as ch
 from torch.utils.data import Dataset
@@ -31,7 +33,7 @@ class DummyDataset(Dataset):
         image_data = ((np.ones(dims) * index) % 255).astype('uint8')
         return index, image_data
 
-def create_and_validate(length, mode='raw'):
+def create_and_validate(length, decoder, size, mode='raw'):
 
     dataset = DummyDataset(length, (300, 500))
 
@@ -50,10 +52,14 @@ def create_and_validate(length, mode='raw'):
             
         Compiler.set_enabled(False)
         
-        loader = Loader(name, batch_size=5, num_workers=2)
+        loader = Loader(name, batch_size=5, num_workers=2,
+                        pipelines={
+                            'value': [decoder, ToTensor()]
+                        })
         
         for index, images in loader:
             for i, image in zip(index, images):
+                assert_that(image.shape).is_equal_to((size[0], size[1], 3))
                 if mode == 'raw':
                     assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
                 else:
@@ -61,4 +67,15 @@ def create_and_validate(length, mode='raw'):
                 
 
 def test_simple_image_decoder_fails_with_variable_images():
-    assert_that(create_and_validate).raises(TypeError).when_called_with(500, 'raw')
+    decoder = SimpleRGBImageDecoder()
+    assert_that(create_and_validate).raises(TypeError).when_called_with(500, decoder, 32, 'raw')
+
+def test_rrc_decoder_raw():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'raw')
+
+def test_rrc_decoder_jpg():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'jpg')
