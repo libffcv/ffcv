@@ -35,8 +35,7 @@ class Pipeline:
         # Where we remember what each operation in the pipeline needs
 
         self.operation_blocks, _ = self.parse_pipeline()
-
-        print(self.operation_blocks)
+        self.compiled_ops = self.compile_ops()
 
         # Compile the pipeline
         self.compiled_code = None
@@ -68,6 +67,13 @@ class Pipeline:
             operation_blocs.append((current_state.jit_mode, current_block))
 
         return operation_blocs, memory_allocations
+        
+    def compile_ops(self):
+        compiled_ops = {}
+        for op_id, operation in enumerate(self.operations):
+            compiled_ops[op_id] = operation.generate_code()
+        return compiled_ops
+        
 
     def before_epoch(self, batch_size: int, batches_ahead: int):
         _, memory_allocations = self.parse_pipeline()

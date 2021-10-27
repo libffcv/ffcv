@@ -23,9 +23,11 @@ class BasicDecoder(Operation):
         )
     
     def generate_code(self) -> Callable:
-        memory: self.memory
-        def decoder(field, destination):
-            destination[:] = field
+        metadata = self.metadata
+
+        def decoder(indices, destination):
+            for ix, sample_id in enumerate(indices):
+                destination[ix] = metadata[sample_id]
             return destination
 
         return decoder
