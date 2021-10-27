@@ -41,9 +41,9 @@ def test_write_simple():
     length = 600
     batch_size = 8
     with NamedTemporaryFile() as handle:
-        name = handle.name
+        file_name = handle.name
         dataset = DummyDataset(length)
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(length, file_name, {
             'index': IntField(),
             'value': FloatField()
         })
@@ -53,13 +53,38 @@ def test_write_simple():
 
         Compiler.set_enabled(True)
 
-        loader = Loader(name, batch_size, 5, seed=17,
-        pipelines={
-            'value': [FloatDecoder(), Doubler(), ToTensor()]
-        })
+        loader = Loader(file_name, batch_size, num_workers=5, seed=17,
+                        pipelines={
+                            'value': [FloatDecoder(), Doubler(), ToTensor()]
+                        })
+
         it = iter(loader)
         indices, values = next(it)
         assert_that(np.allclose(indices.squeeze().numpy(),
                                 np.arange(batch_size))).is_true()
         assert_that(np.allclose(2 * np.sin(np.arange(batch_size)),
                                 values.squeeze().numpy())).is_true()
+        
+def test_multiple_epochs():
+    length = 60
+    batch_size = 8
+    with NamedTemporaryFile() as handle:
+        file_name = handle.name
+        dataset = DummyDataset(length)
+        writer = DatasetWriter(length, file_name, {
+            'index': IntField(),
+            'value': FloatField()
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(dataset)
+
+        Compiler.set_enabled(True)
+
+        loader = Loader(file_name, batch_size, num_workers=5, seed=17,
+                        pipelines={
+                            'value': [FloatDecoder(), Doubler(), ToTensor()]
+                        })
+
+        it = iter(loader)
+        it = iter(loader)
