@@ -123,7 +123,6 @@ class Loader:
         cur_epoch = self.next_epoch
         self.next_epoch += 1
         order = self.traversal_order.sample_order(cur_epoch)
-        print(order)
         return EpochIterator(self, cur_epoch, order)
 
     def __len__(self):

@@ -1,4 +1,7 @@
 from dataclasses import replace
+import torch as ch
+from ffcv.pipeline.allocation_query import AllocationQuery
+from ffcv.pipeline.compiler import Compiler
 import numpy as np
 from typing import Callable
 from assertpy import assert_that
@@ -23,29 +26,20 @@ numba_logger = logging.getLogger('numba')
 numba_logger.setLevel(logging.WARNING)
 
 
-
-def validate_simple_dataset(name, length):
-    reader = Reader(name)
-    assert_that(reader.handlers).is_length(2)
-    assert_that(reader.handlers['index']).is_instance_of(IntField)
-    assert_that(reader.handlers['value']).is_instance_of(FloatField)
-    assert_that(reader.alloc_table).is_length(0)
-    assert_that(reader.metadata).is_length(length)
-    assert_that((reader.metadata['f0'] == np.arange(length).astype('int')).all()).is_true()
-    assert_that((np.sin(reader.metadata['f0']) == reader.metadata['f1']).all()).is_true()
-
 class Doubler(Operation):
 
     def generate_code(self) -> Callable:
         def code(x, dst):
             dst[:] = x * 2
+            return dst
         return code
 
     def declare_state_and_memory(self, previous_state: State):
-        return (previous_state, None)
+        return (previous_state, AllocationQuery(previous_state.shape, previous_state.dtype, previous_state.device))
 
 def test_write_simple():
     length = 600
+    batch_size = 8
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyDataset(length)
@@ -57,12 +51,15 @@ def test_write_simple():
         with writer:
             writer.write_pytorch_dataset(dataset)
 
-        validate_simple_dataset(name, length)
+        Compiler.set_enabled(True)
 
-        loader = Loader(name, 128, 5, seed=17,
+        loader = Loader(name, batch_size, 5, seed=17,
         pipelines={
             'value': [FloatDecoder(), Doubler(), ToTensor()]
         })
         it = iter(loader)
-        
-        it.generate_code()
+        indices, values = next(it)
+        assert_that(np.allclose(indices.squeeze().numpy(),
+                                np.arange(batch_size))).is_true()
+        assert_that(np.allclose(2 * np.sin(np.arange(batch_size)),
+                                values.squeeze().numpy())).is_true()
