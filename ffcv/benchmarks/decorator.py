@@ -45,7 +45,8 @@ def run_all(runs=3, warm_up=1, pattern='*'):
         it_args = tqdm(args_list, desc='configuration', leave=False)
 
         for args in it_args:
-            with redirect_stderr(FakeSink()):
+            # with redirect_stderr(FakeSink()):
+            if True:
                 benchmark: Benchmark = cls(**args)
                 with benchmark:
                     for _ in range(warm_up):
