@@ -1,17 +1,17 @@
 from numba import njit, set_num_threads, prange
+from numba.core.errors import NumbaPerformanceWarning
 from multiprocessing import cpu_count
 import torch as ch
 import warnings
 
-warnings.filterwarnings('ignore', '.*no transformation for parallel execution was possible.*',)
-
+warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
 class Compiler:
 
     @classmethod
     def set_enabled(cls, b):
         cls.is_enabled = b
-        
+
     @classmethod
     def set_num_threads(cls, n):
         if n < 1 :
@@ -21,10 +21,9 @@ class Compiler:
         ch.set_num_threads(n)
 
     @classmethod
-    def compile(cls, code):
+    def compile(cls, code, parallel=False):
         if cls.is_enabled:
-            is_parallel = hasattr(code, 'parallel') and code.parallel
-            return njit(fastmath=True, parallel=is_parallel)(code)
+            return njit(fastmath=True, parallel=cls.num_threads > 1)(code)
         return code
 
     @classmethod
