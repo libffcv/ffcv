@@ -46,10 +46,11 @@ class DummyDataset(Dataset):
         ],
     'num_workers': [
         1,
-        -1 
+        8,
+        16
     ],
     'batch_size': [
-        200
+        500
     ],
     'size': [
         (32, 32),  # CIFAR
@@ -61,7 +62,7 @@ class DummyDataset(Dataset):
     ],
     'random_reads': [
         True,
-        False
+        # False
     ]
 })
 class ImageReadBench(Benchmark):
@@ -103,7 +104,7 @@ class ImageReadBench(Benchmark):
             decoder.accept_globals(reader.metadata['f1'], memreader)
 
         decode = decoder.generate_code()
-        decode = Compiler.compile(decode)
+        decode = Compiler.compile(decode, parallel=True)
         
 
         self.buff = np.zeros((self.batch_size, *self.size, 3), dtype='uint8')
