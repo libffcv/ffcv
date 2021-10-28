@@ -1,3 +1,4 @@
+from abc import ABCMeta, abstractmethod
 from dataclasses import replace
 from typing import Optional, Callable, TYPE_CHECKING, Tuple, Type
 
@@ -65,6 +66,13 @@ def get_random_crop(height, width, scale, ratio):
     j = (width - w) // 2
     return i, j, h, w
 
+def get_center_crop(height, width, _, ratio):
+    s = min(height, width)
+    c = int(ratio * s)
+    delta_h = (height - c) // 2
+    delta_w = (width - c) // 2
+
+    return delta_h, delta_w, c, c
 
 
 class SimpleRGBImageDecoder(Operation):
@@ -119,12 +127,12 @@ instead."""
             return destination
         return decode
 
-class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
-    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
+class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
+    def __init__(self, output_size):
         super().__init__()
-        self.scale = scale
-        self.ratio = ratio
         self.output_size = output_size
+        
+    
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
@@ -150,11 +158,16 @@ class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
         resize_crop_c = Compiler.compile(resize_crop)
-        get_random_crop_c = Compiler.compile(get_random_crop)
+        get_crop_c = Compiler.compile(self.get_crop_generator)
         
         temp_buffer_shape = (self.max_height, self.max_width, 3)
-        scale = np.array(self.scale)
-        ratio = np.array(self.ratio)
+
+        scale = self.scale
+        ratio = self.ratio
+        if isinstance(scale, tuple):
+            scale = np.array(scale)
+        if isinstance(ratio, tuple):
+            ratio = np.array(ratio)
 
         def decode(batch_indices, destination):
             for dst_ix in my_range(len(batch_indices)):
@@ -176,8 +189,7 @@ class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
                     temp_buffer = image_data.reshape(height, width, 3)
                     
 
-                i, j, h, w = get_random_crop_c(height, width,
-                                               scale, ratio)
+                i, j, h, w = get_crop_c(height, width, scale, ratio)
 
 
                 resize_crop_c(temp_buffer, i, i + h, j, j + w, destination[dst_ix] )
@@ -185,6 +197,33 @@ class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
                     
             return destination
         return decode
+        
+    @property
+    @abstractmethod
+    def get_crop_generator():
+        raise NotImplemented()
+
+
+class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
+    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
+        super().__init__(output_size)
+        self.scale = scale
+        self.ratio = ratio
+        self.output_size = output_size
+
+    @property
+    def get_crop_generator(self):
+        return get_random_crop
+
+class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
+    def __init__(self, output_size, ratio=(243/256)):
+        super().__init__(output_size)
+        self.scale = None
+        self.ratio = ratio
+
+    @property
+    def get_crop_generator(self):
+        return get_center_crop
 
 
 class RGBImageField(Field):

@@ -1,5 +1,5 @@
 from ffcv.transforms.ops import ToTensor
-from ffcv.fields.rgb_image import RandomResizedCropRGBImageDecoder, SimpleRGBImageDecoder
+from ffcv.fields.rgb_image import RandomResizedCropRGBImageDecoder, SimpleRGBImageDecoder, CenterCropRGBImageDecoder
 import numpy as np
 import torch as ch
 from torch.utils.data import Dataset
@@ -88,4 +88,24 @@ def test_rrc_decoder_raw_compiled():
 def test_rrc_decoder_jpg_compiled():
     size = (160, 160)
     decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'jpg', True)
+
+def test_cc_decoder_raw_nc():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'raw')
+
+def test_cc_decoder_jpg_nc():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'jpg')
+
+def test_cc_decoder_raw_compiled():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'raw', True)
+
+def test_cc_decoder_jpg_compiled():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size)
     create_and_validate(500, decoder, size, 'jpg', True)
