@@ -39,6 +39,33 @@ def resizer(image, target_resolution):
         image = cv2.resize(image, tuple(new_size))
     return image
 
+def get_random_crop(height, width, scale, ratio):
+    area = height * width
+    log_ratio = np.log(ratio)
+    for _ in range(10):
+        target_area = area * np.random.uniform(scale[0], scale[1])
+        aspect_ratio = np.exp(np.random.uniform(log_ratio[0], log_ratio[1]))
+        w = int(round(np.sqrt(target_area * aspect_ratio)))
+        h = int(round(np.sqrt(target_area / aspect_ratio)))
+        if 0 < w <= width and 0 < h <= height:
+            i = int(np.random.uniform(0, height - h + 1))
+            j = int(np.random.uniform(0, width - w + 1))
+            return i, j, h, w
+    in_ratio = float(width) / float(height)
+    if in_ratio < min(ratio):
+        w = width
+        h = int(round(w / min(ratio)))
+    elif in_ratio > max(ratio):
+        h = height
+        w = int(round(h * max(ratio)))
+    else:
+        w = width
+        h = height
+    i = (height - h) // 2
+    j = (width - w) // 2
+    return i, j, h, w
+
+
 
 class SimpleRGBImageDecoder(Operation):
     def __init__(self):
@@ -93,8 +120,10 @@ instead."""
         return decode
 
 class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
-    def __init__(self, output_size):
+    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
         super().__init__()
+        self.scale = scale
+        self.ratio = ratio
         self.output_size = output_size
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
@@ -114,25 +143,25 @@ class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
     def generate_code(self) -> Callable:
 
         jpg = IMAGE_MODES['jpg']
-        raw = IMAGE_MODES['raw']
 
         metadata = self.metadata
 
         mem_read = self.memory_read
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
-        
-        output_height = self.output_size[0]
-        output_width = self.output_size[1]
+        get_random_crop_c = Compiler.compile(get_random_crop)
         
         temp_buffer_shape = (self.max_height, self.max_width, 3)
+        scale = self.scale
+        ratio = self.ratio
 
         def decode(batch_indices, destination):
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
                 image_data = mem_read(field['data_ptr'])
-                height, width = field['height'], field['width']
+                height = field['height'].astype('uint32')
+                width = field['width'].astype('uint32')
                 
                 if field['mode'] == jpg:
                     temp_buffer = np.zeros(temp_buffer_shape, dtype=('<u1'))
@@ -141,11 +170,14 @@ class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
                 else:
                     temp_buffer = image_data
                     
-                selected_size = np.uint32(3) * height * width
+                selected_size = 3 * height * width
                 temp_buffer = temp_buffer.reshape(-1)[:selected_size]
                 temp_buffer = temp_buffer.reshape(height, width, 3)
+                
+                i, j, h, w = get_random_crop_c(height, width,
+                                               scale, ratio)
 
-                resize_crop(temp_buffer, 0, output_height, 0, output_width, destination[dst_ix] )
+                resize_crop(temp_buffer, i, i + h, j, j + w, destination[dst_ix] )
                     
             return destination
         return decode
