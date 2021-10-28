@@ -1,4 +1,3 @@
 conda create -n ffcv python=3.9
 conda activate ffcv
-conda install -c conda-forge compilers pkg-config opencv libjpeg-turbo
-conda install numba cudatoolkit
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 compilers pkg-config opencv libjpeg-turbo -c pytorch -c conda-forge
