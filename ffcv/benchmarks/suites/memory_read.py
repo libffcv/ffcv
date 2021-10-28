@@ -12,6 +12,7 @@ from ffcv.reader import Reader
 from ffcv.fields import BytesField, IntField
 from ffcv.pipeline.compiler import Compiler
 from ffcv.memory_managers.ram import RAMMemoryManager
+from ffcv.libffcv import memcpy
 
 from ..decorator import benchmark
 from ..benchmark import Benchmark
@@ -39,10 +40,9 @@ class DummyDataset(Dataset):
         128 * 1024, # IMAGENET jpg image size,
     ],
     'compiled': [
-        True,
-        False
+        True
     ],
-    'random_reads': [True],
+    'random_reads': [True, False],
     'n': [30000]
 })
 class MemoryReadBytesBench(Benchmark):
@@ -71,6 +71,7 @@ class MemoryReadBytesBench(Benchmark):
         manager = RAMMemoryManager(reader)
 
         Compiler.set_enabled(self.compiled)
+        memcpy_c = Compiler.compile(memcpy)
 
         with manager:
             read_fn = manager.compile_reader()
@@ -82,18 +83,17 @@ class MemoryReadBytesBench(Benchmark):
 
         addresses = reader.alloc_table['ptr'][indices]
         
-        def code():
-            result = 0
+        self.buffer = np.zeros(self.size_bytes, dtype='<u1')
+        
+        def code(buff):
             for i in range(addresses.shape[0]):
-                result += read_fn(addresses[i]).min()
-            return result
-            
+                memcpy_c(read_fn(addresses[i]), buff)
         
         self.code = Compiler.compile(code)
 
     
     def run(self):
-        self.code()
+        self.code(self.buffer)
         
     def __exit__(self, *args):
         self.handle.__exit__(*args)
