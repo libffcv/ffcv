@@ -25,9 +25,6 @@ extension_kwargs = {
 extension_kwargs = pkgconfig('opencv4', extension_kwargs)
 extension_kwargs = pkgconfig('libturbojpeg', extension_kwargs)
 
-
-extension_kwargs['include_dirs'].append('/usr/include')
-extension_kwargs['include_dirs'].append('/usr/include/x86_64-linux-gnu')
 extension_kwargs['libraries'].append('pthread')
 
 
