@@ -149,35 +149,39 @@ class RandomResizedCropRGBImageDecoder(SimpleRGBImageDecoder):
         mem_read = self.memory_read
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
+        resize_crop_c = Compiler.compile(resize_crop)
         get_random_crop_c = Compiler.compile(get_random_crop)
         
         temp_buffer_shape = (self.max_height, self.max_width, 3)
-        scale = self.scale
-        ratio = self.ratio
+        scale = np.array(self.scale)
+        ratio = np.array(self.ratio)
 
         def decode(batch_indices, destination):
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
                 image_data = mem_read(field['data_ptr'])
-                height = field['height'].astype('uint32')
-                width = field['width'].astype('uint32')
+                height = np.uint32(field['height'])
+                width = np.uint32(field['width'])
                 
                 if field['mode'] == jpg:
                     temp_buffer = np.zeros(temp_buffer_shape, dtype=('<u1'))
                     imdecode_c(image_data, temp_buffer,
                                height, width, height, width, 0, 0, 1, 1, False, False)
-                else:
-                    temp_buffer = image_data
+                    selected_size = 3 * height * width
+                    temp_buffer = temp_buffer.reshape(-1)[:selected_size]
+                    temp_buffer = temp_buffer.reshape(height, width, 3)
                     
-                selected_size = 3 * height * width
-                temp_buffer = temp_buffer.reshape(-1)[:selected_size]
-                temp_buffer = temp_buffer.reshape(height, width, 3)
-                
+                else:
+                    temp_buffer = image_data.reshape(height, width, 3)
+                    
+
                 i, j, h, w = get_random_crop_c(height, width,
                                                scale, ratio)
 
-                resize_crop(temp_buffer, i, i + h, j, j + w, destination[dst_ix] )
+
+                resize_crop_c(temp_buffer, i, i + h, j, j + w, destination[dst_ix] )
+                    
                     
             return destination
         return decode

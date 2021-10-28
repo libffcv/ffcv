@@ -33,7 +33,7 @@ class DummyDataset(Dataset):
         image_data = ((np.ones(dims) * index) % 255).astype('uint8')
         return index, image_data
 
-def create_and_validate(length, decoder, size, mode='raw'):
+def create_and_validate(length, decoder, size, mode='raw', compile=False):
 
     dataset = DummyDataset(length, (300, 500))
 
@@ -50,7 +50,7 @@ def create_and_validate(length, decoder, size, mode='raw'):
         with writer:
             writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
             
-        Compiler.set_enabled(False)
+        Compiler.set_enabled(compile)
         
         loader = Loader(name, batch_size=5, num_workers=2,
                         pipelines={
@@ -79,3 +79,13 @@ def test_rrc_decoder_jpg():
     size = (160, 160)
     decoder = RandomResizedCropRGBImageDecoder(size)
     create_and_validate(500, decoder, size, 'jpg')
+
+def test_rrc_decoder_raw_compiled():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'raw', True)
+
+def test_rrc_decoder_jpg_compiled():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'jpg', True)
