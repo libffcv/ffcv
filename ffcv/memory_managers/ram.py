@@ -1,4 +1,10 @@
 import numpy as np
+from numba import carray
+import numba as nb
+import ctypes
+from ..utils import cast_int_to_byte_ptr
+from ctypes import c_uint64
+
 
 from .base import MemoryManager
 from ..pipeline.compiler import Compiler
@@ -19,11 +25,22 @@ class RAMMemoryManager(MemoryManager):
         return super().__exit__(__exc_type, __exc_value, __traceback)
 
     def compile_reader(self):
-        ptrs = self.ptrs
-        sizes = self.sizes
-        mmap = self.mmap
+        ptr_p = self.sizes.ctypes.data
+        sizes_p = self.sizes.ctypes.data
+        mmap_p = self.mmap.ctypes.data
+
+        num_entries = len(self.ptrs)
+        mmap_size = self.mmap.shape[0]
+        
+        u64 = ctypes.c_uint64
+
         def read(address):
+            # Conversion of pointers
+            sizes = carray(cast_int_to_byte_ptr(sizes_p), shape=(num_entries, )).view(np.uint64)
+            ptrs = carray(cast_int_to_byte_ptr(ptr_p), shape=(num_entries, )).view(np.uint64)
             size = sizes[np.searchsorted(ptrs, address)]
+
+            mmap = carray(cast_int_to_byte_ptr(mmap_p), shape=(num_entries, ))
             return mmap[address:address + size]
 
         return Compiler.compile(read)
