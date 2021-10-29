@@ -18,7 +18,8 @@ Section('cfg', 'arguments to give the writer').params(
     max_resolution=Param(int, 'Max image side length', required=True),
     smart_threshold=Param(int, 'Max image side length before compression', default=2_000_000),
     num_workers=Param(int, 'Number of workers to use', default=16),
-    chunk_size=Param(int, 'Chunk size for writing', default=100)
+    chunk_size=Param(int, 'Chunk size for writing', default=100),
+    subset=Param(int, 'How many images to use (-1 for all)', default=-1)
 )
 
 @section('cfg')
@@ -30,13 +31,16 @@ Section('cfg', 'arguments to give the writer').params(
 @param('smart_threshold')
 @param('num_workers')
 @param('chunk_size')
-def main(dataset, split, data_dir, write_path, max_resolution, smart_threshold, num_workers, chunk_size):
+@param('subset')
+def main(dataset, split, data_dir, write_path, max_resolution, smart_threshold, num_workers, chunk_size, subset):
     if dataset == 'cifar':
         my_dataset = CIFAR10(root=data_dir, train=(split == 'train'), download=True)
     elif dataset == 'imagenet':
-        my_dataset = Subset(ImageFolder(root=data_dir), list(range(200)))
+        my_dataset = ImageFolder(root=data_dir)
     else:
         raise ValueError('Unrecognized dataset', dataset)
+    
+    if subset > 0: my_dataset = Subset(my_dataset, range(subset))
 
     writer = DatasetWriter(len(my_dataset), write_path, {
         'image': RGBImageField(write_mode='smart', 

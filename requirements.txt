@@ -1,0 +1,5 @@
+numba
+terminaltables
+fastargs
+imgcat
+torchmetrics
