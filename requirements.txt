@@ -1,6 +1,8 @@
 numba
 terminaltables
 fastargs
+matplotlib
+sklearn
 imgcat
 torchmetrics
 pandas

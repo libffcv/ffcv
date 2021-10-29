@@ -40,7 +40,7 @@ Section('logging', 'how to log stuff').params(folder=Param(str, 'log location', 
 
 Section('training', 'training hyper param stuff').params(
     batch_size=Param(int, 'The batch size', default=512),
-    optimizer=Param(And(str, OneOf(['sgd', 'lamb', 'sam'])), 'The optimizer', default='sgd'),
+    optimizer=Param(And(str, OneOf(['sgd'])), 'The optimizer', default='sgd'),
     lr=Param(float, 'learning rate', default=0.5),
     momentum=Param(float, 'SGD momentum', default=0.9),
     weight_decay=Param(float, 'weight decay', default=5e-4),
@@ -92,16 +92,16 @@ class Trainer():
     def create_optimizer(self, iters_per_epoch, lr, momentum, optimizer,
                          weight_decay, epochs, lr_peak_epoch):
         optimizer = optimizer.lower()
-        assert optimizer in ['lamb', 'sgd']
         self.optimizer = optim.SGD(self.model.parameters(),
                                      lr=lr,
                                      momentum=momentum,
                                      weight_decay=weight_decay)
-        
+
         print(iters_per_epoch)
         # schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
         schedule = (np.arange(epochs + 1) + 1) 
-        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
+        # add 1 to avoid 0 learning rate at the end.
+        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
 
     def train_loop(self):

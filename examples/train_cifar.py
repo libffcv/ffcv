@@ -1,5 +1,6 @@
 import torch as ch
 from torch.cuda.amp import GradScaler
+import subprocess
 from ffcv.pipeline.compiler import Compiler
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
@@ -52,6 +53,7 @@ class CIFARTrainer(Trainer):
     @param('data.num_workers')
     @param('validation.crop_size')
     @param('validation.resolution')
+    # TODO: remove crop_size and resolution arguments for CIFAR unrolling
     def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size, resolution):
         loader = Loader(val_dataset,
                 batch_size=batch_size,
@@ -77,6 +79,11 @@ class CIFARTrainer(Trainer):
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
         return model, scaler
+
+# OVERRIDES = {
+#     'validation.crop_size':None,
+#     'validation.resolution':None
+# }
 
 if __name__ == "__main__":
     config = get_current_config()
