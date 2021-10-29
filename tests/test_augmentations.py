@@ -38,13 +38,14 @@ def run_test(length, pipeline, compile):
         for index, images in loader:
             pass
 
-def test_cutout():
+def test_cutout_compiled():
     run_test(100, [
         SimpleRGBImageDecoder(),
         Cutout(8),
         ToTensor()
     ], True)
 
+def test_cutout_python():
     run_test(100, [
         SimpleRGBImageDecoder(),
         Cutout(8),
