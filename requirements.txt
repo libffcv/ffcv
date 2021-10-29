@@ -3,3 +3,6 @@ terminaltables
 fastargs
 imgcat
 torchmetrics
+pandas
+assertpy
+tqdm
