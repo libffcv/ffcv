@@ -104,9 +104,8 @@ class ImageReadBench(Benchmark):
             decoder.accept_globals(reader.metadata['f1'], memreader)
 
         decode = decoder.generate_code()
-        decode = Compiler.compile(decode, parallel=True)
+        decode = Compiler.compile(decode)
         
-
         self.buff = np.zeros((self.batch_size, *self.size, 3), dtype='uint8')
         
         if self.random_reads:
@@ -117,7 +116,7 @@ class ImageReadBench(Benchmark):
         def code(indices, buff):
             result = 0
             for i in range(0, len(indices), self.batch_size):
-                result += decode(indices[i:i + self.batch_size], buff)[0, 5, 5]
+                result += decode(indices[i:i + self.batch_size], buff, reader.metadata['f1'], manager.state)[0, 5, 5]
             return result
                 
         self.code = code
