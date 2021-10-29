@@ -26,9 +26,6 @@ class Pipeline:
                                     shape=None)
 
         self.operations = operations
-        for i, op in enumerate(self.operations):
-            if isinstance(op, ch.nn.Module):
-                self.operations[i] = ModuleWrapper(op)
 
         # Contains the actual allocated memory
         self.memory_buffers: Mapping[int, Any] = {}
