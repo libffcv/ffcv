@@ -22,8 +22,9 @@ IMAGE_MODES = Dict()
 IMAGE_MODES['jpg']= 0
 IMAGE_MODES['raw']= 1
 
-def encode_jpeg(numpy_image):
-    success, result = cv2.imencode('.jpg', numpy_image)
+def encode_jpeg(numpy_image, quality):
+    success, result = cv2.imencode('.jpg', numpy_image,
+                                   [int(cv2.IMWRITE_JPEG_QUALITY), quality])
 
     if not success:
         raise ValueError("Impossible to encode image in jpeg")
@@ -226,11 +227,13 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 class RGBImageField(Field):
 
     def __init__(self, write_mode='raw', smart_factor:float = None,
-                 max_resolution: int=None, smart_threshold: int=None) -> None:
+                 max_resolution: int=None, smart_threshold: int=None,
+                 jpeg_quality: int = 90) -> None:
         self.write_mode = write_mode
         self.smart_factor = smart_factor
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
+        self.jpeg_quality = jpeg_quality
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -272,7 +275,7 @@ class RGBImageField(Field):
         as_jpg = None
 
         if write_mode == 'smart':
-            as_jpg = encode_jpeg(image)
+            as_jpg = encode_jpeg(image, self.jpeg_quality)
             write_mode = 'raw'
             if self.smart_factor is not None:
                 if as_jpg.nbytes * self.smart_factor <= image.nbytes:
@@ -286,7 +289,7 @@ class RGBImageField(Field):
 
         if write_mode == 'jpg':
             if as_jpg is None:
-                as_jpg = encode_jpeg(image)
+                as_jpg = encode_jpeg(image, self.jpeg_quality)
             destination['data_ptr'], storage = malloc(as_jpg.nbytes)
             storage[:] = as_jpg
         elif write_mode == 'raw':
