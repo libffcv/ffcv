@@ -110,6 +110,7 @@ class Loader:
                 except Exception:
                     msg = f"Impossible to create a default pipeline"
                     msg += f"{field_name}, please define one manually"
+                    raise
                     raise ValueError(msg)
 
             for i, op in enumerate(operations):

@@ -6,24 +6,36 @@ import numpy as np
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
+from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
+from ..libffcv import memcpy
 
 
 class BytesDecoder(Operation):
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         max_size = self.metadata['size'].max()
+        min_size = self.metadata['size'].max()
+        if max_size != min_size:
+            raise AssertionError('Size of bytes blocks are not constant')
+
         my_shape = (max_size,)
         return (
             replace(previous_state, jit_mode=True, shape=my_shape,
                     dtype='<u1'),
-            None
+            AllocationQuery(my_shape, dtype='<u1')
         )
 
     def generate_code(self) -> Callable:
-        read = self.memory_read
-        def decoder(field, _):
-            return read(field['ptr'])
+        mem_read = self.memory_read
+        my_memcpy = Compiler.compile(memcpy)
+        my_range = Compiler.get_iterator()
+        def decoder(batch_indices, destination, metadata, storage_state):
+            for dest_ix in my_range(batch_indices.shape[0]):
+                source_ix = batch_indices[dest_ix]
+                data = mem_read(metadata[source_ix]['ptr'], storage_state)
+                my_memcpy(data, destination[dest_ix])
+            return destination
 
         return decoder
 
