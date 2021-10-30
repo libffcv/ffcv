@@ -23,7 +23,7 @@ class Compiler:
     def compile(cls, code, signature=None):
         if cls.is_enabled:
             warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
-            return njit(signature, fastmath=True, parallel=cls.num_threads > 1)(code)
+            return njit(signature, fastmath=True, error_model='numpy', parallel=cls.num_threads > 1)(code)
         return code
 
     @classmethod
