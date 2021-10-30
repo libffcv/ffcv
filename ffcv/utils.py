@@ -1,4 +1,7 @@
 import numpy as np
+from numba import types
+from numba.extending import intrinsic
+
 
 def chunks(lst, n):
     for i in range(0, len(lst), n):
@@ -15,3 +18,19 @@ def align_to_page(ptr, page_size):
 
 def decode_null_terminated_string(bytes: np.ndarray):
     return bytes.tobytes().decode('ascii').split('\x00')[0]
+
+@intrinsic
+def cast_int_to_byte_ptr(typingctx, src):
+    # check for accepted types
+    if isinstance(src, types.Integer):
+        # create the expected type signature
+        result_type = types.CPointer(types.uint8)
+        sig = result_type(types.uintp)
+        # defines the custom code generation
+        def codegen(context, builder, signature, args):
+            # llvm IRBuilder code here
+            [src] = args
+            rtype = signature.return_type
+            llrtype = context.get_value_type(rtype)
+            return builder.inttoptr(src, llrtype)
+        return sig, codegen
