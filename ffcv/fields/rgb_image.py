@@ -22,8 +22,9 @@ IMAGE_MODES = Dict()
 IMAGE_MODES['jpg']= 0
 IMAGE_MODES['raw']= 1
 
-def encode_jpeg(numpy_image):
-    success, result = cv2.imencode('.jpg', numpy_image)
+def encode_jpeg(numpy_image, quality):
+    success, result = cv2.imencode('.jpg', numpy_image,
+                                   [int(cv2.IMWRITE_JPEG_QUALITY), quality])
 
     if not success:
         raise ValueError("Impossible to encode image in jpeg")
@@ -107,17 +108,16 @@ instead."""
 
         jpg = IMAGE_MODES['jpg']
         raw = IMAGE_MODES['raw']
-
-        metadata = self.metadata
         my_range = Compiler.get_iterator()
         my_memcpy = Compiler.compile(memcpy)
-        def decode(batch_indices, destination):
+
+        def decode(batch_indices, destination, metadata, storage_state):
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
-                image_data = mem_read(field['data_ptr'])
+                image_data = mem_read(field['data_ptr'], storage_state)
                 height, width = field['height'], field['width']
-                
+
                 if field['mode'] == jpg:
                     imdecode_c(image_data, destination[dst_ix],
                                height, width, height, width, 0, 0, 1, 1, False, False)
@@ -152,14 +152,12 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
         jpg = IMAGE_MODES['jpg']
 
-        metadata = self.metadata
-
         mem_read = self.memory_read
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
         resize_crop_c = Compiler.compile(resize_crop)
         get_crop_c = Compiler.compile(self.get_crop_generator)
-        
+
         temp_buffer_shape = (self.max_height, self.max_width, 3)
 
         scale = self.scale
@@ -169,14 +167,14 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         if isinstance(ratio, tuple):
             ratio = np.array(ratio)
 
-        def decode(batch_indices, destination):
+        def decode(batch_indices, destination, metadata, storage_state):
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
-                image_data = mem_read(field['data_ptr'])
+                image_data = mem_read(field['data_ptr'], storage_state)
                 height = np.uint32(field['height'])
                 width = np.uint32(field['width'])
-                
+
                 if field['mode'] == jpg:
                     temp_buffer = np.zeros(temp_buffer_shape, dtype=('<u1'))
                     imdecode_c(image_data, temp_buffer,
@@ -229,11 +227,13 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 class RGBImageField(Field):
 
     def __init__(self, write_mode='raw', smart_factor:float = None,
-                 max_resolution: int=None, smart_threshold: int=None) -> None:
+                 max_resolution: int=None, smart_threshold: int=None,
+                 jpeg_quality: int = 90) -> None:
         self.write_mode = write_mode
         self.smart_factor = smart_factor
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
+        self.jpeg_quality = jpeg_quality
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -275,7 +275,7 @@ class RGBImageField(Field):
         as_jpg = None
 
         if write_mode == 'smart':
-            as_jpg = encode_jpeg(image)
+            as_jpg = encode_jpeg(image, self.jpeg_quality)
             write_mode = 'raw'
             if self.smart_factor is not None:
                 if as_jpg.nbytes * self.smart_factor <= image.nbytes:
@@ -289,7 +289,7 @@ class RGBImageField(Field):
 
         if write_mode == 'jpg':
             if as_jpg is None:
-                as_jpg = encode_jpeg(image)
+                as_jpg = encode_jpeg(image, self.jpeg_quality)
             destination['data_ptr'], storage = malloc(as_jpg.nbytes)
             storage[:] = as_jpg
         elif write_mode == 'raw':

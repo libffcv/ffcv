@@ -1,10 +1,9 @@
-from numba import njit, set_num_threads, prange
+from numba import njit, set_num_threads, prange, warnings as nwarnings
 from numba.core.errors import NumbaPerformanceWarning
 from multiprocessing import cpu_count
 import torch as ch
 import warnings
 
-warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
 
 class Compiler:
 
@@ -21,9 +20,10 @@ class Compiler:
         ch.set_num_threads(n)
 
     @classmethod
-    def compile(cls, code, parallel=False):
+    def compile(cls, code, signature=None):
         if cls.is_enabled:
-            return njit(fastmath=True, parallel=cls.num_threads > 1)(code)
+            warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
+            return njit(signature, fastmath=True, error_model='numpy', parallel=cls.num_threads > 1)(code)
         return code
 
     @classmethod

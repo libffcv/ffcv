@@ -23,6 +23,8 @@ class EpochIterator(Thread):
         self.order = order
         self.idx_iter = iter(order)
         self.batches_ahead = 3
+        self.storage_state = loader.memory_manager.state
+        self.metadata = loader.reader.metadata
         self.code_per_stage = None
         self.memory_bank_per_stage = {}
         self.before_epoch()
@@ -60,6 +62,15 @@ class EpochIterator(Thread):
         tree = ast.parse(f"""
 {result_identifier} = {pipeline_identifier}({arg_id}, {memory_identifier})
         """).body[0]
+        
+        # This is the first call of the pipeline, we pass the metadata and
+        # storage state
+        if op_id == 0:
+            tree.value.args.extend([
+                ast.Subscript(value=ast.Name(id='metadata', ctx=ast.Load()),
+                              slice=ast.Index(value=ast.Constant(value=f'f{p_ix}', kind=None)), ctx=ast.Load()),
+                ast.Name(id='storage_state', ctx=ast.Load()),
+            ])
         return tree
 
     def generate_stage_code(self, stage, stage_ix, functions):
@@ -97,6 +108,8 @@ def {fun_name}():
 
         base_code.body.append(return_tuple)
         base_code.args.args.extend(memory_banks)
+        base_code.args.args.append(ast.arg(arg='metadata'))
+        base_code.args.args.append(ast.arg(arg='storage_state'))
         
         module = ast.fix_missing_locations(
             ast.Module(body=[base_code],
@@ -149,6 +162,8 @@ def {fun_name}():
                 if bank is not None:
                     bank = bank[batch_slot ]
                 args.append(bank)
+            args.append(self.metadata)
+            args.append(self.storage_state)
             code = self.code_per_stage[stage]
             result = code(*args)
             args = list(result)
