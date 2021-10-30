@@ -58,7 +58,7 @@ class Loader:
                  distributed: bool = False,
                  seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
-                 pipelines: Mapping[str, Sequence[Operation]] = {},
+                 pipelines: Mapping[str, Sequence[Union[Operation, ch.nn.Module]]] = {},
                  device: ch.device = ch.device('cpu')):
 
         self.fname: str = fname
@@ -113,7 +113,7 @@ class Loader:
                     raise ValueError(msg)
 
             for i, op in enumerate(operations):
-                assert isinstance(op, (ch.nn.Module, Operation))
+                assert isinstance(op, (ch.nn.Module, Operation)), op
                 if isinstance(op, ch.nn.Module):
                     operations[i] = ModuleWrapper(op)
 

@@ -1,4 +1,10 @@
-pandas
+numba
 terminaltables
+fastargs
+matplotlib
+sklearn
+imgcat
+torchmetrics
+pandas
 assertpy
 tqdm

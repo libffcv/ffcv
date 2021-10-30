@@ -17,10 +17,10 @@ from torch.cuda.amp import autocast
 from tqdm import tqdm
 
 import torch as ch
-ch.backends.cudnn.benchmark = True
-ch.autograd.set_detect_anomaly(True)
-ch.autograd.profiler.emit_nvtx(False)
-ch.autograd.profiler.profile(False)
+# ch.backends.cudnn.benchmark = True
+# ch.autograd.set_detect_anomaly(True)
+# ch.autograd.profiler.emit_nvtx(False)
+# ch.autograd.profiler.profile(False)
 
 import torch.nn.functional as F
 import torch.optim as optim
@@ -28,7 +28,6 @@ import torch.optim as optim
 import matplotlib as mpl
 mpl.use('module://imgcat')
 from matplotlib import pyplot as plt
-from robustness.tools.vis_tools import show_image_row
 
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
@@ -41,7 +40,7 @@ Section('logging', 'how to log stuff').params(folder=Param(str, 'log location', 
 
 Section('training', 'training hyper param stuff').params(
     batch_size=Param(int, 'The batch size', default=512),
-    optimizer=Param(And(str, OneOf(['sgd', 'lamb', 'sam'])), 'The optimizer', default='sgd'),
+    optimizer=Param(And(str, OneOf(['sgd'])), 'The optimizer', default='sgd'),
     lr=Param(float, 'learning rate', default=0.5),
     momentum=Param(float, 'SGD momentum', default=0.9),
     weight_decay=Param(float, 'weight decay', default=5e-4),
@@ -64,8 +63,6 @@ class Trainer():
         self.train_loader = self.create_train_loader()
         self.create_optimizer(len(self.train_loader))
         self.val_loader = self.create_val_loader()
-        # self.normalization = transforms.Normalize(mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
-                                                #   std=[0.229 * 255, 0.224 * 255, 0.225 * 255]).cuda(gpu)
         self.train_accuracy = torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu)
         self.val_meters = {
             'top_1': torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu),
@@ -95,20 +92,19 @@ class Trainer():
     def create_optimizer(self, iters_per_epoch, lr, momentum, optimizer,
                          weight_decay, epochs, lr_peak_epoch):
         optimizer = optimizer.lower()
-        assert optimizer in ['lamb', 'sgd']
         self.optimizer = optim.SGD(self.model.parameters(),
                                      lr=lr,
                                      momentum=momentum,
                                      weight_decay=weight_decay)
-        
+
         print(iters_per_epoch)
         # schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
         schedule = (np.arange(epochs + 1) + 1) 
-        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
+        # add 1 to avoid 0 learning rate at the end.
+        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
 
     def train_loop(self):
-        print(self.scheduler.get_last_lr())
         model = self.model
         model.train()
         losses = []
@@ -177,12 +173,12 @@ class Trainer():
     def train(self, epochs):
         for epoch in range(epochs):
             train_loss, train_acc = self.train_loop()
-            val_loss, val_stats = self.val_loop()
             self.log({
                 'train_loss': train_loss,
                 'train_acc': train_acc,
-                'val_loss': val_loss,
+                # 'val_loss': val_loss,
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
-                **val_stats
+                # **val_stats
             })
+        val_loss, val_stats = self.val_loop()
