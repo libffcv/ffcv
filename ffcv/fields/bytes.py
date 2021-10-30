@@ -52,4 +52,4 @@ class BytesField(Field):
         destination['size'] = field.size
 
     def get_decoder_class(self) -> Type[Operation]:
-        return BytesDecoder()
+        return BytesDecoder
