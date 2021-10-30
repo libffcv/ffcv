@@ -89,7 +89,8 @@ class Trainer():
         raise NotImplementedError
     
     @abstractmethod
-    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size, resolution):
+    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size,
+                          resolution):
         raise NotImplementedError
     
     @abstractmethod
