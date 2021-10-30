@@ -15,6 +15,7 @@ from ffcv.fields import BytesField, IntField
 from ffcv.pipeline.compiler import Compiler
 from ffcv.memory_managers.ram import RAMMemoryManager
 from ffcv.libffcv import memcpy
+from ffcv import Loader
 
 class DummyDataset(Dataset):
 
@@ -32,19 +33,27 @@ class DummyDataset(Dataset):
         return index, np.random.randint(0, 255, size=self.size, dtype='u1')
 
 def create_and_run(num_samples, size_bytes):
-    name = '/dev/null'
-    dataset = DummyDataset(num_samples, size_bytes)
-    writer = DatasetWriter(num_samples, name, {
-        'index': IntField(),
-        'value': BytesField()
-    })
+    handle = NamedTemporaryFile()
+    with handle:
+        name = handle.name
+        dataset = DummyDataset(num_samples, size_bytes)
+        writer = DatasetWriter(num_samples, name, {
+            'index': IntField(),
+            'value': BytesField()
+        })
+        
+        Compiler.set_enabled(True)
 
-    with writer:
-        writer.write_pytorch_dataset(dataset, num_workers=-1, chunksize=100)
-    total_dataset_size = num_samples * size_bytes
-    # Dataset should not be in RAM
-    process = psutil.Process(os.getpid())
-    assert_that(process.memory_info().rss).is_less_than(total_dataset_size)
+        with writer:
+            writer.write_pytorch_dataset(dataset, num_workers=-1, chunksize=100)
+        total_dataset_size = num_samples * size_bytes
+        # Dataset should not be in RAM
+        process = psutil.Process(os.getpid())
+        assert_that(process.memory_info().rss).is_less_than(total_dataset_size)
+        
+        loader = Loader(name, 128, 10)
+        for _ in tqdm(loader):
+            assert_that(process.memory_info().rss).is_less_than(total_dataset_size)
 
 
 def test_memory_leak_write():
