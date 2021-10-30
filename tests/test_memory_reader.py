@@ -45,7 +45,7 @@ def create_and_validate(length, size, do_compile):
             read_fn = manager.compile_reader()
 
         for addr, sample_id in zip(tqdm(addresses), sample_ids):
-            read_buffer = read_fn(addr)
+            read_buffer = read_fn(addr, manager.state)
             np.random.seed(sample_id)
             expected_buff = np.random.randint(0, 255, size=size, dtype='u1')
 

@@ -107,17 +107,16 @@ instead."""
 
         jpg = IMAGE_MODES['jpg']
         raw = IMAGE_MODES['raw']
-
-        metadata = self.metadata
         my_range = Compiler.get_iterator()
         my_memcpy = Compiler.compile(memcpy)
-        def decode(batch_indices, destination):
+
+        def decode(batch_indices, destination, metadata, storage_state):
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
-                image_data = mem_read(field['data_ptr'])
+                image_data = mem_read(field['data_ptr'], storage_state)
                 height, width = field['height'], field['width']
-                
+
                 if field['mode'] == jpg:
                     imdecode_c(image_data, destination[dst_ix],
                                height, width, height, width, 0, 0, 1, 1, False, False)
@@ -152,14 +151,12 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
         jpg = IMAGE_MODES['jpg']
 
-        metadata = self.metadata
-
         mem_read = self.memory_read
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
         resize_crop_c = Compiler.compile(resize_crop)
         get_crop_c = Compiler.compile(self.get_crop_generator)
-        
+
         temp_buffer_shape = (self.max_height, self.max_width, 3)
 
         scale = self.scale
@@ -169,14 +166,14 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         if isinstance(ratio, tuple):
             ratio = np.array(ratio)
 
-        def decode(batch_indices, destination):
+        def decode(batch_indices, destination, metadata, storage_state):
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
-                image_data = mem_read(field['data_ptr'])
+                image_data = mem_read(field['data_ptr'], storage_state)
                 height = np.uint32(field['height'])
                 width = np.uint32(field['width'])
-                
+
                 if field['mode'] == jpg:
                     temp_buffer = np.zeros(temp_buffer_shape, dtype=('<u1'))
                     imdecode_c(image_data, temp_buffer,
