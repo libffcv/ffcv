@@ -68,7 +68,8 @@ class CIFARTrainer(Trainer):
                         Convert(ch.float16),
                         Normalize((CIFAR_MEAN * 255).tolist(), (CIFAR_STD * 255).tolist())
                     ],
-                    'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
+                    'label': [IntDecoder(), ToTensor(), Squeeze(),
+                              ToDevice(ch.device('cuda:0'))]
                 })
         return loader
 
@@ -94,3 +95,4 @@ if __name__ == "__main__":
     config.summary()
     trainer = CIFARTrainer(config)
     trainer.train()
+    trainer.log_val()

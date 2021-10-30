@@ -8,3 +8,4 @@ torchmetrics
 pandas
 assertpy
 tqdm
+-e git://github.com/CoinCheung/pytorch-loss.git#egg=pytorch_loss

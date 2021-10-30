@@ -5,6 +5,7 @@ import json
 from abc import abstractmethod
 from os import path
 from time import time
+from functools import partial
 from uuid import uuid4
 
 import numpy as np
@@ -15,6 +16,7 @@ from fastargs.decorators import param
 from fastargs.validation import And, OneOf
 from torch.cuda.amp import autocast
 from tqdm import tqdm
+from pytorch_loss import LabelSmoothSoftmaxCEV3
 
 import torch as ch
 # ch.backends.cudnn.benchmark = True
@@ -46,13 +48,24 @@ Section('training', 'training hyper param stuff').params(
     weight_decay=Param(float, 'weight decay', default=5e-4),
     epochs=Param(int, 'number of epochs', default=24),
     lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
+    label_smoothing=Param(float, 'label smoothing parameter', default=0.)
 )
 
 Section('validation', 'Validation parameters stuff').params(
     batch_size=Param(int, 'The batch size for validation', default=512),
     crop_size=Param(int, 'The size of the crop before resizing to resolution', default=243),
-    resolution=Param(int, 'The size of the final resized validation image', default=224)
+    resolution=Param(int, 'The size of the final resized validation image', default=224),
+    lr_tta=Param(bool, is_flag=True)
 )
+
+# class TTAModel(nn.Module):
+#     def __init__(self, model):
+#         super().__init__()
+#         self.model = model
+
+#     def forward(self, x):
+#         if self.training: return self.model(x)
+#         return 
 
 class Trainer():
     @param('data.gpu')
@@ -70,7 +83,7 @@ class Trainer():
         }
         self.uid = str(uuid4())
         self.initialize_logger()
-    
+
     @abstractmethod
     def create_train_loader(self, train_dataset, batch_size, num_workers):
         raise NotImplementedError
@@ -89,8 +102,9 @@ class Trainer():
     @param('training.weight_decay')
     @param('training.epochs')
     @param('training.lr_peak_epoch')
+    @param('training.label_smoothing')
     def create_optimizer(self, iters_per_epoch, lr, momentum, optimizer,
-                         weight_decay, epochs, lr_peak_epoch):
+                         weight_decay, epochs, lr_peak_epoch, label_smoothing):
         optimizer = optimizer.lower()
         self.optimizer = optim.SGD(self.model.parameters(),
                                      lr=lr,
@@ -103,18 +117,20 @@ class Trainer():
         # add 1 to avoid 0 learning rate at the end.
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
+        self.loss = LabelSmoothSoftmaxCEV3(lb_smooth=label_smoothing)
 
     def train_loop(self):
         model = self.model
         model.train()
         losses = []
         for images, target in tqdm(self.train_loader):
-            images = images.to(memory_format=ch.channels_last)
+            images = images.to(memory_format=ch.channels_last,
+                               non_blocking=True)
             self.optimizer.zero_grad(set_to_none=True)
 
             with autocast():
                 output = self.model(images)
-                loss_train = F.cross_entropy(output, target)
+                loss_train = self.loss(output, target)
                 losses.append(loss_train.detach())
                 self.train_accuracy(output, target)
 
@@ -128,19 +144,24 @@ class Trainer():
         loss = ch.stack(losses).mean().item()
         return loss, accuracy
 
-    def val_loop(self):
+    @param('validation.lr_tta')
+    def val_loop(self, lr_tta):
         model = self.model
         model.eval()
         losses = []
 
         with ch.inference_mode():
             for images, target in tqdm(self.val_loader):
-                images = images.to(memory_format=ch.channels_last)
+                images = images.to(memory_format=ch.channels_last,
+                                   non_blocking=True)
                 self.optimizer.zero_grad(set_to_none=True)
 
                 with autocast():
                     output = self.model(images)
-                    loss_val = F.cross_entropy(output, target)
+                    if lr_tta:
+                        output += self.model(ch.flip(images, dims=[3]))
+
+                    loss_val = self.loss(output, target)
                     losses.append(loss_val.detach())
                     [meter(output, target) for meter in self.val_meters.values()]
 
@@ -169,6 +190,12 @@ class Trainer():
         self.logging_fp.write('\n')
         self.logging_fp.flush()
 
+    @param('logging.folder')
+    def log_val(self, folder):
+        _, val_stats = self.val_loop()
+        val_path = path.join(folder, f'{self.uid}-stats.ch')
+        ch.save(val_stats, val_path)
+
     @param('training.epochs')
     def train(self, epochs):
         for epoch in range(epochs):
@@ -181,4 +208,4 @@ class Trainer():
                 'epoch': epoch,
                 # **val_stats
             })
-        val_loss, val_stats = self.val_loop()
+
