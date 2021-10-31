@@ -16,7 +16,7 @@ from fastargs.decorators import param
 from fastargs.validation import And, OneOf
 from torch.cuda.amp import autocast
 from tqdm import tqdm
-from pytorch_loss import LabelSmoothSoftmaxCEV3
+from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
 # ch.backends.cudnn.benchmark = True
@@ -118,7 +118,7 @@ class Trainer():
         # add 1 to avoid 0 learning rate at the end.
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
-        self.loss = LabelSmoothSoftmaxCEV3(lb_smooth=label_smoothing)
+        self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
 
     def train_loop(self):
         model = self.model
@@ -209,4 +209,3 @@ class Trainer():
                 'epoch': epoch,
                 # **val_stats
             })
-

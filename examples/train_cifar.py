@@ -36,10 +36,10 @@ class CIFARTrainer(Trainer):
                         pipelines={
                             'image': [
                                 SimpleRGBImageDecoder(), 
+                                Cutout(8, (ch.from_numpy(CIFAR_MEAN) * 255).to(dtype=ch.uint8)),
                                 ToTensor(), 
                                 ToDevice(ch.device('cuda:0')), 
                                 ToTorchImage(), 
-                                Cutout(8, (ch.from_numpy(CIFAR_MEAN) * 255).to(dtype=ch.uint8)),
                                 Convert(ch.float16),
                                 Normalize((CIFAR_MEAN * 255).tolist(), (CIFAR_STD * 255).tolist()),
                                 AffineAugmentation(4)
