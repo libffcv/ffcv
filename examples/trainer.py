@@ -124,6 +124,9 @@ class Trainer():
         model = self.model
         model.train()
         losses = []
+        # for images, target in tqdm(self.train_loader):
+            # break
+        # for _ in tqdm(range(100)):
         for images, target in tqdm(self.train_loader):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)

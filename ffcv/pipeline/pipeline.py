@@ -102,7 +102,7 @@ class Pipeline:
                     if is_pytorch:
                         device_matchs = (current_buffer.device
                                          == memory_allocation.device)
-                        
+
                     if shape_matches and dtype_matches and device_matchs:
                         result = self.memory_buffers[op_id]
                 if result is None:
@@ -110,8 +110,18 @@ class Pipeline:
                         result = ch.empty(*final_shape,
                                           dtype=memory_allocation.dtype,
                                           device=memory_allocation.device)
+                        try:
+                            result = result.pin_memory()
+                        except:
+                            pass
                     else:
-                        result = np.empty(final_shape,
-                                          dtype=memory_allocation.dtype)
+                        ch_dtype = ch.from_numpy(np.empty(0, dtype=memory_allocation.dtype)).dtype
+                        result = ch.empty(*final_shape,
+                                          dtype=ch_dtype)
+                        try:
+                            result = result.pin_memory()
+                        except:
+                            pass
+                        result = result.numpy()
 
                 self.memory_buffers[op_id] = result
