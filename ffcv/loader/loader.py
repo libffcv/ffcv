@@ -59,13 +59,15 @@ class Loader:
                  seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
                  pipelines: Mapping[str, Sequence[Union[Operation, ch.nn.Module]]] = {},
-                 device: ch.device = ch.device('cpu')):
+                 drop_last: bool = True
+    ):
 
         self.fname: str = fname
         self.batch_size: int = batch_size
         self.seed: Optional[int] = seed
         self.reader: Reader = Reader(self.fname)
         self.num_workers: int = num_workers
+        self.drop_last: bool = drop_last
         Compiler.set_num_threads(self.num_workers)
 
         if self.num_workers < 1:
@@ -132,8 +134,12 @@ class Loader:
         self.next_epoch += 1
         Compiler.set_num_threads(self.num_workers)
         order = self.traversal_order.sample_order(cur_epoch)
-        return EpochIterator(self, cur_epoch, order)
+        selected_order = order[:len(self) * self.batch_size]
+        return EpochIterator(self, cur_epoch, selected_order)
 
     def __len__(self):
         # TODO handle drop_last
-        return int(np.ceil(len(self.indices) / self.batch_size))
+        if self.drop_last:
+            return len(self.indices) // self.batch_size
+        else:
+            return int(np.ceil(len(self.indices) / self.batch_size))
