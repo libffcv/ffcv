@@ -37,7 +37,7 @@ class Doubler(Operation):
     def declare_state_and_memory(self, previous_state: State):
         return (previous_state, AllocationQuery(previous_state.shape, previous_state.dtype, previous_state.device))
 
-def test_write_simple():
+def test_basic_simple():
     length = 600
     batch_size = 8
     with NamedTemporaryFile() as handle:
@@ -65,7 +65,7 @@ def test_write_simple():
         assert_that(np.allclose(2 * np.sin(np.arange(batch_size)),
                                 values.squeeze().numpy())).is_true()
         
-def test_multiple_epochs():
+def test_multiple_iterators_success():
     length = 60
     batch_size = 8
     with NamedTemporaryFile() as handle:
@@ -88,3 +88,58 @@ def test_multiple_epochs():
 
         it = iter(loader)
         it = iter(loader)
+
+def test_multiple_epoch_doesnt_recompile():
+    length = 60
+    batch_size = 8
+    with NamedTemporaryFile() as handle:
+        file_name = handle.name
+        dataset = DummyDataset(length)
+        writer = DatasetWriter(length, file_name, {
+            'index': IntField(),
+            'value': FloatField()
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(dataset)
+
+        Compiler.set_enabled(True)
+
+        loader = Loader(file_name, batch_size, num_workers=5, seed=17,
+                        pipelines={
+                            'value': [FloatDecoder(), Doubler(), ToTensor()]
+                        })
+
+        it = iter(loader)
+        code = loader.code_per_stage
+        it = iter(loader)
+        new_code = loader.code_per_stage
+        assert_that(code).is_equal_to(new_code)
+
+def test_multiple_epoch_does_recompile():
+    length = 60
+    batch_size = 8
+    with NamedTemporaryFile() as handle:
+        file_name = handle.name
+        dataset = DummyDataset(length)
+        writer = DatasetWriter(length, file_name, {
+            'index': IntField(),
+            'value': FloatField()
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(dataset)
+
+        Compiler.set_enabled(True)
+
+        loader = Loader(file_name, batch_size, num_workers=5, seed=17,
+                recompile=True,
+                        pipelines={
+                            'value': [FloatDecoder(), Doubler(), ToTensor()]
+                        })
+
+        it = iter(loader)
+        code = loader.code_per_stage
+        it = iter(loader)
+        new_code = loader.code_per_stage
+        assert_that(code).is_not_equal_to(new_code)
