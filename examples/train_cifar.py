@@ -18,7 +18,7 @@ from cifar_models import models, AffineAugmentation
 import numpy as np
 
 Section('model', 'model details').params(
-    arch=Param(And(str, OneOf(models.keys())), 'the architecture to use', required=True)
+    arch=Param(And(str, OneOf(models.keys())), 'the architecture to use', required=True),
 )
 
 CIFAR_MEAN = np.array([0.4914, 0.4822, 0.4465])
@@ -36,6 +36,7 @@ class CIFARTrainer(Trainer):
                         pipelines={
                             'image': [
                                 SimpleRGBImageDecoder(), 
+                                Cutout(8, (ch.from_numpy(CIFAR_MEAN) * 255).to(dtype=ch.uint8)),
                                 ToTensor(), 
                                 ToDevice(ch.device('cuda:0')), 
                                 ToTorchImage(), 
@@ -54,21 +55,25 @@ class CIFARTrainer(Trainer):
     @param('validation.crop_size')
     @param('validation.resolution')
     # TODO: remove crop_size and resolution arguments for CIFAR unrolling
-    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size, resolution):
+    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size,
+                          resolution):
+        image_pipeline = [
+            SimpleRGBImageDecoder(), 
+            ToTensor(), 
+            ToDevice(ch.device('cuda:0')), 
+            ToTorchImage(), 
+            Convert(ch.float16),
+            Normalize((CIFAR_MEAN * 255).tolist(), (CIFAR_STD * 255).tolist())
+        ]
+
         loader = Loader(val_dataset,
                 batch_size=batch_size,
                 num_workers=num_workers,
                 order=OrderOption.RANDOM,
                 pipelines={
-                    'image': [
-                        SimpleRGBImageDecoder(), 
-                        ToTensor(), 
-                        ToDevice(ch.device('cuda:0')), 
-                        ToTorchImage(), 
-                        Convert(ch.float16),
-                        Normalize((CIFAR_MEAN * 255).tolist(), (CIFAR_STD * 255).tolist())
-                    ],
-                    'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
+                    'image': image_pipeline,
+                    'label': [IntDecoder(), ToTensor(), Squeeze(),
+                              ToDevice(ch.device('cuda:0'))]
                 })
         return loader
 
@@ -94,3 +99,4 @@ if __name__ == "__main__":
     config.summary()
     trainer = CIFARTrainer(config)
     trainer.train()
+    trainer.log_val()
