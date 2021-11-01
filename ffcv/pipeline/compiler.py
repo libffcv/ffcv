@@ -1,3 +1,4 @@
+import pdb
 from numba import njit, set_num_threads, prange, warnings as nwarnings
 from numba.core.errors import NumbaPerformanceWarning
 from multiprocessing import cpu_count
@@ -21,9 +22,13 @@ class Compiler:
 
     @classmethod
     def compile(cls, code, signature=None):
+        parallel = False
+        if hasattr(code, 'is_parallel'):
+            parallel = code.is_parallel and cls.num_threads > 1
+        
         if cls.is_enabled:
-            warnings.simplefilter('ignore', category=NumbaPerformanceWarning)
-            return njit(signature, fastmath=True, error_model='numpy', parallel=cls.num_threads > 1)(code)
+            return njit(signature, fastmath=True, nogil=True, error_model='numpy',
+                        parallel=parallel)(code)
         return code
 
     @classmethod
