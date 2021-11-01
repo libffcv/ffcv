@@ -11,6 +11,7 @@ from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
+from ..pipeline.compiler import Compiler
 from dataclasses import replace
 
 class CoreOp(Operation, metaclass=ABCMeta):
@@ -94,6 +95,8 @@ class Convert(CoreOp):
     def generate_code(self) -> Callable:
         def convert(inp, dst):
             return inp.type(self.target_dtype)
+
+        convert.is_parallel = True
 
         return convert
     
