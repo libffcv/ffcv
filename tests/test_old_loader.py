@@ -7,6 +7,7 @@ Instructions:
 
 
 import numpy as np
+from tqdm import tqdm
 from time import time
 from torchvision import transforms
 import torch as ch
@@ -47,21 +48,31 @@ def test_old_loader():
     return True
 
 def test_new_loader():
-    loader = Loader('/tmp/imagenet_train.beton',
+    loader = Loader('/dev/shm/imagenet_train.beton',
                 batch_size=1024,
-                num_workers=16,
-                order=OrderOption.RANDOM,
+                num_workers=96,
+                order=OrderOption.SEQUENTIAL,
                 pipelines={
                     'image': [
                         RandomResizedCropRGBImageDecoder((224, 224)), 
-                        ToTensor(), 
-                        ToDevice(ch.device('cuda:0')), 
-                        ToTorchImage(), 
-                        Convert(ch.float16)
+                        ToTensor(),
+                        ToDevice(ch.device('cuda:0'), non_blocking=True),
+                        ToTorchImage(),
+                        Convert(ch.float16),
                     ],
-                    'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
+                    'label': [
+                        IntDecoder(),
+                        ToTensor(),
+                        ToDevice(ch.device('cuda:0')),
+                        Squeeze()
+                        ]
                 })
     
-    measure(loader)
-    print(np.median([measure(loader) for _ in range(n)]))
+    for _ in tqdm(loader):
+        pass
+    # measure(loader)
+    # print(np.median([measure(loader) for _ in range(n)]))
     return True
+
+if __name__ == '__main__':
+    test_new_loader()
