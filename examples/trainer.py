@@ -34,11 +34,13 @@ from matplotlib import pyplot as plt
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
     val_dataset=Param(str, '.dat file to use for validation', required=True),
-    num_workers=Param(int, 'The number of workers', default=16),
-    gpu=Param(int, 'Which GPU to use', default=0)
+    num_workers=Param(int, 'The number of workers', required=True),
+    gpu=Param(int, 'Which GPU to use', required=True)
 )
 
-Section('logging', 'how to log stuff').params(folder=Param(str, 'log location', default='/tmp'))
+Section('logging', 'how to log stuff').params(
+    folder=Param(str, 'log location', required=True)
+)
 
 Section('training', 'training hyper param stuff').params(
     batch_size=Param(int, 'The batch size', default=512),
