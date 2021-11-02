@@ -1,6 +1,7 @@
 import torch as ch
 from torch.cuda.amp import GradScaler
 from ffcv.pipeline.compiler import Compiler
+import antialiased_cnns
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
@@ -17,7 +18,8 @@ import numpy as np
 from torchvision import models
 
 Section('model', 'model details').params(
-    arch=Param(And(str, OneOf(models.__dir__())), 'the architecture to use', required=True)
+    arch=Param(And(str, OneOf(models.__dir__())), 'the architecture to use', required=True),
+    antialias=Param(bool, 'use blurpool or not', is_flag=True)
 )
 
 Section('resolution', 'resolution scheduling').params(
@@ -41,8 +43,8 @@ class ImageNetTrainer(Trainer):
     def setup_sched(self, epochs, min_res, max_res, end_ramp):
         def schedule(epoch):
             diff = max_res - min_res
-            result =  min_res
-            result +=  min(1, epoch / end_ramp) * diff
+            result = min_res
+            result += min(1, epoch / end_ramp) * diff
             result = int(np.round(result / 32) * 32)
             return (result, result)
         self.resolution_schedule = [schedule(ep) for ep in range(epochs)]
@@ -107,9 +109,14 @@ class ImageNetTrainer(Trainer):
         self.val_loop()
 
     @param('model.arch')
-    def create_model_and_scaler(self, arch):
+    @param('model.antialias')
+    def create_model_and_scaler(self, arch, antialias):
         scaler = GradScaler()
-        model = getattr(models, arch)()
+        if not antialias:
+            model = getattr(models, arch)()
+        else:
+            model = getattr(antialiased_cnns, arch)(pretrained=False)
+
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
         return model, scaler
@@ -123,41 +130,3 @@ if __name__ == "__main__":
     config.summary()
     trainer = ImageNetTrainer(config)
     trainer.train()
-
-"""
-Section('training.resolution_schedule',
-        'How the resolution increases during training').params(
-            min_resolution=Param(int, 'resolution at the first epoch', default=160),
-            end_ramp=Param(int, 'At which epoch should we end increasing the resolution',
-                           default=20),
-            max_resolution=Param(int, 'Resolution we reach at end', default=160),
-        )
-
-Section('optimizations').params(
-    label_smoothing=Param(float, 'alpha for label smoothing'),
-    blurpool=Param(int, 'Whether to use blurpool layers', default=1),
-    tta=Param(int, 'Whether to use test-time augmentation', default=1)
-)
-
-class TTAModel(nn.Module):
-    def __init__(self, model):
-        super().__init__()
-        self.model = model
-
-    def forward(self, x):
-        if self.training: return self.model(x)
-        return self.model(x) + self.model(ch.flip(x, dims=[3]))
-
-@section('training.resolution_schedule')
-@param('min_resolution')
-@param('max_resolution')
-@param('end_ramp')
-def get_resolution_schedule(min_resolution, max_resolution, end_ramp):
-    def schedule(epoch):
-        diff = max_resolution - min_resolution
-        result =  min_resolution
-        result +=  min(1, epoch / end_ramp) * diff
-        result = int(np.round(result / 32) * 32)
-        return result
-    return schedule
-"""
