@@ -41,12 +41,12 @@ def create_and_validate(length, mode='raw', reversed=False):
         
         fields = {
             'index': IntField(),
-            'value': RGBImageField(write_mode=mode)
+            'value': RGBImageField(write_mode=mode, jpeg_quality=95)
         }
         
         if reversed:
             fields = {
-                'value': RGBImageField(write_mode=mode),
+                'value': RGBImageField(write_mode=mode, jpeg_quality=95),
                 'index': IntField()
             }
 
@@ -58,8 +58,6 @@ def create_and_validate(length, mode='raw', reversed=False):
         Compiler.set_enabled(False)
         
         loader = Loader(name, batch_size=5, num_workers=2)
-        
-        import pdb
         
         for res in loader:
             if not reversed:
