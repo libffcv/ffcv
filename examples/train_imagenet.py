@@ -1,7 +1,7 @@
 import torch as ch
 from torch.cuda.amp import GradScaler
 from ffcv.pipeline.compiler import Compiler
-import antialiased_cnns
+# import antialiased_cnns
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
@@ -48,6 +48,8 @@ class ImageNetTrainer(Trainer):
             result = int(np.round(result / 32) * 32)
             return (result, result)
         self.resolution_schedule = [schedule(ep) for ep in range(epochs)]
+        # self.batch_size_schedule = [256 * 160 // rs[0] for rs in self.resolution_schedule]
+        self.batch_size_schedule = [1024 for rs in self.resolution_schedule]
 
     @param('data.train_dataset')
     @param('training.batch_size')
@@ -99,6 +101,7 @@ class ImageNetTrainer(Trainer):
     def train(self, epochs):
         for epoch in range(epochs):
             self.decoder.output_size = self.resolution_schedule[epoch]
+            self.train_loader.batch_size = self.batch_size_schedule[epoch]
             train_loss, train_acc = self.train_loop()
             self.log({
                 'train_loss': train_loss,
