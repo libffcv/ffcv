@@ -1,8 +1,10 @@
 import ast
+from time import sleep, time
 from collections import defaultdict
 from itertools import zip_longest
 from functools import partial
 from threading import Thread
+from queue import Queue
 from typing import Sequence, TYPE_CHECKING, Mapping
 
 import numpy as np
@@ -14,10 +16,11 @@ from ..utils import chunks
 if TYPE_CHECKING:
     from .loader import Loader
     from ..pipeline.pipeline import Pipeline
-
+    
 class EpochIterator(Thread):
 
     def __init__(self, loader: 'Loader', epoch: int, order:Sequence[int]):
+        super().__init__(daemon=True)
         self.loader: 'Loader' = loader
         self.order = order
         self.idx_iter = iter(order)
@@ -33,7 +36,7 @@ class EpochIterator(Thread):
         memory_allocations = {} 
         for (p_id, p) in self.loader.pipelines.items():
             memory_allocations[p_id] = p.allocate_memory(self.loader.batch_size,
-                                                         self.loader.batches_ahead)
+                                                         self.loader.batches_ahead + 2)
         
         # Assign each memory bank to the pipeline stage it belongs to
         for s_ix, banks in self.loader.memory_bank_keys_per_stage.items():
@@ -41,11 +44,26 @@ class EpochIterator(Thread):
                 self.memory_bank_per_stage[s_ix].append(
                         memory_allocations[pipeline_name][op_id]
                 )
+                
+        self.output_queue = Queue(self.loader.batches_ahead)
+                
+        self.start()
 
     def before_epoch(self):
         if self.code_per_stage is None:
             self.generate_code()
-
+            
+    def run(self):
+        try:
+            while True:
+                ixes = next(self.iter_ixes)
+                slot = self.current_batch_slot
+                self.current_batch_slot = (slot + 1) % (self.loader.batches_ahead + 2)
+                result = self.run_pipeline(ixes, slot)
+                self.output_queue.put(result)
+        except StopIteration:
+            self.output_queue.put(None)
+            
 
     def run_pipeline(self, batch_indices, batch_slot):
         args = [batch_indices]
@@ -63,7 +81,8 @@ class EpochIterator(Thread):
 
         
     def __next__(self):
-        ixes = next(self.iter_ixes)
-        slot = self.current_batch_slot
-        self.current_batch_slot = (slot + 1) % self.loader.batches_ahead
-        return self.run_pipeline(ixes, slot)
+        result = self.output_queue.get()
+        # print("EXTRACTED", result[0], result[1][0])
+        if result is None:
+            raise StopIteration()
+        return result
