@@ -20,13 +20,32 @@ Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())), 'the architecture to use', required=True)
 )
 
+Section('resolution', 'resolution scheduling').params(
+    min_res=Param(int, 'the minimum (starting) resolution', default=224),
+    max_res=Param(int, 'the maximum (starting) resolution', default=224),
+    end_ramp=Param(int, 'when to stop interpolating resolution', default=0)
+)
+
 IMAGENET_MEAN = np.array([0.4914, 0.4822, 0.4465])
 IMAGENET_STD = np.array([0.2023, 0.1994, 0.2010])
 
 class ImageNetTrainer(Trainer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.resolution_schedule = []
+        self.setup_sched()
+
+    @param('training.epochs')
+    @param('resolution.min_res')
+    @param('resolution.max_res')
+    @param('resolution.end_ramp')
+    def setup_sched(self, epochs, min_res, max_res, end_ramp):
+        def schedule(epoch):
+            diff = max_res - min_res
+            result =  min_res
+            result +=  min(1, epoch / end_ramp) * diff
+            result = int(np.round(result / 32) * 32)
+            return (result, result)
+        self.resolution_schedule = [schedule(ep) for ep in range(epochs)]
 
     @param('data.train_dataset')
     @param('training.batch_size')
@@ -41,12 +60,12 @@ class ImageNetTrainer(Trainer):
                             'image': [
                                 self.decoder,
                                 ToTensor(), 
-                                ToDevice(ch.device('cuda:0')), 
+                                ToDevice(ch.device('cuda:0'), non_blocking=False), 
                                 ToTorchImage(), 
                                 Convert(ch.float16),
                                 Normalize((IMAGENET_MEAN * 255).tolist(), (IMAGENET_STD * 255).tolist())
                             ],
-                            'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
+                            'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'), non_blocking=False)]
                         })
 
         return loader
@@ -65,19 +84,19 @@ class ImageNetTrainer(Trainer):
                     'image': [
                         RandomResizedCropRGBImageDecoder((224, 224)), 
                         ToTensor(), 
-                        ToDevice(ch.device('cuda:0')), 
+                        ToDevice(ch.device('cuda:0'), non_blocking=False), 
                         ToTorchImage(), 
                         Convert(ch.float16),
-                        Normalize((CIFAR_MEAN * 255).tolist(), (CIFAR_STD * 255).tolist())
+                        Normalize((IMAGENET_MEAN * 255).tolist(), (IMAGENET_MEAN * 255).tolist())
                     ],
-                    'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
+                    'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'), non_blocking=False)]
                 })
         return loader
 
     @param('training.epochs')
     def train(self, epochs):
         for epoch in range(epochs):
-            self.decoder.update_resolution(self.resolution_schedule[epoch])
+            self.decoder.output_size = self.resolution_schedule[epoch]
             train_loss, train_acc = self.train_loop()
             self.log({
                 'train_loss': train_loss,
@@ -85,6 +104,7 @@ class ImageNetTrainer(Trainer):
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
             })
+        self.val_loop()
 
     @param('model.arch')
     def create_model_and_scaler(self, arch):
@@ -101,7 +121,7 @@ if __name__ == "__main__":
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
     config.summary()
-    trainer = CIFARTrainer(config)
+    trainer = ImageNetTrainer(config)
     trainer.train()
 
 """
