@@ -8,6 +8,7 @@ from queue import Queue
 from typing import Sequence, TYPE_CHECKING, Mapping
 
 import numpy as np
+import torch as ch
 
 from ffcv.pipeline.compiler import Compiler
 
@@ -31,6 +32,8 @@ class EpochIterator(Thread):
         self.iter_ixes = iter(chunks(order, self.loader.batch_size))
 
         self.memory_bank_per_stage = defaultdict(list)
+        
+        self.cuda_streams = [ch.cuda.Stream() for _ in range(self.loader.batches_ahead + 2)]
 
         # Allocate all the memory
         memory_allocations = {} 
@@ -60,23 +63,26 @@ class EpochIterator(Thread):
                 slot = self.current_batch_slot
                 self.current_batch_slot = (slot + 1) % (self.loader.batches_ahead + 2)
                 result = self.run_pipeline(ixes, slot)
-                self.output_queue.put(result)
+                self.output_queue.put((slot, result))
         except StopIteration:
             self.output_queue.put(None)
             
 
     def run_pipeline(self, batch_indices, batch_slot):
         args = [batch_indices]
-        for stage, banks in self.memory_bank_per_stage.items():
-            for bank in banks:
-                if bank is not None:
-                    bank = bank[batch_slot]
-                args.append(bank)
-            args.append(self.metadata)
-            args.append(self.storage_state)
-            code = self.loader.code_per_stage[stage]
-            result = code(*args)
-            args = list(result)
+        stream = self.cuda_streams[batch_slot]
+        stream.synchronize()
+        with ch.cuda.stream(stream):
+            for stage, banks in self.memory_bank_per_stage.items():
+                for bank in banks:
+                    if bank is not None:
+                        bank = bank[batch_slot]
+                    args.append(bank)
+                args.append(self.metadata)
+                args.append(self.storage_state)
+                code = self.loader.code_per_stage[stage]
+                result = code(*args)
+                args = list(result)
         return tuple(args)
 
         
@@ -85,4 +91,6 @@ class EpochIterator(Thread):
         # print("EXTRACTED", result[0], result[1][0])
         if result is None:
             raise StopIteration()
+        slot, result = result
+        # We wait for the copy to be done 
         return result
