@@ -77,7 +77,8 @@ class ImageNetTrainer(Trainer):
     @param('data.num_workers')
     @param('validation.crop_size')
     @param('validation.resolution')
-    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size, resolution):
+    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size,
+                          resolution):
         loader = Loader(val_dataset,
                 batch_size=batch_size,
                 num_workers=num_workers,
