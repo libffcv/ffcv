@@ -27,10 +27,6 @@ class Pipeline:
 
         self.operations = operations
 
-        # Contains the actual allocated memory
-        self.memory_buffers: Mapping[int, Any] = {}
-        # Where we remember what each operation in the pipeline needs
-
         self.operation_blocks, _ = self.parse_pipeline()
         self.compiled_ops = self.compile_ops()
 
@@ -72,46 +68,40 @@ class Pipeline:
         return compiled_ops
         
 
-    def before_epoch(self, batch_size: int, batches_ahead: int):
+    def allocate_memory(self, batch_size: int, batches_ahead: int):
         _, memory_allocations = self.parse_pipeline()
+
+        # Contains the actual allocated memory
+        memory_buffers: Mapping[int, Any] = {}
 
         # For each allocation made by the operations in the pipeline
         for op_id, memory_allocation in memory_allocations.items():
             # If the operation didn't make a query we stop here
             if memory_allocation is None:
-                self.memory_buffers[op_id] = None
+                memory_buffers[op_id] = None
             else:
                 # We compute the total amount of memory needed for this
                 # operation
                 final_shape = [batches_ahead,
                                batch_size, *memory_allocation.shape]
-                result = None
+                if isinstance(memory_allocation.dtype, ch.dtype):
+                    result = ch.empty(*final_shape,
+                                      dtype=memory_allocation.dtype,
+                                      device=memory_allocation.device)
+                    try:
+                        result = result.pin_memory()
+                    except:
+                        pass
+                else:
+                    ch_dtype = ch.from_numpy(np.empty(0, dtype=memory_allocation.dtype)).dtype
+                    result = ch.empty(*final_shape,
+                                      dtype=ch_dtype)
+                    try:
+                        result = result.pin_memory()
+                    except:
+                        pass
+                    result = result.numpy()
 
-                # We try to reuse previously allocated memory
-                # - it wansn't previously or
-                # - the new request is different than what was allocated
-                if op_id in self.memory_buffers:
-                    # => There already was a previously allocated
-                    current_buffer = self.memory_buffers[op_id]
-                    is_pytorch = isinstance(current_buffer, ch.Tensor)
+                memory_buffers[op_id] = result
 
-                    # Check to make sure the buffer fits the bill
-                    shape_matches = current_buffer.shape == final_shape
-                    dtype_matches = current_buffer.dtype == memory_allocation.dtype
-                    device_matchs = True
-                    if is_pytorch:
-                        device_matchs = (current_buffer.device
-                                         == memory_allocation.device)
-                        
-                    if shape_matches and dtype_matches and device_matchs:
-                        result = self.memory_buffers[op_id]
-                if result is None:
-                    if isinstance(memory_allocation.dtype, ch.dtype):
-                        result = ch.empty(*final_shape,
-                                          dtype=memory_allocation.dtype,
-                                          device=memory_allocation.device)
-                    else:
-                        result = np.empty(final_shape,
-                                          dtype=memory_allocation.dtype)
-
-                self.memory_buffers[op_id] = result
+        return memory_buffers

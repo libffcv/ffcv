@@ -125,6 +125,8 @@ instead."""
                     my_memcpy(image_data, destination[dst_ix])
 
             return destination
+            
+        decode.is_parallel = True
         return decode
 
 class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
@@ -194,6 +196,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                     
                     
             return destination
+        decode.is_parallel = True
         return decode
         
     @property
