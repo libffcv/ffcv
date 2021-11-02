@@ -8,3 +8,4 @@ torchmetrics
 pandas
 assertpy
 tqdm
+antialiased_cnns
