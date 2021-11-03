@@ -20,7 +20,7 @@ from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
 # ch.backends.cudnn.benchmark = True
-# ch.autograd.set_detect_anomaly(True)
+ch.autograd.set_detect_anomaly(True)
 # ch.autograd.profiler.emit_nvtx(False)
 # ch.autograd.profiler.profile(False)
 
@@ -120,7 +120,8 @@ class Trainer():
         # add 1 to avoid 0 learning rate at the end.
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
-        self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
+        # self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
+        self.loss = F.cross_entropy
 
     def train_loop(self):
         model = self.model
