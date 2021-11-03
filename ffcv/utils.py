@@ -34,3 +34,13 @@ def cast_int_to_byte_ptr(typingctx, src):
             llrtype = context.get_value_type(rtype)
             return builder.inttoptr(src, llrtype)
         return sig, codegen
+        
+from threading import Lock
+s_print_lock = Lock()
+
+
+def s_print(*a, **b):
+    """Thread safe print function"""
+    with s_print_lock:
+        print(*a, **b)
+    

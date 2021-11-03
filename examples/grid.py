@@ -37,8 +37,8 @@ if __name__ == '__main__':
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
     config.summary()
-    wds = [5e-4]
-    lrs = [1.5, 1.25, 1.1] + list(np.linspace(0.1, 1, 10)) + list(np.linspace(0.01, 0.09, 9))
-    epochs = [14, 24, 48, 96]
+    wds = [1e-3, 1e-5, 5e-5, 1e-4, 5e-4]
+    lrs = [3, 2, 1.5, 1.25, 1.1] + list(np.linspace(0.1, 1, 10)) + list(np.linspace(0.01, 0.09, 9))
+    epochs = [6, 12, 36, 72]
     print(len(wds) * len(lrs) * sum(epochs) * (40/24) / 60 / 60, 'hours!')
     main(wds, lrs, epochs)
