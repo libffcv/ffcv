@@ -85,13 +85,16 @@ class Pipeline:
                 final_shape = [batches_ahead,
                                batch_size, *memory_allocation.shape]
                 if isinstance(memory_allocation.dtype, ch.dtype):
-                    result = ch.empty(*final_shape,
-                                      dtype=memory_allocation.dtype,
-                                      device=memory_allocation.device)
-                    try:
-                        result = result.pin_memory()
-                    except:
-                        pass
+                    result = []
+                    for _ in range(final_shape[0]):
+                        partial = ch.empty(*final_shape[1:],
+                                          dtype=memory_allocation.dtype,
+                                          device=memory_allocation.device)
+                        try:
+                            partial = partial.pin_memory()
+                        except:
+                            pass
+                        result.append(partial)
                 else:
                     ch_dtype = ch.from_numpy(np.empty(0, dtype=memory_allocation.dtype)).dtype
                     result = ch.empty(*final_shape,
