@@ -27,5 +27,8 @@ for k in df['training.epochs'].unique():
     plt.show()
     df[df['training.epochs'] == k].plot.scatter(x='training.weight_decay', y='top_1')
     plt.show()
+
+df[df['training.epochs'].isin([48, 24, 14, 96])].groupby('training.epochs').max().reset_index().plot(x='training.epochs', y='top_1')
+plt.show()
 import pdb; pdb.set_trace()
 print(df)

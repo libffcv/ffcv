@@ -20,7 +20,7 @@ from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
 # ch.backends.cudnn.benchmark = True
-# ch.autograd.set_detect_anomaly(True)
+ch.autograd.set_detect_anomaly(True)
 # ch.autograd.profiler.emit_nvtx(False)
 # ch.autograd.profiler.profile(False)
 
@@ -34,11 +34,13 @@ from matplotlib import pyplot as plt
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
     val_dataset=Param(str, '.dat file to use for validation', required=True),
-    num_workers=Param(int, 'The number of workers', default=16),
-    gpu=Param(int, 'Which GPU to use', default=0)
+    num_workers=Param(int, 'The number of workers', required=True),
+    gpu=Param(int, 'Which GPU to use', required=True)
 )
 
-Section('logging', 'how to log stuff').params(folder=Param(str, 'log location', default='/tmp'))
+Section('logging', 'how to log stuff').params(
+    folder=Param(str, 'log location', required=True)
+)
 
 Section('training', 'training hyper param stuff').params(
     batch_size=Param(int, 'The batch size', default=512),
@@ -118,7 +120,8 @@ class Trainer():
         # add 1 to avoid 0 learning rate at the end.
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
-        self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
+        # self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
+        self.loss = F.cross_entropy
 
     def train_loop(self):
         model = self.model
