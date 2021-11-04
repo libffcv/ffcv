@@ -13,6 +13,7 @@ class TraversalOrder(ABC):
         self.loader = loader
         self.indices = self.loader.indices
         self.seed = self.loader.seed
+        self.distributed = loader.distributed
         
     @abstractmethod
     def sample_order(self, epoch:int) -> Sequence[int]:
