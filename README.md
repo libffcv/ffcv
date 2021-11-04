@@ -1,5 +1,6 @@
 # ffcv
-Training go BrrrRr
+
+Intro slides
 
 # Installation
 
