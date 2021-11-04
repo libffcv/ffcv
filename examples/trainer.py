@@ -20,7 +20,7 @@ from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
 # ch.backends.cudnn.benchmark = True
-ch.autograd.set_detect_anomaly(True)
+# ch.autograd.set_detect_anomaly(True)
 # ch.autograd.profiler.emit_nvtx(False)
 # ch.autograd.profiler.profile(False)
 
@@ -47,7 +47,7 @@ Section('training', 'training hyper param stuff').params(
     optimizer=Param(And(str, OneOf(['sgd'])), 'The optimizer', default='sgd'),
     lr=Param(float, 'learning rate', default=0.5),
     momentum=Param(float, 'SGD momentum', default=0.9),
-    weight_decay=Param(float, 'weight decay', default=5e-4),
+    weight_decay=Param(float, 'weight decay', default=4e-5),
     epochs=Param(int, 'number of epochs', default=24),
     lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.)
@@ -133,6 +133,14 @@ class Trainer():
         for images, target in tqdm(self.train_loader):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
+            # import matplotlib as mpl
+            # mpl.use('module://imgcat')
+            # mu = ch.tensor([0.485, 0.456, 0.406])
+            # std = ch.tensor([0.229, 0.224, 0.225])
+            # images_c = images.cpu() * std[None, :, None, None] + mu[None, :, None, None]
+            # from matplotlib import pyplot as plt
+            # plt.imshow((images_c[0].detach().cpu().numpy().transpose(1, 2, 0) * 255).astype('uint8'))
+            # import ipdb; ipdb.set_trace()
             self.optimizer.zero_grad(set_to_none=True)
 
             with autocast():
@@ -157,7 +165,7 @@ class Trainer():
         model.eval()
         losses = []
 
-        with ch.inference_mode():
+        with ch.no_grad():
             for images, target in tqdm(self.val_loader):
                 images = images.to(memory_format=ch.channels_last,
                                    non_blocking=True)
