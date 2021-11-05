@@ -12,4 +12,4 @@ CUDA_VISIBLE_DEVICES=8 python train_cifar.py \
     --data.val_dataset /mnt/nfs/datasets/cifar_betons/cifar_val.beton \
     --model.arch resnet9 --training.epochs $EPOCHS --training.weight_decay $WD \
     --training.lr $LR --logging.folder $OUT_DIR --validation.lr_tta \
-    --training.label_smoothing 0.05 --data.num_workers=8 --data.gpu=0
+    --training.label_smoothing 0.05 --data.num_workers=2 --data.gpu=0
