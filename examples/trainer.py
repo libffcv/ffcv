@@ -19,10 +19,10 @@ from tqdm import tqdm
 from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
-# ch.backends.cudnn.benchmark = True
+ch.backends.cudnn.benchmark = True
 # ch.autograd.set_detect_anomaly(True)
-# ch.autograd.profiler.emit_nvtx(False)
-# ch.autograd.profiler.profile(False)
+ch.autograd.profiler.emit_nvtx(False)
+ch.autograd.profiler.profile(False)
 
 import torch.nn.functional as F
 import torch.optim as optim
@@ -59,15 +59,6 @@ Section('validation', 'Validation parameters stuff').params(
     resolution=Param(int, 'The size of the final resized validation image', default=224),
     lr_tta=Param(bool, is_flag=True)
 )
-
-# class TTAModel(nn.Module):
-#     def __init__(self, model):
-#         super().__init__()
-#         self.model = model
-
-#     def forward(self, x):
-#         if self.training: return self.model(x)
-#         return 
 
 class Trainer():
     @param('data.gpu')
@@ -115,32 +106,19 @@ class Trainer():
                                      weight_decay=weight_decay)
 
         print(iters_per_epoch)
-        # schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
-        schedule = (np.arange(epochs + 1) + 1) 
-        # add 1 to avoid 0 learning rate at the end.
-        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
+        schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
+        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
-        # self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
-        self.loss = F.cross_entropy
+        self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
     def train_loop(self):
         model = self.model
         model.train()
         losses = []
-        # for images, target in tqdm(self.train_loader):
-            # break
-        # for _ in tqdm(range(100)):
+
         for images, target in tqdm(self.train_loader):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
-            # import matplotlib as mpl
-            # mpl.use('module://imgcat')
-            # mu = ch.tensor([0.485, 0.456, 0.406])
-            # std = ch.tensor([0.229, 0.224, 0.225])
-            # images_c = images.cpu() * std[None, :, None, None] + mu[None, :, None, None]
-            # from matplotlib import pyplot as plt
-            # plt.imshow((images_c[0].detach().cpu().numpy().transpose(1, 2, 0) * 255).astype('uint8'))
-            # import ipdb; ipdb.set_trace()
             self.optimizer.zero_grad(set_to_none=True)
 
             with autocast():
@@ -152,7 +130,7 @@ class Trainer():
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
-        self.scheduler.step()
+            self.scheduler.step()
 
         accuracy = self.train_accuracy.compute().item()
         self.train_accuracy.reset()
