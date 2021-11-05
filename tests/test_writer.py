@@ -1,5 +1,6 @@
 import numpy as np
 from assertpy import assert_that
+from numpy.random import shuffle
 from torch.utils.data import Dataset
 import logging
 import os
@@ -39,15 +40,34 @@ class DummyDatasetWithData(Dataset):
             raise IndexError()
         return (index, np.zeros(2))
 
-def validate_simple_dataset(name, length):
+def validate_simple_dataset(name, length, shuffled=False):
     reader = Reader(name)
     assert_that(reader.handlers).is_length(2)
     assert_that(reader.handlers['index']).is_instance_of(IntField)
     assert_that(reader.handlers['value']).is_instance_of(FloatField)
     assert_that(reader.alloc_table).is_length(0)
     assert_that(reader.metadata).is_length(length)
-    assert_that((reader.metadata['f0'] == np.arange(length).astype('int')).all()).is_true()
+    if shuffled:
+        assert_that((reader.metadata['f0'] == np.arange(length).astype('int')).all()).is_false()
+        assert_that(set(reader.metadata['f0'])).is_equal_to(set(np.arange(length).astype('int')))
+    else:
+        assert_that((reader.metadata['f0'] == np.arange(length).astype('int')).all()).is_true()
     assert_that((np.sin(reader.metadata['f0']) == reader.metadata['f1']).all()).is_true()
+
+def test_write_shuffle():
+    length = 600
+    with NamedTemporaryFile() as handle:
+        name = handle.name
+        dataset = DummyDataset(length)
+        writer = DatasetWriter(length, name, {
+            'index': IntField(),
+            'value': FloatField()
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(dataset, shuffle_indices=True)
+
+        validate_simple_dataset(name, length, shuffled=True)
 
 def test_write_simple():
     length = 600
