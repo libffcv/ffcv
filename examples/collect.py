@@ -36,6 +36,7 @@ for k in df['training.epochs'].unique():
 # df[df['training.epochs'].isin([48, 24, 14, 96])].groupby('training.epochs').max().reset_index().plot(x='training.epochs', y='top_1')
 df.groupby('training.epochs').max().reset_index().plot(x='training.epochs', y='top_1')
 plt.show()
-print(df.groupby('training.epochs').nlargest(1, 'top_1').reset_index())
+df = df.sort_values('top_1',ascending=False)
+print(df.groupby('training.epochs').first().reset_index())
 import pdb; pdb.set_trace()
 print(df)
