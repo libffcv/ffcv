@@ -87,7 +87,7 @@ class ImageNetTrainer(Trainer):
                 order=OrderOption.RANDOM,
                 pipelines={
                     'image': [
-                        CenterCropRGBImageDecoder((224, 224)), 
+                        CenterCropRGBImageDecoder((243, 243)), 
                         ToTensor(), 
                         ToDevice(ch.device('cuda:0'), non_blocking=False), 
                         ToTorchImage(), 
