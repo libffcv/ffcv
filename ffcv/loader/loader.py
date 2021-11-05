@@ -13,7 +13,7 @@ from ..memory_managers.ram import RAMMemoryManager
 from ..memory_managers.base import MemoryManager
 from ..reader import Reader
 from ..traversal_order.base import TraversalOrder
-from ..traversal_order import Random, Sequential
+from ..traversal_order import Random, Sequential, QuasiRandom
 from ..pipeline import Pipeline
 from ..pipeline.compiler import Compiler
 from ..pipeline.operation import Operation
@@ -29,6 +29,7 @@ class MemoryManagerOption(Enum):
 class OrderOption(Enum):
     SEQUENTIAL = auto()
     RANDOM = auto()
+    QUASI_RANDOM = auto()
 
 
 MEMORY_MANAGER_TYPE = Literal[MemoryManagerOption.RAM]
@@ -45,7 +46,8 @@ MEMORY_MANAGER_MAP: Mapping[MEMORY_MANAGER_TYPE, MemoryManager] = {
 
 ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.RANDOM: Random,
-    OrderOption.SEQUENTIAL: Sequential
+    OrderOption.SEQUENTIAL: Sequential,
+    OrderOption.QUASI_RANDOM: QuasiRandom
 }
 
 
@@ -125,6 +127,7 @@ class Loader:
                     operations[i] = ModuleWrapper(op)
 
             for op in operations:
+                op.accept_field(field)
                 op.accept_globals(self.reader.metadata[f'f{f_ix}'],
                                   memory_read)
 
