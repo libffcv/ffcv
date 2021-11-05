@@ -3,9 +3,9 @@ from typing import List
 import numpy as np
 
 from .fields.base import Field
-from .fields import FloatField, IntField, RGBImageField, BytesField
+from .fields import FloatField, IntField, RGBImageField, BytesField, NDArrayField
 
-CURRENT_VERSION = 1
+CURRENT_VERSION = 2
 
 # Note that in this file we use dtypes in the format <u4 indead of uint32. This
 # forces endinaness of the data making datasets compatible between different
@@ -42,7 +42,8 @@ TYPE_ID_HANDLER = {
     0: FloatField,
     1: IntField,
     2: RGBImageField,
-    3: BytesField
+    3: BytesField,
+    4: NDArrayField
 }
 
 # Parse the fields descriptors from the header of the dataset

@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 from ..pipeline.operation import Operation
 
-ARG_TYPE = np.dtype('<u1', 1024)
+ARG_TYPE = np.dtype([('', '<u1', 1024)])
 
 class Field(ABC):
 
