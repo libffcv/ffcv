@@ -1,6 +1,6 @@
 # ffcv
 
-Intro slides
+Intro slides: https://docs.google.com/presentation/d/1NvcrcR2BSdddyKnS6uoIsp32hFjQ6NOVH0XTBox6oCU/edit?usp=sharing
 
 # Installation
 
