@@ -7,7 +7,7 @@ from ..pipeline.compiler import Compiler
 class RAMMemoryManager(MemoryManager):
 
     def schedule_epoch(self, schedule):
-        return super().schedule_epoch(schedule)
+        return self
 
     def __enter__(self):
         self.mmap = np.memmap(self.reader.file_name, 'uint8', mode='r')

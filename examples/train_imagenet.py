@@ -1,12 +1,12 @@
 import torch as ch
 from torch.cuda.amp import GradScaler
 from ffcv.pipeline.compiler import Compiler
-import antialiased_cnns
+# import antialiased_cnns
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
 from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToDevice, Squeeze, Convert
-from ffcv.fields.rgb_image import RandomResizedCropRGBImageDecoder
+from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
 from torchvision.transforms import Normalize
 from fastargs import get_current_config
@@ -28,8 +28,8 @@ Section('resolution', 'resolution scheduling').params(
     end_ramp=Param(int, 'when to stop interpolating resolution', default=0)
 )
 
-IMAGENET_MEAN = np.array([0.4914, 0.4822, 0.4465])
-IMAGENET_STD = np.array([0.2023, 0.1994, 0.2010])
+IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
+IMAGENET_STD = np.array([0.229, 0.224, 0.225])
 
 class ImageNetTrainer(Trainer):
     def __init__(self, *args, **kwargs):
@@ -48,6 +48,8 @@ class ImageNetTrainer(Trainer):
             result = int(np.round(result / 32) * 32)
             return (result, result)
         self.resolution_schedule = [schedule(ep) for ep in range(epochs)]
+        # self.batch_size_schedule = [1024 * 160 // rs[0] for rs in self.resolution_schedule]
+        self.batch_size_schedule = [1024 for rs in self.resolution_schedule]
 
     @param('data.train_dataset')
     @param('training.batch_size')
@@ -85,12 +87,12 @@ class ImageNetTrainer(Trainer):
                 order=OrderOption.RANDOM,
                 pipelines={
                     'image': [
-                        RandomResizedCropRGBImageDecoder((224, 224)), 
+                        CenterCropRGBImageDecoder((224, 224)), 
                         ToTensor(), 
                         ToDevice(ch.device('cuda:0'), non_blocking=False), 
                         ToTorchImage(), 
                         Convert(ch.float16),
-                        Normalize((IMAGENET_MEAN * 255).tolist(), (IMAGENET_MEAN * 255).tolist())
+                        Normalize((IMAGENET_MEAN * 255).tolist(), (IMAGENET_STD * 255).tolist())
                     ],
                     'label': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'), non_blocking=False)]
                 })
@@ -100,6 +102,7 @@ class ImageNetTrainer(Trainer):
     def train(self, epochs):
         for epoch in range(epochs):
             self.decoder.output_size = self.resolution_schedule[epoch]
+            self.train_loader.batch_size = self.batch_size_schedule[epoch]
             train_loss, train_acc = self.train_loop()
             self.log({
                 'train_loss': train_loss,
@@ -114,7 +117,7 @@ class ImageNetTrainer(Trainer):
     def create_model_and_scaler(self, arch, antialias):
         scaler = GradScaler()
         if not antialias:
-            model = getattr(models, arch)()
+            model = getattr(models, arch)(pretrained=True)
         else:
             model = getattr(antialiased_cnns, arch)(pretrained=False)
 

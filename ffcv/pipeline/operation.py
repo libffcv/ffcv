@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 from typing import Callable, Optional, Tuple
 
 import numpy as np
@@ -6,12 +7,18 @@ import numpy as np
 from .state import State
 from .allocation_query import AllocationQuery
 
+if TYPE_CHECKING:
+    from ..fields.base import Field
+
 class Operation(ABC):
 
     def __init__(self):
         self.matadata: np.ndarray = None
         self.memory_read: Callable[[np.uint64], np.ndarray] = None
         pass
+    
+    def accept_field(self, field:'Field'):
+        self.field: 'Field' = field
         
     def accept_globals(self, metadata, memory_read):
         self.metadata = metadata
