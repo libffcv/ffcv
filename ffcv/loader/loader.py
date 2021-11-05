@@ -13,7 +13,7 @@ from ..memory_managers.ram import RAMMemoryManager
 from ..memory_managers.base import MemoryManager
 from ..reader import Reader
 from ..traversal_order.base import TraversalOrder
-from ..traversal_order import Random, Sequential
+from ..traversal_order import Random, Sequential, QuasiRandom
 from ..pipeline import Pipeline
 from ..pipeline.compiler import Compiler
 from ..pipeline.operation import Operation
@@ -29,6 +29,7 @@ class MemoryManagerOption(Enum):
 class OrderOption(Enum):
     SEQUENTIAL = auto()
     RANDOM = auto()
+    QUASI_RANDOM = auto()
 
 
 MEMORY_MANAGER_TYPE = Literal[MemoryManagerOption.RAM]
@@ -45,7 +46,8 @@ MEMORY_MANAGER_MAP: Mapping[MEMORY_MANAGER_TYPE, MemoryManager] = {
 
 ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.RANDOM: Random,
-    OrderOption.SEQUENTIAL: Sequential
+    OrderOption.SEQUENTIAL: Sequential,
+    OrderOption.QUASI_RANDOM: QuasiRandom
 }
 
 
@@ -58,7 +60,7 @@ class Loader:
                  memory_manager: MEMORY_MANAGER_TYPE = MemoryManagerOption.RAM,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
-                 seed: int = None,  # For ordering of samples
+                 seed: int = 0,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
                  pipelines: Mapping[str, Sequence[Union[Operation, ch.nn.Module]]] = {},
                  drop_last: bool = True,
@@ -69,10 +71,11 @@ class Loader:
         self.fname: str = fname
         self.batch_size: int = batch_size
         self.batches_ahead = batches_ahead
-        self.seed: Optional[int] = seed
+        self.seed: int = seed
         self.reader: Reader = Reader(self.fname)
         self.num_workers: int = num_workers
         self.drop_last: bool = drop_last
+        self.distributed: bool = distributed
         self.code_per_stage = None
         self.recompile = recompile
         Compiler.set_num_threads(self.num_workers)
@@ -84,9 +87,6 @@ class Loader:
             self.indices = np.arange(self.reader.num_samples, dtype='uint64')
         else:
             self.indices = np.array(indices)
-
-        if distributed:
-            raise NotImplemented("Not implemented yet")
 
         self.memory_manager: MemoryManager = MEMORY_MANAGER_MAP[memory_manager](
             self.reader)
@@ -127,6 +127,7 @@ class Loader:
                     operations[i] = ModuleWrapper(op)
 
             for op in operations:
+                op.accept_field(field)
                 op.accept_globals(self.reader.metadata[f'f{f_ix}'],
                                   memory_read)
 
