@@ -98,7 +98,7 @@ class DatasetWriter():
                 fields_descriptor[i]['type_id'] = type_id
                 fields_descriptor[i]['name'][:actual_length] = (
                     encoded_name[:actual_length])
-                fields_descriptor[i]['arguments'] = field.to_binary()
+                fields_descriptor[i]['arguments'][:] = field.to_binary()[0]
 
             fp.write(fields_descriptor.tobytes())
 
