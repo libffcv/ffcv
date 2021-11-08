@@ -9,8 +9,6 @@ import torch as ch
 import numpy as np
 
 from .epoch_iterator import EpochIterator
-from ..memory_managers.ram import RAMMemoryManager
-from ..memory_managers.base import MemoryManager
 from ..reader import Reader
 from ..traversal_order.base import TraversalOrder
 from ..traversal_order import Random, Sequential, QuasiRandom
@@ -19,10 +17,9 @@ from ..pipeline.compiler import Compiler
 from ..pipeline.operation import Operation
 from ..transforms.ops import ToTensor
 from ..transforms.module import ModuleWrapper
-
-@unique
-class MemoryManagerOption(Enum):
-    RAM = auto()
+from ..memory_managers import (
+    ProcessCacheManager, OSCacheManager, MemoryManager
+)
 
 
 @unique
@@ -32,17 +29,12 @@ class OrderOption(Enum):
     QUASI_RANDOM = auto()
 
 
-MEMORY_MANAGER_TYPE = Literal[MemoryManagerOption.RAM]
-
 ORDER_TYPE = Union[
     TraversalOrder,
     Literal[OrderOption.SEQUENTIAL,
             OrderOption.RANDOM]
 
 ]
-MEMORY_MANAGER_MAP: Mapping[MEMORY_MANAGER_TYPE, MemoryManager] = {
-    MemoryManagerOption.RAM: RAMMemoryManager
-}
 
 ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.RANDOM: Random,
@@ -57,16 +49,17 @@ class Loader:
                  fname: str,
                  batch_size: int,
                  num_workers: int = -1,
-                 memory_manager: MEMORY_MANAGER_TYPE = MemoryManagerOption.RAM,
+                 os_cache: bool = False,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = 0,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
-                 pipelines: Mapping[str, Sequence[Union[Operation, ch.nn.Module]]] = {},
+                 pipelines: Mapping[str,
+                                    Sequence[Union[Operation, ch.nn.Module]]] = {},
                  drop_last: bool = True,
                  batches_ahead: int = 3,
-                 recompile: bool = False, # Recompile at every epoch
-    ):
+                 recompile: bool = False,  # Recompile at every epoch
+                 ):
 
         self.fname: str = fname
         self.batch_size: int = batch_size
@@ -88,11 +81,13 @@ class Loader:
         else:
             self.indices = np.array(indices)
 
-        self.memory_manager: MemoryManager = MEMORY_MANAGER_MAP[memory_manager](
-            self.reader)
-        self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
+        if os_cache:
+            self.memory_manager: MemoryManager = ProcessCacheManager(
+                self.reader)
+        else:
+            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
 
-        self.memory_manager.__enter__()
+        self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
 
         memory_read = self.memory_manager.compile_reader()
         self.next_epoch: int = 0
@@ -146,7 +141,7 @@ class Loader:
         if self.code_per_stage is None or self.recompile:
             self.generate_code()
 
-        return EpochIterator(self, cur_epoch, selected_order)
+        return EpochIterator(self, selected_order)
 
     def __len__(self):
         # TODO handle drop_last
@@ -159,7 +154,7 @@ class Loader:
         pipeline_identifier = f'code_{pipeline_name}_{op_id}'
         memory_identifier = f'memory_{pipeline_name}_{op_id}'
         result_identifier = f'result_{pipeline_name}'
-        
+
         arg_id = result_identifier
         # This is the decoder so we pass the indices instead of the previous
         # result
@@ -169,7 +164,7 @@ class Loader:
         tree = ast.parse(f"""
 {result_identifier} = {pipeline_identifier}({arg_id}, {memory_identifier})
         """).body[0]
-        
+
         # This is the first call of the pipeline, we pass the metadata and
         # storage state
         if op_id == 0:
@@ -198,7 +193,6 @@ def {fun_name}():
             memory_banks.append(arg)
             memory_banks_id.append((pipeline_name, op_id))
 
-
         base_code.body.pop()
         base_code.body.extend(function_calls)
 
@@ -217,7 +211,7 @@ def {fun_name}():
         base_code.args.args.extend(memory_banks)
         base_code.args.args.append(ast.arg(arg='metadata'))
         base_code.args.args.append(ast.arg(arg='storage_state'))
-        
+
         module = ast.fix_missing_locations(
             ast.Module(body=[base_code],
                        type_ignores=[])
@@ -226,7 +220,7 @@ def {fun_name}():
             **functions,
         }
 
-        exec(compile(module, '', 'exec'), namespace) 
+        exec(compile(module, '', 'exec'), namespace)
         final_code = namespace[fun_name]
         if stage_ix % 2 == 0:
             final_code = Compiler.compile(final_code)
@@ -251,7 +245,7 @@ def {fun_name}():
                     compiled_functions[f'code_{p_id}_{op}'] = ops_code
                     schedule[stage].append((p_ix, p_id, op))
                 stage += 1
-                
+
         memory_bank_keys_per_stage = {}
         self.code_per_stage = {}
         for stage_ix, stage in schedule.items():
@@ -259,6 +253,5 @@ def {fun_name}():
                                                                      compiled_functions)
             self.code_per_stage[stage_ix] = code_for_stage
             memory_bank_keys_per_stage[stage_ix] = mem_banks_ids
-        
+
         self.memory_bank_keys_per_stage = memory_bank_keys_per_stage
-        
