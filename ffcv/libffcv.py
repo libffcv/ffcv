@@ -1,10 +1,18 @@
 import ctypes
 from numba import njit
 import numpy as np
-from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool
+from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll
 import ffcv._libffcv
 
 lib = CDLL(ffcv._libffcv.__file__)
+libc = cdll.LoadLibrary('libc.so.6')
+
+read_c = libc.read
+read_c.argtypes = [c_uint32, c_void_p, c_uint64, c_uint64]
+
+def read(fileno:int, destination:np.ndarray, offset:int):
+    return read_c(fileno, destination.ctypes.data, destination.size, offset)
+
 
 ctypes_resize = lib.resize
 ctypes_resize.argtypes = 11 * [c_int64]
