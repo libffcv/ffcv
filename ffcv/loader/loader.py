@@ -82,10 +82,10 @@ class Loader:
             self.indices = np.array(indices)
 
         if os_cache:
+            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
+        else:
             self.memory_manager: MemoryManager = ProcessCacheManager(
                 self.reader)
-        else:
-            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
 
         self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
 
