@@ -7,7 +7,7 @@ import ffcv._libffcv
 lib = CDLL(ffcv._libffcv.__file__)
 libc = cdll.LoadLibrary('libc.so.6')
 
-read_c = libc.read
+read_c = libc.pread
 read_c.argtypes = [c_uint32, c_void_p, c_uint64, c_uint64]
 
 def read(fileno:int, destination:np.ndarray, offset:int):
