@@ -22,7 +22,8 @@ class OSCacheContext(MemoryContext):
     def __enter__(self):
         res = super().__enter__()
         if self.mmap is None:
-            self.mmap = np.memmap(self.reader.file_name, 'uint8', mode='r')
+            self.mmap = np.memmap(self.manager.reader.file_name,
+                                  'uint8', mode='r')
         return res
 
     def __exit__(self, __exc_type, __exc_value, __traceback):
