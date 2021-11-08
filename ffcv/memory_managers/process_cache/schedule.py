@@ -79,7 +79,7 @@ def compute_schedule(pages_in_batch, prefetch_ahead = 3):
 class ScheduleExecutor():
 
     def __init__(self, fname: str, schedule: Schedule,
-                 memory: np.ndarray, num_workers: int=16):
+                 memory: np.ndarray, num_workers: int=12):
         self.fname = fname
         self.schedule = schedule
         self.memory = memory

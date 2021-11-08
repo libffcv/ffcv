@@ -18,6 +18,7 @@ class PageReader(Thread):
         super().__init__()
 
     def run(self):
+        import hashlib
         with open(self.fname, 'rb') as handle:
             fileno = handle.fileno()
 
@@ -29,6 +30,7 @@ class PageReader(Thread):
 
                 page_number, slot = query
                 offset = np.uint64(page_number * self.page_size)
-                read(fileno, self.memory[slot], offset)
+                length = read(fileno, self.memory[slot], offset)
+                # print("L", page_number, slot, hashlib.md5(self.memory[slot]).hexdigest(), self.memory[slot].ctypes.data, length)
                 self.loaded.put(page_number)
 

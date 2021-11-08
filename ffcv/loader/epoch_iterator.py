@@ -75,6 +75,7 @@ class EpochIterator(Thread):
             self.output_queue.put(None)
 
     def run_pipeline(self, b_ix, batch_indices, batch_slot):
+        # print(b_ix, batch_indices)
         self.memory_context.start_batch(b_ix)
         args = [batch_indices]
         stream = self.cuda_streams[batch_slot]
