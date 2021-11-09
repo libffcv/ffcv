@@ -13,8 +13,6 @@ from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
 from ffcv.fields import BytesField, IntField
 from ffcv.pipeline.compiler import Compiler
-from ffcv.memory_managers.ram import RAMMemoryManager
-from ffcv.libffcv import memcpy
 from ffcv import Loader
 
 class DummyDataset(Dataset):

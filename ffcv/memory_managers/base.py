@@ -1,7 +1,7 @@
-from abc import abstractmethod, ABCMeta
+from abc import abstractmethod, ABCMeta, ABC
 from contextlib import AbstractContextManager
 from collections import defaultdict
-from typing import Mapping, Set
+from typing import Callable, Mapping, Sequence, Set
 
 import numpy as np
 from numba.typed import Dict
@@ -10,7 +10,26 @@ from numba import types
 from ..reader import Reader
 from ..pipeline.compiler import Compiler
 
-class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
+class MemoryContext(AbstractContextManager, metaclass=ABCMeta):
+
+    @property
+    @abstractmethod
+    def state(self):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def __enter__(self):
+        return super().__enter__()
+
+    def start_batch(self, batch:int):
+        pass
+
+    @abstractmethod
+    def __exit__(self, __exc_type, __exc_value, __traceback):
+        return super().__exit__(__exc_type, __exc_value, __traceback)
+
+
+class MemoryManager(ABC):
 
     def __init__(self, reader:Reader):
         self.reader = reader
@@ -48,17 +67,16 @@ class MemoryManager(AbstractContextManager, metaclass=ABCMeta):
         super().__init__()
 
     @abstractmethod
-    def schedule_epoch(self, schedule):
+    def schedule_epoch(self, batches: Sequence[Sequence[int]]) -> MemoryContext:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def compile_reader(self, address, size) -> Callable:
         raise NotImplemented()
 
+    @property
     @abstractmethod
-    def compile_reader(self, address, size):
-        raise NotImplemented()
+    def state_type(self):
+        raise NotImplementedError()
 
-    @abstractmethod
-    def __enter__(self):
-        return super().__enter__()
 
-    @abstractmethod
-    def __exit__(self, __exc_type, __exc_value, __traceback):
-        return super().__exit__(__exc_type, __exc_value, __traceback)

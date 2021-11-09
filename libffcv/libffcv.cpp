@@ -32,9 +32,14 @@ extern "C" {
         cv::Mat dest_matrix(tx, ty, CV_8UC3, (uint8_t*) dest_p);
         cv::resize(source_matrix.colRange(start_col, end_col).rowRange(start_row, end_row), dest_matrix, dest_matrix.size());
     }
-    
+
     void my_memcpy(void *source, void* dst, uint64_t size) {
         memcpy(dst, source, size);
+    }
+
+    void my_fread(int64_t fp, int64_t offset, void *destination, int64_t size) {
+        fseek((FILE *) fp, offset, SEEK_SET);
+        fread(destination, 1, size, (FILE *) fp);
     }
 
     int imdecode(unsigned char *input_buffer, __uint64_t input_size,
