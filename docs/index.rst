@@ -7,10 +7,11 @@ Welcome to ffcv's documentation!
 ================================
 
 .. toctree::
+   writing_datasets
    benchmarks
+   api
    :maxdepth: 2
    :caption: Contents:
-
 
 
 Indices and tables
