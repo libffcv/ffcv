@@ -1,24 +1,27 @@
 model:
   antialias: true
-  # arch: TODO 
+  arch: "resnet18" 
 resolution:
-  min_res: 64
-  max_res: 160
-  end_ramp: 12
+  min_res: 96
+#   max_res: 160
+#   end_ramp: 12
 data:
-  workers: 11
+  num_workers: 10
   gpu: 0
+  train_dataset: "/dev/shm/imgnet_train_250px.beton"
+  val_dataset: "/dev/shm/imgnet_val_250px.beton"
+logging:
+  folder: "logs/"
 training:
   batch_size: 512
   optimizer: "sgd"
   lr: 0.2
   momentum: 0.9
-  weight_decay: 1e-4
-  epochs: 90 # TODO: add step learning rate
-  label_smoothing: 0
-  lr_peak_epoch: 5 # TODO: remove on step learning rate
+  weight_decay: 4e-5
+  epochs: 30
+  label_smoothing: 0.1
+  lr_peak_epoch: 5
 validation:
   batch_size: 1024
-  crop_size: 224
-  resolution: 224
-  lr_tta: False
+  # resolution: 224
+  lr_tta: True
