@@ -1,6 +1,7 @@
 """
 Generic class for model training.
 """
+from pathlib import Path
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 import torch.optim as optim
@@ -168,13 +169,16 @@ class Trainer():
 
     @param('logging.folder')
     def initialize_logger(self, folder):
-        self.logging_fp = path.join(folder, f'{self.uid}.log')
+        folder = Path(folder).absolute()
+
+        self.logging_fp = str(folder / f'{self.uid}.log')
         self.logging_fd = open(self.logging_fp, 'w+')
-        print(path.join(folder, f'{self.uid}.log'))
+        self.params_fp = str(folder / f'{self.uid}-params.json')
+
         self.start_time = time()
         hyper_params = {
             '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()}
-        with open(path.join(folder, f'{self.uid}-params.json'), 'w+') as handle:
+        with open(self.params_fp, 'w+') as handle:
             json.dump(hyper_params, handle)
 
     def log(self, content):
@@ -186,13 +190,8 @@ class Trainer():
         }))
         self.logging_fd.write('\n')
         self.logging_fd.flush()
-
-    @param('logging.folder')
-    def log_val(self, folder):
-        other, val_stats = self.val_loop()
-        val_path = path.join(folder, f'{self.uid}-stats.ch')
-        ch.save(val_stats, val_path)
-        return other, val_stats
+        print(f'>>> Logging file: {self.logging_fp}')
+        print(f'>>> Params file: {self.params_fp}')
 
     @param('training.epochs')
     def train(self, epochs):
@@ -201,8 +200,6 @@ class Trainer():
             self.log({
                 'train_loss': train_loss,
                 'train_acc': train_acc,
-                # 'val_loss': val_loss,
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
-                # **val_stats
             })

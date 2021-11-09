@@ -2,6 +2,7 @@ import torch as ch
 from torch.cuda.amp import GradScaler
 from ffcv.pipeline.compiler import Compiler
 import antialiased_cnns
+import time
 from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
@@ -178,18 +179,23 @@ class ImageNetTrainer(Trainer):
     @param('training.epochs')
     def train(self, epochs):
         assert self.train_loader.drop_last, 'drop last must be enabled!'
+        total_val_time = 0
         for epoch in range(epochs):
             self.decoder.output_size = self.resolution_schedule[epoch]
             self.train_loader.batch_size = self.batch_size_schedule[epoch]
             train_loss, train_acc = self.train_loop()
+            start_val = time.time()
             _, stats = self.val_loop()
+            total_val_time += time.time() - start_val
+
             self.log({
                 'train_loss': train_loss,
                 'train_acc': train_acc,
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
                 'top_1': stats['top_1'],
-                'top_5': stats['top_5']
+                'top_5': stats['top_5'],
+                'total_val_time': total_val_time
             })
 
     @param('model.arch')
@@ -215,6 +221,3 @@ if __name__ == "__main__":
     config.summary()
     trainer = ImageNetTrainer(config)
     trainer.train()
-    _, stats = trainer.log_val()
-    loganlogs = trainer.logging_fp + '.logan'
-    ch.save((config.get(), stats, trainer.uid, trainer.logging_fp), loganlogs)
