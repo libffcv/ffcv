@@ -7,3 +7,4 @@ imgcat
 pandas
 assertpy
 tqdm
+psutil

@@ -12,7 +12,7 @@ from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
 from ffcv.fields import IntField, RGBImageField
 from ffcv.pipeline.compiler import Compiler
-from ffcv.memory_managers.ram import RAMMemoryManager
+from ffcv.memory_managers import OSCacheManager
 
 class DummyDataset(Dataset):
 
@@ -48,11 +48,12 @@ def create_and_validate(length, mode='raw', compile=False):
             writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
             
         reader = Reader(name)
-        manager = RAMMemoryManager(reader)
+        manager = OSCacheManager(reader)
+        context = manager.schedule_epoch(np.array([0, 1]))
         
         Compiler.set_enabled(compile)
 
-        with manager:
+        with context:
             Decoder = RGBImageField().get_decoder_class()
             decoder = Decoder()
             decoder.accept_globals(reader.metadata['f1'], manager.compile_reader())
@@ -63,7 +64,7 @@ def create_and_validate(length, mode='raw', compile=False):
         buff = np.zeros((1, 128, 128, 3), dtype='uint8')
         
         for i in range(length):
-            result = decode(np.array([i]), buff, reader.metadata['f1'], manager.state)[0]
+            result = decode(np.array([i]), buff, reader.metadata['f1'], context.state)[0]
             _, ref_image = dataset[i]
             assert_that(result.shape).is_equal_to(ref_image.shape)
             if mode == 'jpg':
