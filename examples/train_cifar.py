@@ -1,7 +1,5 @@
 import torch as ch
 from torch.cuda.amp import GradScaler
-import subprocess
-from ffcv.pipeline.compiler import Compiler
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption

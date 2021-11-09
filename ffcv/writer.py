@@ -98,7 +98,7 @@ class DatasetWriter():
                 fields_descriptor[i]['type_id'] = type_id
                 fields_descriptor[i]['name'][:actual_length] = (
                     encoded_name[:actual_length])
-                fields_descriptor[i]['arguments'] = field.to_binary()
+                fields_descriptor[i]['arguments'][:] = field.to_binary()[0]
 
             fp.write(fields_descriptor.tobytes())
 
@@ -119,7 +119,8 @@ class DatasetWriter():
 
 
     def write_pytorch_dataset(self, dataset, num_workers=-1,
-                              order: List[int]=None, chunksize=100):
+                              indices: List[int]=None, chunksize=100,
+                              shuffle_indices: bool = False):
 
         # We use all cores by default
         if num_workers == -1:
@@ -127,16 +128,19 @@ class DatasetWriter():
 
         # If the user didn't specify an order we just add samples
         # sequentially
-        if order is None:
-            order = np.arange(self.num_samples)
-
-        # We add indices to the order so that workers know where
+        if indices is None:
+            indices = np.arange(self.num_samples)
+            
+        if shuffle_indices:
+            np.random.shuffle(indices)
+            
+        # We add indices to the indices so that workers know where
         # to write in the metadata array
-        order = list(enumerate(order))
+        indices: List[int] = list(enumerate(indices))
 
         # We publish all the work that has to be done into a queue
         workqueue: Queue = Queue()
-        for chunk in chunks(order, chunksize):
+        for chunk in chunks(indices, chunksize):
             workqueue.put(chunk)
 
         # This will contain all the memory allocations each worker

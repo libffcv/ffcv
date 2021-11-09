@@ -19,8 +19,9 @@ if TYPE_CHECKING:
     from ..reader import Reader
 
 IMAGE_MODES = Dict()
-IMAGE_MODES['jpg']= 0
-IMAGE_MODES['raw']= 1
+IMAGE_MODES['jpg'] = 0
+IMAGE_MODES['raw'] = 1
+
 
 def encode_jpeg(numpy_image, quality):
     success, result = cv2.imencode('.jpg', numpy_image,
@@ -31,6 +32,7 @@ def encode_jpeg(numpy_image, quality):
 
     return result.reshape(-1)
 
+
 def resizer(image, target_resolution):
     if target_resolution is None:
         return image
@@ -40,6 +42,7 @@ def resizer(image, target_resolution):
         new_size = (ratio * original_size).astype(int)
         image = cv2.resize(image, tuple(new_size))
     return image
+
 
 def get_random_crop(height, width, scale, ratio):
     area = height * width
@@ -66,6 +69,7 @@ def get_random_crop(height, width, scale, ratio):
     i = (height - h) // 2
     j = (width - w) // 2
     return i, j, h, w
+
 
 def get_center_crop(height, width, _, ratio):
     s = min(height, width)
@@ -125,16 +129,15 @@ instead."""
                     my_memcpy(image_data, destination[dst_ix])
 
             return destination
-            
+
         decode.is_parallel = True
         return decode
+
 
 class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     def __init__(self, output_size):
         super().__init__()
         self.output_size = output_size
-        
-    
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
@@ -184,21 +187,19 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                     selected_size = 3 * height * width
                     temp_buffer = temp_buffer.reshape(-1)[:selected_size]
                     temp_buffer = temp_buffer.reshape(height, width, 3)
-                    
+
                 else:
                     temp_buffer = image_data.reshape(height, width, 3)
-                    
 
                 i, j, h, w = get_crop_c(height, width, scale, ratio)
 
+                resize_crop_c(temp_buffer, i, i + h, j, j + w,
+                              destination[dst_ix])
 
-                resize_crop_c(temp_buffer, i, i + h, j, j + w, destination[dst_ix] )
-                    
-                    
             return destination
         decode.is_parallel = True
         return decode
-        
+
     @property
     @abstractmethod
     def get_crop_generator():
@@ -216,8 +217,11 @@ class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
     def get_crop_generator(self):
         return get_random_crop
 
+
 class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
-    def __init__(self, output_size, ratio=(243/256)):
+    # Ratio: ratio of (crop size) / (min side length)
+    # output size: resize crop size -> output size
+    def __init__(self, output_size, ratio):
         super().__init__(output_size)
         self.scale = None
         self.ratio = ratio
@@ -228,9 +232,8 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 
 
 class RGBImageField(Field):
-
-    def __init__(self, write_mode='raw', smart_factor:float = None,
-                 max_resolution: int=None, smart_threshold: int=None,
+    def __init__(self, write_mode='raw', smart_factor: float = None,
+                 max_resolution: int = None, smart_threshold: int = None,
                  jpeg_quality: int = 90) -> None:
         self.write_mode = write_mode
         self.smart_factor = smart_factor
@@ -246,7 +249,7 @@ class RGBImageField(Field):
             ('height', '<u2'),
             ('data_ptr', '<u8'),
         ])
-        
+
     def get_decoder_class(self) -> Type[Operation]:
         return SimpleRGBImageDecoder
 

@@ -1,6 +1,9 @@
 """
 Generic class for model training.
 """
+from matplotlib import pyplot as plt
+import matplotlib as mpl
+import torch.optim as optim
 import json
 from abc import abstractmethod
 from os import path
@@ -19,17 +22,12 @@ from tqdm import tqdm
 from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
-# ch.backends.cudnn.benchmark = True
+ch.backends.cudnn.benchmark = True
 # ch.autograd.set_detect_anomaly(True)
-# ch.autograd.profiler.emit_nvtx(False)
-# ch.autograd.profiler.profile(False)
+ch.autograd.profiler.emit_nvtx(False)
+ch.autograd.profiler.profile(False)
 
-import torch.nn.functional as F
-import torch.optim as optim
-
-import matplotlib as mpl
 mpl.use('module://imgcat')
-from matplotlib import pyplot as plt
 
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
@@ -55,19 +53,11 @@ Section('training', 'training hyper param stuff').params(
 
 Section('validation', 'Validation parameters stuff').params(
     batch_size=Param(int, 'The batch size for validation', default=512),
-    crop_size=Param(int, 'The size of the crop before resizing to resolution', default=243),
-    resolution=Param(int, 'The size of the final resized validation image', default=224),
+    resolution=Param(
+        int, 'The size of the final resized validation image', default=224),
     lr_tta=Param(bool, is_flag=True)
 )
 
-# class TTAModel(nn.Module):
-#     def __init__(self, model):
-#         super().__init__()
-#         self.model = model
-
-#     def forward(self, x):
-#         if self.training: return self.model(x)
-#         return 
 
 class Trainer():
     @param('data.gpu')
@@ -78,7 +68,8 @@ class Trainer():
         self.train_loader = self.create_train_loader()
         self.create_optimizer(len(self.train_loader))
         self.val_loader = self.create_val_loader()
-        self.train_accuracy = torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu)
+        self.train_accuracy = torchmetrics.Accuracy(
+            compute_on_step=False).cuda(self.gpu)
         self.val_meters = {
             'top_1': torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu),
             'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).cuda(self.gpu)
@@ -89,12 +80,12 @@ class Trainer():
     @abstractmethod
     def create_train_loader(self, train_dataset, batch_size, num_workers):
         raise NotImplementedError
-    
+
     @abstractmethod
     def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size,
                           resolution):
         raise NotImplementedError
-    
+
     @abstractmethod
     def create_model(self, architecture, tta):
         raise NotImplementedError
@@ -109,38 +100,24 @@ class Trainer():
     def create_optimizer(self, iters_per_epoch, lr, momentum, optimizer,
                          weight_decay, epochs, lr_peak_epoch, label_smoothing):
         optimizer = optimizer.lower()
-        self.optimizer = optim.SGD(self.model.parameters(),
-                                     lr=lr,
-                                     momentum=momentum,
-                                     weight_decay=weight_decay)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=lr,
+                                   momentum=momentum, weight_decay=weight_decay)
 
-        print(iters_per_epoch)
-        # schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / iters_per_epoch
-        schedule = (np.arange(epochs + 1) + 1) 
-        # add 1 to avoid 0 learning rate at the end.
-        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs + 1], [0, 1, 0])
-        self.scheduler = optim.lr_scheduler.LambdaLR(self.optimizer, schedule.__getitem__)
-        # self.loss = LabelSmoothSoftmaxCEV1(lb_smooth=label_smoothing)
-        self.loss = F.cross_entropy
+        schedule = (np.arange(epochs * iters_per_epoch + 1) + 1) / \
+            iters_per_epoch
+        schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
+        self.scheduler = optim.lr_scheduler.LambdaLR(
+            self.optimizer, schedule.__getitem__)
+        self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
     def train_loop(self):
         model = self.model
         model.train()
         losses = []
-        # for images, target in tqdm(self.train_loader):
-            # break
-        # for _ in tqdm(range(100)):
+
         for images, target in tqdm(self.train_loader):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
-            # import matplotlib as mpl
-            # mpl.use('module://imgcat')
-            # mu = ch.tensor([0.485, 0.456, 0.406])
-            # std = ch.tensor([0.229, 0.224, 0.225])
-            # images_c = images.cpu() * std[None, :, None, None] + mu[None, :, None, None]
-            # from matplotlib import pyplot as plt
-            # plt.imshow((images_c[0].detach().cpu().numpy().transpose(1, 2, 0) * 255).astype('uint8'))
-            # import ipdb; ipdb.set_trace()
             self.optimizer.zero_grad(set_to_none=True)
 
             with autocast():
@@ -152,7 +129,7 @@ class Trainer():
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
-        self.scheduler.step()
+            self.scheduler.step()
 
         accuracy = self.train_accuracy.compute().item()
         self.train_accuracy.reset()
@@ -178,38 +155,44 @@ class Trainer():
 
                     loss_val = self.loss(output, target)
                     losses.append(loss_val.detach())
-                    [meter(output, target) for meter in self.val_meters.values()]
+                    [meter(output, target)
+                     for meter in self.val_meters.values()]
 
-        stats = {k: meter.compute().item() for k, meter in self.val_meters.items()}
+        stats = {
+            k: meter.compute().item() for k, meter in self.val_meters.items()
+        }
+
         [meter.reset() for meter in self.val_meters.values()]
         loss = ch.stack(losses).mean().item()
-        print(stats)
         return loss, stats
 
     @param('logging.folder')
     def initialize_logger(self, folder):
-        self.logging_fp = open(path.join(folder, f'{self.uid}.log'), 'w+')
+        self.logging_fp = path.join(folder, f'{self.uid}.log')
+        self.logging_fd = open(self.logging_fp, 'w+')
         print(path.join(folder, f'{self.uid}.log'))
         self.start_time = time()
-        hyper_params = {'.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()}
+        hyper_params = {
+            '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()}
         with open(path.join(folder, f'{self.uid}-params.json'), 'w+') as handle:
             json.dump(hyper_params, handle)
 
     def log(self, content):
         cur_time = time()
-        self.logging_fp.write(json.dumps({
+        self.logging_fd.write(json.dumps({
             'timestamp': cur_time,
             'relative_time': cur_time - self.start_time,
             **content
         }))
-        self.logging_fp.write('\n')
-        self.logging_fp.flush()
+        self.logging_fd.write('\n')
+        self.logging_fd.flush()
 
     @param('logging.folder')
     def log_val(self, folder):
-        _, val_stats = self.val_loop()
+        other, val_stats = self.val_loop()
         val_path = path.join(folder, f'{self.uid}-stats.ch')
         ch.save(val_stats, val_path)
+        return other, val_stats
 
     @param('training.epochs')
     def train(self, epochs):

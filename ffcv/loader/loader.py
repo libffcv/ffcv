@@ -122,6 +122,7 @@ class Loader:
                     operations[i] = ModuleWrapper(op)
 
             for op in operations:
+                op.accept_field(field)
                 op.accept_globals(self.reader.metadata[f'f{f_ix}'],
                                   memory_read)
 
