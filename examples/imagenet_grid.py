@@ -13,7 +13,6 @@ from fastargs import get_current_config
 from itertools import product
 import yaml
 
-
 MAPPING = {
     'wd': ['training', 'weight_decay'],
     'lr': ['training', 'lr'],
@@ -25,6 +24,7 @@ MAPPING = {
     'min_res': ['resolution', 'min_res'],
     'max_res': ['resolution', 'max_res'],
     'end_ramp': ['resolution', 'end_ramp'],
+    'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
     'batch_size':['training', 'batch_size']
 }
@@ -78,24 +78,13 @@ def main(log_dir, out_file):
     # wd, lr, min_res, max_res, end_ramp, momentum, label_smoothing, blurpool
     # wds = [4e-5]
     # lrs = [0.2]
-    max_ress = []
-    for max_res in [160, 192]:
-        # if max_res == 160: # originally had both like this!
-        bs = 2048
-        lr = 0.8
-        # elif max_res == 192:
-        #     bs = 1024
-        #     lr = 0.4
-
-        params = Parameters(max_res=max_res, batch_size=bs, logs=str(log_dir),
-                            lr=lr)
-        max_ress.append(params)
+    max_ress = [Parameters(max_res=k, logs=str(log_dir),
+                           val_res=(k + 64)) for k in [160, 192]]
     
     min_ress = [Parameters(min_res=k) for k in [96, 128]]
-    end_ramps = [Parameters(end_ramp=k) for k in [8, 10, 15, 20]]
-    epochs = [Parameters(epochs=k) for k in [15, 20, 30]]
-
-    axes = [min_ress, end_ramps, epochs, max_ress]
+    end_ramps = [Parameters(end_ramp=k, epochs=k+5) for k in [15, 20]]
+    blurpools = [Parameters(blurpool=True), Parameters(blurpool=False)]
+    axes = [min_ress, end_ramps, max_ress, blurpools]
 
     out_write = []
     for these_settings in itertools.product(*axes):
@@ -104,8 +93,8 @@ def main(log_dir, out_file):
         for settings in these_settings:
             settings.override(d)
 
-        if d['resolution']['end_ramp'] >= d['training']['epochs']:
-            continue
+        # if d['resolution']['end_ramp'] >= d['training']['epochs']:
+        #     continue
 
         uid = str(uuid4())
         d['uid'] = uid
@@ -113,6 +102,8 @@ def main(log_dir, out_file):
         yaml.safe_dump(d, open(out_conf, 'w+'))
         out_write.append(str(out_conf))
 
+    print(' --- out writes --- ')
+    print('jobs', len(out_write))
     to_write = '\n'.join(out_write)
     open(out_file, 'w+').write(to_write)
     cmd = "parallel -j9 CUDA_VISIBLE_DEVICES='$(({%} - 1))'"
