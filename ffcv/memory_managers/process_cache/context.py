@@ -36,7 +36,11 @@ class ProcessCacheContext(MemoryContext):
                                          self.schedule,
                                          self.memory)
 
-        max_page = max(self.schedule.page_to_slot.keys())
+        try:
+            max_page = max(self.schedule.page_to_slot.keys())
+        except ValueError:
+            max_page = -1
+
         # We need max + 1 slots
         # We use a table as it's O(1) indexing. Pages for the header will
         # be unused however so we are losing some space

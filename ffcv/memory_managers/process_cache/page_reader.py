@@ -15,7 +15,7 @@ class PageReader(Thread):
         self.memory: np.ndarray = memory
         self.page_size = memory.shape[1]
         self.loaded: Queue = loaded
-        super().__init__()
+        super().__init__(daemon=True)
 
     def run(self):
         import hashlib

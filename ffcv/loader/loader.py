@@ -49,7 +49,7 @@ class Loader:
                  fname: str,
                  batch_size: int,
                  num_workers: int = -1,
-                 os_cache: bool = False,
+                 os_cache: bool = True,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = 0,  # For ordering of samples
