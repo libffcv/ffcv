@@ -4,9 +4,7 @@ fastargs
 matplotlib
 sklearn
 imgcat
-torchmetrics
 pandas
 assertpy
 tqdm
-antialiased_cnns
 psutil
