@@ -23,7 +23,7 @@ import torch.optim as optim
 Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())),
                'the architecture to use', required=True),
-    antialias=Param(bool, 'use blurpool or not', is_flag=True)
+    antialias=Param(int, 'use blurpool or not', default=0)
 )
 
 Section('resolution', 'resolution scheduling').params(

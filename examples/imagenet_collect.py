@@ -41,11 +41,17 @@ def main(log_dir):
         conf['uid'] = uid
         logs = logs.merge(conf, on='uid')
         all_logs.append(logs)
+
     logs = pd.concat(all_logs)
     fig, ax = plt.subplots()
-    colors = ['red', 'green', 'blue', 'cyan', 'orange', 'yellow', 'purple']
+
     for name, group in logs.groupby('uid'):
         group.plot.line(x='epoch', y='top_1', ax=ax)
+    plt.show()
+
+    fig, ax = plt.subplots()
+    for name, group in logs.groupby('uid'):
+        group.plot.line(x='relative_time', y='top_1', ax=ax)
     plt.show()
     print(logs)
     import pdb; pdb.set_trace()
