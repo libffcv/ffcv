@@ -82,19 +82,25 @@ def main(log_dir, out_file):
                            val_res=(k + 64)) for k in [160, 192]]
     
     min_ress = [Parameters(min_res=k) for k in [96, 128]]
-    end_ramps = [Parameters(end_ramp=k, epochs=k+5) for k in [15, 20]]
-    blurpools = [Parameters(blurpool=True), Parameters(blurpool=False)]
-    axes = [min_ress, end_ramps, max_ress, blurpools]
+    end_ramps = [Parameters(end_ramp=k, epochs=k+5) for k in [15]]
+    blurpools = [Parameters(blurpool=1), Parameters(blurpool=0)]
+    wds = [Parameters(wd=4e-5), Parameters(wd=1e-5)]
+
+    # next:
+    bslr = [Parameters(batch_size=256 * k, lr=0.1 * k) for k in [2, 4, 8]]
+    axes = [min_ress, end_ramps, max_ress, blurpools, bslr, wds]
 
     out_write = []
-    for these_settings in itertools.product(*axes):
+    configs = list(itertools.product(*axes))
+    configs = [[Parameters(lr=0.2, blurpool=1, wd=4e-5, end_ramp=0,
+               batch_size=512, min_res=160, max_res=160, val_res=160+64,
+               logs=str(log_dir), epochs=100)]] + configs
+
+    for these_settings in configs:
         d = copy.deepcopy(STANDARD_CONFIG)
         constant_params.override(d)
         for settings in these_settings:
             settings.override(d)
-
-        # if d['resolution']['end_ramp'] >= d['training']['epochs']:
-        #     continue
 
         uid = str(uuid4())
         d['uid'] = uid
