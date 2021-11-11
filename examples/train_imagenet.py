@@ -203,7 +203,7 @@ class ImageNetTrainer(Trainer):
     def create_model_and_scaler(self, arch, antialias):
         scaler = GradScaler()
         if not antialias:
-            model = getattr(models, arch)(pretrained=True)
+            model = getattr(models, arch)(pretrained=False)
         else:
             model = getattr(antialiased_cnns, arch)(pretrained=False)
 
