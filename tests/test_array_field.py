@@ -36,8 +36,6 @@ def run_test(n_samples, shape):
         with writer:
             writer.write_pytorch_dataset(dataset, num_workers=3)
             
-        import time
-            
         loader = Loader(name, batch_size=3, num_workers=5)
         for ixes, activations in loader:
             for ix, activation in zip(ixes, activations):

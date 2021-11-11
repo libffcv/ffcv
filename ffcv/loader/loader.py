@@ -1,4 +1,5 @@
 import enum
+from os import environ
 import ast
 from multiprocessing import cpu_count
 from typing import Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
@@ -42,6 +43,8 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.QUASI_RANDOM: QuasiRandom
 }
 
+DEFAULT_PROCESS_CACHE = int(environ.get('FFCV_DEFAULT_CACHE_PROCESS', "0"))
+DEFAULT_OS_CACHE = not DEFAULT_PROCESS_CACHE
 
 class Loader:
 
@@ -49,7 +52,7 @@ class Loader:
                  fname: str,
                  batch_size: int,
                  num_workers: int = -1,
-                 os_cache: bool = True,
+                 os_cache: bool = DEFAULT_OS_CACHE,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = 0,  # For ordering of samples
@@ -127,9 +130,6 @@ class Loader:
                                   memory_read)
 
             self.pipelines[field_name] = Pipeline(operations)
-
-    def close(self):
-        self.memory_manager.__exit__(None, None, None)
 
     def __iter__(self):
         cur_epoch = self.next_epoch
