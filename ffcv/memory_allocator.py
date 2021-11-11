@@ -46,17 +46,28 @@ class MemoryAllocator():
                 self.my_page = self.next_page_allocated.value
                 self.next_page_allocated.value = self.my_page + 1
 
-            # print(f"I got assigned page {self.my_page}")
-
             self.page_offset = 0
             # This is a new page so we erate the content of the buffer
             self.page_data.fill(0)
+
+            # We check if we already allocated space for this sample on
+            # the page that is now full
+            region_in_previous_page = False
+            while self.allocations and self.allocations[-1][0] == self.current_sample_id:
+                # We have to revert the allocations we did and we are giving
+                # up on this sample.
+                self.allocations.pop()
+                # We found at least memory region from the preivous page
+                region_in_previous_page = True
+
+            # The writer will restart from this freshly allocated page
+            if region_in_previous_page:
+                raise MemoryError("Not enough memory to fit the whole sample")
 
         previous_offset = self.page_offset
         self.page_offset += size
 
         buffer = self.page_data[previous_offset:self.page_offset]
-        # print(f"allocated data in page {self.my_page} at offset {previous_offset}")
         ptr = self.offset + self.my_page * self.page_size + previous_offset
 
         # We return the pointer to the location in file and where to write
@@ -75,11 +86,10 @@ class MemoryAllocator():
         while self.next_page_written.value != self.my_page:
             # Essentially a spin lock
             # TODO we could replace it with like exponential backoff
+            sleep(0.001)
             pass
-            # print("waiting", self.next_page_written)
 
         # Now it's my turn to write
-
 
         expected_file_offset = self.offset + self.my_page * self.page_size
         # in order to be aligned with page size
