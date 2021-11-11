@@ -1,4 +1,6 @@
+from ctypes import pointer
 from tempfile import NamedTemporaryFile
+from collections import defaultdict
 from assertpy.assertpy import assert_that
 
 from assertpy import assert_that
@@ -22,7 +24,24 @@ class DummyActivationsDataset(Dataset):
             raise IndexError()
         np.random.seed(index)
         return index, np.random.randn(*self.shape).astype('<f4')
-    
+
+class TripleDummyActivationsDataset(Dataset):
+
+    def __init__(self, n_samples, shape):
+        self.n_samples = n_samples
+        self.shape = shape
+
+    def __len__(self):
+        return self.n_samples
+
+    def __getitem__(self, index):
+        if index >= self.n_samples:
+            raise IndexError()
+        np.random.seed(index)
+        d1 = np.random.randn(*self.shape).astype('<f4')
+        d2 = np.random.randn(*self.shape).astype('<f4')
+        d3 = np.random.randn(*self.shape).astype('<f4')
+        return index, d1, d2, d3
 
 def run_test(n_samples, shape):
     with NamedTemporaryFile() as handle:
@@ -35,12 +54,44 @@ def run_test(n_samples, shape):
 
         with writer:
             writer.write_pytorch_dataset(dataset, num_workers=3)
-            
+
         loader = Loader(name, batch_size=3, num_workers=5)
         for ixes, activations in loader:
             for ix, activation in zip(ixes, activations):
                 assert_that(np.all(dataset[ix][1] == activation.numpy())).is_true()
-    
-    
+
+
 def test_simple_activations():
     run_test(4096, (2048,))
+
+def test_multi_fields():
+    n_samples = 4096
+    shape = (2048,)
+
+    with NamedTemporaryFile() as handle:
+        name = handle.name
+        dataset = TripleDummyActivationsDataset(n_samples, shape)
+        writer = DatasetWriter(n_samples, name, {
+            'index': IntField(),
+            'activations': NDArrayField(np.dtype('<f4'), shape),
+            'activations2': NDArrayField(np.dtype('<f4'), shape),
+            'activations3': NDArrayField(np.dtype('<f4'), shape)
+        })
+
+        with writer:
+            writer.write_pytorch_dataset(dataset, num_workers=1)
+
+        loader = Loader(name, batch_size=3, num_workers=5)
+        page_size_l2 = int(np.log2(loader.reader.page_size))
+        sample_ids = loader.reader.alloc_table['sample_id']
+        pointers = loader.reader.alloc_table['ptr']
+        pages = pointers >> page_size_l2
+        sample_to_pages = defaultdict(set)
+
+        for sample_id, page in zip(sample_ids, pages):
+            sample_to_pages[sample_id].add(page)
+            assert_that(sample_to_pages[sample_id]).is_length(1)
+
+        for ixes, activations, d2, d3 in loader:
+            for ix, activation in zip(ixes, activations):
+                assert_that(np.all(dataset[ix][1] == activation.numpy())).is_true()
