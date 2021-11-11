@@ -11,7 +11,7 @@ from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
 from ffcv.fields import BytesField, IntField
 from ffcv.pipeline.compiler import Compiler
-from ffcv.memory_managers.ram import RAMMemoryManager
+from ffcv.memory_managers import OSCacheManager
 from ffcv.libffcv import memcpy
 
 from ..decorator import benchmark
@@ -33,7 +33,7 @@ class DummyDataset(Dataset):
         return index, np.random.randint(0, 255, size=self.size, dtype='u1')
 
 @benchmark({
-    'num_samples': [30000],
+    'num_samples': [3000],
     'size_bytes': [
         32 * 32 * 3, # CIFAR RAW image size,
         500 * 300 * 3, # IMAGENET raw image size,
@@ -43,7 +43,7 @@ class DummyDataset(Dataset):
         True
     ],
     'random_reads': [True, False],
-    'n': [30000]
+    'n': [3000]
 })
 class MemoryReadBytesBench(Benchmark):
 
@@ -68,13 +68,15 @@ class MemoryReadBytesBench(Benchmark):
             writer.write_pytorch_dataset(dataset, num_workers=-1, chunksize=100)
 
         reader = Reader(name)
-        manager = RAMMemoryManager(reader)
+        manager = OSCacheManager(reader)
+        context = manager.schedule_epoch(np.arange(self.num_samples))
+        context.__enter__()
+        self.context = context
 
         Compiler.set_enabled(self.compiled)
         memcpy_c = Compiler.compile(memcpy)
 
-        with manager:
-            read_fn = manager.compile_reader()
+        read_fn = manager.compile_reader()
 
         if self.random_reads:
             indices = np.random.choice(self.num_samples, self.n, replace=False)
@@ -85,15 +87,15 @@ class MemoryReadBytesBench(Benchmark):
         
         self.buffer = np.zeros(self.size_bytes, dtype='<u1')
         
-        def code(buff):
+        def code(buff, state):
             for i in range(addresses.shape[0]):
-                memcpy_c(read_fn(addresses[i]), buff)
+                memcpy_c(read_fn(addresses[i], state), buff)
         
         self.code = Compiler.compile(code)
 
     
     def run(self):
-        self.code(self.buffer)
+        self.code(self.buffer, self.context.state)
         
     def __exit__(self, *args):
         self.handle.__exit__(*args)
