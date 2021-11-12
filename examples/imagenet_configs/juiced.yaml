@@ -1,10 +1,10 @@
 model:
-  antialias: true
+  antialias: 0
   arch: "resnet18" 
 resolution:
-  min_res: 96
-#   max_res: 160
-#   end_ramp: 12
+  min_res: 160
+  max_res: 160
+  end_ramp: 0
 data:
   num_workers: 10
   gpu: 0
@@ -18,10 +18,10 @@ training:
   lr: 0.2
   momentum: 0.9
   weight_decay: 4e-5
-  epochs: 30
+  epochs: 90
   label_smoothing: 0.1
   lr_peak_epoch: 5
 validation:
   batch_size: 1024
-  # resolution: 224
-  lr_tta: True
+  resolution: 224
+  lr_tta: 1
