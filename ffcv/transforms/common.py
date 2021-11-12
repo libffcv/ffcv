@@ -1,5 +1,3 @@
-import torch as ch
-import numpy as np
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation

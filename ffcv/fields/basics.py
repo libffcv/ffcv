@@ -37,6 +37,10 @@ class FloatDecoder(BasicDecoder):
     dtype = np.dtype('<f8')
 
 class FloatField(Field):
+    """
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    values.
+    """
     def __init__(self):
         pass
 
@@ -58,6 +62,10 @@ class FloatField(Field):
         return FloatDecoder
 
 class IntField(Field):
+    """
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    values.
+    """
     @property
     def metadata_type(self) -> np.dtype:
         return np.dtype('<i8')

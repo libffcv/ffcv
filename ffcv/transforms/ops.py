@@ -4,20 +4,15 @@ General operations:
 - Collation
 - Conversion to PyTorch Tensor
 """
-from abc import ABCMeta
 import torch as ch
 import numpy as np
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
-from ..pipeline.compiler import Compiler
 from dataclasses import replace
 
-class CoreOp(Operation, metaclass=ABCMeta):
-    pass
-
-class Collate(CoreOp):
+class Collate(Operation):
     def __init__(self):
         super().__init__()
     
@@ -31,7 +26,7 @@ class Collate(CoreOp):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         return replace(previous_state), None
 
-class ToTensor(CoreOp):
+class ToTensor(Operation):
     def __init__(self):
         super().__init__()
     
@@ -44,7 +39,7 @@ class ToTensor(CoreOp):
         new_dtype = ch.from_numpy(np.empty((), dtype=previous_state.dtype)).dtype
         return replace(previous_state, jit_mode=False, dtype=new_dtype), None
 
-class ToDevice(CoreOp):
+class ToDevice(Operation):
     def __init__(self, device, non_blocking=True):
         super().__init__()
         self.device = device
@@ -60,7 +55,7 @@ class ToDevice(CoreOp):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         return replace(previous_state, device=self.device), AllocationQuery(previous_state.shape, dtype=previous_state.dtype, device=self.device)
 
-class ToTorchImage(CoreOp):
+class ToTorchImage(Operation):
     def __init__(self, channels_last=True):
         super().__init__()
         self.channels_last = channels_last
@@ -87,7 +82,7 @@ class ToTorchImage(CoreOp):
             alloc = AllocationQuery((C, H, W), dtype=previous_state.dtype)
         return replace(previous_state, shape=(C, H, W)), alloc
     
-class Convert(CoreOp):
+class Convert(Operation):
     def __init__(self, target_dtype):
         super().__init__()
         self.target_dtype = target_dtype

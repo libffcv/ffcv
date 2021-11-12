@@ -9,7 +9,7 @@ Welcome to ffcv's documentation!
 .. toctree::
    writing_datasets
    benchmarks
-   api
+   api_reference
    :maxdepth: 2
    :caption: Contents:
 
