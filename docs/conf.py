@@ -51,11 +51,6 @@ autodoc_mock_imports = ['torch', 'torchvision', 'cv2']
 # a list of builtin themes.
 #
 html_theme = 'karma_sphinx_theme'
-html_theme_options = {
-    'navigation_depth': -1,
-    'includehidden': True,
-}
-
 autodoc_default_options = {
     'undoc-members': False,
 }
