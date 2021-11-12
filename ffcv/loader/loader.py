@@ -96,11 +96,16 @@ class Loader:
         self.next_epoch: int = 0
 
         self.pipelines = {}
+        self.field_name_to_f_ix = {}
 
         for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
+            self.field_name_to_f_ix[field_name] = f_ix
             DecoderClass = field.get_decoder_class()
             try:
                 operations = pipelines[field_name]
+                # We check if the user disabled this field
+                if operations is None:
+                    continue
                 if not isinstance(operations[0], DecoderClass):
                     msg = "The first operation of the pipeline for "
                     msg += f"'{field_name}' has to be a subclass of "
@@ -151,7 +156,8 @@ class Loader:
         else:
             return int(np.ceil(len(self.indices) / self.batch_size))
 
-    def generate_function_call(self, p_ix, pipeline_name, op_id):
+    def generate_function_call(self, pipeline_name, op_id):
+        p_ix = self.field_name_to_f_ix[pipeline_name]
         pipeline_identifier = f'code_{pipeline_name}_{op_id}'
         memory_identifier = f'memory_{pipeline_name}_{op_id}'
         result_identifier = f'result_{pipeline_name}'
@@ -187,8 +193,7 @@ def {fun_name}():
         memory_banks = []
         memory_banks_id = []
         for p_ix, pipeline_name, op_id in stage:
-            function_calls.append(self.generate_function_call(p_ix,
-                                                              pipeline_name,
+            function_calls.append(self.generate_function_call(pipeline_name,
                                                               op_id))
             arg = ast.arg(arg=f'memory_{pipeline_name}_{op_id}')
             memory_banks.append(arg)
