@@ -57,7 +57,7 @@ below:
     from ffcv.fields import NDArrayField, FloatField
 
     writer = DatasetWriter(len(dataset), write_path, {
-        'image': NDArrayField(shape=(d,), dtype=np.float32),
+        'covariate': NDArrayField(shape=(d,), dtype=np.float32),
         'label': FloatField(),
     })
 
