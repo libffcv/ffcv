@@ -1,16 +1,11 @@
-import ast
-from dataclasses import replace
-from typing import Any, List, Optional, Sequence, Mapping, Tuple
+from typing import Any, Optional, Sequence, Mapping
 
 import torch as ch
 import numpy as np
 
 from .state import State
-from .compiler import Compiler
 from .operation import Operation
 from .allocation_query import AllocationQuery
-from ..transforms.ops import Collate, ToTensor, CoreOp
-from ..transforms.module import ModuleWrapper
 
 BAD_COLLATION_MESSAGE: str = "Each pipeline needs one and one only Collate operation"
 

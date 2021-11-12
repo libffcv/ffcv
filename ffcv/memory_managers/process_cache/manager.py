@@ -42,6 +42,4 @@ class ProcessCacheManager(MemoryManager):
             page_slot = mem_state[3][page]
             return mem_state[0][page_slot, offset:offset + size]
 
-        result_type = nb.uint8[::1]
-        result_type.mutable = False
-        return Compiler.compile(read, result_type(nb.uint64, self.state_type))
+        return Compiler.compile(read)

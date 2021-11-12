@@ -10,6 +10,16 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class RandomHorizontalFlip(Operation):
+    """Flips the image horizontally with probability p.
+    Operates on raw arrays (not tensors).
+
+    Parameters
+    ----------
+    p : float
+        The probability with which to flip each image in the batch
+        horizontally.
+    """
+
     def __init__(self, p: float):
         super().__init__()
         self.p = float

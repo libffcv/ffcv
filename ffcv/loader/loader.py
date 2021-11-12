@@ -1,7 +1,9 @@
 import enum
+from os import environ
 import ast
 from multiprocessing import cpu_count
-from typing import Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
+from re import sub
+from typing import Any, Callable, Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
 from collections import defaultdict
 from enum import Enum, unique, auto
 
@@ -42,6 +44,8 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
     OrderOption.QUASI_RANDOM: QuasiRandom
 }
 
+DEFAULT_PROCESS_CACHE = int(environ.get('FFCV_DEFAULT_CACHE_PROCESS', "0"))
+DEFAULT_OS_CACHE = not DEFAULT_PROCESS_CACHE
 
 class Loader:
 
@@ -49,7 +53,7 @@ class Loader:
                  fname: str,
                  batch_size: int,
                  num_workers: int = -1,
-                 os_cache: bool = True,
+                 os_cache: bool = DEFAULT_OS_CACHE,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = 0,  # For ordering of samples
@@ -61,6 +65,22 @@ class Loader:
                  recompile: bool = False,  # Recompile at every epoch
                  ):
 
+        # We store the original user arguments to be able to pass it to the
+        # filtered version of the datasets
+        self._args = {
+            'fname': fname,
+            'batch_size': batch_size,
+            'num_workers': num_workers,
+            'os_cache': os_cache,
+            'order': order,
+            'distributed': distributed,
+            'seed': seed,
+            'indices': indices,
+            'pipelines': pipelines,
+            'drop_last': drop_last,
+            'batches_ahead': batches_ahead,
+            'recompile': recompile
+        }
         self.fname: str = fname
         self.batch_size: int = batch_size
         self.batches_ahead = batches_ahead
@@ -93,11 +113,16 @@ class Loader:
         self.next_epoch: int = 0
 
         self.pipelines = {}
+        self.field_name_to_f_ix = {}
 
         for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
+            self.field_name_to_f_ix[field_name] = f_ix
             DecoderClass = field.get_decoder_class()
             try:
                 operations = pipelines[field_name]
+                # We check if the user disabled this field
+                if operations is None:
+                    continue
                 if not isinstance(operations[0], DecoderClass):
                     msg = "The first operation of the pipeline for "
                     msg += f"'{field_name}' has to be a subclass of "
@@ -128,9 +153,6 @@ class Loader:
 
             self.pipelines[field_name] = Pipeline(operations)
 
-    def close(self):
-        self.memory_manager.__exit__(None, None, None)
-
     def __iter__(self):
         cur_epoch = self.next_epoch
         self.next_epoch += 1
@@ -144,6 +166,37 @@ class Loader:
 
         return EpochIterator(self, selected_order)
 
+    def filter(self, field_name:str, condition: Callable[[Any], bool]) -> 'Loader':
+        new_args = {**self._args}
+        pipelines = {}
+
+        # Disabling all the other fields
+        for other_field_name in self.reader.handlers.keys():
+            pipelines[other_field_name] = None
+
+        # We reuse the original pipeline for the field we care about
+        pipelines[field_name] = new_args['pipelines'][field_name]
+        new_args['pipelines'] = pipelines
+
+        # We use sequential order for speed and to know which index we are
+        # filtering
+        new_args['order'] = OrderOption.SEQUENTIAL
+        new_args['drop_last'] = False
+        sub_loader = Loader(**new_args)
+        selected_indices = []
+
+        # Iterate through the loader and test the user defined condition
+        for i, (batch,) in enumerate(sub_loader):
+            for j, sample in enumerate(batch):
+                sample_id = i * self.batch_size + j
+                if condition(sample):
+                    selected_indices.append(sample_id)
+
+        final_args = {**self._args}
+        final_args['indices'] = np.array(selected_indices)
+        return Loader(**final_args)
+
+
     def __len__(self):
         # TODO handle drop_last
         if self.drop_last:
@@ -151,7 +204,8 @@ class Loader:
         else:
             return int(np.ceil(len(self.indices) / self.batch_size))
 
-    def generate_function_call(self, p_ix, pipeline_name, op_id):
+    def generate_function_call(self, pipeline_name, op_id):
+        p_ix = self.field_name_to_f_ix[pipeline_name]
         pipeline_identifier = f'code_{pipeline_name}_{op_id}'
         memory_identifier = f'memory_{pipeline_name}_{op_id}'
         result_identifier = f'result_{pipeline_name}'
@@ -187,8 +241,7 @@ def {fun_name}():
         memory_banks = []
         memory_banks_id = []
         for p_ix, pipeline_name, op_id in stage:
-            function_calls.append(self.generate_function_call(p_ix,
-                                                              pipeline_name,
+            function_calls.append(self.generate_function_call(pipeline_name,
                                                               op_id))
             arg = ast.arg(arg=f'memory_{pipeline_name}_{op_id}')
             memory_banks.append(arg)

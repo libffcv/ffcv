@@ -6,7 +6,7 @@ from time import sleep, time
 import numpy as np
 from assertpy import assert_that
 from ffcv.fields import BytesField, IntField, RGBImageField
-from ffcv.memory_managers.ram import RAMMemoryManager
+from ffcv.memory_managers import OSCacheManager
 from ffcv.pipeline.compiler import Compiler
 from ffcv.reader import Reader
 from ffcv.writer import DatasetWriter
@@ -92,16 +92,19 @@ class ImageReadBench(Benchmark):
             writer.write_pytorch_dataset(self.dataset, num_workers=-1, chunksize=100)
 
         reader = Reader(name)
-        manager = RAMMemoryManager(reader)
+        manager = OSCacheManager(reader)
 
         Compiler.set_enabled(self.compile)
         Compiler.set_num_threads(self.num_workers)
 
-        with manager:
-            memreader = manager.compile_reader()
-            Decoder = RGBImageField().get_decoder_class()
-            decoder = Decoder()
-            decoder.accept_globals(reader.metadata['f1'], memreader)
+        memreader = manager.compile_reader()
+        Decoder = RGBImageField().get_decoder_class()
+        decoder = Decoder()
+        decoder.accept_globals(reader.metadata['f1'], memreader)
+
+        context = manager.schedule_epoch(np.arange(self.n))
+        context.__enter__()
+        self.context = context
 
         decode = decoder.generate_code()
         decode = Compiler.compile(decode)
@@ -113,17 +116,18 @@ class ImageReadBench(Benchmark):
         else:
             self.indices = np.arange(self.n)
             
-        def code(indices, buff):
+        def code(indices, buff, state):
             result = 0
             for i in range(0, len(indices), self.batch_size):
-                result += decode(indices[i:i + self.batch_size], buff, reader.metadata['f1'], manager.state)[0, 5, 5]
+                result += decode(indices[i:i + self.batch_size], buff, reader.metadata['f1'], state)[0, 5, 5]
             return result
                 
         self.code = code
 
     def run(self):
-        self.code(self.indices, self.buff)
+        self.code(self.indices, self.buff, self.context.state)
 
     def __exit__(self, *args):
         self.handle.__exit__(*args)
+        self.context.__exit__(*args)
         pass

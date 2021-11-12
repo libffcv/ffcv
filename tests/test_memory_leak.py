@@ -5,6 +5,7 @@ import os, psutil
 
 
 import numpy as np
+import pytest
 from tqdm import tqdm
 from assertpy import assert_that
 from torch.utils.data import Dataset
@@ -54,5 +55,8 @@ def create_and_run(num_samples, size_bytes):
             assert_that(process.memory_info().rss).is_less_than(total_dataset_size)
 
 
+
+@pytest.mark.skipif(bool(os.environ.get('FFCV_RUN_MEMORY_LEAK_TEST', "0")),
+                    reason="set FFCV_RUN_MEMORY_LEAK_TEST to enable it")
 def test_memory_leak_write():
     create_and_run(128100, 500*300*3)
