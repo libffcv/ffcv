@@ -23,7 +23,7 @@ size, number of workers, as well as the following less familiar options:
 - *Ordering*: dataset ordering is determined by the ``order`` parameter, which
   accepts either :attr:`ffcv.loader.OrderOption.RANDOM` for random ordering,
   :attr:`ffcv.loader.OrderOption.SEQUENTIAL` for sequential (non-shuffled)
-  ordering, or :attr:``
+  ordering, or :attr:`ffcv.loader.OrderOption.QUASIRANDOM`, which [TODO].
 
 .. code-block:: python
 
