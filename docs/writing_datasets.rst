@@ -61,6 +61,13 @@ below:
         'label': FloatField(),
     })
 
+.. note:: 
+
+    Starting in Python 3.6, dictionary keys are ordered, and the writer uses
+    this order to match the given fields to the elements returned by the
+    ``__getitem__`` function of the dataset. Make sure to provide
+    the fields in the right order to avoid errors.
+
 Beyond these two, FFCV provides a variety of built-in fields that make most
 datasets easy to convert directly:
 
