@@ -1,5 +1,5 @@
-API Reference
-=============
+ffcv.transforms module
+======================
 
 .. automodule:: ffcv.transforms
     :members:

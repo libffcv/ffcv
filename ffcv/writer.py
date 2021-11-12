@@ -34,13 +34,24 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
 
             # For each sample in the chunk
             for dest_ix, source_ix in chunk:
-                allocator.set_current_sample(dest_ix)
-                # We extract the sample in question from the dataset
-                sample = dataset[source_ix]
-                # We write each field individually to the metadata region
-                for field_name, field, field_value in zip(field_names, fields.values(), sample):
-                    destination = metadata[field_name][dest_ix: dest_ix + 1]
-                    field.encode(destination, field_value, allocator.malloc)
+                # We should only have to retry at least one
+                for i in range(2):
+                    try:
+                        allocator.set_current_sample(dest_ix)
+                        # We extract the sample in question from the dataset
+                        sample = dataset[source_ix]
+                        # We write each field individually to the metadata region
+                        for field_name, field, field_value in zip(field_names, fields.values(), sample):
+                            destination = metadata[field_name][dest_ix: dest_ix + 1]
+                            field.encode(destination, field_value, allocator.malloc)
+                        # We managed to write all the data without reaching
+                        # the end of the page so we stop retrying
+                        break
+                    # If we couldn't fit this sample in the previous page we retry once from a fresh page
+                    except MemoryError:
+                        # We raise the error if it happens on the second try
+                        if i == 1:
+                            raise
 
             # We warn the main thread of our progress
             with done_number.get_lock():

@@ -26,7 +26,8 @@ MAPPING = {
     'end_ramp': ['resolution', 'end_ramp'],
     'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
-    'batch_size':['training', 'batch_size']
+    'batch_size':['training', 'batch_size'],
+    'peak':['training', 'lr_peak_epoch']
 }
 
 STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/juiced.yaml', 'r'))
@@ -61,7 +62,6 @@ class Parameters():
 
         return ret
 
-
 # params = Parameters(lr=88, wd=99, arch='resnet50')
 # print(d)
 # params.override(d)
@@ -79,22 +79,23 @@ def main(log_dir, out_file):
     # wds = [4e-5]
     # lrs = [0.2]
     max_ress = [Parameters(max_res=k, logs=str(log_dir),
-                           val_res=(k + 64)) for k in [160, 192]]
+                           val_res=(k + 64)) for k in [160]]
     
-    min_ress = [Parameters(min_res=k) for k in [96, 128]]
-    end_ramps = [Parameters(end_ramp=k, epochs=k+5) for k in [15]]
-    blurpools = [Parameters(blurpool=1), Parameters(blurpool=0)]
-    wds = [Parameters(wd=4e-5), Parameters(wd=1e-5)]
+    min_ress = [Parameters(min_res=k) for k in [96]]
+    end_ramps = [Parameters(end_ramp=k, epochs=k+delta) for k, delta in itertools.product([15, 20, 30], [5, 10, 15, 20])]
+    peaks = [Parameters(lr_peak_epoch=k) for k in [3, 5, 7, 9]]
+    blurpools = [Parameters(blurpool=0)]
+    wds = [Parameters(wd=1e-4)]
 
     # next:
-    bslr = [Parameters(batch_size=256 * k, lr=0.1 * k) for k in [2, 4, 8]]
+    bslr = [Parameters(batch_size=256 * k, lr=0.1 * k) for k in [4, 8]]
     axes = [min_ress, end_ramps, max_ress, blurpools, bslr, wds]
 
     out_write = []
     configs = list(itertools.product(*axes))
-    configs = [[Parameters(lr=0.2, blurpool=1, wd=4e-5, end_ramp=0,
-               batch_size=512, min_res=160, max_res=160, val_res=160+64,
-               logs=str(log_dir), epochs=100)]] + configs
+    # configs = [[Parameters(lr=0.2, blurpool=0, wd=4e-5, end_ramp=0,
+    #            batch_size=512, min_res=160, max_res=160, val_res=160+64,
+    #            logs=str(log_dir), epochs=100)]] + configs
 
     for these_settings in configs:
         d = copy.deepcopy(STANDARD_CONFIG)
@@ -115,7 +116,7 @@ def main(log_dir, out_file):
     cmd = "parallel -j9 CUDA_VISIBLE_DEVICES='$(({%} - 1))'"
     cmd = f'cat {out_file} | ' + cmd + ' python train_imagenet.py --config-file'
     cmd = cmd + ' {}'
-    print(' --- logs in ---')
+    print(' --- logs in --- ')
     print(out_dir)
     print(' --- run command --- ')
     print(cmd)
