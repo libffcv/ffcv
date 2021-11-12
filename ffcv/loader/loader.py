@@ -2,7 +2,8 @@ import enum
 from os import environ
 import ast
 from multiprocessing import cpu_count
-from typing import Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
+from re import sub
+from typing import Any, Callable, Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
 from collections import defaultdict
 from enum import Enum, unique, auto
 
@@ -64,6 +65,22 @@ class Loader:
                  recompile: bool = False,  # Recompile at every epoch
                  ):
 
+        # We store the original user arguments to be able to pass it to the
+        # filtered version of the datasets
+        self._args = {
+            'fname': fname,
+            'batch_size': batch_size,
+            'num_workers': num_workers,
+            'os_cache': os_cache,
+            'order': order,
+            'distributed': distributed,
+            'seed': seed,
+            'indices': indices,
+            'pipelines': pipelines,
+            'drop_last': drop_last,
+            'batches_ahead': batches_ahead,
+            'recompile': recompile
+        }
         self.fname: str = fname
         self.batch_size: int = batch_size
         self.batches_ahead = batches_ahead
@@ -148,6 +165,37 @@ class Loader:
             self.generate_code()
 
         return EpochIterator(self, selected_order)
+
+    def filter(self, field_name:str, condition: Callable[[Any], bool]) -> 'Loader':
+        new_args = {**self._args}
+        pipelines = {}
+
+        # Disabling all the other fields
+        for other_field_name in self.reader.handlers.keys():
+            pipelines[other_field_name] = None
+
+        # We reuse the original pipeline for the field we care about
+        pipelines[field_name] = new_args['pipelines'][field_name]
+        new_args['pipelines'] = pipelines
+
+        # We use sequential order for speed and to know which index we are
+        # filtering
+        new_args['order'] = OrderOption.SEQUENTIAL
+        new_args['drop_last'] = False
+        sub_loader = Loader(**new_args)
+        selected_indices = []
+
+        # Iterate through the loader and test the user defined condition
+        for i, (batch,) in enumerate(sub_loader):
+            for j, sample in enumerate(batch):
+                sample_id = i * self.batch_size + j
+                if condition(sample):
+                    selected_indices.append(sample_id)
+
+        final_args = {**self._args}
+        final_args['indices'] = np.array(selected_indices)
+        return Loader(**final_args)
+
 
     def __len__(self):
         # TODO handle drop_last
