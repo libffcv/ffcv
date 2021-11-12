@@ -75,8 +75,7 @@ After constructing the writer, the only remaining step is to write the dataset:
 
     with writer:
         writer.write_pytorch_dataset(my_dataset,
-                                     num_workers=num_workers, 
-                                     chunksize=chunk_size)
+                                     num_workers=num_workers)
 
 That's it! You are now ready to `Construct a loader <TODO>`_ for this dataset
 and start training ML models!
