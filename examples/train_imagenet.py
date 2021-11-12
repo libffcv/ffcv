@@ -32,6 +32,12 @@ Section('resolution', 'resolution scheduling').params(
     end_ramp=Param(int, 'when to stop interpolating resolution', default=0)
 )
 
+Section('distributed').params(
+    world_size=Param(int, 'number gpus', default=1),
+    addr=Param(str, 'address', default='localhost'),
+    port=Param(str, 'port', default='12355')
+)
+
 IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
 IMAGENET_STD = np.array([0.229, 0.224, 0.225])
 DEFAULT_CROP_RATIO = 224/256
@@ -112,6 +118,7 @@ class ImageNetTrainer(Trainer):
     def create_optimizer(self, _, lr, momentum, optimizer, weight_decay,
                          label_smoothing):
         assert optimizer == 'sgd'
+
         self.optimizer = optim.SGD(self.model.parameters(),
                                    lr=lr,
                                    momentum=momentum,
@@ -200,6 +207,7 @@ class ImageNetTrainer(Trainer):
 
     @param('model.arch')
     @param('model.antialias')
+    @param('distributed.world_size')
     def create_model_and_scaler(self, arch, antialias):
         scaler = GradScaler()
         if not antialias:
