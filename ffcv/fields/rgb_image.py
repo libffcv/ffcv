@@ -253,17 +253,17 @@ class RGBImageField(Field):
         The quality parameter for JPEG encoding (ignored for
         ``write_mode='raw'``), by default 90
     compress_probability : float, optional
-        Ignored unless ``write_mode='proportion'``, in which case it is the
+        Ignored unless ``write_mode='proportion'``; in the latter case it is the
         probability with which image is JPEG-compressed, by default 0.5
     """
     def __init__(self, write_mode='raw', max_resolution: int = None, 
                  smart_threshold: int = None, jpeg_quality: int = 90, 
-                 proportion: float = 0.5) -> None:
+                 compress_probability: float = 0.5) -> None:
         self.write_mode = write_mode
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
         self.jpeg_quality = jpeg_quality
-        self.proportion = proportion
+        self.proportion = compress_probability
 
     @property
     def metadata_type(self) -> np.dtype:
