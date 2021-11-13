@@ -234,12 +234,13 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 class RGBImageField(Field):
     def __init__(self, write_mode='raw', smart_factor: float = None,
                  max_resolution: int = None, smart_threshold: int = None,
-                 jpeg_quality: int = 90) -> None:
+                 jpeg_quality: int = 90, proportion=0.5) -> None:
         self.write_mode = write_mode
         self.smart_factor = smart_factor
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
         self.jpeg_quality = jpeg_quality
+        self.proportion = proportion
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -289,6 +290,12 @@ class RGBImageField(Field):
             if self.smart_threshold is not None:
                 if image.nbytes > self.smart_threshold:
                     write_mode = 'jpg'
+        elif write_mode == 'proportion':
+            if np.random.rand() < self.proportion:
+                write_mode = 'raw'
+            else:
+                write_mode = 'jpg'
+
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
