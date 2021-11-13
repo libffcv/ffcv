@@ -7,7 +7,7 @@ import matplotlib as mpl
 import torch.optim as optim
 import json
 from abc import abstractmethod
-from os import path
+import os
 from time import time
 from functools import partial
 from uuid import uuid4
@@ -33,8 +33,7 @@ mpl.use('module://imgcat')
 Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
     val_dataset=Param(str, '.dat file to use for validation', required=True),
-    num_workers=Param(int, 'The number of workers', required=True),
-    gpu=Param(int, 'Which GPU to use', required=True)
+    num_workers=Param(int, 'The number of workers', required=True)
 )
 
 Section('logging', 'how to log stuff').params(
@@ -49,20 +48,25 @@ Section('training', 'training hyper param stuff').params(
     weight_decay=Param(float, 'weight decay', default=4e-5),
     epochs=Param(int, 'number of epochs', default=24),
     lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
-    label_smoothing=Param(float, 'label smoothing parameter', default=0.)
+    label_smoothing=Param(float, 'label smoothing parameter', default=0.),
+    distributed=Param(int, 'is distributed?', default=0)
 )
 
 Section('validation', 'Validation parameters stuff').params(
     batch_size=Param(int, 'The batch size for validation', default=512),
     resolution=Param(
         int, 'The size of the final resized validation image', default=224),
-    lr_tta=Param(bool, is_flag=True)
+    lr_tta=Param(int, 'should do lr flipping/avging at test time', default=1)
 )
 
+Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
+    world_size=Param(int, 'number gpus', default=1),
+    addr=Param(str, 'address', default='localhost'),
+    port=Param(str, 'port', default='12355')
+)
 
 class Trainer():
-    @param('data.gpu')
-    def __init__(self, all_params, gpu):
+    def __init__(self, all_params, gpu=0):
         self.all_params = all_params
         self.gpu = gpu
         self.model, self.scaler = self.create_model_and_scaler()
@@ -70,10 +74,10 @@ class Trainer():
         self.create_optimizer(len(self.train_loader))
         self.val_loader = self.create_val_loader()
         self.train_accuracy = torchmetrics.Accuracy(
-            compute_on_step=False).cuda(self.gpu)
+            compute_on_step=False).to(self.gpu)
         self.val_meters = {
-            'top_1': torchmetrics.Accuracy(compute_on_step=False).cuda(self.gpu),
-            'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).cuda(self.gpu)
+            'top_1': torchmetrics.Accuracy(compute_on_step=False).to(self.gpu),
+            'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).to(self.gpu)
         }
         self.uid = str(uuid4())
         self.initialize_logger()
@@ -203,3 +207,54 @@ class Trainer():
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
             })
+
+import torch.distributed as dist
+import torch.multiprocessing as mp
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+
+Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
+    world_size=Param(int, 'number gpus', default=1),
+    addr=Param(str, 'address', default='localhost'),
+    port=Param(str, 'port', default='12355')
+)
+
+class DistributedTrainer(Trainer):
+    @param('distributed.world_size')
+    def launch_distributed(config, world_size):
+        def train(rank):
+            trainer = DistributedTrainer(config, rank)
+            trainer.train()
+            trainer.cleanup()
+
+        mp.spawn(train, args=tuple(), nprocs=world_size, join=True)
+
+    @param('distributed.world_size')
+    @param('distributed.addr')
+    @param('distributed.port')
+    def __init__(self, *args, gpu, world_size, addr, port, **kwargs):
+        super().__init__(*args, **kwargs)
+        assert type(gpu) is int
+        assert type(addr) is str
+        assert type(port) is str
+        assert type(world_size) is int
+
+        os.environ['MASTER_ADDR'] = addr
+        os.environ['MASTER_PORT'] = port
+        dist.init_process_group('nccl', rank=gpu, world_size=world_size)
+        # self.addr = addr
+        # self.port = port
+
+    def cleanup(self):
+        dist.destroy_process_group()
+
+    # put ALL distributed stuff in here (ie all device checks + checks of whether
+    #     it is distributed etc)
+    def log(self, *args, **kwargs):
+        if self.gpu == 0:
+            return super().log(*args, **kwargs)
+
+    def initialize_logger(self, *args, **kwargs):
+        if self.gpu == 0:
+            return super().initialize_logger(*args, **kwargs)
+
