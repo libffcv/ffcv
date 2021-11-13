@@ -203,7 +203,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     @property
     @abstractmethod
     def get_crop_generator():
-        raise NotImplemented()
+        raise NotImplementedError
 
 
 class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
@@ -232,9 +232,32 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 
 
 class RGBImageField(Field):
+    """
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    values.
+
+    Parameters
+    ----------
+    write_mode : str, optional
+        How to write the image data to the dataset file. Should be either 'raw'
+        (``uint8`` pixel values), 'jpg' (compress to JPEG format), or 'smart'
+        (decide between saving pixel values and JPEG compressing based on image
+        size). By default 'raw'.
+    smart_factor : float, optional
+        [description], by default None
+    max_resolution : int, optional
+        If specified, will resize images to have maximum side length equal to
+        this value before saving, by default None
+    smart_threshold : int, optional
+        [description], by default None
+    jpeg_quality : int, optional
+        The quality parameter for JPEG encoding (ignored for
+        ``write_mode='raw'``), by default 90
+    """
     def __init__(self, write_mode='raw', smart_factor: float = None,
                  max_resolution: int = None, smart_threshold: int = None,
                  jpeg_quality: int = 90) -> None:
+
         self.write_mode = write_mode
         self.smart_factor = smart_factor
         self.smart_threshold = smart_threshold
