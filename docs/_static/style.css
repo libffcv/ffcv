@@ -1,0 +1,17 @@
+.viewcode-link{
+    float: right;
+}
+
+header {
+    padding: 0;
+}
+
+.site-title{
+    font-family: 'Slipstream Forward', sans-serif;
+    font-size: 4rem !important;
+}
+
+@font-face {
+    font-family: 'Slipstream Forward';
+    src: url('/_static/slipstream.TTF')  format('truetype');
+}
