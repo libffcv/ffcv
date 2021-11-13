@@ -240,11 +240,10 @@ class RGBImageField(Field):
     ----------
     write_mode : str, optional
         How to write the image data to the dataset file. Should be either 'raw'
-        (``uint8`` pixel values), 'jpg' (compress to JPEG format), or 'smart'
+        (``uint8`` pixel values), 'jpg' (compress to JPEG format), 'smart'
         (decide between saving pixel values and JPEG compressing based on image
-        size). By default 'raw'.
-    smart_factor : float, optional
-        [description], by default None
+        size), and 'proportion' (JPEG compress a random subset of the data with
+        size specified by the ``compress_probability`` argument). By default 'raw'.
     max_resolution : int, optional
         If specified, will resize images to have maximum side length equal to
         this value before saving, by default None
@@ -253,16 +252,18 @@ class RGBImageField(Field):
     jpeg_quality : int, optional
         The quality parameter for JPEG encoding (ignored for
         ``write_mode='raw'``), by default 90
+    compress_probability : float, optional
+        Ignored unless ``write_mode='proportion'``, in which case it is the
+        probability with which image is JPEG-compressed, by default 0.5
     """
-    def __init__(self, write_mode='raw', smart_factor: float = None,
-                 max_resolution: int = None, smart_threshold: int = None,
-                 jpeg_quality: int = 90) -> None:
-
+    def __init__(self, write_mode='raw', max_resolution: int = None, 
+                 smart_threshold: int = None, jpeg_quality: int = 90, 
+                 proportion: float = 0.5) -> None:
         self.write_mode = write_mode
-        self.smart_factor = smart_factor
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
         self.jpeg_quality = jpeg_quality
+        self.proportion = proportion
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -306,12 +307,15 @@ class RGBImageField(Field):
         if write_mode == 'smart':
             as_jpg = encode_jpeg(image, self.jpeg_quality)
             write_mode = 'raw'
-            if self.smart_factor is not None:
-                if as_jpg.nbytes * self.smart_factor <= image.nbytes:
-                    write_mode = 'jpg'
             if self.smart_threshold is not None:
                 if image.nbytes > self.smart_threshold:
                     write_mode = 'jpg'
+        elif write_mode == 'proportion':
+            if np.random.rand() < self.proportion:
+                write_mode = 'raw'
+            else:
+                write_mode = 'jpg'
+
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]

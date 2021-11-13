@@ -15,10 +15,11 @@ Section('cfg', 'arguments to give the writer').params(
     split=Param(And(str, OneOf(['train', 'val'])), 'Train or val set', required=True),
     data_dir=Param(str, 'Where to find the PyTorch dataset', required=True),
     write_path=Param(str, 'Where to write the new dataset', required=True),
+    write_mode=Param(str, 'Mode: raw, smart or jpg', required=False, default='smart'),
     max_resolution=Param(int, 'Max image side length', required=True),
-    smart_threshold=Param(int, 'Max image side length before compression', default=2_000_000),
     num_workers=Param(int, 'Number of workers to use', default=16),
     chunk_size=Param(int, 'Chunk size for writing', default=100),
+    jpeg_quality=Param(float, 'Quality of jpeg images', default=90),
     subset=Param(int, 'How many images to use (-1 for all)', default=-1)
 )
 
@@ -28,25 +29,27 @@ Section('cfg', 'arguments to give the writer').params(
 @param('data_dir')
 @param('write_path')
 @param('max_resolution')
-@param('smart_threshold')
 @param('num_workers')
 @param('chunk_size')
 @param('subset')
-def main(dataset, split, data_dir, write_path, max_resolution, smart_threshold, num_workers, chunk_size, subset):
+@param('jpeg_quality')
+@param('write_mode')
+def main(dataset, split, data_dir, write_path, max_resolution, num_workers, chunk_size, subset,
+jpeg_quality, write_mode):
     if dataset == 'cifar':
         my_dataset = CIFAR10(root=data_dir, train=(split == 'train'), download=True)
     elif dataset == 'imagenet':
         my_dataset = ImageFolder(root=data_dir)
     else:
         raise ValueError('Unrecognized dataset', dataset)
-    
+
     if subset > 0: my_dataset = Subset(my_dataset, range(subset))
 
     writer = DatasetWriter(len(my_dataset), write_path, {
-        'image': RGBImageField(write_mode='smart', 
-                            #    smart_factor=2, 
-                               max_resolution=max_resolution, 
-                               smart_threshold=smart_threshold),
+        'image': RGBImageField(write_mode=write_mode,
+                               max_resolution=max_resolution,
+                               proportion=0.25,
+                               jpeg_quality=jpeg_quality),
         'label': IntField(),
     })
 

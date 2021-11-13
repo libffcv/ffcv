@@ -63,7 +63,7 @@ class FloatField(Field):
 
 class IntField(Field):
     """
-    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) integer
     values.
     """
     @property
