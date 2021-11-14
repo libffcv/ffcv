@@ -91,10 +91,11 @@ class Loader:
         self.distributed: bool = distributed
         self.code_per_stage = None
         self.recompile = recompile
-        Compiler.set_num_threads(self.num_workers)
 
         if self.num_workers < 1:
             self.num_workers = cpu_count()
+
+        Compiler.set_num_threads(self.num_workers)
 
         if indices is None:
             self.indices = np.arange(self.reader.num_samples, dtype='uint64')

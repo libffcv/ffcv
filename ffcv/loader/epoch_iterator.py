@@ -3,9 +3,12 @@ from threading import Thread, Event
 from queue import Queue, Full
 from typing import Sequence, TYPE_CHECKING
 
+import numba as nb
+
 import torch as ch
 
 from ..utils import chunks
+from ..pipeline.compiler import Compiler
 
 if TYPE_CHECKING:
     from .loader import Loader
@@ -53,6 +56,7 @@ class EpochIterator(Thread):
     def run(self):
         try:
             b_ix = 0
+            Compiler.set_num_threads(self.loader.num_workers)
             while True:
                 ixes = next(self.iter_ixes)
                 slot = self.current_batch_slot
