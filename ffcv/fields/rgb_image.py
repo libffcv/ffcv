@@ -142,8 +142,9 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
         heights = self.metadata['height']
-        self.max_width = widths.max()
-        self.max_height = heights.max()
+        # We convert to uint64 to avoid overflows
+        self.max_width = np.uint64(widths.max())
+        self.max_height = np.uint64(heights.max())
         output_shape = (self.output_size[0], self.output_size[1], 3)
         my_dtype = np.dtype('<u1')
 
@@ -151,7 +152,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
             replace(previous_state, jit_mode=True,
                     shape=output_shape, dtype=my_dtype),
             (AllocationQuery(output_shape, my_dtype),
-            AllocationQuery((self.max_height * self.max_width * 3,), my_dtype),
+            AllocationQuery((self.max_height * self.max_width * np.uint64(3),), my_dtype),
             )
         )
 

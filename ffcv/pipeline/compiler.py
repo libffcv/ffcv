@@ -1,5 +1,5 @@
 import pdb
-from numba import njit, set_num_threads, prange, warnings as nwarnings
+from numba import njit, set_num_threads, prange, warnings as nwarnings, get_num_threads
 from numba.core.errors import NumbaPerformanceWarning
 from multiprocessing import cpu_count
 import torch as ch
