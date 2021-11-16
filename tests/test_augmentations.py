@@ -13,7 +13,7 @@ from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
 from ffcv.loader import Loader
 from ffcv.pipeline.compiler import Compiler
-from ffcv.transforms import Squeeze, Cutout, ToTensor, ToDevice
+from ffcv.transforms import Squeeze, Cutout, ToTensor, ToDevice, Poison
 
 def run_test(length, pipeline, compile):
     my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
@@ -30,7 +30,7 @@ def run_test(length, pipeline, compile):
             writer.write_pytorch_dataset(my_dataset, num_workers=2, chunksize=10)
 
         Compiler.set_enabled(True)
-    
+
         loader = Loader(name, batch_size=5, num_workers=2, pipelines={
             'image': pipeline,
             'label': [IntDecoder(), ToTensor(), Squeeze()]
@@ -50,3 +50,16 @@ def test_cutout():
         Cutout(8),
         ToTensor()
     ], False)
+
+def test_poison():
+    mask = np.zeros((32, 32, 3))
+    # Red sqaure
+    mask[:5, :5, 0] = 1
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        Poison(mask, 1, [0, 1, 2]),
+        ToTensor()
+    ], False)
+
+if __name__ == '__main__':
+    test_poison()

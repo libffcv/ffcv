@@ -3,7 +3,8 @@ from .flip import RandomHorizontalFlip
 from .ops import Collate, ToTensor, ToDevice, ToTorchImage, Convert
 from .common import Squeeze
 from .random_resized_crop import RandomResizedCrop
+from .poisoning import Poison
 
 __all__ = ['Cutout', 'RandomHorizontalFlip', 'Collate', 'ToTensor', 
            'ToDevice', 'ToTorchImage', 'Squeeze', 'RandomResizedCrop',
-           'Convert']
+           'Convert', 'Poison']
