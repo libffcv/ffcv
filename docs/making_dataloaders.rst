@@ -90,8 +90,11 @@ introduce no additional training overhead.
 
   If the entire ``pipelines`` argument is
   unspecified, this barebones pipeline will be applied to all fields. 
+ 
+Transforms
+"""""""""""
 
-There are three easy ways to specify transformations:
+There are three easy ways to specify transformations in a pipeline:
 
 - By default, FFCV implements a set of standard transformations in the
   :mod:`ffcv.transforms` module

@@ -48,7 +48,7 @@ jpeg_quality, write_mode):
     writer = DatasetWriter(len(my_dataset), write_path, {
         'image': RGBImageField(write_mode=write_mode,
                                max_resolution=max_resolution,
-                               proportion=0.25,
+                               compress_probability=0.,
                                jpeg_quality=jpeg_quality),
         'label': IntField(),
     })

@@ -1,60 +1,85 @@
 Working with Image Data in FFCV
 ===============================
 
-Images is often responsible for the majority of resources consumed by dataset
-(storage and or compute). To cater to the specific needs of each project and hardware,
-FFCV offers a wide range of options to control the storage and retrieval of images.
+Images can often be responsible for the majority of resources (storage and/or
+compute) consumed by computer vision datasets.
+FFCV offers a wide range of options to control the storage and retrieval of
+images, allowing the user to cater to the specific needs of each project and
+hardware configuration. 
 
+.. note::
+  
+  This page is specifically about the options and API for writing and reading
+  image data with FFCV---for information about how to choose these options based
+  on your task and systems specifications, the :ref:`Benchmarks` page might be
+  more useful.
 
-Storage settings
-#################
+Writing image datasets
+""""""""""""""""""""""
 
-In most machine learning datsets, images are stored compressed using ``JPEG``.
-While this is very space efficient, decoding ``JPEG`` images requires
-significant resources and is usually the bottleneck. Given access to fast
+In most machine learning datsets, images are compressed using ``JPEG`` then
+stored. While this scheme is very space-efficient, decoding ``JPEG`` images
+requires 
+significant resources and is usually the bottleneck for loading speed. 
+Given access to fast
 storage (RAM, SSD) in sufficient quantities, other alternatives might be
-preferable (see Benchmarks).
+preferable (see :ref:`Benchmarks` for more details). 
 
-:class:`SimpleRGBImageDecoder` expose the parameter ``write_mode`` which can
-take the following values.
+For the rest of this guide, we'll assume you've aleady read 
+:ref:`Writing a dataset to FFCV format`, so you're familiar with the
+:class:`ffcv.fields.Field` classes as well as the
+:class:`ffcv.writer.DatasetWriter`. 
 
-- ``jpg``: All the images in the dataset will be stored in ``JPEG``. **Note:**
-  ``JPEG`` is a lossy file format. The images read from the data loader might
-  be slightly different from the ones passed to the :class:`DatasetWriter`
+Images are supported in FFCV via the :class:`ffcv.field.RGBImageField` class.
+The first initialization parameter of the :class:`~ffcv.fields.RGBImageField` is
+the ``write_mode`` argument, which specifies the format with which to write the
+dataset, and can take the following values:
+
+- ``jpg``: All the images in the dataset will be stored in JPEG (compressed)
+  format. 
+
+  .. warning::
+
+    JPEG is a lossy file format. The images read from the data loader might
+    be slightly different from the ones passed to the :class:`~ffcv.writer.DatasetWriter`
+
 - ``raw``: All images are stored uncompressed. This dramatically reduces CPU
-  usage but will require more storage. Given enough `RAM` to cache the entirety
+  usage at loading time, but will also require more storage. 
+  Given enough `RAM` to cache the entirety
   of the dataset, this will usually yield the best performance.
 - ``proportion``: This will generate a hybrid dataset with some ``JPEG`` and
   ``raw`` images. An image will be compressed with probability
   ``compress_probability``. This option is mostly useful for users who wish to
   achieve storage/speed trade-offs in between ``jpg`` and ``raw``.
 - ``smart``: Similar to ``proportion`` except that an image will be compressed
-  if if its ``raw`` representation is more than ``smart_threshold`` times
-  bigger than it would using ``jpg``. This option is suited for dataset with
-  large varation in image sizes as it ensure that couple outliers do not
-  significantly impact the total size.
+  if if its ``raw`` representation has area (H x W) more than than
+  ``smart_threshold``. This option is suited for datasets with
+  large varation in image sizes, as it will ensure that a few large outliers do
+  not significantly impact the total dataset size or loading speed.
 
-:class:`DatasetWriter` also supports an extra argument `jpeg_quality` which
-selects the image quality for images that are stored using ``jpeg``. This
-applies to all ``write_mode`` other than ``raw``. It's important to stress
-that on top of reducing the size of the file generated, lower image quality also
-makes data loading faster.
+Next, :class:`~ffcv.writer.DatasetWriter` supports a ``jpeg_quality`` argument which
+selects the image quality for images that are JPEG-compressed (this
+applies to all values ``write_mode`` other than ``raw``). Reducing JPEG quality
+will both reduce the size of the file generated and make data loading faster.
 
+Datasets like `ImageNet <http://image-net.org>`_ contain images of various sizes.
+For many applications, storing full-sized images is unnecessary, and it may be
+benficial to reize the largest images.
+The ``max_resolution`` argument in the initializer of
+:class:`~ffcv.writer.DatasetWriter` lets you pick an image side length threshold
+for which all larger images are resized (while preseving their aspect ratio).
 
-Datasets like imagenet contain images of various sizes. Depending on the model or
-data augmentation pipeline used, it might be benficial to reize he largest images.
-:class:`DatasetWriter` let you pick the maximum resolution. All images above above
-that threshold will be resized (while preseving their aspect ratio).
-
+The following code block provides an example of a
+:class:`~ffcv.writer.DatasetWriter` for image data:
 
 .. code-block:: python
 
     writer = DatasetWriter(num_samples, 'my_file.beton', {
             # Roughly 50% of the images will be stored in raw and the other in jpeg
             'image': SimpleRGBImageDecoder(
-                proportion',
-                compress_probability=0.5,
-                max_resolution=(256, 256),
+                write_mode='proportion', # Randomly compress
+                compress_probability=0.25, # Compress a random 1/4 of the dataset 
+                max_resolution=(256, 256), # Resize anything above 256 to 256
                 jpeg_quality=50  # Use 50% quality when compressing an image using JPG
             ),
             'label': IntField()
