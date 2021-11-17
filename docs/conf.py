@@ -45,6 +45,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
 autodoc_mock_imports = ['torch', 'torchvision', 'cv2']
+autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
 

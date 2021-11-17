@@ -40,6 +40,14 @@ class BytesDecoder(Operation):
         return decoder
 
 class BytesField(Field):
+    """
+    A subclass of :class:`~ffcv.fields.Field` supporting variable-length byte
+    arrays.
+    
+    Intended for use with data such as text or raw data which may not have a
+    fixed size. Data is written sequentially while saving pointers and read by
+    pointer lookup.
+    """
     def __init__(self):
         pass
 
