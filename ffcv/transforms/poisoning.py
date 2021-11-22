@@ -30,7 +30,7 @@ class Poison(Operation):
         Will clamp the value between these two values (default: (0, 255))
     """
 
-    def __init__(self, mask: np.ndarray, alpha: float,
+    def __init__(self, mask: np.ndarray, alpha: np.ndarray,
                  indices: Sequence[int], clamp: Tuple[int, int] = (0, 255)):
         super().__init__()
         self.mask = mask
@@ -40,9 +40,10 @@ class Poison(Operation):
 
     def generate_code(self) -> Callable:
 
-        mask = self.mask.astype('float') * self.alpha
+        alpha = np.repeat(self.alpha[:, :, None], 3, axis=2)
+        mask = self.mask.astype('float') * alpha
+        print(alpha.shape)
         to_poison = self.indices
-        alpha = self.alpha
         clamp = self.clamp
         my_range = Compiler.get_iterator()
 
