@@ -26,7 +26,7 @@ class BasicDecoder(Operation):
         def decoder(indices, destination, metadata, storage_state):
             for ix, sample_id in enumerate(indices):
                 destination[ix] = metadata[sample_id]
-            return destination
+            return destination[:len(indices)]
 
         return decoder
         
