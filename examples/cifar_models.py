@@ -4,8 +4,17 @@ import torch.nn.functional as F
 import sys
 ch = torch
 
-sys.path.append("/data/theory/robustopt/andrew/torchskeleton")
-import skeleton
+class Mul(torch.nn.Module):
+    def __init__(self, weight):
+       super(Mul, self).__init__()
+       self.weight = weight
+
+    def forward(self, x):
+       return x * self.weight
+
+class Flatten(torch.nn.Module):
+    def forward(self, x):
+       return x.view(x.size(0), -1)
 
 def conv_bn(channels_in, channels_out, kernel_size=3, stride=1, padding=1,
             groups=1, bn=True, activation=True, bn_weight_init=1.,
@@ -102,9 +111,9 @@ def build_network(num_class=10, w=1):
         conv_bn(256*w, 128*w, kernel_size=3, stride=1, padding=0),
 
         torch.nn.AdaptiveMaxPool2d((1, 1)),
-        skeleton.nn.Flatten(),
+        Flatten(),
         torch.nn.Linear(128*w, num_class, bias=False),
-        skeleton.nn.Mul(0.2)
+        Mul(0.2)
     )
 
 models = {
