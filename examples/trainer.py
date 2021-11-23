@@ -112,7 +112,7 @@ class Trainer():
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(
             self.optimizer, schedule.__getitem__)
-        self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+        self.loss = ch.nn.CrossEntropyLoss()
 
     def train_loop(self):
         model = self.model
