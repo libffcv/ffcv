@@ -42,7 +42,6 @@ class Poison(Operation):
 
         alpha = np.repeat(self.alpha[:, :, None], 3, axis=2)
         mask = self.mask.astype('float') * alpha
-        print(alpha.shape)
         to_poison = self.indices
         clamp = self.clamp
         my_range = Compiler.get_iterator()
