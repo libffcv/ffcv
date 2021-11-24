@@ -31,7 +31,7 @@ class Poison(Operation):
     """
 
     def __init__(self, mask: np.ndarray, alpha: np.ndarray,
-                 indices: Sequence[int], clamp: Tuple[int, int] = (0, 255)):
+                 indices, clamp = (0, 255)):
         super().__init__()
         self.mask = mask
         self.indices = np.sort(indices)
@@ -52,7 +52,7 @@ class Poison(Operation):
                 # We check if the index is in the list of indices
                 # to poison
                 position = np.searchsorted(to_poison, sample_ix)
-                if to_poison[position] == sample_ix:
+                if position < len(to_poison) and to_poison[position] == sample_ix:
                     temp = temp_array[i]
                     temp[:] = images[i]
                     temp *= 1 - alpha

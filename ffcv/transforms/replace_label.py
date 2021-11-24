@@ -26,7 +26,7 @@ class ReplaceLabel(Operation):
         The new label to assign
     """
 
-    def __init__(self, indices: Sequence[int], new_label: int):
+    def __init__(self, indices, new_label: int):
         super().__init__()
         self.indices = np.sort(indices)
         self.new_label = new_label
@@ -41,7 +41,7 @@ class ReplaceLabel(Operation):
             for i in my_range(labels.shape[0]):
                 sample_ix = indices[i]
                 position = np.searchsorted(to_change, sample_ix)
-                if to_change[position] == sample_ix:
+                if position < len(to_change) and to_change[position] == sample_ix:
                     labels[i] = new_label
             return labels
 
