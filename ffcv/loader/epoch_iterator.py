@@ -106,6 +106,9 @@ class EpochIterator(Thread):
         # We wait for the copy to be done
         return result
 
+    def __iter__(self):
+        return self
+
     def close(self):
         self.terminate_event.set()
         if not self.closed:
