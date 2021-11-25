@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Optional, Sequence, Tuple, Union
 from dataclasses import dataclass
 
 import numpy as np
@@ -10,3 +10,6 @@ class AllocationQuery:
     shape: Tuple[int, ...]
     dtype: Union[np.dtype, ch.dtype]
     device: Optional[ch.device] = None
+
+
+Allocation = Union[AllocationQuery, Sequence[AllocationQuery]]

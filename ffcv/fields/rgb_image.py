@@ -128,7 +128,7 @@ instead."""
                 else:
                     my_memcpy(image_data, destination[dst_ix])
 
-            return destination
+            return destination[:len(batch_indices)]
 
         decode.is_parallel = True
         return decode
@@ -142,15 +142,18 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
         heights = self.metadata['height']
-        self.max_width = widths.max()
-        self.max_height = heights.max()
+        # We convert to uint64 to avoid overflows
+        self.max_width = np.uint64(widths.max())
+        self.max_height = np.uint64(heights.max())
         output_shape = (self.output_size[0], self.output_size[1], 3)
         my_dtype = np.dtype('<u1')
 
         return (
             replace(previous_state, jit_mode=True,
                     shape=output_shape, dtype=my_dtype),
-            AllocationQuery(output_shape, my_dtype)
+            (AllocationQuery(output_shape, my_dtype),
+            AllocationQuery((self.max_height * self.max_width * np.uint64(3),), my_dtype),
+            )
         )
 
     def generate_code(self) -> Callable:
@@ -163,8 +166,6 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         resize_crop_c = Compiler.compile(resize_crop)
         get_crop_c = Compiler.compile(self.get_crop_generator)
 
-        temp_buffer_shape = (self.max_height, self.max_width, 3)
-
         scale = self.scale
         ratio = self.ratio
         if isinstance(scale, tuple):
@@ -172,7 +173,8 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         if isinstance(ratio, tuple):
             ratio = np.array(ratio)
 
-        def decode(batch_indices, destination, metadata, storage_state):
+        def decode(batch_indices, my_storage, metadata, storage_state):
+            destination, temp_storage = my_storage
             for dst_ix in my_range(len(batch_indices)):
                 source_ix = batch_indices[dst_ix]
                 field = metadata[source_ix]
@@ -181,7 +183,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 width = np.uint32(field['width'])
 
                 if field['mode'] == jpg:
-                    temp_buffer = np.zeros(temp_buffer_shape, dtype=('<u1'))
+                    temp_buffer = temp_storage[dst_ix]
                     imdecode_c(image_data, temp_buffer,
                                height, width, height, width, 0, 0, 1, 1, False, False)
                     selected_size = 3 * height * width
@@ -196,14 +198,14 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 resize_crop_c(temp_buffer, i, i + h, j, j + w,
                               destination[dst_ix])
 
-            return destination
+            return destination[:len(batch_indices)]
         decode.is_parallel = True
         return decode
 
     @property
     @abstractmethod
     def get_crop_generator():
-        raise NotImplemented()
+        raise NotImplementedError
 
 
 class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
@@ -232,14 +234,38 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 
 
 class RGBImageField(Field):
-    def __init__(self, write_mode='raw', smart_factor: float = None,
-                 max_resolution: int = None, smart_threshold: int = None,
-                 jpeg_quality: int = 90) -> None:
+    """
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    values.
+
+    Parameters
+    ----------
+    write_mode : str, optional
+        How to write the image data to the dataset file. Should be either 'raw'
+        (``uint8`` pixel values), 'jpg' (compress to JPEG format), 'smart'
+        (decide between saving pixel values and JPEG compressing based on image
+        size), and 'proportion' (JPEG compress a random subset of the data with
+        size specified by the ``compress_probability`` argument). By default 'raw'.
+    max_resolution : int, optional
+        If specified, will resize images to have maximum side length equal to
+        this value before saving, by default None
+    smart_threshold : int, optional
+        [description], by default None
+    jpeg_quality : int, optional
+        The quality parameter for JPEG encoding (ignored for
+        ``write_mode='raw'``), by default 90
+    compress_probability : float, optional
+        Ignored unless ``write_mode='proportion'``; in the latter case it is the
+        probability with which image is JPEG-compressed, by default 0.5
+    """
+    def __init__(self, write_mode='raw', max_resolution: int = None, 
+                 smart_threshold: int = None, jpeg_quality: int = 90, 
+                 compress_probability: float = 0.5) -> None:
         self.write_mode = write_mode
-        self.smart_factor = smart_factor
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
         self.jpeg_quality = jpeg_quality
+        self.proportion = compress_probability
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -283,12 +309,15 @@ class RGBImageField(Field):
         if write_mode == 'smart':
             as_jpg = encode_jpeg(image, self.jpeg_quality)
             write_mode = 'raw'
-            if self.smart_factor is not None:
-                if as_jpg.nbytes * self.smart_factor <= image.nbytes:
-                    write_mode = 'jpg'
             if self.smart_threshold is not None:
                 if image.nbytes > self.smart_threshold:
                     write_mode = 'jpg'
+        elif write_mode == 'proportion':
+            if np.random.rand() < self.proportion:
+                write_mode = 'raw'
+            else:
+                write_mode = 'jpg'
+
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
