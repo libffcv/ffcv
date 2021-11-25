@@ -91,10 +91,11 @@ class Loader:
         self.distributed: bool = distributed
         self.code_per_stage = None
         self.recompile = recompile
-        Compiler.set_num_threads(self.num_workers)
 
         if self.num_workers < 1:
             self.num_workers = cpu_count()
+
+        Compiler.set_num_threads(self.num_workers)
 
         if indices is None:
             self.indices = np.arange(self.reader.num_samples, dtype='uint64')
@@ -204,7 +205,7 @@ class Loader:
         else:
             return int(np.ceil(len(self.indices) / self.batch_size))
 
-    def generate_function_call(self, pipeline_name, op_id):
+    def generate_function_call(self, pipeline_name, op_id, needs_indices):
         p_ix = self.field_name_to_f_ix[pipeline_name]
         pipeline_identifier = f'code_{pipeline_name}_{op_id}'
         memory_identifier = f'memory_{pipeline_name}_{op_id}'
@@ -228,6 +229,10 @@ class Loader:
                               slice=ast.Index(value=ast.Constant(value=f'f{p_ix}', kind=None)), ctx=ast.Load()),
                 ast.Name(id='storage_state', ctx=ast.Load()),
             ])
+        if needs_indices:
+            tree.value.args.extend([
+                ast.Name(id='batch_indices', ctx=ast.Load()),
+            ])
         return tree
 
     def generate_stage_code(self, stage, stage_ix, functions):
@@ -240,9 +245,9 @@ def {fun_name}():
         function_calls = []
         memory_banks = []
         memory_banks_id = []
-        for p_ix, pipeline_name, op_id in stage:
+        for p_ix, pipeline_name, op_id, needs_indices in stage:
             function_calls.append(self.generate_function_call(pipeline_name,
-                                                              op_id))
+                                                              op_id, needs_indices))
             arg = ast.arg(arg=f'memory_{pipeline_name}_{op_id}')
             memory_banks.append(arg)
             memory_banks_id.append((pipeline_name, op_id))
@@ -294,10 +299,15 @@ def {fun_name}():
                     stage += 1
                 for op in block_content:
                     ops_code = p.compiled_ops[op]
+
+                    needs_indices = False
+                    if hasattr(ops_code, 'with_indices'):
+                        needs_indices = ops_code.with_indices
+
                     if stage % 2 == 0:
                         ops_code = Compiler.compile(ops_code)
                     compiled_functions[f'code_{p_id}_{op}'] = ops_code
-                    schedule[stage].append((p_ix, p_id, op))
+                    schedule[stage].append((p_ix, p_id, op, needs_indices))
                 stage += 1
 
         memory_bank_keys_per_stage = {}

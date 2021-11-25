@@ -8,7 +8,8 @@ from ..pipeline.operation import Operation
 ARG_TYPE = np.dtype([('', '<u1', 1024)])
 
 class Field(ABC):
-    """Abstract Base Class for implementing fields (e.g., images, integers).
+    """
+    Abstract Base Class for implementing fields (e.g., images, integers).
 
     Each dataset entry is comprised of one or more fields (for example, standard
     object detection datasets may have one field for images, and one for
@@ -16,7 +17,7 @@ class Field(ABC):
     function that determine how they will be written and read from the dataset file,
     respectively.
 
-    See `here`<TODO>_ for information on how to implement a subclass of Field.
+    See :ref:`here <TODO>` for information on how to implement a subclass of Field.
     """
     @property
     @abstractmethod
