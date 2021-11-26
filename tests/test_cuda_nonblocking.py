@@ -31,13 +31,13 @@ class DummyArrayDataset(Dataset):
 
 def run_experiment_cuda(weight, loader, sync=False):
     total = 0.
+    X = ch.empty(2048, 50_000, device=weight.device)
     for X_bool, _, __ in tqdm(loader):
-        if sync:
-            ch.cuda.synchronize()
-            time.sleep(1)
-        total += X_bool.float() @ weight
+        if sync: ch.cuda.synchronize()
+        X.copy_(X_bool)
+        total += X @ weight
 
-    return total
+    return total.sum(0)
 
 def run_cuda(weight, sync):
     n_samples, shape = (2048 * 10, (50000,))
@@ -69,6 +69,17 @@ def run_cuda(weight, sync):
         
         return run_experiment_cuda(weight, loader, sync)
 
-weight = ch.randn(50_000, 50_000).cuda()
-for t in [False, True, True]:
-    print(run_cuda(weight, t))
+def test_cuda():
+    weight = ch.randn(50_000, 50_000).cuda()
+    async_1 = run_cuda(weight, False)
+    sync_1 = run_cuda(weight, True)
+    sync_2 = run_cuda(weight, True)
+    print(async_1)
+    print(sync_1)
+    print(sync_2)
+    print(ch.abs(sync_1 - sync_2).max())
+    print(ch.abs(sync_1 - async_1).max())
+    assert ch.abs(sync_1 - sync_2).max().cpu().item() < 10., 'Sync-sync mismatch'
+    assert ch.abs(async_1 - sync_1).max().cpu().item() < 10., 'Async-sync mismatch'
+
+# test_cuda()
