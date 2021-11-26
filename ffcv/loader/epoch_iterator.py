@@ -83,9 +83,9 @@ class EpochIterator(Thread):
         self.memory_context.start_batch(b_ix)
         args = [batch_indices]
         stream = self.cuda_streams[batch_slot]
-        stream.synchronize()
         first_stage = False
         with ch.cuda.stream(stream):
+            stream.synchronize()
             for stage, banks in self.memory_bank_per_stage.items():
                 for bank in banks:
                     if bank is not None:
@@ -111,6 +111,7 @@ class EpochIterator(Thread):
             raise StopIteration()
         slot, result = result
         stream = self.cuda_streams[slot]
+        # We wait for the copy to be done
         ch.cuda.current_stream().wait_stream(stream)
         return result
 
