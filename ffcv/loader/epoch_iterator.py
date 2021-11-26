@@ -110,7 +110,8 @@ class EpochIterator(Thread):
             self.close()
             raise StopIteration()
         slot, result = result
-        # We wait for the copy to be done
+        stream = self.cuda_streams[slot]
+        ch.cuda.current_stream().wait_stream(stream)
         return result
 
     def __iter__(self):
