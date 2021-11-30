@@ -12,11 +12,30 @@ from .fields.base import Field
 from .memory_allocator import MemoryAllocator
 from .types import (TYPE_ID_HANDLER, get_metadata_type, HeaderType,
                     FieldDescType, CURRENT_VERSION, ALLOC_TABLE_TYPE)
+                    
 
 MIN_PAGE_SIZE = 1 << 21  # 2MiB, which is the most common HugePage size
 
+def handle_sample(sample, dest_ix, field_name, metadata, allocator):
+    for i in range(2):
+        try:
+            allocator.set_current_sample(dest_ix)
+            # We extract the sample in question from the dataset
+            # We write each field individually to the metadata region
+            for field_name, field, field_value in zip(field_names, fields.values(), sample):
+                destination = metadata[field_name][dest_ix: dest_ix + 1]
+                field.encode(destination, field_value, allocator.malloc)
+            # We managed to write all the data without reaching
+            # the end of the page so we stop retrying
+            break
+        # If we couldn't fit this sample in the previous page we retry once from a fresh page
+        except MemoryError:
+            # We raise the error if it happens on the second try
+            if i == 1:
+                raise
 
-def worker_job(input_queue, metadata_sm, metadata_type, fields,
+
+def worker_job_indexed_dataset(input_queue, metadata_sm, metadata_type, fields,
                allocator, done_number, dataset, allocations_queue):
 
     metadata = np.frombuffer(metadata_sm.buf, dtype=metadata_type)
@@ -35,23 +54,8 @@ def worker_job(input_queue, metadata_sm, metadata_type, fields,
             # For each sample in the chunk
             for dest_ix, source_ix in chunk:
                 # We should only have to retry at least one
-                for i in range(2):
-                    try:
-                        allocator.set_current_sample(dest_ix)
-                        # We extract the sample in question from the dataset
-                        sample = dataset[source_ix]
-                        # We write each field individually to the metadata region
-                        for field_name, field, field_value in zip(field_names, fields.values(), sample):
-                            destination = metadata[field_name][dest_ix: dest_ix + 1]
-                            field.encode(destination, field_value, allocator.malloc)
-                        # We managed to write all the data without reaching
-                        # the end of the page so we stop retrying
-                        break
-                    # If we couldn't fit this sample in the previous page we retry once from a fresh page
-                    except MemoryError:
-                        # We raise the error if it happens on the second try
-                        if i == 1:
-                            raise
+                sample = dataset[source_ix]
+                handle_sample(sample, dest_ix, field_name, metadata, allocator)
 
             # We warn the main thread of our progress
             with done_number.get_lock():
@@ -126,6 +130,7 @@ class DatasetWriter():
                                                       size=total_metadata_size)
 
         self.data_region_start = self.metadata_start + total_metadata_size
+        self.allocation_list = []
 
 
 
@@ -176,7 +181,7 @@ class DatasetWriter():
                        dataset, allocations_queue)
 
         # Create the workers
-        processes = [Process(target=worker_job, args=worker_args)
+        processes = [Process(target=worker_job_indexed_dataset, args=worker_args)
                      for _ in range(num_workers)]
         # start the workers
         for p in processes: p.start()
@@ -195,15 +200,16 @@ class DatasetWriter():
         progress.close()
 
         # Wait for all the workers to be done and get their allocations
-        allocations = [allocations_queue.get() for p in processes]
+        self.allocation_list.extend([allocations_queue.get() for p in processes])
 
+    def finalize(self) :
+        allocations = self.allocation_list
         # Writing metadata
         with open(self.fname, 'r+b') as fp:
             fp.seek(self.metadata_start)
             fp.write(self.metadata_sm.buf)
 
             # We go at the end of the file
-            fp.seek(0, SEEK_END)
             # Look at the current address
             allocation_table_location = fp.tell()
             # Retrieve all the allocations from the workers
@@ -223,6 +229,8 @@ class DatasetWriter():
             fp.write(self.header.tobytes())
 
 
+
     def __exit__(self, exc_type, exc_val, exc_tb):
+        self.finalize()
         self.metadata_sm.close()
         self.metadata_sm.unlink()
