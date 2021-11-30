@@ -240,7 +240,9 @@ class DatasetWriter():
         progress.close()
 
         # Wait for all the workers to be done and get their allocations
-        allocation_list.extend([allocations_queue.get() for p in processes])
+        for p in processes:
+            content = allocations_queue.get()
+            allocation_list.extend(content)
 
         self.finalize(allocation_list)
         self.metadata_sm.close()
@@ -286,6 +288,8 @@ class DatasetWriter():
             fp.write(self.metadata_sm.buf)
 
             # We go at the end of the file
+            fp.seek(0, SEEK_END)
+
             # Look at the current address
             allocation_table_location = fp.tell()
             # Retrieve all the allocations from the workers
@@ -296,8 +300,8 @@ class DatasetWriter():
                 ])
             except:
                 allocation_table = np.array([]).view(ALLOC_TABLE_TYPE)
-            # print(allocation_table)
             fp.write(allocation_table.tobytes())
+
             self.header['alloc_table_ptr'] = allocation_table_location
             # We go at the start of the file
             fp.seek(0)

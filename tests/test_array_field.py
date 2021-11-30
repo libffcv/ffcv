@@ -47,13 +47,12 @@ def run_test(n_samples, shape):
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyActivationsDataset(n_samples, shape)
-        writer = DatasetWriter(n_samples, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'activations': NDArrayField(np.dtype('<f4'), shape)
-        })
+        }, num_workers=3)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=3)
+        writer.from_indexed_dataset(dataset)
 
         loader = Loader(name, batch_size=3, num_workers=5)
         for ixes, activations in loader:
@@ -71,15 +70,15 @@ def test_multi_fields():
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = TripleDummyActivationsDataset(n_samples, shape)
-        writer = DatasetWriter(n_samples, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'activations': NDArrayField(np.dtype('<f4'), shape),
             'activations2': NDArrayField(np.dtype('<f4'), shape),
             'activations3': NDArrayField(np.dtype('<f4'), shape)
-        })
+        }, num_workers=1)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=1)
+
+        writer.from_indexed_dataset(dataset)
 
         loader = Loader(name, batch_size=3, num_workers=5)
         page_size_l2 = int(np.log2(loader.reader.page_size))
