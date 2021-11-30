@@ -8,3 +8,4 @@ pandas
 assertpy
 tqdm
 psutil
+webdataset
