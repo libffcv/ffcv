@@ -254,7 +254,7 @@ class DatasetWriter():
         # If the user didn't specify an order we just add samples
         # sequentially
         if indices is None:
-            indices = np.arange(self.num_samples)
+            indices = np.arange(len(dataset))
 
         if shuffle_indices:
             np.random.shuffle(indices)
