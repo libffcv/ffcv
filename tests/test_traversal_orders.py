@@ -51,13 +51,12 @@ def prep_and_run_test(num_workers, order):
             name = path.join(folder, 'dataset.beton')
             sync_file = path.join(folder, 'share')
             dataset = DummyDataset(length)
-            writer = DatasetWriter(length, name, {
+            writer = DatasetWriter(name, {
                 'index': IntField(),
                 'value': BytesField()
             })
 
-            with writer:
-                writer.write_pytorch_dataset(dataset)
+            writer.from_indexed_dataset(dataset)
                 
             args = (num_workers, name, order, sync_file, folder)
             if num_workers > 1:
