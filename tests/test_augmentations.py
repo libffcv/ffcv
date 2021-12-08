@@ -30,12 +30,18 @@ def run_test(length, pipeline, compile):
 
         Compiler.set_enabled(True)
 
-        loader = Loader(name, batch_size=5, num_workers=2, pipelines={
+        loader = Loader(name, batch_size=7, num_workers=2, pipelines={
             'image': pipeline,
             'label': [IntDecoder(), ToTensor(), Squeeze()]
-        })
-        for index, images in loader:
-            pass
+        },
+        drop_last=False)
+        tot_indices = 0
+        tot_images = 0
+        for images, label in loader:
+            tot_indices += label.shape[0]
+            tot_images += images.shape[0]
+        assert_that(tot_indices).is_equal_to(len(my_dataset))
+        assert_that(tot_images).is_equal_to(len(my_dataset))
 
 def test_cutout():
     run_test(100, [
@@ -50,13 +56,15 @@ def test_cutout():
         ToTensor()
     ], False)
 
+
 def test_poison():
     mask = np.zeros((32, 32, 3))
     # Red sqaure
     mask[:5, :5, 0] = 1
+    alpha = np.ones((32, 32))
     run_test(100, [
         SimpleRGBImageDecoder(),
-        Poison(mask, 1, [0, 1, 2]),
+        Poison(mask, alpha, [0, 1, 2]),
         ToTensor()
     ], False)
 
