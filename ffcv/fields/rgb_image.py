@@ -128,7 +128,7 @@ instead."""
                 else:
                     my_memcpy(image_data, destination[dst_ix])
 
-            return destination
+            return destination[:len(batch_indices)]
 
         decode.is_parallel = True
         return decode
@@ -198,7 +198,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 resize_crop_c(temp_buffer, i, i + h, j, j + w,
                               destination[dst_ix])
 
-            return destination
+            return destination[:len(batch_indices)]
         decode.is_parallel = True
         return decode
 
