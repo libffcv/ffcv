@@ -32,13 +32,12 @@ def create_and_validate(length, size):
 
     with NamedTemporaryFile() as handle:
         name = handle.name
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': BytesField()
-        })
+        }, num_workers=2)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
+        writer.from_indexed_dataset(dataset, chunksize=5)
 
         reader = Reader(name)
 
