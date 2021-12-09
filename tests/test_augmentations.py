@@ -20,14 +20,13 @@ def run_test(length, pipeline, compile):
 
     with NamedTemporaryFile() as handle:
         name = handle.name
-        writer = DatasetWriter(len(my_dataset), name, {
+        writer = DatasetWriter(name, {
             'image': RGBImageField(write_mode='smart', 
                                 max_resolution=32),
             'label': IntField(),
-        })
+        }, num_workers=2)
 
-        with writer:
-            writer.write_pytorch_dataset(my_dataset, num_workers=2, chunksize=10)
+        writer.from_indexed_dataset(my_dataset, chunksize=10)
 
         Compiler.set_enabled(True)
 
