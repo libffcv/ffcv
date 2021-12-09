@@ -97,4 +97,3 @@ if __name__ == "__main__":
     config.summary()
     trainer = CIFARTrainer(config)
     trainer.train()
-    trainer.log_val()
