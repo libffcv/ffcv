@@ -52,8 +52,6 @@ class Reader:
 
     def read_allocation_table(self):
         offset = self.header['alloc_table_ptr']
-        alloc_table = np.fromfile(self._fname, dtype='<u8',
-                                  offset=offset)
         alloc_table = np.fromfile(self._fname, dtype=ALLOC_TABLE_TYPE,
                                   offset=offset)
         alloc_table.setflags(write=False)
