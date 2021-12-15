@@ -39,13 +39,12 @@ def create_and_validate(length, mode='raw', compile=False):
 
     with NamedTemporaryFile() as handle:
         name = handle.name
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': RGBImageField(write_mode=mode)
-        })
+        }, num_workers=2)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
+        writer.from_indexed_dataset(dataset, chunksize=5)
             
         reader = Reader(name)
         manager = OSCacheManager(reader)

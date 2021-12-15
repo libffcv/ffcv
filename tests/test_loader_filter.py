@@ -43,13 +43,12 @@ def test_basic_simple():
     with NamedTemporaryFile() as handle:
         file_name = handle.name
         dataset = DummyDataset(length)
-        writer = DatasetWriter(length, file_name, {
+        writer = DatasetWriter(file_name, {
             'index': IntField(),
             'value': FloatField()
         })
 
-        with writer:
-            writer.write_pytorch_dataset(dataset)
+        writer.from_indexed_dataset(dataset)
 
         Compiler.set_enabled(True)
 

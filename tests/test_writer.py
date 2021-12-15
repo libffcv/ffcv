@@ -59,13 +59,13 @@ def test_write_shuffle():
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyDataset(length)
-        writer = DatasetWriter(length, name, {
+
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': FloatField()
         })
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, shuffle_indices=True)
+        writer.from_indexed_dataset(dataset, shuffle_indices=True)
 
         validate_simple_dataset(name, length, shuffled=True)
 
@@ -74,13 +74,12 @@ def test_write_simple():
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyDataset(length)
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': FloatField()
         })
 
-        with writer:
-            writer.write_pytorch_dataset(dataset)
+        writer.from_indexed_dataset(dataset)
 
         validate_simple_dataset(name, length)
 
@@ -89,13 +88,12 @@ def test_multiple_workers():
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyDataset(length)
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': FloatField()
-        })
+        }, num_workers=30)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=30, chunksize=10000)
+        writer.from_indexed_dataset(dataset, chunksize=10000)
 
         validate_simple_dataset(name, length)
 
@@ -105,13 +103,12 @@ def test_super_long():
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyDataset(length)
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': FloatField()
-        })
+        }, num_workers=30)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=30, chunksize=10000)
+        writer.from_indexed_dataset(dataset, chunksize=10000)
 
         validate_simple_dataset(name, length)
 
@@ -120,10 +117,9 @@ def test_small_chunks_multiple_workers():
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyDatasetWithData(length)
-        writer = DatasetWriter(length, name, {
+        writer = DatasetWriter(name, {
             'index': IntField(),
             'value': BytesField()
-        })
+        }, num_workers=30)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=30, chunksize=1)
+        writer.from_indexed_dataset(dataset, chunksize=1)
