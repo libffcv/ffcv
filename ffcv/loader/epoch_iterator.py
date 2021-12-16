@@ -3,9 +3,12 @@ from threading import Thread, Event
 from queue import Queue, Full
 from typing import Sequence, TYPE_CHECKING
 
+import numba as nb
+
 import torch as ch
 
 from ..utils import chunks
+from ..pipeline.compiler import Compiler
 
 if TYPE_CHECKING:
     from .loader import Loader
@@ -53,6 +56,7 @@ class EpochIterator(Thread):
     def run(self):
         try:
             b_ix = 0
+            Compiler.set_num_threads(self.loader.num_workers)
             while True:
                 ixes = next(self.iter_ixes)
                 slot = self.current_batch_slot
@@ -79,13 +83,16 @@ class EpochIterator(Thread):
         self.memory_context.start_batch(b_ix)
         args = [batch_indices]
         stream = self.cuda_streams[batch_slot]
-        stream.synchronize()
         first_stage = False
         with ch.cuda.stream(stream):
+            stream.synchronize()
             for stage, banks in self.memory_bank_per_stage.items():
                 for bank in banks:
                     if bank is not None:
-                        bank = bank[batch_slot]
+                        if isinstance(bank, tuple):
+                            bank = tuple(x[batch_slot] for x in bank)
+                        else:
+                            bank = bank[batch_slot]
                     args.append(bank)
                 args.append(self.metadata)
                 args.append(self.storage_state)
@@ -103,8 +110,13 @@ class EpochIterator(Thread):
             self.close()
             raise StopIteration()
         slot, result = result
+        stream = self.cuda_streams[slot]
         # We wait for the copy to be done
+        ch.cuda.current_stream().wait_stream(stream)
         return result
+
+    def __iter__(self):
+        return self
 
     def close(self):
         self.terminate_event.set()

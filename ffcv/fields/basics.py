@@ -26,7 +26,7 @@ class BasicDecoder(Operation):
         def decoder(indices, destination, metadata, storage_state):
             for ix, sample_id in enumerate(indices):
                 destination[ix] = metadata[sample_id]
-            return destination
+            return destination[:len(indices)]
 
         return decoder
         
@@ -63,7 +63,7 @@ class FloatField(Field):
 
 class IntField(Field):
     """
-    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) integer
     values.
     """
     @property

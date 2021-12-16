@@ -57,9 +57,16 @@ below:
     from ffcv.fields import NDArrayField, FloatField
 
     writer = DatasetWriter(len(dataset), write_path, {
-        'image': NDArrayField(shape=(d,), dtype=np.float32),
+        'covariate': NDArrayField(shape=(d,), dtype=np.float32),
         'label': FloatField(),
     })
+
+.. note:: 
+
+    Starting in Python 3.6, dictionary keys are ordered, and the writer uses
+    this order to match the given fields to the elements returned by the
+    ``__getitem__`` function of the dataset. Make sure to provide
+    the fields in the right order to avoid errors.
 
 Beyond these two, FFCV provides a variety of built-in fields that make most
 datasets easy to convert directly:
@@ -75,8 +82,7 @@ After constructing the writer, the only remaining step is to write the dataset:
 
     with writer:
         writer.write_pytorch_dataset(my_dataset,
-                                     num_workers=num_workers, 
-                                     chunksize=chunk_size)
+                                     num_workers=num_workers)
 
 That's it! You are now ready to `Construct a loader <TODO>`_ for this dataset
 and start training ML models!
