@@ -89,7 +89,7 @@ def main(log_dir, out_file):
 
     # next:
     bslr = [Parameters(batch_size=256 * k, lr=0.1 * k) for k in [4, 8]]
-    axes = [min_ress, end_ramps, max_ress, blurpools, bslr, wds]
+    axes = [min_ress, end_ramps, max_ress, blurpools, bslr, wds, peaks]
 
     out_write = []
     configs = list(itertools.product(*axes))

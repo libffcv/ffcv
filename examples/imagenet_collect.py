@@ -78,7 +78,8 @@ def main(log_dir):
     plot_all(x='relative_time')
 
     for chungus in ['delta', 'training.lr', 'training.weight_decay',
-                    'resolution.max_res', 'resolution.min_res']:
+                    'resolution.max_res', 'resolution.min_res',
+                    'training.lr_peak_epoch']:
         plot_all(x='relative_time', by_col=chungus)
 
     plot_all()
