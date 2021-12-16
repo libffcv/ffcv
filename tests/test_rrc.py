@@ -45,10 +45,9 @@ def create_and_validate(length, decoder, size, mode='raw', compile=False):
             'value': RGBImageField(write_mode=mode)
         }
 
-        writer = DatasetWriter(length, name, fields)
+        writer = DatasetWriter(name, fields, num_workers=2)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
+        writer.from_indexed_dataset(dataset, chunksize=5)
             
         Compiler.set_enabled(compile)
         

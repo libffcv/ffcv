@@ -8,6 +8,8 @@ Welcome to ffcv's documentation!
 
 .. toctree::
    writing_datasets
+   making_dataloaders
+   working_with_images
    benchmarks
    api_reference
    :maxdepth: 2

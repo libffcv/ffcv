@@ -50,11 +50,11 @@ class CIFARTrainer(Trainer):
     @param('data.val_dataset')
     @param('validation.batch_size')
     @param('data.num_workers')
-    @param('validation.crop_size')
-    @param('validation.resolution')
+    # @param('validation.crop_size')
+    # @param('validation.resolution')
     # TODO: remove crop_size and resolution arguments for CIFAR unrolling
-    def create_val_loader(self, val_dataset, batch_size, num_workers, crop_size,
-                          resolution):
+    def create_val_loader(self, val_dataset, batch_size, num_workers):
+        # , crop_size, resolution):
         image_pipeline = [
             SimpleRGBImageDecoder(), 
             ToTensor(), 
@@ -97,4 +97,3 @@ if __name__ == "__main__":
     config.summary()
     trainer = CIFARTrainer(config)
     trainer.train()
-    trainer.log_val()

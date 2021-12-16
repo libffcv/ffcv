@@ -50,10 +50,9 @@ def create_and_validate(length, mode='raw', reversed=False):
                 'index': IntField()
             }
 
-        writer = DatasetWriter(length, name, fields)
+        writer = DatasetWriter(name, fields, num_workers=2)
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=2, chunksize=5)
+        writer.from_indexed_dataset(dataset, chunksize=5)
             
         Compiler.set_enabled(False)
         
@@ -76,14 +75,13 @@ def make_and_read_cifar_subset(length):
 
     with NamedTemporaryFile() as handle:
         name = handle.name
-        writer = DatasetWriter(len(my_dataset), name, {
+        writer = DatasetWriter(name, {
             'image': RGBImageField(write_mode='smart', 
                                 max_resolution=32),
             'label': IntField(),
-        })
+        }, num_workers=2)
 
-        with writer:
-            writer.write_pytorch_dataset(my_dataset, num_workers=2, chunksize=10)
+        writer.from_indexed_dataset(my_dataset, chunksize=10)
 
         Compiler.set_enabled(False)
         

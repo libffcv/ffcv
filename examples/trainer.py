@@ -80,7 +80,6 @@ class Trainer():
             'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).to(self.gpu)
         }
         self.uid = str(uuid4())
-        self.initialize_logger()
 
     @abstractmethod
     def create_train_loader(self, train_dataset, batch_size, num_workers):
@@ -113,7 +112,7 @@ class Trainer():
         schedule = np.interp(schedule, [0, lr_peak_epoch, epochs], [0, 1, 0])
         self.scheduler = optim.lr_scheduler.LambdaLR(
             self.optimizer, schedule.__getitem__)
-        self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+        self.loss = ch.nn.CrossEntropyLoss()
 
     def train_loop(self):
         model = self.model
@@ -199,6 +198,8 @@ class Trainer():
 
     @param('training.epochs')
     def train(self, epochs):
+        print('Started training...')
+        self.initialize_logger()
         for epoch in range(epochs):
             train_loss, train_acc = self.train_loop()
             self.log({
@@ -207,6 +208,11 @@ class Trainer():
                 'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
             })
+        val_loss, val_stats = self.val_loop()
+        self.log({
+            'val_loss': val_loss,
+            **val_stats
+        })
 
 import torch.distributed as dist
 import torch.multiprocessing as mp
