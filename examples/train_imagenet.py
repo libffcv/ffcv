@@ -32,6 +32,13 @@ Section('resolution', 'resolution scheduling').params(
     end_ramp=Param(int, 'when to stop interpolating resolution', default=0)
 )
 
+Section('training', 'training hyper param stuff').params(
+    step_ratio=Param(float, 'learning rate step ratio', default=0.1),
+    step_length=Param(int, 'learning rate step length', default=30)
+    lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or cyclic schedule?',
+                           required=True)
+)
+
 Section('distributed').params(
     world_size=Param(int, 'number gpus', default=1),
     addr=Param(str, 'address', default='localhost'),
@@ -49,14 +56,18 @@ class ImageNetTrainer(Trainer):
         self.setup_schedules()
 
     @param('training.epochs')
+    @param('training.lr_schedule_type')
     @param('training.lr_peak_epoch')
+    @param('training.step_ratio')
+    @param('training.step_length')
     @param('resolution.min_res')
     @param('resolution.max_res')
     @param('resolution.end_ramp')
     @param('training.batch_size')
-    def setup_schedules(self, epochs, lr_peak_epoch, min_res, max_res,
-                        end_ramp, batch_size):
+    def setup_schedules(self, epochs, lr_schedule_type, lr_peak_epoch, step_ratio,
+                        step_length, min_res, max_res, end_ramp, batch_size):
         assert min_res <= max_res
+        assert step_ratio <= 1
 
         def schedule(epoch):
             if end_ramp == 0:
@@ -81,12 +92,21 @@ class ImageNetTrainer(Trainer):
 
         # We now have to make per iteration learning rate schedules, we scale
         # the learning rate linearly with the batch size
-
-        # schedule: from 1 to `epochs` to avoid 0 epoch at 0
-        schedule_xs = np.arange(epochs + 1) + 1  # { 1, 2, ..., epochs }
-        # now interpolate schedule along the ``mountain'' path
-        xs, ys = [0, lr_peak_epoch, epochs + 1], [0, 1, 0]
-        schedule = np.interp(schedule_xs, xs, ys)
+        # Schedules: should be in [0, 1]; they are relatively scaled to the
+        #   overall learning rate set in args.lr
+        if lr_schedule_type == 'cyclic':
+            # schedule: from 1 to `epochs` to avoid 0 epoch at 0
+            schedule_xs = np.arange(epochs + 1) + 1  # { 1, 2, ..., epochs }
+            # now interpolate schedule along the ``mountain'' path
+            xs, ys = [0, lr_peak_epoch, epochs + 1], [0, 1, 0]
+            schedule = np.interp(schedule_xs, xs, ys)
+        elif lr_schedule_type == 'step':
+            schedule = []
+            for this_epoch in range(epochs):
+                plateau_number = this_epoch // step_length
+                lr_modifier = step_ratio**plateau_number
+                schedule.append(lr_modifier)
+            schedule = np.array(schedule)
 
         # we now simulate training to yield per iteration learning rates
         # we train only from the first nonzero epoch lr to the last nonzero
@@ -106,7 +126,7 @@ class ImageNetTrainer(Trainer):
             learning_rates.append(this_epoch_lrs)
 
         learning_rates = np.concatenate(learning_rates, axis=0)
-        self.scheduler = optim.lr_scheduler.LambdaLR(
+        self.scheduler = optim.lr_schedule_typer.LambdaLR(
             self.optimizer, learning_rates.__getitem__
         )
 

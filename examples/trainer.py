@@ -119,7 +119,10 @@ class Trainer():
         model.train()
         losses = []
 
-        for images, target in tqdm(self.train_loader):
+        log_iters = [0, 1, len(self.train_loader) - 1]
+        iterator = tqdm(self.train_loader)
+
+        for ix, (images, target) in enumerate(iterator):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
             self.optimizer.zero_grad(set_to_none=True)
@@ -129,6 +132,19 @@ class Trainer():
                 loss_train = self.loss(output, target)
                 losses.append(loss_train.detach())
                 self.train_accuracy(output, target)
+
+            this_bs = images.shape[0]
+            lr_modifier = self.scheduler.get_lr()
+            group_lrs = []
+            for group_ix, group in enumerate(self.optimizer.param_groups):
+                group_lrs.append(group['lr'])
+
+            this_resolution = images.shape[2:]
+            msg = f'bs={this_bs},lr_ratio={lr_modifier},group_lrs={group_lrs},res={this_resolution}'
+            iterator.set_description(msg)
+
+            if ix in log_iters:
+                print(f'it={ix}', msg)
 
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
