@@ -1,0 +1,70 @@
+import string
+from ctypes import pointer
+from tempfile import NamedTemporaryFile
+from collections import defaultdict
+from assertpy.assertpy import assert_that
+
+from assertpy import assert_that
+import numpy as np
+from torch.utils.data import Dataset
+from ffcv import DatasetWriter
+from ffcv.fields import IntField, JSONField
+from ffcv.fields.bytes import BytesDecoder
+from ffcv.fields.basics import IntDecoder
+from ffcv import Loader
+
+options = list(string.ascii_uppercase + string.digits)
+
+def generate_random_string(low, high):
+    length = np.random.randint(low, high)
+    content = ''.join(np.random.choice(options, size=length))
+    return content
+
+class DummyDictDataset(Dataset):
+
+    def __init__(self, n_samples):
+        self.n_samples = n_samples
+
+    def __len__(self):
+        return self.n_samples
+
+    def __getitem__(self, index):
+        if index >= self.n_samples:
+            raise IndexError()
+        np.random.seed(index)
+        length = np.random.randint(5, 250)
+        content = np.random.randint(0, 256, size=(length,))
+        json_content = {}
+        for i in range(3):
+            json_content[generate_random_string(5, 10)] = generate_random_string(50, 250)
+        return index, json_content
+
+def run_test(n_samples):
+    with NamedTemporaryFile() as handle:
+        name = handle.name
+        dataset = DummyDictDataset(n_samples)
+        writer = DatasetWriter(name, {
+            'index': IntField(),
+            'activations': JSONField()
+        }, num_workers=3)
+
+        writer.from_indexed_dataset(dataset)
+
+        print("Written")
+
+        loader = Loader(name, batch_size=3, num_workers=5,
+                        pipelines={
+                            'activation': [BytesDecoder()],
+                            'index': [IntDecoder()]
+                        }
+        )
+        print("Loader created")
+        for r in loader:
+            print(r)
+
+
+def test_simple_dict():
+    run_test(32)
+    
+if __name__ == '__main__':
+    run_test(32)
