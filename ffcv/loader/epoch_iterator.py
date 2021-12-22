@@ -1,6 +1,7 @@
 from collections import defaultdict
 from threading import Thread, Event
 from queue import Queue, Full
+from contextlib import nullcontext
 from typing import Sequence, TYPE_CHECKING
 
 import numba as nb
@@ -12,6 +13,8 @@ from ..pipeline.compiler import Compiler
 
 if TYPE_CHECKING:
     from .loader import Loader
+    
+IS_CUDA = ch.cuda.is_available()
 
 
 class EpochIterator(Thread):
@@ -34,8 +37,9 @@ class EpochIterator(Thread):
 
         self.memory_bank_per_stage = defaultdict(list)
 
-        self.cuda_streams = [ch.cuda.Stream()
-                             for _ in range(self.loader.batches_ahead + 2)]
+        if IS_CUDA:
+            self.cuda_streams = [ch.cuda.Stream()
+                                 for _ in range(self.loader.batches_ahead + 2)]
 
         # Allocate all the memory
         memory_allocations = {}
@@ -49,7 +53,6 @@ class EpochIterator(Thread):
                 self.memory_bank_per_stage[s_ix].append(
                     memory_allocations[pipeline_name][op_id]
                 )
-
 
         self.start()
 
@@ -82,10 +85,15 @@ class EpochIterator(Thread):
         # print(b_ix, batch_indices)
         self.memory_context.start_batch(b_ix)
         args = [batch_indices]
-        stream = self.cuda_streams[batch_slot]
+        if IS_CUDA:
+            stream = self.cuda_streams[batch_slot]
+            ctx = ch.cuda.stream(stream)
+        else:
+            ctx = nullcontext()
         first_stage = False
-        with ch.cuda.stream(stream):
-            stream.synchronize()
+        with ctx:
+            if IS_CUDA:
+                stream.synchronize()
             for stage, banks in self.memory_bank_per_stage.items():
                 for bank in banks:
                     if bank is not None:
@@ -110,9 +118,10 @@ class EpochIterator(Thread):
             self.close()
             raise StopIteration()
         slot, result = result
-        stream = self.cuda_streams[slot]
-        # We wait for the copy to be done
-        ch.cuda.current_stream().wait_stream(stream)
+        if IS_CUDA:
+            stream = self.cuda_streams[slot]
+            # We wait for the copy to be done
+            ch.cuda.current_stream().wait_stream(stream)
         return result
 
     def __iter__(self):
