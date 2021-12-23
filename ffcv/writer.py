@@ -163,7 +163,7 @@ class DatasetWriter():
             fieldname_max_len = fields_descriptor[0]['name'].shape[0]
 
             for i, (name, field) in enumerate(self.fields.items()):
-                type_id = field_type_to_type_id[type(field)]
+                type_id = field_type_to_type_id.get(type(field), 255)
                 encoded_name = name.encode('ascii')
                 encoded_name = np.frombuffer(encoded_name, dtype='<u1')
                 actual_length = min(fieldname_max_len, len(encoded_name))
