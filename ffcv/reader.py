@@ -6,8 +6,9 @@ from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION,
 
 class Reader:
 
-    def __init__(self, fname):
+    def __init__(self, fname, custom_handlers):
         self._fname = fname
+        self._custom_handlers = custom_handlers
         self.read_header()
         self.read_field_descriptors()
         self.read_metadata()
@@ -39,10 +40,21 @@ class Reader:
         handlers = get_handlers(field_descriptors)
 
         self.field_descriptors = field_descriptors
-        self.metadata_type = get_metadata_type(handlers)
         self.field_names = list(map(decode_null_terminated_string,
                                     self.field_descriptors['name']))
         self.handlers = dict(zip(self.field_names, handlers))
+
+        for field_name, field_desc in zip(self.field_names, self.field_descriptors):
+            if field_name in self._custom_handlers:
+                CustomHandler = self._custom_handlers[field_name]
+                self.handlers[field_name] = CustomHandler.from_binary(field_desc['arguments'])
+        
+        for field_name, handler in self.handlers.items():
+            if handler is None:
+                raise ValueError(f"Must specify a custom_field entry " \
+                                 f"for custom field {field_name}")
+
+        self.metadata_type = get_metadata_type(list(self.handlers.values()))
 
     def read_metadata(self):
         offset = HeaderType.itemsize + self.field_descriptors.nbytes

@@ -39,22 +39,26 @@ FieldDescType = np.dtype([
 
 # Map from type_id to the handler for that kind of data
 TYPE_ID_HANDLER = {
-    0: FloatField,
-    1: IntField,
-    2: RGBImageField,
-    3: BytesField,
-    4: NDArrayField
+    255 : None,
+    0   : FloatField,
+    1   : IntField,
+    2   : RGBImageField,
+    3   : BytesField,
+    4   : NDArrayField
 }
 
 # Parse the fields descriptors from the header of the dataset
 # Return the corresponding handlers
+
 def get_handlers(field_descriptors):
     handlers = []
     for field_descriptor in field_descriptors:
         type_id = field_descriptor['type_id']
         Handler = TYPE_ID_HANDLER[type_id]
-        # print(type_id, Handler)
-        handlers.append(Handler.from_binary(field_descriptor['arguments']))
+        if Handler is None:
+            handlers.append(None)
+        else:
+            handlers.append(Handler.from_binary(field_descriptor['arguments']))
     return handlers
 
 

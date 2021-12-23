@@ -3,9 +3,10 @@ from os import environ
 import ast
 from multiprocessing import cpu_count
 from re import sub
-from typing import Any, Callable, Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
+from typing import Any, Callable, Mapping, Optional, Sequence, TYPE_CHECKING, Type, Union, Literal
 from collections import defaultdict
 from enum import Enum, unique, auto
+from ffcv.fields.base import Field
 
 import torch as ch
 import numpy as np
@@ -60,6 +61,7 @@ class Loader:
                  indices: Sequence[int] = None,  # For subset selection
                  pipelines: Mapping[str,
                                     Sequence[Union[Operation, ch.nn.Module]]] = {},
+                 custom_fields: Mapping[str, Type[Field]] = {},
                  drop_last: bool = True,
                  batches_ahead: int = 3,
                  recompile: bool = False,  # Recompile at every epoch
@@ -85,7 +87,7 @@ class Loader:
         self.batch_size: int = batch_size
         self.batches_ahead = batches_ahead
         self.seed: int = seed
-        self.reader: Reader = Reader(self.fname)
+        self.reader: Reader = Reader(self.fname, custom_fields)
         self.num_workers: int = num_workers
         self.drop_last: bool = drop_last
         self.distributed: bool = distributed
@@ -129,7 +131,6 @@ class Loader:
                     msg += f"'{field_name}' has to be a subclass of "
                     msg += f"{DecoderClass}"
                     raise ValueError(msg)
-
             except KeyError:
                 try:
                     operations = [
@@ -139,7 +140,6 @@ class Loader:
                 except Exception:
                     msg = f"Impossible to create a default pipeline"
                     msg += f"{field_name}, please define one manually"
-                    raise
                     raise ValueError(msg)
 
             for i, op in enumerate(operations):
