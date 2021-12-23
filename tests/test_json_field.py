@@ -50,21 +50,20 @@ def run_test(n_samples):
 
         writer.from_indexed_dataset(dataset)
 
-        print("Written")
-
         loader = Loader(name, batch_size=3, num_workers=5,
                         pipelines={
                             'activation': [BytesDecoder()],
                             'index': [IntDecoder()]
                         }
         )
-        print("Loader created")
-        for r in loader:
-            print(r)
+        ix = 0
+        for _, json_encoded in loader:
+            json_docs = JSONField.unpack(json_encoded)
+            for doc in json_docs:
+                ref_doc = dataset[ix][1]
+                assert_that(sorted(doc.items())).is_equal_to(sorted(ref_doc.items()))
+                ix += 1
 
 
 def test_simple_dict():
-    run_test(32)
-    
-if __name__ == '__main__':
     run_test(32)
