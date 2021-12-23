@@ -52,12 +52,7 @@ def run_test(n_samples):
 
         print("Written")
 
-        loader = Loader(name, batch_size=3, num_workers=5,
-                        pipelines={
-                            'activation': [BytesDecoder()],
-                            'index': [IntDecoder()]
-                        }
-        )
+        loader = Loader(name, batch_size=3, num_workers=5)
         print("Loader created")
         for r in loader:
             print(r)
