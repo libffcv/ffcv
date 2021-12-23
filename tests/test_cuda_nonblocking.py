@@ -50,7 +50,7 @@ def run_cuda(weight, sync):
             'idx': IntField()
         })
 
-        writer.from_indexed_dataset(dataset, num_workers=10)
+        writer.from_indexed_dataset(dataset)
 
         loader = Loader(
                 name,
