@@ -176,7 +176,13 @@ class Loader:
             pipelines[other_field_name] = None
 
         # We reuse the original pipeline for the field we care about
-        pipelines[field_name] = new_args['pipelines'][field_name]
+        try:
+            pipelines[field_name] = new_args['pipelines'][field_name]
+        except KeyError:
+            # We keep the default one if the user didn't setup a custom one
+            del pipelines[field_name]
+            pass
+
         new_args['pipelines'] = pipelines
 
         # We use sequential order for speed and to know which index we are
@@ -185,7 +191,7 @@ class Loader:
         new_args['drop_last'] = False
         sub_loader = Loader(**new_args)
         selected_indices = []
-
+        
         # Iterate through the loader and test the user defined condition
         for i, (batch,) in enumerate(sub_loader):
             for j, sample in enumerate(batch):
