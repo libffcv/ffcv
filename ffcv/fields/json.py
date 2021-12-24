@@ -27,10 +27,19 @@ class JSONField(BytesField):
     def unpack(batch):
         if isinstance(batch, ch.Tensor):
             batch = batch.numpy()
+
+        single_instance = len(batch.shape) == 1
+        if single_instance:
+            batch = [batch]
+
         result = []
         for b in batch:
             sep_location = np.where(b == ord(SEPARATOR))[0][0]
             b = b[:sep_location]
             string = b.tobytes().decode(ENCODING)
             result.append(json.loads(string))
+
+        if single_instance:
+            result = result[0]
+
         return result
