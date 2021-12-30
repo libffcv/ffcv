@@ -91,7 +91,6 @@ def main(log_dir):
     last = last[keep].sort_values('top_5')
     print(logs)
     print(last)
-    import pdb; pdb.set_trace()
     print(logs)
 
 if __name__ == '__main__':

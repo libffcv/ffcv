@@ -21,7 +21,6 @@ class ProcessCacheContext(MemoryContext):
                 self.manager.sizes, self.page_to_slot)
 
     def __enter__(self):
-
         pages_at_batch = []
         for batch in self.batches:
             pages_needed = set()

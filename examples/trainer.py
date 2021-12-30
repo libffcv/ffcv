@@ -11,6 +11,7 @@ import os
 from time import time
 from functools import partial
 from uuid import uuid4
+from pathlib import Path
 
 import numpy as np
 from torch._C import memory_format
@@ -65,6 +66,28 @@ Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).p
     port=Param(str, 'port', default='12355')
 )
 
+from PIL import Image
+
+class SanityLogger():
+    def __init__(self, out_dir):
+        self.logs = {}
+        self.out_dir = Path(out_dir) / 'data_logs'
+        self.log_probability = 1/200
+
+    def process(self, iteration, batch_X, batch_y):
+        pass
+        # if ch.rand((), device='cpu') < self.log_probability:
+        #     this_x = batch_X[0].cpu()
+        #     self.out_dir.mkdir(exist_ok=True, parents=True)
+
+        #     if this_x.max() <= 1:
+        #         this_x = (255 * this_x)
+
+        #     this_x = this_x.to(dtype=ch.uint8).permute(1, 2, 0).numpy()
+        #     lab = batch_y[0]
+        #     fn = f'{iteration}_{lab}.jpg'
+        #     Image.fromarray(this_x).save(self.out_dir / fn)
+
 class Trainer():
     def __init__(self, all_params, gpu=0):
         self.all_params = all_params
@@ -80,6 +103,7 @@ class Trainer():
             'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).to(self.gpu)
         }
         self.uid = str(uuid4())
+        self.initialize_logger()
 
     @abstractmethod
     def create_train_loader(self, train_dataset, batch_size, num_workers):
@@ -114,14 +138,13 @@ class Trainer():
             self.optimizer, schedule.__getitem__)
         self.loss = ch.nn.CrossEntropyLoss()
 
-    def train_loop(self):
+    def train_loop(self, epoch):
         model = self.model
         model.train()
         losses = []
 
-        log_iters = [0, 1, len(self.train_loader) - 1]
         iterator = tqdm(self.train_loader)
-
+        data_logger = SanityLogger(self.log_folder)
         for ix, (images, target) in enumerate(iterator):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
@@ -133,18 +156,19 @@ class Trainer():
                 losses.append(loss_train.detach())
                 self.train_accuracy(output, target)
 
-            this_bs = images.shape[0]
-            lr_modifier = self.scheduler.get_lr()
+            # Logging
             group_lrs = []
-            for group_ix, group in enumerate(self.optimizer.param_groups):
+            for _, group in enumerate(self.optimizer.param_groups):
                 group_lrs.append(group['lr'])
 
-            this_resolution = images.shape[2:]
-            msg = f'bs={this_bs},lr_ratio={lr_modifier},group_lrs={group_lrs},res={this_resolution}'
-            iterator.set_description(msg)
+            names = ['ep', 'iter', 'shape', 'lrs']
+            values = [epoch, ix, tuple(images.shape), group_lrs]
+            msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
+            if ix == 0 or ix == len(self.train_loader) - 1:
+                print(msg)
 
-            if ix in log_iters:
-                print(f'it={ix}', msg)
+            data_logger.process(ix, images, target)
+            iterator.set_description(msg)
 
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
@@ -154,7 +178,8 @@ class Trainer():
         accuracy = self.train_accuracy.compute().item()
         self.train_accuracy.reset()
         loss = ch.stack(losses).mean().item()
-        return loss, accuracy
+        print('Train acc: ', accuracy)
+        return loss, accuracy, (images[0].cpu(), target[0].cpu())
 
     @param('validation.lr_tta')
     def val_loop(self, lr_tta):
@@ -166,6 +191,8 @@ class Trainer():
             for images, target in tqdm(self.val_loader):
                 images = images.to(memory_format=ch.channels_last,
                                    non_blocking=True)
+                images = images.to('cuda').half()
+                target = target.to('cuda')
                 self.optimizer.zero_grad(set_to_none=True)
 
                 with autocast():
@@ -184,15 +211,18 @@ class Trainer():
 
         [meter.reset() for meter in self.val_meters.values()]
         loss = ch.stack(losses).mean().item()
+        print('Val stats', stats)
         return loss, stats
 
     @param('logging.folder')
     def initialize_logger(self, folder):
-        folder = Path(folder).absolute()
+        folder = (Path(folder) / str(self.uid)).absolute()
+        folder.mkdir(parents=True)
 
-        self.logging_fp = str(folder / f'{self.uid}.log')
+        self.log_folder = folder
+        self.logging_fp = str(folder / 'log')
         self.logging_fd = open(self.logging_fp, 'w+')
-        self.params_fp = str(folder / f'{self.uid}-params.json')
+        self.params_fp = str(folder / 'params.json')
 
         self.start_time = time()
         hyper_params = {
@@ -215,7 +245,6 @@ class Trainer():
     @param('training.epochs')
     def train(self, epochs):
         print('Started training...')
-        self.initialize_logger()
         for epoch in range(epochs):
             train_loss, train_acc = self.train_loop()
             self.log({
@@ -241,42 +270,41 @@ Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).p
     port=Param(str, 'port', default='12355')
 )
 
-class DistributedTrainer(Trainer):
-    @param('distributed.world_size')
-    def launch_distributed(config, world_size):
-        def train(rank):
-            trainer = DistributedTrainer(config, rank)
-            trainer.train()
-            trainer.cleanup()
+# class DistributedTrainer(Trainer):
+#     @param('distributed.world_size')
+#     def launch_distributed(config, world_size):
+#         def train(rank):
+#             trainer = DistributedTrainer(config, rank)
+#             trainer.train()
+#             trainer.cleanup()
 
-        mp.spawn(train, args=tuple(), nprocs=world_size, join=True)
+#         mp.spawn(train, args=tuple(), nprocs=world_size, join=True)
 
-    @param('distributed.world_size')
-    @param('distributed.addr')
-    @param('distributed.port')
-    def __init__(self, *args, gpu, world_size, addr, port, **kwargs):
-        super().__init__(*args, **kwargs)
-        assert type(gpu) is int
-        assert type(addr) is str
-        assert type(port) is str
-        assert type(world_size) is int
+#     @param('distributed.world_size')
+#     @param('distributed.addr')
+#     @param('distributed.port')
+#     def __init__(self, *args, gpu, world_size, addr, port, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         assert type(gpu) is int
+#         assert type(addr) is str
+#         assert type(port) is str
+#         assert type(world_size) is int
 
-        os.environ['MASTER_ADDR'] = addr
-        os.environ['MASTER_PORT'] = port
-        dist.init_process_group('nccl', rank=gpu, world_size=world_size)
-        # self.addr = addr
-        # self.port = port
+#         os.environ['MASTER_ADDR'] = addr
+#         os.environ['MASTER_PORT'] = port
+#         dist.init_process_group('nccl', rank=gpu, world_size=world_size)
+#         # self.addr = addr
+#         # self.port = port
 
-    def cleanup(self):
-        dist.destroy_process_group()
+#     def cleanup(self):
+#         dist.destroy_process_group()
 
-    # put ALL distributed stuff in here (ie all device checks + checks of whether
-    #     it is distributed etc)
-    def log(self, *args, **kwargs):
-        if self.gpu == 0:
-            return super().log(*args, **kwargs)
+#     # put ALL distributed stuff in here (ie all device checks + checks of whether
+#     #     it is distributed etc)
+#     def log(self, *args, **kwargs):
+#         if self.gpu == 0:
+#             return super().log(*args, **kwargs)
 
-    def initialize_logger(self, *args, **kwargs):
-        if self.gpu == 0:
-            return super().initialize_logger(*args, **kwargs)
-
+#     def initialize_logger(self, *args, **kwargs):
+#         if self.gpu == 0:
+#             return super().initialize_logger(*args, **kwargs)

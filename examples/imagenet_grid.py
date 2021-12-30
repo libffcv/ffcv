@@ -30,7 +30,7 @@ MAPPING = {
     'peak':['training', 'lr_peak_epoch']
 }
 
-STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/juiced.yaml', 'r'))
+STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/resnet18_90.yaml', 'r'))
 
 class Parameters():
     def __init__(self, mapping=MAPPING, **kwargs):
@@ -73,33 +73,17 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    constant_params = Parameters(wd=4e-5, lr=0.2, label_smoothing=.1,
-                                     blurpool=0, arch='resnet18')
-    # wd, lr, min_res, max_res, end_ramp, momentum, label_smoothing, blurpool
-    # wds = [4e-5]
-    # lrs = [0.2]
-    max_ress = [Parameters(max_res=k, logs=str(log_dir),
-                           val_res=(k + 64)) for k in [160]]
-    
-    min_ress = [Parameters(min_res=k) for k in [96]]
-    end_ramps = [Parameters(end_ramp=k, epochs=k+delta) for k, delta in itertools.product([15, 20, 30], [5, 10, 15, 20])]
-    peaks = [Parameters(lr_peak_epoch=k) for k in [3, 5, 7, 9]]
-    blurpools = [Parameters(blurpool=0)]
-    wds = [Parameters(wd=1e-4)]
+    wds = [Parameters(wd=wd) for wd in [1e-4, 5e-4, 1e-5]]
+    lrs = [Parameters(lr=lr) for lr in [1.5, .8, .5]]
 
     # next:
-    bslr = [Parameters(batch_size=256 * k, lr=0.1 * k) for k in [4, 8]]
-    axes = [min_ress, end_ramps, max_ress, blurpools, bslr, wds, peaks]
+    axes = [wds, lrs]
 
     out_write = []
     configs = list(itertools.product(*axes))
-    # configs = [[Parameters(lr=0.2, blurpool=0, wd=4e-5, end_ramp=0,
-    #            batch_size=512, min_res=160, max_res=160, val_res=160+64,
-    #            logs=str(log_dir), epochs=100)]] + configs
 
     for these_settings in configs:
         d = copy.deepcopy(STANDARD_CONFIG)
-        constant_params.override(d)
         for settings in these_settings:
             settings.override(d)
 
@@ -120,12 +104,6 @@ def main(log_dir, out_file):
     print(out_dir)
     print(' --- run command --- ')
     print(cmd)
-
-    # for wd, lr, num_epoch in tqdm.tqdm(list(product(wds, lrs, epochs))):
-    #     these_args = ['./train_cifar.sh', lr, wd, num_epoch, out_dir]
-    #     cmds = ' '.join(map(str, these_args))
-    #     print(f'Running {cmds}')
-    #     subprocess.run(cmds, shell=True)
 
 if __name__ == '__main__':
     Section('grid', 'data related stuff').params(
