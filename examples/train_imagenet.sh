@@ -9,7 +9,7 @@ MAX_RES="$4"
 MOMENTUM="$5"
 LABEL_SMOOTHING="$6"
 
-set -e 
+set -e
 
 BS=512
 ARCH=resnet18

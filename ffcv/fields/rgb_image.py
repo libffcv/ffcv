@@ -245,7 +245,7 @@ class RGBImageField(Field):
         (``uint8`` pixel values), 'jpg' (compress to JPEG format), 'smart'
         (decide between saving pixel values and JPEG compressing based on image
         size), and 'proportion' (JPEG compress a random subset of the data with
-        size specified by the ``compress_probability`` argument). By default 'raw'.
+        size specified by the ``compress_probability`` argument). By default: 'raw'.
     max_resolution : int, optional
         If specified, will resize images to have maximum side length equal to
         this value before saving, by default None
@@ -264,7 +264,7 @@ class RGBImageField(Field):
         self.write_mode = write_mode
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
-        self.jpeg_quality = jpeg_quality
+        self.jpeg_quality = int(jpeg_quality)
         self.proportion = compress_probability
 
     @property
@@ -314,9 +314,9 @@ class RGBImageField(Field):
                     write_mode = 'jpg'
         elif write_mode == 'proportion':
             if np.random.rand() < self.proportion:
-                write_mode = 'raw'
-            else:
                 write_mode = 'jpg'
+            else:
+                write_mode = 'raw'
 
 
         destination['mode'] = IMAGE_MODES[write_mode]

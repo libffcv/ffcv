@@ -3,7 +3,7 @@ from os import environ
 import ast
 from multiprocessing import cpu_count
 from re import sub
-from typing import Any, Callable, Mapping, Optional, Sequence, TYPE_CHECKING, Union, Literal
+from typing import Any, Callable, Mapping, Sequence, Union, Literal
 from collections import defaultdict
 from enum import Enum, unique, auto
 
@@ -23,13 +23,11 @@ from ..memory_managers import (
     ProcessCacheManager, OSCacheManager, MemoryManager
 )
 
-
 @unique
 class OrderOption(Enum):
     SEQUENTIAL = auto()
     RANDOM = auto()
     QUASI_RANDOM = auto()
-
 
 ORDER_TYPE = Union[
     TraversalOrder,

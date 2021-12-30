@@ -20,7 +20,8 @@ Section('cfg', 'arguments to give the writer').params(
     num_workers=Param(int, 'Number of workers to use', default=16),
     chunk_size=Param(int, 'Chunk size for writing', default=100),
     jpeg_quality=Param(float, 'Quality of jpeg images', default=90),
-    subset=Param(int, 'How many images to use (-1 for all)', default=-1)
+    subset=Param(int, 'How many images to use (-1 for all)', default=-1),
+    compress_probability=Param(float, 'compress probability', default=None)
 )
 
 @section('cfg')
@@ -34,8 +35,10 @@ Section('cfg', 'arguments to give the writer').params(
 @param('subset')
 @param('jpeg_quality')
 @param('write_mode')
-def main(dataset, split, data_dir, write_path, max_resolution, num_workers, chunk_size, subset,
-jpeg_quality, write_mode):
+@param('compress_probability')
+def main(dataset, split, data_dir, write_path, max_resolution, num_workers,
+         chunk_size, subset, jpeg_quality, write_mode,
+         compress_probability):
     if dataset == 'cifar':
         my_dataset = CIFAR10(root=data_dir, train=(split == 'train'), download=True)
     elif dataset == 'imagenet':
@@ -44,17 +47,15 @@ jpeg_quality, write_mode):
         raise ValueError('Unrecognized dataset', dataset)
 
     if subset > 0: my_dataset = Subset(my_dataset, range(subset))
-
-    writer = DatasetWriter(len(my_dataset), write_path, {
+    writer = DatasetWriter(write_path, {
         'image': RGBImageField(write_mode=write_mode,
                                max_resolution=max_resolution,
-                               compress_probability=0.,
+                               compress_probability=compress_probability,
                                jpeg_quality=jpeg_quality),
         'label': IntField(),
-    })
+    }, num_workers=num_workers)
 
-    with writer:
-        writer.write_pytorch_dataset(my_dataset, num_workers=num_workers, chunksize=chunk_size)
+    writer.from_indexed_dataset(my_dataset, chunksize=chunk_size)
 
 if __name__ == '__main__':
     config = get_current_config()

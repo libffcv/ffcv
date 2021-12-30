@@ -1,5 +1,14 @@
+from multiprocessing import Value
 import torch as ch
+from pathlib import Path
 from torch.cuda.amp import GradScaler
+import numpy
+import matplotlib
+matplotlib.use('module://itermplot')
+import matplotlib.pyplot as plt
+import torchvision.transforms as torch_transforms
+import torchvision.datasets as torch_datasets
+
 from ffcv.pipeline.compiler import Compiler
 import antialiased_cnns
 import time
@@ -20,6 +29,13 @@ import numpy as np
 from torchvision import models
 import torch.optim as optim
 
+def print_samples(x, y):
+    x = (x.permute(1, 2, 0) * IMAGENET_STD) + IMAGENET_MEAN
+    x = (x * 255).numpy().astype(np.uint8)
+    plt.imshow(x)
+    plt.show()
+    print(y)
+
 Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())),
                'the architecture to use', required=True),
@@ -34,7 +50,7 @@ Section('resolution', 'resolution scheduling').params(
 
 Section('training', 'training hyper param stuff').params(
     step_ratio=Param(float, 'learning rate step ratio', default=0.1),
-    step_length=Param(int, 'learning rate step length', default=30)
+    step_length=Param(int, 'learning rate step length', default=30),
     lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or cyclic schedule?',
                            required=True)
 )
@@ -48,7 +64,6 @@ Section('distributed').params(
 IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
 IMAGENET_STD = np.array([0.229, 0.224, 0.225])
 DEFAULT_CROP_RATIO = 224/256
-
 
 class ImageNetTrainer(Trainer):
     def __init__(self, *args, **kwargs):
@@ -102,18 +117,24 @@ class ImageNetTrainer(Trainer):
             schedule = np.interp(schedule_xs, xs, ys)
         elif lr_schedule_type == 'step':
             schedule = []
-            for this_epoch in range(epochs):
+            for this_epoch in range(epochs + 1):
                 plateau_number = this_epoch // step_length
                 lr_modifier = step_ratio**plateau_number
                 schedule.append(lr_modifier)
+
             schedule = np.array(schedule)
 
         # we now simulate training to yield per iteration learning rates
         # we train only from the first nonzero epoch lr to the last nonzero
         # epoch lr, interpolating inbetween
         # dataset_size = len(self.train_loader) * self.train_loader.batch_size
-        dataset_size = self.train_loader.reader.num_samples
+        try:
+            dataset_size = self.train_loader.reader.num_samples
+        except:
+            dataset_size = len(self.train_loader.dataset)
+
         learning_rates = []
+        epochs = []
         for start_epoch, this_bs in enumerate(self.batch_size_schedule):
             lr_scaling = this_bs / batch_size  # keep effective lr/bs constant
             start_epoch_lr = schedule[start_epoch] * lr_scaling
@@ -123,10 +144,35 @@ class ImageNetTrainer(Trainer):
             xs, ys = [0, num_iterations], [start_epoch_lr, end_epoch_lr]
             schedule_xs = np.arange(num_iterations + 1)
             this_epoch_lrs = np.interp(schedule_xs, xs, ys)
-            learning_rates.append(this_epoch_lrs)
+
+            # grab up until the final one
+            learning_rates.append(this_epoch_lrs[:-1])
+            epochs.append(start_epoch + schedule_xs[:-1]/num_iterations)
 
         learning_rates = np.concatenate(learning_rates, axis=0)
-        self.scheduler = optim.lr_schedule_typer.LambdaLR(
+        epochs = np.concatenate(epochs, axis=0)
+
+        _, ax = plt.subplots(figsize=(6, 2))
+        ax.plot(epochs, learning_rates, label='learning rate')
+        ax.legend()
+        plt.show()
+
+        _, ax = plt.subplots(figsize=(6, 2))
+        ax.plot(np.arange(len(self.batch_size_schedule)),
+            self.batch_size_schedule, label='bs')
+        ax.legend()
+        plt.show()
+
+        _, ax = plt.subplots(figsize=(6, 2))
+        ax.plot(np.arange(len(self.batch_size_schedule)),
+            [x[0] for x in res_sched], label='resolution')
+        ax.legend()
+        plt.show()
+
+        learning_rates = np.concatenate([learning_rates, np.zeros((1,))],
+                                        axis=0)
+
+        self.scheduler = optim.lr_scheduler.LambdaLR(
             self.optimizer, learning_rates.__getitem__
         )
 
@@ -150,26 +196,29 @@ class ImageNetTrainer(Trainer):
     @param('training.batch_size')
     @param('data.num_workers')
     def create_train_loader(self, train_dataset, batch_size, num_workers):
+        train_path = Path(train_dataset)
+        assert train_path.is_file()
         self.decoder = RandomResizedCropRGBImageDecoder((224, 224))
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
                         order=OrderOption.RANDOM,
+                        os_cache=True,
                         drop_last=True,
                         pipelines={
                             'image': [
                                 self.decoder,
                                 ToTensor(),
                                 ToDevice(ch.device('cuda:0'),
-                                         non_blocking=False),
+                                        non_blocking=False),
                                 ToTorchImage(),
                                 Convert(ch.float16),
                                 Normalize((IMAGENET_MEAN * 255).tolist(),
-                                          (IMAGENET_STD * 255).tolist())
+                                        (IMAGENET_STD * 255).tolist())
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                      ToDevice(ch.device('cuda:0'),
-                                      non_blocking=False)]
+                                    ToDevice(ch.device('cuda:0'),
+                                    non_blocking=False)]
                         })
 
         return loader
@@ -180,38 +229,43 @@ class ImageNetTrainer(Trainer):
     @param('validation.resolution')
     def create_val_loader(self, val_dataset, batch_size, num_workers,
                           resolution, ratio=DEFAULT_CROP_RATIO):
+        val_path = Path(val_dataset)
+        assert val_path.is_file()
         res_tuple = (resolution, resolution)
         cropper = CenterCropRGBImageDecoder(res_tuple, ratio=ratio)
         loader = Loader(val_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
-                        order=OrderOption.RANDOM,
+                        order=OrderOption.SEQUENTIAL,
                         pipelines={
                             'image': [
                                 cropper,
                                 ToTensor(),
                                 ToDevice(ch.device('cuda:0'),
-                                         non_blocking=False),
+                                        non_blocking=False),
                                 ToTorchImage(),
                                 Convert(ch.float16),
                                 Normalize((IMAGENET_MEAN * 255).tolist(),
-                                          (IMAGENET_STD * 255).tolist())
+                                        (IMAGENET_STD * 255).tolist())
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                      ToDevice(ch.device('cuda:0'),
-                                      non_blocking=False)]
+                                    ToDevice(ch.device('cuda:0'),
+                                    non_blocking=False)]
                         })
         return loader
 
     @param('training.epochs')
     def train(self, epochs):
-        assert self.train_loader.drop_last, 'drop last must be enabled!'
+        # assert self.train_loader.drop_last, 'drop last must be enabled!'
         total_val_time = 0
         for epoch in range(epochs):
-            self.decoder.output_size = self.resolution_schedule[epoch]
-            self.train_loader.batch_size = self.batch_size_schedule[epoch]
-            train_loss, train_acc = self.train_loop()
+            # self.model.train()
+            # train_loss, train_acc, samples = self.train_loop(epoch)
+            # print_samples(*samples)
+            train_loss, train_acc = 0., 0.
             start_val = time.time()
+
+            self.model.eval()
             _, stats = self.val_loop()
             total_val_time += time.time() - start_val
 
@@ -227,18 +281,18 @@ class ImageNetTrainer(Trainer):
 
     @param('model.arch')
     @param('model.antialias')
-    @param('distributed.world_size')
+    # @param('distributed.world_size')
     def create_model_and_scaler(self, arch, antialias):
         scaler = GradScaler()
         if not antialias:
-            model = getattr(models, arch)(pretrained=False)
+            model = getattr(models, arch)(pretrained=True)
         else:
+            raise ValueError('dont do this eom')
             model = getattr(antialiased_cnns, arch)(pretrained=False)
 
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
         return model, scaler
-
 
 if __name__ == "__main__":
     config = get_current_config()

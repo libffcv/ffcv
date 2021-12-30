@@ -3,19 +3,20 @@ from threading import Thread, Event
 from queue import Queue, Full
 from typing import Sequence, TYPE_CHECKING
 
-import numba as nb
-
 import torch as ch
 
+from ..traversal_order.quasi_random import QuasiRandom
 from ..utils import chunks
 from ..pipeline.compiler import Compiler
 
 if TYPE_CHECKING:
     from .loader import Loader
 
+QUASIRANDOM_ERROR_MSG = '''Not enough memory; try setting quasi-random ordering
+(`OrderOption.QUASI_RANDOM`) in the dataloader constructor's `order` argument.
+'''
 
 class EpochIterator(Thread):
-
     def __init__(self, loader: 'Loader', order: Sequence[int]):
         super().__init__(daemon=True)
         self.loader: 'Loader' = loader
@@ -29,7 +30,15 @@ class EpochIterator(Thread):
         self.terminate_event = Event()
         self.memory_context = self.loader.memory_manager.schedule_epoch(
             batches)
-        self.memory_context.__enter__()
+        try:
+            self.memory_context.__enter__()
+        except MemoryError as e:
+            if loader.traversal_order != QuasiRandom:
+                print(QUASIRANDOM_ERROR_MSG)
+                print('Full error below:')
+
+            raise e
+
         self.storage_state = self.memory_context.state
 
         self.memory_bank_per_stage = defaultdict(list)
