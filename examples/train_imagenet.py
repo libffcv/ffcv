@@ -6,8 +6,6 @@ import numpy
 import matplotlib
 matplotlib.use('module://itermplot')
 import matplotlib.pyplot as plt
-import torchvision.transforms as torch_transforms
-import torchvision.datasets as torch_datasets
 
 from ffcv.pipeline.compiler import Compiler
 import antialiased_cnns
@@ -29,12 +27,6 @@ import numpy as np
 from torchvision import models
 import torch.optim as optim
 
-def print_samples(x, y):
-    x = (x.permute(1, 2, 0) * IMAGENET_STD) + IMAGENET_MEAN
-    x = (x * 255).numpy().astype(np.uint8)
-    plt.imshow(x)
-    plt.show()
-    print(y)
 
 Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())),
@@ -52,7 +44,9 @@ Section('training', 'training hyper param stuff').params(
     step_ratio=Param(float, 'learning rate step ratio', default=0.1),
     step_length=Param(int, 'learning rate step length', default=30),
     lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or cyclic schedule?',
-                           required=True)
+                           required=True),
+    eval_only=Param(int, 'eval only?', default=0),
+    pretrained=Param(int, 'is pretrained?', default=0)
 )
 
 Section('distributed').params(
@@ -237,6 +231,7 @@ class ImageNetTrainer(Trainer):
                         batch_size=batch_size,
                         num_workers=num_workers,
                         order=OrderOption.SEQUENTIAL,
+                        drop_last=False,
                         pipelines={
                             'image': [
                                 cropper,
@@ -257,44 +252,46 @@ class ImageNetTrainer(Trainer):
     @param('training.epochs')
     def train(self, epochs):
         # assert self.train_loader.drop_last, 'drop last must be enabled!'
-        total_val_time = 0
         for epoch in range(epochs):
-            # self.model.train()
-            # train_loss, train_acc, samples = self.train_loop(epoch)
-            # print_samples(*samples)
-            train_loss, train_acc = 0., 0.
-            start_val = time.time()
+            train_loss, train_acc = self.train_loop(epoch)
 
-            self.model.eval()
-            _, stats = self.val_loop()
-            total_val_time += time.time() - start_val
-
-            self.log({
+            extra_dict = {
                 'train_loss': train_loss,
-                'train_acc': train_acc,
-                'current_lr': self.optimizer.param_groups[0]['lr'],
                 'epoch': epoch,
-                'top_1': stats['top_1'],
-                'top_5': stats['top_5'],
-                'total_val_time': total_val_time
-            })
+                'train_acc': train_acc,
+            }
+
+            self.eval_and_log(extra_dict)
+
+    def eval_and_log(self, extra_dict={}):
+        start_val = time.time()
+        _, stats = self.val_loop()
+        val_time = time.time() - start_val
+
+        self.log(dict({
+            'current_lr': self.optimizer.param_groups[0]['lr'],
+            'top_1': stats['top_1'],
+            'top_5': stats['top_5'],
+            'val_time': val_time
+        }, **extra_dict))
 
     @param('model.arch')
     @param('model.antialias')
+    @param('training.pretrained')
     # @param('distributed.world_size')
-    def create_model_and_scaler(self, arch, antialias):
+    def create_model_and_scaler(self, arch, antialias, pretrained):
         scaler = GradScaler()
         if not antialias:
-            model = getattr(models, arch)(pretrained=True)
+            model = getattr(models, arch)(pretrained=pretrained)
         else:
             raise ValueError('dont do this eom')
-            model = getattr(antialiased_cnns, arch)(pretrained=False)
+            # model = getattr(antialiased_cnns, arch)(pretrained=False)
 
         model = model.to(memory_format=ch.channels_last)
         model.cuda(self.gpu)
         return model, scaler
 
-if __name__ == "__main__":
+def make_trainer():
     config = get_current_config()
     parser = ArgumentParser(description='Fast imagenet training')
     config.augment_argparse(parser)
@@ -302,4 +299,20 @@ if __name__ == "__main__":
     config.validate(mode='stderr')
     config.summary()
     trainer = ImageNetTrainer(config)
-    trainer.train()
+    return trainer
+
+@param('training.eval_only')
+def execute(trainer, eval_only=False):
+    print(eval_only)
+    if not eval_only:
+        trainer.train()
+    else:
+        trainer.eval_and_log()
+    return trainer
+
+def main():
+    trainer = make_trainer()
+    return execute(trainer)
+
+if __name__ == "__main__":
+    main()
