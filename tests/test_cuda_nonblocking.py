@@ -44,14 +44,13 @@ def run_cuda(weight, sync):
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyArrayDataset(n_samples, shape)
-        writer = DatasetWriter(len(dataset), name, {
+        writer = DatasetWriter(name, {
             'mask': NDArrayField(dtype=np.dtype('bool'), shape=(50_000,)),
             'targets': NDArrayField(dtype=np.dtype('float32'), shape=(50_000,)),
             'idx': IntField()
         })
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=10)
+        writer.from_indexed_dataset(dataset)
 
         loader = Loader(
                 name,

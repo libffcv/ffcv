@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 from uuid import uuid4
 from ffcv.fields.ndarray import NDArrayField, NDArrayDecoder
@@ -35,14 +36,39 @@ def test_string_field():
     dataset = CaptionDataset(100)
 
     with NamedTemporaryFile() as handle:
-        writer = DatasetWriter(len(dataset), handle.name, {
+        writer = DatasetWriter(handle.name, {
             'label': StringField(MAX_STRING_SIZE)
         })
 
-        with writer:
-            writer.write_pytorch_dataset(dataset, num_workers=1)
-        
+        writer.from_indexed_dataset(dataset)
         loader = Loader(handle.name,
+                    batch_size=10,
+                    num_workers=2,
+                    order=OrderOption.RANDOM,
+                    pipelines={
+                        'label': [StringDecoder()]
+                    },
+                    custom_fields={
+                        'label': StringField
+                    })
+        
+        all_caps = []
+        for x, in loader:
+            for cap in x:
+                all_caps.append(cap.tobytes().decode('ascii').replace('\0', ''))
+        assert set(all_caps) == set(dataset.captions)
+
+def test_no_custom_field():
+    dataset = CaptionDataset(100)
+
+    with NamedTemporaryFile() as handle:
+        writer = DatasetWriter(handle.name, {
+            'label': StringField(MAX_STRING_SIZE)
+        })
+
+        writer.from_indexed_dataset(dataset)
+        with pytest.raises(ValueError):
+            Loader(handle.name,
                     batch_size=10,
                     num_workers=2,
                     order=OrderOption.RANDOM,
@@ -50,6 +76,3 @@ def test_string_field():
                         'label': [StringDecoder()]
                     })
         
-        for x, in loader:
-            for cap in x:
-                rint(cap.tobytes().decode('ascii').strip())

@@ -40,4 +40,3 @@ class Field(ABC):
     @abstractmethod
     def get_decoder_class(self) -> Type[Operation]:
         raise NotImplementedError
-        
