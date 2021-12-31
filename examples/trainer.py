@@ -2,32 +2,28 @@
 Generic class for model training.
 """
 from pathlib import Path
-from matplotlib import pyplot as plt
 import matplotlib as mpl
 import torch.optim as optim
 import json
 from abc import abstractmethod
-import os
 from time import time
-from functools import partial
 from uuid import uuid4
 from pathlib import Path
 
 import numpy as np
-from torch._C import memory_format
 import torchmetrics
 from fastargs import Param, Section
 from fastargs.decorators import param
 from fastargs.validation import And, OneOf
 from torch.cuda.amp import autocast
 from tqdm import tqdm
-from optimizations import LabelSmoothSoftmaxCEV1
 
 import torch as ch
 ch.backends.cudnn.benchmark = True
-# ch.autograd.set_detect_anomaly(True)
 ch.autograd.profiler.emit_nvtx(False)
 ch.autograd.profiler.profile(False)
+
+from baseline_utils import baseline_train_loader, baseline_val_loader
 
 mpl.use('module://imgcat')
 
@@ -66,36 +62,21 @@ Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).p
     port=Param(str, 'port', default='12355')
 )
 
-from PIL import Image
-
-class SanityLogger():
-    def __init__(self, out_dir):
-        self.logs = {}
-        self.out_dir = Path(out_dir) / 'data_logs'
-        self.log_probability = 1/200
-
-    def process(self, iteration, batch_X, batch_y):
-        pass
-        # if ch.rand((), device='cpu') < self.log_probability:
-        #     this_x = batch_X[0].cpu()
-        #     self.out_dir.mkdir(exist_ok=True, parents=True)
-
-        #     if this_x.max() <= 1:
-        #         this_x = (255 * this_x)
-
-        #     this_x = this_x.to(dtype=ch.uint8).permute(1, 2, 0).numpy()
-        #     lab = batch_y[0]
-        #     fn = f'{iteration}_{lab}.jpg'
-        #     Image.fromarray(this_x).save(self.out_dir / fn)
 
 class Trainer():
-    def __init__(self, all_params, gpu=0):
+    @param('baselines.use_baseline')
+    def __init__(self, all_params, use_baseline, gpu=0):
         self.all_params = all_params
         self.gpu = gpu
         self.model, self.scaler = self.create_model_and_scaler()
-        self.train_loader = self.create_train_loader()
+        if not use_baseline:
+            self.train_loader = self.create_train_loader()
+            self.val_loader = self.create_val_loader()
+        else:
+            self.train_loader = baseline_train_loader()
+            self.val_loader = baseline_val_loader()
+
         self.create_optimizer(len(self.train_loader))
-        self.val_loader = self.create_val_loader()
         self.train_accuracy = torchmetrics.Accuracy(
             compute_on_step=False).to(self.gpu)
         self.val_meters = {
@@ -144,7 +125,6 @@ class Trainer():
         losses = []
 
         iterator = tqdm(self.train_loader)
-        data_logger = SanityLogger(self.log_folder)
         for ix, (images, target) in enumerate(iterator):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
@@ -167,7 +147,6 @@ class Trainer():
             if ix == 0 or ix == len(self.train_loader) - 1:
                 print(msg)
 
-            data_logger.process(ix, images, target)
             iterator.set_description(msg)
 
             self.scaler.scale(loss_train).backward()
@@ -179,7 +158,7 @@ class Trainer():
         self.train_accuracy.reset()
         loss = ch.stack(losses).mean().item()
         print('Train acc: ', accuracy)
-        return loss, accuracy, (images[0].cpu(), target[0].cpu())
+        return loss, accuracy
 
     @param('validation.lr_tta')
     def val_loop(self, lr_tta):
@@ -191,8 +170,6 @@ class Trainer():
             for images, target in tqdm(self.val_loader):
                 images = images.to(memory_format=ch.channels_last,
                                    non_blocking=True)
-                images = images.to('cuda').half()
-                target = target.to('cuda')
                 self.optimizer.zero_grad(set_to_none=True)
 
                 with autocast():

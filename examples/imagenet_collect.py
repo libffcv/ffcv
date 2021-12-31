@@ -30,11 +30,11 @@ def main(log_dir):
     extractor = Parameters()
     print(log_dir)
     all_logs = []
-    for p in Path(log_dir).glob('*.log'):
-        base_path = str(p).split('.log')[0]
+    for p in Path(log_dir).glob('*/log'):
+        base_path = str(p).split('/log')[0]
         uid = base_path.split('/')[-1]
 
-        config_path = base_path + '-params.json'
+        config_path = base_path + '/params.json'
 
         conf = pd.read_json(config_path, lines=True)
         logs = pd.read_json(p, lines=True)
@@ -92,6 +92,7 @@ def main(log_dir):
     print(logs)
     print(last)
     print(logs)
+    import pdb; pdb.set_trace()
 
 if __name__ == '__main__':
     config = get_current_config()

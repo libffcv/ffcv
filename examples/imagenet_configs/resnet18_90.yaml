@@ -8,8 +8,7 @@ resolution:
 data:
   gpu: 0
   train_dataset: '/mnt/cfs/home/engstrom/store/ffcv/train_310.ffcv'
-  # val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_310.ffcv'
-  val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_1000_0_100.ffcv'
+  val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_310.ffcv'
   num_workers: 10
 logging:
   folder: '/tmp/'
@@ -19,7 +18,7 @@ training:
   lr: 0.1
   momentum: 0.9
   weight_decay: 1e-4
-  epochs: 90
+  epochs: 120
   label_smoothing: 0
   lr_schedule_type: 'step'
   step_ratio: 0.1
