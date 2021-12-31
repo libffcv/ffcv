@@ -74,7 +74,7 @@ def main(log_dir, out_file):
     out_dir.mkdir(exist_ok=True, parents=True)
 
     wds = [Parameters(wd=wd) for wd in [1e-4, 5e-4, 1e-5]]
-    lrs = [Parameters(lr=lr) for lr in [.1, .12, .08]]
+    lrs = [Parameters(lr=lr) for lr in [.6, .4, .5]]
 
     # 0.5 / 1e-4
 
