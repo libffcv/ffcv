@@ -76,18 +76,19 @@ def main(log_dir, out_file):
     out_dir.mkdir(exist_ok=True, parents=True)
 
     wds = [Parameters(wd=wd) for wd in [1e-4]]
-    lrs = [Parameters(lr=lr) for lr in [0.45, 0.5, 0.55]]
-    epochs = [Parameters(epochs=90), Parameters(epochs=120)]
+    lrs = [Parameters(lr=lr) for lr in [0.55, 0.65]]
+    res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
+        (224, 312), (160, 224), (192, 256)
+    ]]
+    epochs = [Parameters(epochs=90)]
 
     datasets = [
         Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
                    val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv')
     ]
 
-    # 0.5 / 1e-4
-
     # next:
-    axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs]
+    axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs, res]
     out_write = []
     configs = list(itertools.product(*axes))
 

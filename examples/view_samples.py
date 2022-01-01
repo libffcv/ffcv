@@ -1,4 +1,4 @@
-from train_imagenet import IMAGENET_MEAN, IMAGENET_STD, main
+from train_imagenet import IMAGENET_MEAN, IMAGENET_STD, make_trainer
 from pathlib import Path
 from uuid import uuid4
 from tqdm import tqdm
@@ -12,7 +12,7 @@ Section('viewer', 'viewer').params(
     dired=Param(str, 'path to save images', required=True)
 )
 
-ffcv_trainer = main(False)
+ffcv_trainer = make_trainer()
 import torch
 ch = torch
 from baseline_utils import baseline_val_loader
@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 baseline_loader = baseline_val_loader()
 
 @param('viewer.dired')
-def print_samples(x, y, name, dired=None):
+def print_samples(x, _, name, dired=None):
     x = (x.permute(1, 2, 0) * IMAGENET_STD) + IMAGENET_MEAN
     x = (x * 255).numpy().astype(np.uint8)
     parent = Path(f'{dired}/{name}').expanduser()

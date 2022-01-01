@@ -10,7 +10,7 @@ data:
   train_dataset: '/mnt/cfs/home/engstrom/store/ffcv/train_310.ffcv'
   # val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_310.ffcv'
   # val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_400_0.0_100.ffcv'
-  val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_350_1.0_99.ffcv'
+  val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/train_500_1.0_90.ffcv'
   num_workers: 10
 logging:
   folder: '/tmp/'

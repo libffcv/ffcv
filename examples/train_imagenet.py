@@ -252,7 +252,8 @@ class ImageNetTrainer(Trainer):
     @param('training.epochs')
     def train(self, epochs):
         # assert self.train_loader.drop_last, 'drop last must be enabled!'
-        for epoch in range(epochs):
+        for res, epoch in zip(self.resolution_schedule, range(epochs)):
+            self.decoder.output_size = res
             train_loss, train_acc = self.train_loop(epoch)
 
             extra_dict = {
@@ -262,6 +263,8 @@ class ImageNetTrainer(Trainer):
             }
 
             self.eval_and_log(extra_dict)
+
+        ch.save(self.model, self.log_folder / 'final_weights.pt')
 
     def eval_and_log(self, extra_dict={}):
         start_val = time.time()
@@ -274,6 +277,8 @@ class ImageNetTrainer(Trainer):
             'top_5': stats['top_5'],
             'val_time': val_time
         }, **extra_dict))
+
+        return stats
 
     @param('model.arch')
     @param('model.antialias')
