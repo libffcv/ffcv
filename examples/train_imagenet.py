@@ -17,7 +17,7 @@ from ffcv.loader import Loader, OrderOption
 from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToDevice, Squeeze, Convert
 from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
-from torchvision.transforms import Normalize
+from torchvision.transforms import Normalize, ColorJitter
 from fastargs import get_current_config
 from fastargs.decorators import param
 from fastargs import Param, Section
@@ -208,7 +208,7 @@ class ImageNetTrainer(Trainer):
                                 ToTorchImage(),
                                 Convert(ch.float16),
                                 Normalize((IMAGENET_MEAN * 255).tolist(),
-                                        (IMAGENET_STD * 255).tolist())
+                                        (IMAGENET_STD * 255).tolist()),
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
                                     ToDevice(ch.device('cuda:0'),

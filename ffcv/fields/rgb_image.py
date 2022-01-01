@@ -318,7 +318,6 @@ class RGBImageField(Field):
             else:
                 write_mode = 'raw'
 
-
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
 
