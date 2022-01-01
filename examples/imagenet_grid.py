@@ -23,6 +23,8 @@ MAPPING = {
     'arch': ['model', 'arch'],
     'min_res': ['resolution', 'min_res'],
     'max_res': ['resolution', 'max_res'],
+    'train_dataset': ['data', 'train_dataset'],
+    'val_dataset': ['data', 'val_dataset'],
     'end_ramp': ['resolution', 'end_ramp'],
     'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
@@ -73,13 +75,19 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [1e-4, 5e-4, 1e-5]]
-    lrs = [Parameters(lr=lr) for lr in [.6, .4, .5]]
+    wds = [Parameters(wd=wd) for wd in [1e-4]]
+    lrs = [Parameters(lr=lr) for lr in [0.45, 0.5, 0.55]]
+    epochs = [Parameters(epochs=90), Parameters(epochs=120)]
+
+    datasets = [
+        Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
+                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv')
+    ]
 
     # 0.5 / 1e-4
 
     # next:
-    axes = [wds, lrs, [Parameters(logs=log_dir)]]
+    axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs]
     out_write = []
     configs = list(itertools.product(*axes))
 

@@ -9,7 +9,8 @@ data:
   gpu: 0
   train_dataset: '/mnt/cfs/home/engstrom/store/ffcv/train_310.ffcv'
   # val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_310.ffcv'
-  val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_1000_0_100.ffcv'
+  # val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_400_0.0_100.ffcv'
+  val_dataset: '/mnt/cfs/home/engstrom/store/ffcv/val_350_1.0_99.ffcv'
   num_workers: 10
 logging:
   folder: '/tmp/'

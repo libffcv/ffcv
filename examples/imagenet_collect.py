@@ -85,14 +85,14 @@ def main(log_dir):
     plot_all()
 
     last = logs.sort_values('epoch').groupby('uid').last()
-    keep = ['relative_time', 'epoch', 'top_1', 'top_5', 'training.batch_size',
-    'resolution.max_res', 'resolution.min_res', 'model.antialias',
-    'resolution.end_ramp', 'training.weight_decay']
-    last = last[keep].sort_values('top_5')
+    keep = ['relative_time', 'epoch', 'top_1',
+            'training.lr', 'training.weight_decay']
+    last = last[keep].sort_values('top_1')
     print(logs)
     print(last)
     print(logs)
-    import pdb; pdb.set_trace()
+    import pdb
+    pdb.set_trace()
 
 if __name__ == '__main__':
     config = get_current_config()
