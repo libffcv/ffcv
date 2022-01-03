@@ -29,7 +29,9 @@ MAPPING = {
     'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
     'batch_size':['training', 'batch_size'],
-    'peak':['training', 'lr_peak_epoch']
+    'peak':['training', 'lr_peak_epoch'],
+    'bn_wd':['training', 'bn_wd'],
+    'mixup':['training', 'mixup_alpha']
 }
 
 STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/resnet18_90.yaml', 'r'))
@@ -76,9 +78,10 @@ def main(log_dir, out_file):
     out_dir.mkdir(exist_ok=True, parents=True)
 
     wds = [Parameters(wd=wd) for wd in [1e-4]]
-    lrs = [Parameters(lr=lr) for lr in [0.55, 0.65]]
+    lrs = [Parameters(lr=lr) for lr in [0.55]]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
-        (224, 312), (160, 224), (192, 256)
+        #(224, 312), (160, 224), (192, 256)
+        (160, 224)
     ]]
     epochs = [Parameters(epochs=90)]
 
@@ -87,8 +90,12 @@ def main(log_dir, out_file):
                    val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv')
     ]
 
+    should_mixup = [Parameters(mixup=0), Parameters(mixup=0.2)]
+    should_bn_wd = [Parameters(bn_wd=True), Parameters(bn_wd=False)]
+
     # next:
-    axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs, res]
+    axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs, res,
+            should_mixup, should_bn_wd]
     out_write = []
     configs = list(itertools.product(*axes))
 

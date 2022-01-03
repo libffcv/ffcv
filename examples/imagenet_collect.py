@@ -85,8 +85,13 @@ def main(log_dir):
     plot_all()
 
     last = logs.sort_values('epoch').groupby('uid').last()
-    keep = ['relative_time', 'epoch', 'top_1',
-            'training.lr', 'training.weight_decay']
+    # keep = ['relative_time', 'epoch', 'top_1',
+    #         'training.lr', 'training.weight_decay']
+    keep = []
+    for c in last.columns:
+        if len(last[c].unique()) > 1:
+            keep.append(c)
+
     last = last[keep].sort_values('top_1')
     print(logs)
     print(last)
