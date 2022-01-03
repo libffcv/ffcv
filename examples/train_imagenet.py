@@ -14,7 +14,7 @@ from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
-from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert
+from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert, RandomHorizontalFlip
 from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
 from torchvision.transforms import Normalize, ColorJitter
@@ -208,6 +208,7 @@ class ImageNetTrainer(Trainer):
 
         image_pipeline = [
             self.decoder,
+            RandomHorizontalFlip(),
             ToTensor(),
             ToDevice(ch.device('cuda:0'), non_blocking=False),
             ToTorchImage(),

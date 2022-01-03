@@ -80,8 +80,7 @@ def main(log_dir, out_file):
     wds = [Parameters(wd=wd) for wd in [1e-4]]
     lrs = [Parameters(lr=lr) for lr in [0.55]]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
-        #(224, 312), (160, 224), (192, 256)
-        (160, 224)
+        (224, 312), (160, 224), (192, 256)
     ]]
     epochs = [Parameters(epochs=90)]
 
@@ -90,7 +89,7 @@ def main(log_dir, out_file):
                    val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv')
     ]
 
-    should_mixup = [Parameters(mixup=0), Parameters(mixup=0.2)]
+    should_mixup = [Parameters(mixup=0.0)]
     should_bn_wd = [Parameters(bn_wd=True), Parameters(bn_wd=False)]
 
     # next:

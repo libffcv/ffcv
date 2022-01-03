@@ -20,9 +20,8 @@ class RandomHorizontalFlip(Operation):
         horizontally.
     """
 
-    def __init__(self, p: float):
+    def __init__(self):
         super().__init__()
-        self.p = float
 
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
@@ -35,7 +34,6 @@ class RandomHorizontalFlip(Operation):
             return dst
 
         flip.is_parallel = True
-
         return flip
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:

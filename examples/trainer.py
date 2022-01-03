@@ -136,7 +136,6 @@ class Trainer():
                 images, targ_a, targ_b, lam = gpu_mixup(images, target, mixup_alpha)
 
             self.optimizer.zero_grad(set_to_none=True)
-
             with autocast():
                 output = self.model(images)
                 if mixup_alpha:
