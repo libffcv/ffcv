@@ -14,7 +14,7 @@ from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
-from ffcv.transforms import Cutout, RandomHorizontalFlip, ToTensor, Collate, ToDevice, Squeeze, Convert
+from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert
 from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
 from torchvision.transforms import Normalize, ColorJitter
@@ -46,7 +46,8 @@ Section('training', 'training hyper param stuff').params(
     lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or cyclic schedule?',
                            required=True),
     eval_only=Param(int, 'eval only?', default=0),
-    pretrained=Param(int, 'is pretrained?', default=0)
+    pretrained=Param(int, 'is pretrained?', default=0),
+    bn_wd=Param(int, 'should momentum on bn', default=1)
 )
 
 Section('distributed').params(
@@ -175,15 +176,26 @@ class ImageNetTrainer(Trainer):
     @param('training.optimizer')
     @param('training.weight_decay')
     @param('training.label_smoothing')
+    @param('training.bn_wd')
     def create_optimizer(self, _, lr, momentum, optimizer, weight_decay,
-                         label_smoothing):
+                         label_smoothing, bn_wd):
         assert optimizer == 'sgd'
+        if not bn_wd:
+            all_params = {k: v for (k, v) in self.model.named_parameters()}
+            param_groups = [{
+                'params': [all_params[k] for k in all_params if ('bn' in k)],
+                'weight_decay': 0.
+            }, {
+                'params': [all_params[k] for k in all_params if not ('bn' in k)],
+                'weight_decay': weight_decay
+            }]
+        else:
+            param_groups = [{
+                'params':self.model.parameters(),
+                'weight_decay': weight_decay
+            }]
 
-        self.optimizer = optim.SGD(self.model.parameters(),
-                                   lr=lr,
-                                   momentum=momentum,
-                                   weight_decay=weight_decay)
-
+        self.optimizer = optim.SGD(param_groups, lr=lr, momentum=momentum)
         self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
     @param('data.train_dataset')
@@ -193,6 +205,24 @@ class ImageNetTrainer(Trainer):
         train_path = Path(train_dataset)
         assert train_path.is_file()
         self.decoder = RandomResizedCropRGBImageDecoder((224, 224))
+
+        image_pipeline = [
+            self.decoder,
+            ToTensor(),
+            ToDevice(ch.device('cuda:0'), non_blocking=False),
+            ToTorchImage(),
+            Convert(ch.float16),
+            Normalize((IMAGENET_MEAN * 255).tolist(),
+                      (IMAGENET_STD * 255).tolist()),
+        ]
+
+        label_pipeline = [
+            IntDecoder(),
+            ToTensor(),
+            Squeeze(),
+            ToDevice(ch.device('cuda:0'), non_blocking=False)
+        ]
+
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
@@ -200,19 +230,8 @@ class ImageNetTrainer(Trainer):
                         os_cache=True,
                         drop_last=True,
                         pipelines={
-                            'image': [
-                                self.decoder,
-                                ToTensor(),
-                                ToDevice(ch.device('cuda:0'),
-                                        non_blocking=False),
-                                ToTorchImage(),
-                                Convert(ch.float16),
-                                Normalize((IMAGENET_MEAN * 255).tolist(),
-                                        (IMAGENET_STD * 255).tolist()),
-                            ],
-                            'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                    ToDevice(ch.device('cuda:0'),
-                                    non_blocking=False)]
+                            'image': image_pipeline,
+                            'label': label_pipeline
                         })
 
         return loader
@@ -237,15 +256,15 @@ class ImageNetTrainer(Trainer):
                                 cropper,
                                 ToTensor(),
                                 ToDevice(ch.device('cuda:0'),
-                                        non_blocking=False),
+                                         non_blocking=False),
                                 ToTorchImage(),
                                 Convert(ch.float16),
                                 Normalize((IMAGENET_MEAN * 255).tolist(),
-                                        (IMAGENET_STD * 255).tolist())
+                                          (IMAGENET_STD * 255).tolist())
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                    ToDevice(ch.device('cuda:0'),
-                                    non_blocking=False)]
+                                      ToDevice(ch.device('cuda:0'),
+                                      non_blocking=False)]
                         })
         return loader
 

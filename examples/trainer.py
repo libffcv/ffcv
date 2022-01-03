@@ -9,6 +9,7 @@ from abc import abstractmethod
 from time import time
 from uuid import uuid4
 from pathlib import Path
+from optimizations import gpu_mixup
 
 import numpy as np
 import torchmetrics
@@ -46,7 +47,8 @@ Section('training', 'training hyper param stuff').params(
     epochs=Param(int, 'number of epochs', default=24),
     lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.),
-    distributed=Param(int, 'is distributed?', default=0)
+    distributed=Param(int, 'is distributed?', default=0),
+    mixup_alpha=Param(float, 'mixup alpha', default=0)
 )
 
 Section('validation', 'Validation parameters stuff').params(
@@ -119,7 +121,8 @@ class Trainer():
             self.optimizer, schedule.__getitem__)
         self.loss = ch.nn.CrossEntropyLoss()
 
-    def train_loop(self, epoch):
+    @param('training.mixup_alpha')
+    def train_loop(self, epoch, mixup_alpha=None):
         model = self.model
         model.train()
         losses = []
@@ -128,11 +131,21 @@ class Trainer():
         for ix, (images, target) in enumerate(iterator):
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
+
+            if mixup_alpha:
+                images, targ_a, targ_b, lam = gpu_mixup(images, target, mixup_alpha)
+
             self.optimizer.zero_grad(set_to_none=True)
 
             with autocast():
                 output = self.model(images)
-                loss_train = self.loss(output, target)
+                if mixup_alpha:
+                    loss_a = self.loss(output, targ_a)
+                    loss_b = self.loss(output, targ_b)
+                    loss_train = loss_a * lam + loss_b * (1 - lam)
+                else:
+                    loss_train = self.loss(output, target)
+
                 losses.append(loss_train.detach())
                 self.train_accuracy(output, target)
 
@@ -170,7 +183,6 @@ class Trainer():
             for images, target in tqdm(self.val_loader):
                 images = images.to(memory_format=ch.channels_last,
                                    non_blocking=True)
-                self.optimizer.zero_grad(set_to_none=True)
 
                 with autocast():
                     output = self.model(images)
@@ -198,26 +210,26 @@ class Trainer():
 
         self.log_folder = folder
         self.logging_fp = str(folder / 'log')
-        self.logging_fd = open(self.logging_fp, 'w+')
-        self.params_fp = str(folder / 'params.json')
-
         self.start_time = time()
-        hyper_params = {
-            '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()}
-        with open(self.params_fp, 'w+') as handle:
-            json.dump(hyper_params, handle)
+
+        params = {
+            '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()
+        }
+
+        with open(folder / 'params.json', 'w+') as handle:
+            json.dump(params, handle)
 
     def log(self, content):
         cur_time = time()
-        self.logging_fd.write(json.dumps({
-            'timestamp': cur_time,
-            'relative_time': cur_time - self.start_time,
-            **content
-        }))
-        self.logging_fd.write('\n')
-        self.logging_fd.flush()
+        with open(self.logging_fp, 'w') as fd:
+            fd.write(json.dumps({
+                'timestamp': cur_time,
+                'relative_time': cur_time - self.start_time,
+                **content
+            }) + '\n')
+            fd.flush()
+
         print(f'>>> Logging file: {self.logging_fp}')
-        print(f'>>> Params file: {self.params_fp}')
 
     @param('training.epochs')
     def train(self, epochs):
@@ -235,53 +247,3 @@ class Trainer():
             'val_loss': val_loss,
             **val_stats
         })
-
-import torch.distributed as dist
-import torch.multiprocessing as mp
-from torch.nn.parallel import DistributedDataParallel as DDP
-
-
-Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
-    world_size=Param(int, 'number gpus', default=1),
-    addr=Param(str, 'address', default='localhost'),
-    port=Param(str, 'port', default='12355')
-)
-
-# class DistributedTrainer(Trainer):
-#     @param('distributed.world_size')
-#     def launch_distributed(config, world_size):
-#         def train(rank):
-#             trainer = DistributedTrainer(config, rank)
-#             trainer.train()
-#             trainer.cleanup()
-
-#         mp.spawn(train, args=tuple(), nprocs=world_size, join=True)
-
-#     @param('distributed.world_size')
-#     @param('distributed.addr')
-#     @param('distributed.port')
-#     def __init__(self, *args, gpu, world_size, addr, port, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         assert type(gpu) is int
-#         assert type(addr) is str
-#         assert type(port) is str
-#         assert type(world_size) is int
-
-#         os.environ['MASTER_ADDR'] = addr
-#         os.environ['MASTER_PORT'] = port
-#         dist.init_process_group('nccl', rank=gpu, world_size=world_size)
-#         # self.addr = addr
-#         # self.port = port
-
-#     def cleanup(self):
-#         dist.destroy_process_group()
-
-#     # put ALL distributed stuff in here (ie all device checks + checks of whether
-#     #     it is distributed etc)
-#     def log(self, *args, **kwargs):
-#         if self.gpu == 0:
-#             return super().log(*args, **kwargs)
-
-#     def initialize_logger(self, *args, **kwargs):
-#         if self.gpu == 0:
-#             return super().initialize_logger(*args, **kwargs)
