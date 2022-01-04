@@ -27,10 +27,13 @@ class RandomHorizontalFlip(Operation):
         my_range = Compiler.get_iterator()
 
         def flip(images, dst):
+            should_flip = rand(images.shape[0]) > 0.5
             for i in my_range(images.shape[0]):
-                should_flip = rand() > 0.5
-                if should_flip:
+                if should_flip[i]:
                     dst[i] = images[i, :, ::-1]
+                else:
+                    dst[i] = images[i]
+
             return dst
 
         flip.is_parallel = True

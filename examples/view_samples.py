@@ -45,4 +45,5 @@ def save_all(loader, name, dired=None):
 
 with ch.no_grad():
     for loader, name in zip(loaders, names):
+        print(name)
         save_all(loader, name)
