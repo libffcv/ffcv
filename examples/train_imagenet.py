@@ -208,7 +208,7 @@ class ImageNetTrainer(Trainer):
 
         image_pipeline = [
             self.decoder,
-            # RandomHorizontalFlip(),
+            RandomHorizontalFlip(),
             ToTensor(),
             ToDevice(ch.device('cuda:0'), non_blocking=False),
             ToTorchImage(),
