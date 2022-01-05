@@ -121,8 +121,7 @@ class Trainer():
             self.optimizer, schedule.__getitem__)
         self.loss = ch.nn.CrossEntropyLoss()
 
-    @param('training.mixup_alpha')
-    def train_loop(self, epoch, mixup_alpha=None):
+    def train_loop(self, epoch):
         model = self.model
         model.train()
         losses = []
@@ -132,21 +131,21 @@ class Trainer():
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
 
-            if mixup_alpha:
-                images, targ_a, targ_b, lam = gpu_mixup(images, target, mixup_alpha)
+            # if mixup_alpha:
+                # images, targ_a, targ_b, lam = gpu_mixup(images, target, mixup_alpha)
 
             self.optimizer.zero_grad(set_to_none=True)
             with autocast():
                 output = self.model(images)
-                if mixup_alpha:
-                    loss_a = self.loss(output, targ_a)
-                    loss_b = self.loss(output, targ_b)
-                    loss_train = loss_a * lam + loss_b * (1 - lam)
-                else:
-                    loss_train = self.loss(output, target)
+                # if mixup_alpha:
+                    # loss_a = self.loss(output, targ_a)
+                    # loss_b = self.loss(output, targ_b)
+                    # loss_train = loss_a * lam + loss_b * (1 - lam)
+                # else:
+                loss_train = self.loss(output, target)
 
                 losses.append(loss_train.detach())
-                self.train_accuracy(output, target)
+                # self.train_accuracy(output, target)
 
             # Logging
             group_lrs = []
@@ -166,7 +165,8 @@ class Trainer():
             self.scaler.update()
             self.scheduler.step()
 
-        accuracy = self.train_accuracy.compute().item()
+        # accuracy = self.train_accuracy.compute().item()
+        accuracy = 0.
         self.train_accuracy.reset()
         loss = ch.stack(losses).mean().item()
         print('Train acc: ', accuracy)

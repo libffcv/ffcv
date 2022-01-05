@@ -1,4 +1,8 @@
 from multiprocessing import Value
+from typing import List
+from ffcv.pipeline.operation import Operation
+from ffcv.transforms import mixup
+from ffcv.transforms.mixup import ImageMixup, LabelMixup, MixupToOneHot
 import torch as ch
 from pathlib import Path
 from torch.cuda.amp import GradScaler
@@ -8,7 +12,7 @@ matplotlib.use('module://itermplot')
 import matplotlib.pyplot as plt
 
 from ffcv.pipeline.compiler import Compiler
-import antialiased_cnns
+# import antialiased_cnns
 import time
 from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
@@ -200,14 +204,18 @@ class ImageNetTrainer(Trainer):
 
     @param('data.train_dataset')
     @param('training.batch_size')
+    @param('training.mixup_alpha') # Should move this declaration out of trainer
     @param('data.num_workers')
-    def create_train_loader(self, train_dataset, batch_size, num_workers):
+    def create_train_loader(self, train_dataset, batch_size, mixup_alpha, num_workers):
         train_path = Path(train_dataset)
         assert train_path.is_file()
         self.decoder = RandomResizedCropRGBImageDecoder((224, 224))
 
-        image_pipeline = [
-            self.decoder,
+        image_pipeline: List[Operation] = [self.decoder]
+        if mixup_alpha:
+            image_pipeline.append(ImageMixup(mixup_alpha))
+        
+        image_pipeline.extend([
             RandomHorizontalFlip(),
             ToTensor(),
             ToDevice(ch.device('cuda:0'), non_blocking=False),
@@ -215,14 +223,18 @@ class ImageNetTrainer(Trainer):
             Convert(ch.float16),
             Normalize((IMAGENET_MEAN * 255).tolist(),
                       (IMAGENET_STD * 255).tolist()),
-        ]
+        ])
 
-        label_pipeline = [
-            IntDecoder(),
+        label_pipeline: List[Operation] = [IntDecoder()]
+        if mixup_alpha:
+            label_pipeline.append(LabelMixup(mixup_alpha))
+        label_pipeline.extend([
             ToTensor(),
             Squeeze(),
             ToDevice(ch.device('cuda:0'), non_blocking=False)
-        ]
+        ])
+        if mixup_alpha:
+            label_pipeline.append(MixupToOneHot(1000))
 
         loader = Loader(train_dataset,
                         batch_size=batch_size,
