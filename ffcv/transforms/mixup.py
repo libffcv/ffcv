@@ -32,17 +32,20 @@ class ImageMixup(Operation):
         my_range = Compiler.get_iterator()
 
         def mixer(images, temp_array, indices):
+            print('IMAGES 1', images[0][0][0])
             num_images = images.shape[0]
             # permutation = np.random.permutation(num_images)
             permutation = np.argsort(indices)
-            with objmode(lam="float32"):
-                rng = np.random.default_rng(indices[0])
-                lam = rng.beta(alpha, alpha)
+            lam = np.zeros((num_images,))
+            with objmode(lam="float32[:]"):
+                rng = np.random.default_rng(indices[-1])
+                lam = rng.beta(alpha, alpha, size=num_images).astype(np.float32)
 
             for ix in my_range(num_images):
-                temp_array[ix] = images[permutation[ix]]
+                temp_array[ix] = lam[ix] * images[ix] + (1 - lam[ix]) * images[permutation[ix]]
 
-            images[:] = images * lam + temp_array * (1 - lam)
+            print(lam)
+            images[:] = temp_array
             return images
 
         mixer.is_parallel = True
@@ -76,14 +79,14 @@ class LabelMixup(Operation):
             num_labels = labels.shape[0]
             # permutation = np.random.permutation(num_labels)
             permutation = np.argsort(indices)
-            with objmode(lam="float32"):
-                rng = np.random.default_rng(indices[0])
-                lam = rng.beta(alpha, alpha)
+            with objmode(lam="float32[:]"):
+                rng = np.random.default_rng(indices[-1])
+                lam = rng.beta(alpha, alpha, size=num_labels).astype(np.float32)
 
             for ix in my_range(num_labels):
                 temp_array[ix, 0] = labels[ix][0]
                 temp_array[ix, 1] = labels[permutation[ix]][0]
-                temp_array[ix, 2] = lam
+                temp_array[ix, 2] = lam[ix]
 
             return temp_array
 
