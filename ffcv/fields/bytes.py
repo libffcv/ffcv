@@ -15,9 +15,6 @@ class BytesDecoder(Operation):
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         max_size = self.metadata['size'].max()
-        min_size = self.metadata['size'].max()
-        if max_size != min_size:
-            raise AssertionError('Size of bytes blocks are not constant')
 
         my_shape = (max_size,)
         return (
