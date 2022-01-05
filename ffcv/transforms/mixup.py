@@ -23,30 +23,26 @@ class ImageMixup(Operation):
         Cutout parameter alpha
     """
 
-    def __init__(self, alpha: float):
+    def __init__(self, alpha: float, same_lambda: bool):
         super().__init__()
         self.alpha = alpha
+        self.same_lambda = same_lambda
 
     def generate_code(self) -> Callable:
         alpha = self.alpha
+        same_lam = self.same_lambda
         my_range = Compiler.get_iterator()
 
-        def mixer(images, temp_array, indices):
-            print('IMAGES 1', images[0][0][0])
+        def mixer(images, dst, indices):
+            np.random.seed(indices[-1])
             num_images = images.shape[0]
-            # permutation = np.random.permutation(num_images)
-            permutation = np.argsort(indices)
-            lam = np.zeros((num_images,))
-            with objmode(lam="float32[:]"):
-                rng = np.random.default_rng(indices[-1])
-                lam = rng.beta(alpha, alpha, size=num_images).astype(np.float32)
-
+            lam = np.random.beta(alpha, alpha) if same_lam else \
+                  np.random.beta(alpha, alpha, num_images)
             for ix in my_range(num_images):
-                temp_array[ix] = lam[ix] * images[ix] + (1 - lam[ix]) * images[permutation[ix]]
+                l = lam if same_lam else lam[ix]
+                dst[ix] = l * images[ix] + (1 - l) * images[ix - 1]
 
-            print(lam)
-            images[:] = temp_array
-            return images
+            return dst
 
         mixer.is_parallel = True
         mixer.with_indices = True
@@ -57,7 +53,7 @@ class ImageMixup(Operation):
         # assert previous_state.jit_mode
         # We do everything in place
         return (previous_state, AllocationQuery(shape=previous_state.shape,
-                                                dtype=np.float32))
+                                                dtype=previous_state.dtype))
 
 class LabelMixup(Operation):
     """Cutout for labels.
@@ -67,26 +63,27 @@ class LabelMixup(Operation):
     alpha : float
         Cutout parameter alpha
     """
-    def __init__(self, alpha: float):
+    def __init__(self, alpha: float, same_lambda: bool):
         super().__init__()
         self.alpha = alpha
+        self.same_lambda = same_lambda
 
     def generate_code(self) -> Callable:
         alpha = self.alpha
+        same_lam = self.same_lambda
         my_range = Compiler.get_iterator()
 
         def mixer(labels, temp_array, indices):
             num_labels = labels.shape[0]
             # permutation = np.random.permutation(num_labels)
-            permutation = np.argsort(indices)
-            with objmode(lam="float32[:]"):
-                rng = np.random.default_rng(indices[-1])
-                lam = rng.beta(alpha, alpha, size=num_labels).astype(np.float32)
+            np.random.seed(indices[-1])
+            lam = np.random.beta(alpha, alpha) if same_lam else \
+                  np.random.beta(alpha, alpha, num_labels)
 
             for ix in my_range(num_labels):
                 temp_array[ix, 0] = labels[ix][0]
-                temp_array[ix, 1] = labels[permutation[ix]][0]
-                temp_array[ix, 2] = lam[ix]
+                temp_array[ix, 1] = labels[ix - 1][0]
+                temp_array[ix, 2] = lam if same_lam else lam[ix]
 
             return temp_array
 
@@ -107,18 +104,13 @@ class MixupToOneHot(Operation):
         self.num_classes = num_classes
     
     def generate_code(self) -> Callable:
-        C = self.num_classes
         def one_hotter(mixedup_labels, dst):
-            # Disgusting in-place version:
-            # L * a + (1-L) * b = L * (a + (1/L - 1) * b)
-            mixedup_labels[:,2].reciprocal_()
-            mixedup_labels[:,2] -= 1.
-            dst[:] = F.one_hot(mixedup_labels[:,1].long(), C)
-            dst *= mixedup_labels[:,2][:,None]
-            dst += mixedup_labels[:,0][:,None]
-            mixedup_labels[:,2] += 1
-            mixedup_labels[:,2].reciprocal_()
-            dst *= mixedup_labels[:,2][:,None]
+            dst.zero_()
+            N = mixedup_labels.shape[0]
+            dst[ch.arange(N), mixedup_labels[:, 0].long()] = mixedup_labels[:, 2]
+            mixedup_labels[:, 2] *= -1
+            mixedup_labels[:, 2] += 1
+            dst[ch.arange(N), mixedup_labels[:, 1].long()] = mixedup_labels[:, 2]
             return dst
         
         return one_hotter

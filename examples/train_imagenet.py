@@ -205,15 +205,17 @@ class ImageNetTrainer(Trainer):
     @param('data.train_dataset')
     @param('training.batch_size')
     @param('training.mixup_alpha') # Should move this declaration out of trainer
+    @param('training.mixup_same_lambda')
     @param('data.num_workers')
-    def create_train_loader(self, train_dataset, batch_size, mixup_alpha, num_workers):
+    def create_train_loader(self, train_dataset, batch_size, 
+                            mixup_alpha, mixup_same_lambda, num_workers):
         train_path = Path(train_dataset)
         assert train_path.is_file()
         self.decoder = RandomResizedCropRGBImageDecoder((224, 224))
 
         image_pipeline: List[Operation] = [self.decoder]
         if mixup_alpha:
-            image_pipeline.append(ImageMixup(mixup_alpha))
+            image_pipeline.append(ImageMixup(mixup_alpha, mixup_same_lambda))
         
         image_pipeline.extend([
             RandomHorizontalFlip(),
@@ -227,7 +229,7 @@ class ImageNetTrainer(Trainer):
 
         label_pipeline: List[Operation] = [IntDecoder()]
         if mixup_alpha:
-            label_pipeline.append(LabelMixup(mixup_alpha))
+            label_pipeline.append(LabelMixup(mixup_alpha, mixup_same_lambda))
         label_pipeline.extend([
             ToTensor(),
             Squeeze(),

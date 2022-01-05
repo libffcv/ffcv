@@ -48,7 +48,8 @@ Section('training', 'training hyper param stuff').params(
     lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.),
     distributed=Param(int, 'is distributed?', default=0),
-    mixup_alpha=Param(float, 'mixup alpha', default=0)
+    mixup_alpha=Param(float, 'mixup alpha', default=0),
+    mixup_same_lambda=Param(int, 'mixup same lambda across each batch?', default=0)
 )
 
 Section('validation', 'Validation parameters stuff').params(
@@ -137,11 +138,6 @@ class Trainer():
             self.optimizer.zero_grad(set_to_none=True)
             with autocast():
                 output = self.model(images)
-                # if mixup_alpha:
-                    # loss_a = self.loss(output, targ_a)
-                    # loss_b = self.loss(output, targ_b)
-                    # loss_train = loss_a * lam + loss_b * (1 - lam)
-                # else:
                 loss_train = self.loss(output, target)
 
                 losses.append(loss_train.detach())
