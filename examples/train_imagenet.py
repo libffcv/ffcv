@@ -168,8 +168,7 @@ class ImageNetTrainer(Trainer):
                                         axis=0)
 
         self.scheduler = optim.lr_scheduler.LambdaLR(
-            self.optimizer, learning_rates.__getitem__
-        )
+            self.optimizer, learning_rates.__getitem__)
 
     @param('training.lr')
     @param('training.momentum')
