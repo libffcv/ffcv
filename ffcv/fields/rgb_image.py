@@ -41,7 +41,7 @@ def resizer(image, target_resolution):
     ratio = target_resolution / original_size.max()
     if ratio < 1:
         new_size = (ratio * original_size).astype(int)
-        image = cv2.resize(image, tuple(new_size))
+        image = cv2.resize(image, tuple(new_size), interpolation=cv2.INTER_AREA)
     return image
 
 

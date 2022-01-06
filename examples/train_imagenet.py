@@ -74,8 +74,13 @@ class ImageNetTrainer(Trainer):
     @param('resolution.max_res')
     @param('resolution.end_ramp')
     @param('training.batch_size')
+    @param('training.eval_only')
     def setup_schedules(self, epochs, lr_schedule_type, lr_peak_epoch, step_ratio,
-                        step_length, min_res, max_res, end_ramp, batch_size):
+                        step_length, min_res, max_res, end_ramp, batch_size,
+                        eval_only):
+        if eval_only:
+            return
+
         assert min_res <= max_res
         assert step_ratio <= 1
 
@@ -200,7 +205,12 @@ class ImageNetTrainer(Trainer):
     @param('data.train_dataset')
     @param('training.batch_size')
     @param('data.num_workers')
-    def create_train_loader(self, train_dataset, batch_size, num_workers):
+    @param('training.eval_only')
+    def create_train_loader(self, train_dataset, batch_size, num_workers,
+                            eval_only):
+        if eval_only:
+            return []
+
         train_path = Path(train_dataset)
         assert train_path.is_file()
         self.decoder = RandomResizedCropRGBImageDecoder((224, 224))

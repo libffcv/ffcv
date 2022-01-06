@@ -48,8 +48,8 @@ TYPE_ID_HANDLER = {
     1   : IntField,
     2   : RGBImageField,
     3   : BytesField,
-    4   : NDArrayField
-    5: JSONField
+    4   : NDArrayField,
+    5   : JSONField
 }
 
 # Parse the fields descriptors from the header of the dataset

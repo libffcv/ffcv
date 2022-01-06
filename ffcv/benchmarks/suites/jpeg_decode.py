@@ -34,7 +34,8 @@ class JPEGDecodeBenchmark(Benchmark):
         new_width = self.image_width
         factor = new_width / previous_width
         new_height = int(loaded_image.shape[0] * factor)
-        resized_image = cv2.resize(loaded_image, (new_width, new_height))
+        resized_image = cv2.resize(loaded_image, (new_width, new_height),
+                                   interpolation=cv2.INTER_AREA)
         _, self.encoded_image = cv2.imencode('.jpg', resized_image,
                                           [int(cv2.IMWRITE_JPEG_QUALITY),
                                               self.quality])
