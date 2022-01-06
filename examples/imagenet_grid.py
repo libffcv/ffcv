@@ -31,7 +31,8 @@ MAPPING = {
     'batch_size':['training', 'batch_size'],
     'peak':['training', 'lr_peak_epoch'],
     'bn_wd':['training', 'bn_wd'],
-    'mixup':['training', 'mixup_alpha']
+    'mixup':['training', 'mixup_alpha'],
+    'same_lambda':['training', 'mixup_same_lambda']
 }
 
 STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/resnet18_90.yaml', 'r'))
@@ -89,8 +90,9 @@ def main(log_dir, out_file):
                    val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv')
     ]
 
-    should_mixup = [Parameters(mixup=0.0)]
-    should_bn_wd = [Parameters(bn_wd=True), Parameters(bn_wd=False)]
+    should_mixup = [Parameters(mixup=0.1, same_lambda=1), 
+                    Parameters(mixup=0.2, same_lambda=1)]
+    should_bn_wd = [Parameters(bn_wd=False)]
 
     # next:
     axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs, res,
