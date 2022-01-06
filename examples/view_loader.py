@@ -1,15 +1,16 @@
 import matplotlib
 matplotlib.use('module://imgcat')
 
+from fastargs.decorators import param
+from fastargs import Param, Section
+from fastargs.validation import And, OneOf
+from ffcv.pipeline.compiler import Compiler
+
 from train_imagenet import IMAGENET_MEAN, IMAGENET_STD, make_trainer
 from pathlib import Path
 from uuid import uuid4
 from tqdm import tqdm
 TARGET = 0
-
-from fastargs.decorators import param
-from fastargs import Param, Section
-from fastargs.validation import And, OneOf
 
 ffcv_trainer = make_trainer()
 import torch

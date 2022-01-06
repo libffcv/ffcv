@@ -3,8 +3,11 @@ Masked applied on a predefined set of images
 """
 from typing import Tuple
 
+from numba import objmode
 import numpy as np
 import torch as ch
+import torch.nn.functional as F
+from dataclasses import replace
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
@@ -20,26 +23,26 @@ class ImageMixup(Operation):
         Cutout parameter alpha
     """
 
-    def __init__(self, alpha: float):
+    def __init__(self, alpha: float, same_lambda: bool):
         super().__init__()
         self.alpha = alpha
+        self.same_lambda = same_lambda
 
     def generate_code(self) -> Callable:
         alpha = self.alpha
+        same_lam = self.same_lambda
         my_range = Compiler.get_iterator()
 
-        def mixer(images, temp_array, indices):
-            rng = np.random.default_rng(indices[0])
+        def mixer(images, dst, indices):
+            np.random.seed(indices[-1])
             num_images = images.shape[0]
-            permutation = rng.permutation(num_images)
-            lam = rng.beta(alpha, alpha)
-
+            lam = np.random.beta(alpha, alpha) if same_lam else \
+                  np.random.beta(alpha, alpha, num_images)
             for ix in my_range(num_images):
-                temp_array[ix] = images[permutation[ix]]
+                l = lam if same_lam else lam[ix]
+                dst[ix] = l * images[ix] + (1 - l) * images[ix - 1]
 
-            images[:] = images * lam + temp_array * (1 - lam)
-
-            return images
+            return dst
 
         mixer.is_parallel = True
         mixer.with_indices = True
@@ -50,7 +53,7 @@ class ImageMixup(Operation):
         # assert previous_state.jit_mode
         # We do everything in place
         return (previous_state, AllocationQuery(shape=previous_state.shape,
-                                                dtype=ch.float32))
+                                                dtype=previous_state.dtype))
 
 class LabelMixup(Operation):
     """Cutout for labels.
@@ -60,24 +63,27 @@ class LabelMixup(Operation):
     alpha : float
         Cutout parameter alpha
     """
-    def __init__(self, alpha: float):
+    def __init__(self, alpha: float, same_lambda: bool):
         super().__init__()
         self.alpha = alpha
+        self.same_lambda = same_lambda
 
     def generate_code(self) -> Callable:
         alpha = self.alpha
+        same_lam = self.same_lambda
         my_range = Compiler.get_iterator()
 
         def mixer(labels, temp_array, indices):
-            rng = np.random.default_rng(indices[0])
             num_labels = labels.shape[0]
-            permutation = rng.permutation(num_labels)
-            lam = rng.beta(alpha, alpha)
+            # permutation = np.random.permutation(num_labels)
+            np.random.seed(indices[-1])
+            lam = np.random.beta(alpha, alpha) if same_lam else \
+                  np.random.beta(alpha, alpha, num_labels)
 
             for ix in my_range(num_labels):
-                temp_array[ix, 0] = labels[ix]
-                temp_array[ix, 1] = labels[permutation[ix]]
-                temp_array[ix, 2] = lam
+                temp_array[ix, 0] = labels[ix][0]
+                temp_array[ix, 1] = labels[ix - 1][0]
+                temp_array[ix, 2] = lam if same_lam else lam[ix]
 
             return temp_array
 
@@ -89,4 +95,27 @@ class LabelMixup(Operation):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         # assert previous_state.jit_mode
         # We do everything in place
-        return (previous_state, AllocationQuery((3,), dtype=ch.float32))
+        return (replace(previous_state, shape=(3,), dtype=np.float32), 
+                AllocationQuery((3,), dtype=np.float32))
+
+class MixupToOneHot(Operation):
+    def __init__(self, num_classes: int):
+        super().__init__()
+        self.num_classes = num_classes
+    
+    def generate_code(self) -> Callable:
+        def one_hotter(mixedup_labels, dst):
+            dst.zero_()
+            N = mixedup_labels.shape[0]
+            dst[ch.arange(N), mixedup_labels[:, 0].long()] = mixedup_labels[:, 2]
+            mixedup_labels[:, 2] *= -1
+            mixedup_labels[:, 2] += 1
+            dst[ch.arange(N), mixedup_labels[:, 1].long()] = mixedup_labels[:, 2]
+            return dst
+        
+        return one_hotter
+
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
+        assert not previous_state.jit_mode
+        return (replace(previous_state, shape=(self.num_classes,)), \
+                AllocationQuery((self.num_classes,), dtype=previous_state.dtype, device=previous_state.device))
