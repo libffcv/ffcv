@@ -2,8 +2,12 @@ from typing import List
 
 import numpy as np
 
+
 from .fields.base import Field
-from .fields import FloatField, IntField, RGBImageField, BytesField, NDArrayField
+from .fields import (
+    FloatField, IntField, RGBImageField,
+    BytesField, NDArrayField, JSONField
+)
 
 CURRENT_VERSION = 2
 
@@ -45,6 +49,7 @@ TYPE_ID_HANDLER = {
     2   : RGBImageField,
     3   : BytesField,
     4   : NDArrayField
+    5: JSONField
 }
 
 # Parse the fields descriptors from the header of the dataset

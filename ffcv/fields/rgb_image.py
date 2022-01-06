@@ -24,6 +24,7 @@ IMAGE_MODES['raw'] = 1
 
 
 def encode_jpeg(numpy_image, quality):
+    numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
     success, result = cv2.imencode('.jpg', numpy_image,
                                    [int(cv2.IMWRITE_JPEG_QUALITY), quality])
 
