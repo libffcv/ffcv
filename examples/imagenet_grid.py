@@ -86,12 +86,11 @@ def main(log_dir, out_file):
     epochs = [Parameters(epochs=90)]
 
     datasets = [
-        Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
-                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv')
+        Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
+                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv')
     ]
 
-    should_mixup = [Parameters(mixup=0.1, same_lambda=1), 
-                    Parameters(mixup=0.2, same_lambda=1)]
+    should_mixup = [Parameters(mixup=0., same_lambda=1)]
     should_bn_wd = [Parameters(bn_wd=False)]
 
     # next:
