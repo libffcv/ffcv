@@ -69,7 +69,7 @@ below:
 
     from ffcv.fields import NDArrayField, FloatField
 
-    writer = datasetwriter(write_path, {
+    writer = DatasetWriter(write_path, {
         'covariate': ndarrayfield(shape=(d,), dtype=np.float32),
         'label': FloatField(),
 
@@ -112,7 +112,7 @@ collect the list of shards. This can be simply done with ``glob``
     from glob import glob
     from os import path
     
-    my_shards = glob(path.join(FOLDER, '*))
+    my_shards = glob(path.join(FOLDER, '*'))
     
 Internally, FFCV will split the shards among the number of available workers.
 However, each worker still needs to know how to decode a given shard. This is done
@@ -121,10 +121,7 @@ by defining a pipeline (very similar to how one would use a ``webdataset`` for t
 .. code-block:: python
 
     def pipeline(dataset):
-        return (dataset
-            .decode('rgb8')
-            .to_tuple('jpg:png;jpeg cls')
-        )
+        return dataset.decode('rgb8').to_tuple('jpg:png;jpeg cls')
 
 Since FFCV expects images in the numpy uint8 format we use the parameter ``'rgb8'``
 of ``webdataset`` to decode the images. We then convert the dictionary to a tuple
@@ -137,7 +134,7 @@ We now just have to put glue everything together:
 
     from ffcv.fields import RGBImageField, IntField
 
-    writer = datasetwriter(write_path, {
+    writer = DatasetWriter(write_path, {
         'image': RGBImageField()
         'label': IntField(),
 
