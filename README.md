@@ -13,7 +13,7 @@
 
 `ffcv` dramatically increases data throughput in accelerated computing systems, offering:
  - Fast data loading (even in resource constrained environments)
- - Fast (yet easy to understand/customize) training code for standard computer vision tasks
+ - Efficient (yet easy to understand/customize) training code for standard computer vision tasks
 
 # Installation
 
