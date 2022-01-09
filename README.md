@@ -1,7 +1,7 @@
 # ffcv
 <p align = 'center'>
 <img src='assets/logo.png' width='100%'/>
-<a href="google.com">[chungus]</a>
+[<a href="google.com">chungus</a>]
 </p>
 
 Training go BrrrRr
