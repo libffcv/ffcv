@@ -1,4 +1,3 @@
-# ffcv
 <p align = 'center'>
 <em>ImageNet is the new CIFAR: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
 </p>
@@ -12,7 +11,9 @@
 [<a href="#intro">CIFAR</a>]
 </p>
 
-Intro slides: https://docs.google.com/presentation/d/1NvcrcR2BSdddyKnS6uoIsp32hFjQ6NOVH0XTBox6oCU/edit?usp=sharing
+`ffcv` dramatically increases data throughput in accelerated computing systems, offering...
+ - Fast data loading (even in resource constrained environments)
+ - Fast (yet easy to understand/customize) training code for standard computer vision tasks
 
 # Installation
 
