@@ -32,7 +32,8 @@ MAPPING = {
     'peak':['training', 'lr_peak_epoch'],
     'bn_wd':['training', 'bn_wd'],
     'mixup':['training', 'mixup_alpha'],
-    'same_lambda':['training', 'mixup_same_lambda']
+    'same_lambda':['training', 'mixup_same_lambda'],
+    'schedule_type':['training', 'lr_schedule_type']
 }
 
 STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/resnet18_90.yaml', 'r'))
@@ -67,10 +68,6 @@ class Parameters():
 
         return ret
 
-# params = Parameters(lr=88, wd=99, arch='resnet50')
-# print(d)
-# params.override(d)
-# print(d)
 
 @param('grid.log_dir')
 @param('grid.out_file')
@@ -78,24 +75,35 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [1e-4]]
-    lrs = [Parameters(lr=lr) for lr in [0.55]]
+    wds = [Parameters(wd=wd) for wd in [2e-4, 1e-4, 1e-4/2]]
+    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(0.4, 1.2, 4) / 2]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
-        (224, 312), (160, 224), (192, 256)
+        (160, 224), (192, 256)
     ]]
-    epochs = [Parameters(epochs=90)]
 
-    datasets = [
+    archs = [
+        # Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
+        #            val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv',
+        #            batch_size=1024,
+        #            arch='resnet18'),
         Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
-                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv')
+                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv',
+                   batch_size=512,
+                   arch='resnet50')
     ]
 
-    should_mixup = [Parameters(mixup=0., same_lambda=1)]
+    peaks = [Parameters(peak=k, schedule_type='cyclic') for k in [0]]
+    epochs = [Parameters(epochs=k) for k in [30]]
+
+    should_mixup = [
+        Parameters(mixup=0., same_lambda=1)
+    ]
+
     should_bn_wd = [Parameters(bn_wd=False)]
 
     # next:
-    axes = [wds, lrs, [Parameters(logs=log_dir)], datasets, epochs, res,
-            should_mixup, should_bn_wd]
+    axes = [wds, lrs, [Parameters(logs=log_dir)], archs, epochs, res,
+            should_mixup, should_bn_wd, peaks, archs]
     out_write = []
     configs = list(itertools.product(*axes))
 

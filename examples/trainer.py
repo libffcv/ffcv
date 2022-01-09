@@ -132,16 +132,12 @@ class Trainer():
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
 
-            # if mixup_alpha:
-                # images, targ_a, targ_b, lam = gpu_mixup(images, target, mixup_alpha)
-
             self.optimizer.zero_grad(set_to_none=True)
             with autocast():
                 output = self.model(images)
                 loss_train = self.loss(output, target)
 
                 losses.append(loss_train.detach())
-                # self.train_accuracy(output, target)
 
             # Logging
             group_lrs = []

@@ -1,4 +1,6 @@
 # ffcv
+<img src='assets/logo.png' width='100%'/>
+Training go BrrrRr
 
 Intro slides: https://docs.google.com/presentation/d/1NvcrcR2BSdddyKnS6uoIsp32hFjQ6NOVH0XTBox6oCU/edit?usp=sharing
 
