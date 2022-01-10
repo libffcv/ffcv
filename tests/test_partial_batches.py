@@ -30,7 +30,7 @@ class Doubler(Operation):
 
     def generate_code(self) -> Callable:
         def code(x, dst):
-            dst[:] = x * 2
+            dst[:x.shape[0]] = x * 2
             return dst
         return code
 
@@ -57,10 +57,10 @@ def run_test(bs, exp_length, drop_last=True):
                         pipelines={
                             'value': [FloatDecoder(), Doubler(), ToTensor()]
                         })
-                        
+
         assert_that(loader).is_length(exp_length)
         another_partial = drop_last
-        for batch, _ in loader:
+        for (batch, _) in loader:
             if batch.shape[0] != bs:
                 assert_that(another_partial).is_false()
                 another_partial = True

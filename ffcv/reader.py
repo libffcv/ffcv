@@ -6,7 +6,7 @@ from .types import (ALLOC_TABLE_TYPE, HeaderType, CURRENT_VERSION,
 
 class Reader:
 
-    def __init__(self, fname, custom_handlers):
+    def __init__(self, fname, custom_handlers={}):
         self._fname = fname
         self._custom_handlers = custom_handlers
         self.read_header()
