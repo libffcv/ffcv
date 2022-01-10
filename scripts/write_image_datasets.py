@@ -17,7 +17,7 @@ Section('cfg', 'arguments to give the writer').params(
     write_path=Param(str, 'Where to write the new dataset', required=True),
     write_mode=Param(str, 'Mode: raw, smart or jpg', required=False, default='smart'),
     max_resolution=Param(int, 'Max image side length', required=True),
-    num_workers=Param(int, 'Number of workers to use', default=16),
+    num_workers=Param(int, 'Number of workers to use', default=32),
     chunk_size=Param(int, 'Chunk size for writing', default=100),
     jpeg_quality=Param(float, 'Quality of jpeg images', default=90),
     subset=Param(int, 'How many images to use (-1 for all)', default=-1),

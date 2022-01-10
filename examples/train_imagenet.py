@@ -6,13 +6,10 @@ from ffcv.transforms.mixup import ImageMixup, LabelMixup, MixupToOneHot
 import torch as ch
 from pathlib import Path
 from torch.cuda.amp import GradScaler
-import numpy
 import matplotlib
 matplotlib.use('module://itermplot')
 import matplotlib.pyplot as plt
 
-from ffcv.pipeline.compiler import Compiler
-# import antialiased_cnns
 import time
 from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
@@ -21,7 +18,7 @@ from ffcv.loader import Loader, OrderOption
 from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert, RandomHorizontalFlip
 from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
-from torchvision.transforms import Normalize, ColorJitter
+from torchvision.transforms import Normalize
 from fastargs import get_current_config
 from fastargs.decorators import param
 from fastargs import Param, Section
@@ -199,7 +196,7 @@ class ImageNetTrainer(Trainer):
             }]
         else:
             param_groups = [{
-                'params':self.model.parameters(),
+                'params': self.model.parameters(),
                 'weight_decay': weight_decay
             }]
 
@@ -228,7 +225,7 @@ class ImageNetTrainer(Trainer):
         image_pipeline.extend([
             RandomHorizontalFlip(),
             ToTensor(),
-            ToDevice(ch.device('cuda:0'), non_blocking=False),
+            ToDevice(ch.device('cuda:0'), non_blocking=True),
             ToTorchImage(),
             Convert(ch.float16),
             Normalize((IMAGENET_MEAN * 255).tolist(),
@@ -242,7 +239,7 @@ class ImageNetTrainer(Trainer):
         label_pipeline.extend([
             ToTensor(),
             Squeeze(),
-            ToDevice(ch.device('cuda:0'), non_blocking=False)
+            ToDevice(ch.device('cuda:0'), non_blocking=True)
         ])
 
         if mixup_alpha:
@@ -251,7 +248,7 @@ class ImageNetTrainer(Trainer):
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
-                        order=OrderOption.RANDOM,
+                        order=OrderOption.QUASI_RANDOM,
                         os_cache=True,
                         drop_last=True,
                         pipelines={
@@ -281,7 +278,7 @@ class ImageNetTrainer(Trainer):
                                 cropper,
                                 ToTensor(),
                                 ToDevice(ch.device('cuda:0'),
-                                         non_blocking=False),
+                                         non_blocking=True),
                                 ToTorchImage(),
                                 Convert(ch.float16),
                                 Normalize((IMAGENET_MEAN * 255).tolist(),
@@ -289,7 +286,7 @@ class ImageNetTrainer(Trainer):
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
                                       ToDevice(ch.device('cuda:0'),
-                                      non_blocking=False)]
+                                      non_blocking=True)]
                         })
         return loader
 
