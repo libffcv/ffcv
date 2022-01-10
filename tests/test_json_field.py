@@ -50,7 +50,6 @@ def run_test(n_samples):
 
         writer.from_indexed_dataset(dataset)
 
-<<<<<<< HEAD
         loader = Loader(name, batch_size=3, num_workers=5,
                         pipelines={
                             'activation': [BytesDecoder()],
@@ -68,18 +67,3 @@ def run_test(n_samples):
 
 def test_simple_dict():
     run_test(32)
-=======
-        print("Written")
-
-        loader = Loader(name, batch_size=3, num_workers=5)
-        print("Loader created")
-        for r in loader:
-            print(r)
-
-
-def test_simple_dict():
-    run_test(32)
-    
-if __name__ == '__main__':
-    run_test(32)
->>>>>>> aebb4140be1ad7a07d68ba03a347d998dffce135

@@ -34,7 +34,7 @@ def process_work(rank, world_size, fname, order, sync_fname, out_folder):
     if world_size > 1:
         init_process_group('nccl', sync_url, rank=rank, world_size=world_size)
     
-    loader = Loader(fname, 8, num_workers=2, order=order,
+    loader = Loader(fname, 8, num_workers=2, order=order, drop_last=False,
                     distributed=world_size > 1)
     
     result = []
