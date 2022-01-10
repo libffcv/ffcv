@@ -1,17 +1,14 @@
-from multiprocessing import Value
+import os
 from typing import List
 from ffcv.pipeline.operation import Operation
-from ffcv.transforms import mixup
 from ffcv.transforms.mixup import ImageMixup, LabelMixup, MixupToOneHot
 import torch as ch
 from pathlib import Path
 from torch.cuda.amp import GradScaler
 import matplotlib
 matplotlib.use('module://itermplot')
-import matplotlib.pyplot as plt
 
 import time
-from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
@@ -27,6 +24,11 @@ from argparse import ArgumentParser
 import numpy as np
 from torchvision import models
 import torch.optim as optim
+
+# distributed imports
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.multiprocessing as mp
 
 
 Section('model', 'model details').params(
@@ -52,7 +54,7 @@ Section('training', 'training hyper param stuff').params(
     bn_wd=Param(int, 'should momentum on bn', default=0)
 )
 
-Section('distributed').params(
+Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
     world_size=Param(int, 'number gpus', default=1),
     addr=Param(str, 'address', default='localhost'),
     port=Param(str, 'port', default='12355')
@@ -77,6 +79,21 @@ def get_linear_lr(epoch, lr, epochs):
 class ImageNetTrainer(Trainer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.setup_distributed()
+
+
+    @param('dist.address')
+    @param('dist.port')
+    @param('dist.world_size')
+    def setup_distributed(self, address, port, world_size):
+        os.environ['MASTER_ADDR'] = address
+        os.environ['MASTER_PORT'] = port
+
+        dist.init_process_group("gloo", rank=self.gpu, world_size=world_size)
+
+    def cleanup_distributed(self):
+        dist.destroy_process_group()
 
     @param('training.lr_schedule_type')
     def get_lr(self, epoch, lr_schedule_type):
@@ -255,7 +272,8 @@ class ImageNetTrainer(Trainer):
     @param('model.arch')
     @param('model.antialias')
     @param('training.pretrained')
-    def create_model_and_scaler(self, arch, antialias, pretrained):
+    @param('training.distributed')
+    def create_model_and_scaler(self, arch, antialias, pretrained, distributed):
         scaler = GradScaler()
         if not antialias:
             model = getattr(models, arch)(pretrained=pretrained)
@@ -263,31 +281,53 @@ class ImageNetTrainer(Trainer):
             raise ValueError('dont do this eom')
 
         model = model.to(memory_format=ch.channels_last)
-        model.cuda(self.gpu)
+        model = model.to(self.gpu)
+        if distributed:
+            model = DDP(model, device_ids=[self.gpu])
         return model, scaler
 
-def make_trainer():
+def make_trainer(gpu=0):
     config = get_current_config()
     parser = ArgumentParser(description='Fast imagenet training')
     config.augment_argparse(parser)
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
     config.summary()
-    trainer = ImageNetTrainer(config)
+    trainer = ImageNetTrainer(config, gpu=gpu)
     return trainer
 
+# def execute(trainer, eval_only=False):
+#     print(eval_only)
+#     if not eval_only:
+#         trainer.train()
+#     else:
+#         trainer.eval_and_log()
+
+#     return trainer
+
+@param('training.distributed')
 @param('training.eval_only')
-def execute(trainer, eval_only=False):
-    print(eval_only)
-    if not eval_only:
-        trainer.train()
-    else:
+def exec(gpu, distributed, eval_only):
+    trainer = make_trainer(gpu)
+    if eval_only:
         trainer.eval_and_log()
-    return trainer
+    else:
+        trainer.train()
 
-def main():
-    trainer = make_trainer()
-    return execute(trainer)
+    if distributed:
+        print('was distributed')
+        trainer.cleanup_distributed()
+
+@param('training.distributed')
+def main(distributed):
+    if distributed:
+        exec_distributed()
+    else:
+        exec()
+
+@param('dist.world_size')
+def exec_distributed(world_size):
+    mp.spawn(exec, nprocs=world_size, join=True)
 
 if __name__ == "__main__":
     main()

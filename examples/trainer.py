@@ -59,7 +59,7 @@ Section('validation', 'Validation parameters stuff').params(
     lr_tta=Param(int, 'should do lr flipping/avging at test time', default=1)
 )
 
-Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
+Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
     world_size=Param(int, 'number gpus', default=1),
     addr=Param(str, 'address', default='localhost'),
     port=Param(str, 'port', default='12355')
