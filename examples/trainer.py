@@ -79,14 +79,14 @@ class Trainer():
             self.train_loader = baseline_train_loader()
             self.val_loader = baseline_val_loader()
 
-        self.create_optimizer(len(self.train_loader))
-        self.train_accuracy = torchmetrics.Accuracy(
-            compute_on_step=False).to(self.gpu)
+        self.create_optimizer()
+        self.uid = str(uuid4())
+
         self.val_meters = {
             'top_1': torchmetrics.Accuracy(compute_on_step=False).to(self.gpu),
             'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).to(self.gpu)
         }
-        self.uid = str(uuid4())
+
         self.initialize_logger()
 
     @abstractmethod
@@ -127,8 +127,17 @@ class Trainer():
         model.train()
         losses = []
 
+        lr_start = self.get_lr(epoch)
+        lr_end = self.get_lr(epoch + 1)
+        iters = len(self.train_loader)
+        lrs = np.interp(np.arange(iters), [0, iters], [lr_start, lr_end])
+
         iterator = tqdm(self.train_loader)
         for ix, (images, target) in enumerate(iterator):
+            # set lr for this minibatch
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = lrs[ix]
+
             images = images.to(memory_format=ch.channels_last,
                                non_blocking=True)
 
@@ -136,7 +145,6 @@ class Trainer():
             with autocast():
                 output = self.model(images)
                 loss_train = self.loss(output, target)
-
                 losses.append(loss_train.detach())
 
             # Logging
@@ -147,22 +155,15 @@ class Trainer():
             names = ['ep', 'iter', 'shape', 'lrs']
             values = [epoch, ix, tuple(images.shape), group_lrs]
             msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
-            if ix == 0 or ix == len(self.train_loader) - 1:
-                print(msg)
-
             iterator.set_description(msg)
 
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
-            self.scheduler.step()
 
-        # accuracy = self.train_accuracy.compute().item()
-        accuracy = 0.
-        self.train_accuracy.reset()
         loss = ch.stack(losses).mean().item()
-        print('Train acc: ', accuracy)
-        return loss, accuracy
+        print('loss', loss)
+        return loss
 
     @param('validation.lr_tta')
     def val_loop(self, lr_tta):
@@ -212,7 +213,7 @@ class Trainer():
 
     def log(self, content):
         cur_time = time()
-        with open(self.logging_fp, 'w') as fd:
+        with open(self.logging_fp, 'a+') as fd:
             fd.write(json.dumps({
                 'timestamp': cur_time,
                 'relative_time': cur_time - self.start_time,

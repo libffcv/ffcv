@@ -75,24 +75,24 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [2e-4, 1e-4, 1e-4/2]]
-    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(0.4, 1.2, 4) / 2]
+    wds = [Parameters(wd=wd) for wd in [1e-4/4]]
+    lrs = [Parameters(lr=float(lr)) for lr in [1.0]]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
-        (160, 224), (192, 256)
+        (160, 224) #, (192, 256)
     ]]
 
     archs = [
-        # Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
-        #            val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv',
-        #            batch_size=1024,
-        #            arch='resnet18'),
-        Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
-                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv',
-                   batch_size=512,
-                   arch='resnet50')
+        Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
+                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv',
+                   batch_size=1024,
+                   arch='resnet18'),
+        # Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
+        #            val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv',
+        #            batch_size=512,
+        #            arch='resnet50')
     ]
 
-    peaks = [Parameters(peak=k, schedule_type='cyclic') for k in [0]]
+    peaks = [Parameters(peak=k, schedule_type='linear') for k in [0]]
     epochs = [Parameters(epochs=k) for k in [30]]
 
     should_mixup = [
