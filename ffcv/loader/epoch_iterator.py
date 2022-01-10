@@ -66,6 +66,9 @@ class EpochIterator(Thread):
         self.start()
 
     def run(self):
+
+        events = [None for _ in self.cuda_streams]
+
         try:
             b_ix = 0
             Compiler.set_num_threads(self.loader.num_workers)
@@ -74,7 +77,7 @@ class EpochIterator(Thread):
                 slot = self.current_batch_slot
                 self.current_batch_slot = (
                     slot + 1) % (self.loader.batches_ahead + 2)
-                result = self.run_pipeline(b_ix, ixes, slot)
+                result = self.run_pipeline(b_ix, ixes, slot, events[slot])
                 to_output = (slot, result)
                 while True:
                     try:
@@ -85,12 +88,23 @@ class EpochIterator(Thread):
 
                     if self.terminate_event.is_set():
                         return
-                b_ix += 1
+                if IS_CUDA:
+                    # We were able to submit this batch
+                    # Therefore it means that the user must have entered the for loop for
+                    # (batch_slot - batch_ahead + 1) % (batches ahead + 2)
+                    # Therefore batch_slot - batch_ahead must have all it's work submitted
+                    # We will record an event of all the work submitted on the main stream
+                    # and make sure no one overwrite the data until they are done
+                    just_finished_slot = (slot - self.loader.batches_ahead) % (self.loader.batches_ahead + 2)
+                    event = ch.cuda.Event()
+                    event.record(ch.cuda.default_stream())
+                    events[just_finished_slot] = event
+                    b_ix += 1
 
         except StopIteration:
             self.output_queue.put(None)
 
-    def run_pipeline(self, b_ix, batch_indices, batch_slot):
+    def run_pipeline(self, b_ix, batch_indices, batch_slot, cuda_event):
         # print(b_ix, batch_indices)
         self.memory_context.start_batch(b_ix)
         args = [batch_indices]
@@ -100,9 +114,11 @@ class EpochIterator(Thread):
         else:
             ctx = nullcontext()
         first_stage = False
+
         with ctx:
             if IS_CUDA:
-                stream.synchronize()
+                if cuda_event:
+                    cuda_event.wait()
             for stage, banks in self.memory_bank_per_stage.items():
                 for bank in banks:
                     if bank is not None:

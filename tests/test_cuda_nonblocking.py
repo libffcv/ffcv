@@ -36,6 +36,8 @@ def run_experiment_cuda(weight, loader, sync=False):
         if sync: ch.cuda.synchronize()
         X.copy_(X_bool)
         total += X @ weight
+        total += X @ weight
+        total += X @ weight
 
     return total.sum(0)
 
