@@ -116,7 +116,8 @@ class Trainer():
             self.optimizer, schedule.__getitem__)
         self.loss = ch.nn.CrossEntropyLoss()
 
-    def train_loop(self, epoch):
+    @param('training.diagnostics')
+    def train_loop(self, epoch, diagnostics):
         model = self.model
         model.train()
         losses = []
@@ -139,24 +140,23 @@ class Trainer():
             with autocast():
                 output = self.model(images)
                 loss_train = self.loss(output, target)
+
+            if diagnostics:
                 losses.append(loss_train.detach())
+                group_lrs = []
+                for _, group in enumerate(self.optimizer.param_groups):
+                    group_lrs.append(group['lr'])
 
-            # Logging
-            group_lrs = []
-            for _, group in enumerate(self.optimizer.param_groups):
-                group_lrs.append(group['lr'])
-
-            names = ['ep', 'iter', 'shape', 'lrs']
-            values = [epoch, ix, tuple(images.shape), group_lrs]
-            msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
-            iterator.set_description(msg)
+                names = ['ep', 'iter', 'shape', 'lrs']
+                values = [epoch, ix, tuple(images.shape), group_lrs]
+                msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
+                iterator.set_description(msg)
 
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
 
-        loss = ch.stack(losses).mean().item()
-        print('loss', loss)
+        loss = ch.stack(losses).mean().item() if diagnostics else -1
         return loss
 
     @param('validation.lr_tta')

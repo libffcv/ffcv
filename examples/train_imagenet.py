@@ -51,7 +51,9 @@ Section('training', 'training hyper param stuff').params(
                            required=True),
     eval_only=Param(int, 'eval only?', default=0),
     pretrained=Param(int, 'is pretrained?', default=0),
-    bn_wd=Param(int, 'should momentum on bn', default=0)
+    bn_wd=Param(int, 'should momentum on bn', default=0),
+    diagnostics=Param(int, 'use diagnostics?', default=1),
+    cpu_limited=Param(int, 'is cpu limited?', default=0),
 )
 
 # Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
@@ -77,11 +79,13 @@ def get_step_lr(epoch, lr, step_ratio, step_length):
 def get_linear_lr(epoch, lr, epochs):
     return np.interp([epoch], [0, epochs], [lr, 0])[0]
 
+@param('training.distributed')
 @param('baselines.use_baseline')
 class ImageNetTrainer(Trainer):
-    def __init__(self, use_baseline, gpu):
+    def __init__(self, distributed, use_baseline, gpu):
         self.gpu = gpu
-        self.setup_distributed()
+        if distributed:
+            self.setup_distributed()
 
         super().__init__(use_baseline=use_baseline, gpu=gpu)
 
@@ -92,7 +96,7 @@ class ImageNetTrainer(Trainer):
         os.environ['MASTER_ADDR'] = address
         os.environ['MASTER_PORT'] = port
 
-        dist.init_process_group("gloo", rank=self.gpu, world_size=world_size)
+        dist.init_process_group("nccl", rank=self.gpu, world_size=world_size)
 
     def cleanup_distributed(self):
         dist.destroy_process_group()
@@ -160,9 +164,10 @@ class ImageNetTrainer(Trainer):
     @param('data.num_workers')
     @param('training.eval_only')
     @param('training.distributed')
+    @param('training.cpu_limited')
     def create_train_loader(self, train_dataset, batch_size, mixup_alpha,
                             mixup_same_lambda, num_workers, eval_only,
-                            distributed):
+                            distributed, cpu_limited):
         this_device = f'cuda:{self.gpu}'
         if eval_only:
             return []
@@ -174,16 +179,28 @@ class ImageNetTrainer(Trainer):
         image_pipeline: List[Operation] = [self.decoder]
         if mixup_alpha:
             image_pipeline.append(ImageMixup(mixup_alpha, mixup_same_lambda))
-        
+
         image_pipeline.extend([
             RandomHorizontalFlip(),
-            ToTensor(),
-            ToDevice(ch.device(this_device), non_blocking=True),
-            ToTorchImage(),
-            Convert(ch.float16),
-            Normalize((IMAGENET_MEAN * 255).tolist(),
-                      (IMAGENET_STD * 255).tolist()),
+            ToTensor()
         ])
+        
+        if cpu_limited:
+            image_pipeline.extend([
+                ToDevice(ch.device(this_device), non_blocking=True),
+                ToTorchImage(),
+                Convert(ch.float16),
+                Normalize((IMAGENET_MEAN * 255).tolist(),
+                          (IMAGENET_STD * 255).tolist()),
+            ])
+        else:
+            image_pipeline.extend([
+                ToTorchImage(),
+                Convert(ch.float16),
+                Normalize((IMAGENET_MEAN * 255).tolist(),
+                          (IMAGENET_STD * 255).tolist()),
+                ToDevice(ch.device('cuda:0'), non_blocking=True)
+            ])
 
         label_pipeline: List[Operation] = [IntDecoder()]
         if mixup_alpha:
@@ -198,9 +215,7 @@ class ImageNetTrainer(Trainer):
         if mixup_alpha:
             label_pipeline.append(MixupToOneHot(1000))
 
-        print('DISTRIBUTED LOADER', distributed)
         order = OrderOption.RANDOM if distributed else OrderOption.QUASI_RANDOM
-
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
@@ -251,20 +266,22 @@ class ImageNetTrainer(Trainer):
         return loader
 
     @param('training.epochs')
-    def train(self, epochs):
+    @param('training.diagnostics')
+    def train(self, epochs, diagnostics):
         for epoch in range(epochs):
             res = self.get_resolution(epoch)
             self.decoder.output_size = (res, res)
             train_loss = self.train_loop(epoch)
 
-            extra_dict = {
-                'train_loss': train_loss,
-                'epoch': epoch
-            }
+            if diagnostics:
+                extra_dict = {
+                    'train_loss': train_loss,
+                    'epoch': epoch
+                }
 
-            # if epoch % 5 == 0 or epoch == epochs - 1:
-            self.eval_and_log(extra_dict)
+                self.eval_and_log(extra_dict)
 
+        self.eval_and_log({'epoch':epoch})
         ch.save(self.model.state_dict(), self.log_folder / 'final_weights.pt')
 
     def eval_and_log(self, extra_dict={}):
