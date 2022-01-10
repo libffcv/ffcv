@@ -70,7 +70,7 @@ below:
     from ffcv.fields import NDArrayField, FloatField
 
     writer = DatasetWriter(write_path, {
-        'covariate': ndarrayfield(shape=(d,), dtype=np.float32),
+        'covariate': NDArrayField(shape=(d,), dtype=np.float32),
         'label': FloatField(),
 
     }, num_workers=16)

@@ -103,5 +103,6 @@ There are three easy ways to specify transformations in a pipeline:
   operation
 
 - You can easily implement your own transformations by subclassing
-  :class:`ffcv.transforms.Operation`, as discussed in the `Making custom
-  transforms <TODO>`_ guide.
+  :class:`ffcv.transforms.Operation`, as discussed in the 
+  :ref:`Making custom transforms <Making custom transforms>` guide.
+

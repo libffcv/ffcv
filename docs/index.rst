@@ -12,6 +12,7 @@ Welcome to ffcv's documentation!
    working_with_images
    benchmarks
    api_reference
+   customizing
    :maxdepth: 2
    :caption: Contents:
 
