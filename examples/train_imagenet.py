@@ -54,9 +54,10 @@ Section('training', 'training hyper param stuff').params(
     bn_wd=Param(int, 'should momentum on bn', default=0)
 )
 
-Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
+# Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
+Section('dist').params(
     world_size=Param(int, 'number gpus', default=1),
-    addr=Param(str, 'address', default='localhost'),
+    address=Param(str, 'address', default='localhost'),
     port=Param(str, 'port', default='12355')
 )
 
@@ -74,14 +75,15 @@ def get_step_lr(epoch, lr, step_ratio, step_length):
 @param('training.lr')
 @param('training.epochs')
 def get_linear_lr(epoch, lr, epochs):
-    return np.interp([epoch], [0, epochs + 1], [lr, 0])[0]
+    return np.interp([epoch], [0, epochs], [lr, 0])[0]
 
+@param('baselines.use_baseline')
 class ImageNetTrainer(Trainer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self, use_baseline, gpu):
+        self.gpu = gpu
         self.setup_distributed()
 
+        super().__init__(use_baseline=use_baseline, gpu=gpu)
 
     @param('dist.address')
     @param('dist.port')
@@ -157,8 +159,11 @@ class ImageNetTrainer(Trainer):
     @param('training.mixup_same_lambda')
     @param('data.num_workers')
     @param('training.eval_only')
+    @param('training.distributed')
     def create_train_loader(self, train_dataset, batch_size, mixup_alpha,
-                            mixup_same_lambda, num_workers, eval_only):
+                            mixup_same_lambda, num_workers, eval_only,
+                            distributed):
+        this_device = f'cuda:{self.gpu}'
         if eval_only:
             return []
 
@@ -173,7 +178,7 @@ class ImageNetTrainer(Trainer):
         image_pipeline.extend([
             RandomHorizontalFlip(),
             ToTensor(),
-            ToDevice(ch.device('cuda:0'), non_blocking=True),
+            ToDevice(ch.device(this_device), non_blocking=True),
             ToTorchImage(),
             Convert(ch.float16),
             Normalize((IMAGENET_MEAN * 255).tolist(),
@@ -187,22 +192,26 @@ class ImageNetTrainer(Trainer):
         label_pipeline.extend([
             ToTensor(),
             Squeeze(),
-            ToDevice(ch.device('cuda:0'), non_blocking=True)
+            ToDevice(ch.device(this_device), non_blocking=True)
         ])
 
         if mixup_alpha:
             label_pipeline.append(MixupToOneHot(1000))
 
+        print('DISTRIBUTED LOADER', distributed)
+        order = OrderOption.RANDOM if distributed else OrderOption.QUASI_RANDOM
+
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
-                        order=OrderOption.QUASI_RANDOM,
+                        order=order,
                         os_cache=True,
                         drop_last=True,
                         pipelines={
                             'image': image_pipeline,
                             'label': label_pipeline
-                        })
+                        },
+                        distributed=distributed)
 
         return loader
 
@@ -210,12 +219,14 @@ class ImageNetTrainer(Trainer):
     @param('validation.batch_size')
     @param('data.num_workers')
     @param('validation.resolution')
+    @param('training.distributed')
     def create_val_loader(self, val_dataset, batch_size, num_workers,
-                          resolution, ratio=DEFAULT_CROP_RATIO):
+                          resolution, distributed):
+        this_device = f'cuda:{self.gpu}'
         val_path = Path(val_dataset)
         assert val_path.is_file()
         res_tuple = (resolution, resolution)
-        cropper = CenterCropRGBImageDecoder(res_tuple, ratio=ratio)
+        cropper = CenterCropRGBImageDecoder(res_tuple, ratio=DEFAULT_CROP_RATIO)
         loader = Loader(val_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
@@ -225,7 +236,7 @@ class ImageNetTrainer(Trainer):
                             'image': [
                                 cropper,
                                 ToTensor(),
-                                ToDevice(ch.device('cuda:0'),
+                                ToDevice(ch.device(this_device),
                                          non_blocking=True),
                                 ToTorchImage(),
                                 Convert(ch.float16),
@@ -233,9 +244,10 @@ class ImageNetTrainer(Trainer):
                                           (IMAGENET_STD * 255).tolist())
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                      ToDevice(ch.device('cuda:0'),
+                                      ToDevice(ch.device(this_device),
                                       non_blocking=True)]
-                        })
+                        },
+                        distributed=distributed)
         return loader
 
     @param('training.epochs')
@@ -286,24 +298,18 @@ class ImageNetTrainer(Trainer):
             model = DDP(model, device_ids=[self.gpu])
         return model, scaler
 
-def make_trainer(gpu=0):
+def make_config(quiet=False):
     config = get_current_config()
     parser = ArgumentParser(description='Fast imagenet training')
     config.augment_argparse(parser)
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
-    config.summary()
-    trainer = ImageNetTrainer(config, gpu=gpu)
+    if not quiet:
+        config.summary()
+
+def make_trainer(gpu=0):
+    trainer = ImageNetTrainer(gpu=gpu)
     return trainer
-
-# def execute(trainer, eval_only=False):
-#     print(eval_only)
-#     if not eval_only:
-#         trainer.train()
-#     else:
-#         trainer.eval_and_log()
-
-#     return trainer
 
 @param('training.distributed')
 @param('training.eval_only')
@@ -320,14 +326,20 @@ def exec(gpu, distributed, eval_only):
 
 @param('training.distributed')
 def main(distributed):
+    print(f'=> Distributed: {distributed}')
     if distributed:
         exec_distributed()
     else:
-        exec()
+        exec(0)
+
+def exec_wrapper(*args, **kwargs):
+    make_config(quiet=True)
+    return exec(*args, **kwargs)
 
 @param('dist.world_size')
 def exec_distributed(world_size):
-    mp.spawn(exec, nprocs=world_size, join=True)
+    mp.spawn(exec_wrapper, nprocs=world_size, join=True)
 
 if __name__ == "__main__":
+    make_config()
     main()

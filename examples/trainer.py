@@ -16,6 +16,7 @@ import torchmetrics
 from fastargs import Param, Section
 from fastargs.decorators import param
 from fastargs.validation import And, OneOf
+from fastargs import get_current_config
 from torch.cuda.amp import autocast
 from tqdm import tqdm
 
@@ -59,17 +60,10 @@ Section('validation', 'Validation parameters stuff').params(
     lr_tta=Param(int, 'should do lr flipping/avging at test time', default=1)
 )
 
-Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
-    world_size=Param(int, 'number gpus', default=1),
-    addr=Param(str, 'address', default='localhost'),
-    port=Param(str, 'port', default='12355')
-)
-
-
 class Trainer():
     @param('baselines.use_baseline')
-    def __init__(self, all_params, use_baseline, gpu=0):
-        self.all_params = all_params
+    def __init__(self, use_baseline, gpu=0):
+        self.all_params = get_current_config()
         self.gpu = gpu
         self.model, self.scaler = self.create_model_and_scaler()
         if not use_baseline:

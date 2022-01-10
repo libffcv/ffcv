@@ -47,7 +47,6 @@ DEFAULT_PROCESS_CACHE = int(environ.get('FFCV_DEFAULT_CACHE_PROCESS', "0"))
 DEFAULT_OS_CACHE = not DEFAULT_PROCESS_CACHE
 
 class Loader:
-
     def __init__(self,
                  fname: str,
                  batch_size: int,
