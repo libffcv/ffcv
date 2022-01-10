@@ -151,12 +151,14 @@ class Loader:
 
             self.pipelines[field_name] = Pipeline(operations)
 
+    def next_traversal_order(self):
+        return self.traversal_order.sample_order(self.next_epoch)
+
     def __iter__(self):
-        cur_epoch = self.next_epoch
-        self.next_epoch += 1
         Compiler.set_num_threads(self.num_workers)
-        order = self.traversal_order.sample_order(cur_epoch)
+        order = self.next_traversal_order()
         selected_order = order[:len(self) * self.batch_size]
+        self.next_epoch += 1
 
         # Compile at the first epoch
         if self.code_per_stage is None or self.recompile:
@@ -202,11 +204,11 @@ class Loader:
 
 
     def __len__(self):
-        # TODO handle drop_last
+        next_order = self.next_traversal_order()
         if self.drop_last:
-            return len(self.indices) // self.batch_size
+            return len(next_order) // self.batch_size
         else:
-            return int(np.ceil(len(self.indices) / self.batch_size))
+            return int(np.ceil(len(next_order) / self.batch_size))
 
     def generate_function_call(self, pipeline_name, op_id, needs_indices):
         p_ix = self.field_name_to_f_ix[pipeline_name]
