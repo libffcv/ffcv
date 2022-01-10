@@ -38,17 +38,18 @@ Section('model', 'model details').params(
 Section('resolution', 'resolution scheduling').params(
     min_res=Param(int, 'the minimum (starting) resolution', default=224),
     max_res=Param(int, 'the maximum (starting) resolution', default=224),
-    end_ramp=Param(int, 'when to stop interpolating resolution', default=0)
+    end_ramp=Param(int, 'when to stop interpolating resolution', default=0),
+    start_ramp=Param(int, 'when to start interpolating resolution', default=0)
 )
 
 Section('training', 'training hyper param stuff').params(
     step_ratio=Param(float, 'learning rate step ratio', default=0.1),
     step_length=Param(int, 'learning rate step length', default=30),
-    lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or cyclic schedule?',
+    lr_schedule_type=Param(OneOf(['step', 'linear']), 'step or linear schedule?',
                            required=True),
     eval_only=Param(int, 'eval only?', default=0),
     pretrained=Param(int, 'is pretrained?', default=0),
-    bn_wd=Param(int, 'should momentum on bn', default=1)
+    bn_wd=Param(int, 'should momentum on bn', default=0)
 )
 
 Section('distributed').params(
@@ -61,47 +62,60 @@ IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
 IMAGENET_STD = np.array([0.229, 0.224, 0.225])
 DEFAULT_CROP_RATIO = 224/256
 
-assert min_res <= max_res
-assert step_ratio <= 1
+@param('training.lr')
+@param('training.step_ratio')
+@param('training.step_length')
+def get_step_lr(epoch, lr, step_ratio, step_length):
+    num_steps = epoch // step_length
+    return step_ratio**num_steps * lr
 
-    @param('training.epochs')
-    @param('training.lr_schedule_type')
-    @param('training.lr_peak_epoch')
-    @param('training.step_ratio')
-    @param('training.step_length')
-    @param('resolution.min_res')
-    @param('resolution.max_res')
-    @param('resolution.end_ramp')
-    @param('training.batch_size')
-    @param('training.eval_only')
-
-def schedule(epoch):
-    if end_ramp == 0:
-        result = max_res
-    else:
-        diff = max_res - min_res
-        result = min_res
-        result += min(1, epoch / end_ramp) * diff
-        result = int(np.round(result / 32) * 32)
-    return (result, result)
-
+@param('training.lr')
+@param('training.epochs')
+def get_linear_lr(epoch, lr, epochs):
+    return np.interp([epoch], [0, epochs + 1], [lr, 0])[0]
 
 class ImageNetTrainer(Trainer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    @param('training.lr')
+    @param('training.lr_schedule_type')
+    def get_lr(self, epoch, lr_schedule_type):
+        lr_schedules = {
+            'linear': get_linear_lr,
+            'step': get_step_lr
+        }
+
+        return lr_schedules[lr_schedule_type](epoch)
+
+    # resolution tools
+    @param('resolution.min_res')
+    @param('resolution.max_res')
+    @param('resolution.end_ramp')
+    @param('resolution.start_ramp')
+    def get_resolution(self, epoch, min_res, max_res, end_ramp, start_ramp):
+        assert min_res <= max_res
+
+        if epoch <= start_ramp:
+            return min_res
+
+        if epoch >= end_ramp:
+            return max_res
+
+        # otherwise, linearly interpolate to the nearest multiple of 32
+        interp = np.interp([epoch], [start_ramp, end_ramp], [min_res, max_res])
+        return min_res + int(interp[0] // 32) * 32
+
     @param('training.momentum')
     @param('training.optimizer')
     @param('training.weight_decay')
     @param('training.label_smoothing')
     @param('training.bn_wd')
-    def create_optimizer(self, _, lr, momentum, optimizer, weight_decay,
+    def create_optimizer(self, momentum, optimizer, weight_decay,
                          label_smoothing, bn_wd):
         assert optimizer == 'sgd'
 
         if not bn_wd:
-            all_params = self.model.named_parameters()
+            all_params = list(self.model.named_parameters())
             bn_params = [v for k, v in all_params if ('bn' in k)]
             other_params = [v for k, v in all_params if not ('bn' in k)]
             param_groups = [{
@@ -117,12 +131,12 @@ class ImageNetTrainer(Trainer):
                 'weight_decay': weight_decay
             }]
 
-        self.optimizer = optim.SGD(param_groups, lr=lr, momentum=momentum)
+        self.optimizer = optim.SGD(param_groups, lr=1, momentum=momentum)
         self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
     @param('data.train_dataset')
     @param('training.batch_size')
-    @param('training.mixup_alpha') # Should move this declaration out of trainer
+    @param('training.mixup_alpha')
     @param('training.mixup_same_lambda')
     @param('data.num_workers')
     @param('training.eval_only')
@@ -209,19 +223,20 @@ class ImageNetTrainer(Trainer):
 
     @param('training.epochs')
     def train(self, epochs):
-        for res, epoch in zip(self.resolution_schedule, range(epochs)):
-            self.decoder.output_size = res
-            train_loss, train_acc = self.train_loop(epoch)
+        for epoch in range(epochs):
+            res = self.get_resolution(epoch)
+            self.decoder.output_size = (res, res)
+            train_loss = self.train_loop(epoch)
 
             extra_dict = {
                 'train_loss': train_loss,
-                'epoch': epoch,
-                'train_acc': train_acc,
+                'epoch': epoch
             }
 
+            # if epoch % 5 == 0 or epoch == epochs - 1:
             self.eval_and_log(extra_dict)
 
-        ch.save(self.model, self.log_folder / 'final_weights.pt')
+        ch.save(self.model.state_dict(), self.log_folder / 'final_weights.pt')
 
     def eval_and_log(self, extra_dict={}):
         start_val = time.time()
