@@ -101,6 +101,8 @@ for epoch in range(epochs):
 ```
 
 ## Bottleneck Doctor
+<img src='assets/clippy.png' width='100%'/>
+
 Why use `ffcv`? Computer vision or not, name your bottleneck, and we'll fix it! `cv` denotes computer-vision specific.
 If you don't know how to identify your bottleneck consider reading <a href="TODO">our guide.</a>
 <p><b>Disk-read bottlenecks.</b> What if your GPUs sit idle from low disk throughput?
