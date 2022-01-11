@@ -29,3 +29,5 @@ validation:
   batch_size: 1024
   resolution: 224
   lr_tta: True
+dist:
+  world_size: 1

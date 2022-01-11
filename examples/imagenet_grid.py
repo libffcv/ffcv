@@ -1,4 +1,5 @@
 import subprocess
+import os
 import itertools
 from uuid import uuid4
 import tqdm
@@ -75,15 +76,16 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
-    lrs = [Parameters(lr=float(lr)) for lr in [1.0, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]]
+    wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4]] # , 5e-5, 1e-5]]
+    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(1., 8., 8)]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
         (160, 224) #, (192, 256)
     ]]
 
+    base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
-        Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
-                   val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv',
+        Parameters(train_dataset=base_dir + 'train_350_0_100.ffcv',
+                   val_dataset=base_dir + 'val_350_0_100.ffcv',
                    batch_size=512,
                    arch='resnet50',
                    distributed=1,
@@ -124,7 +126,7 @@ def main(log_dir, out_file):
     print('jobs', len(out_write))
     to_write = '\n'.join(out_write)
     open(out_file, 'w+').write(to_write)
-    cmd = "parallel -j9 CUDA_VISIBLE_DEVICES='$(({%} - 1))'"
+    cmd = "parallel --jobs 1 CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7"
     cmd = f'cat {out_file} | ' + cmd + ' python train_imagenet.py --config-file'
     cmd = cmd + ' {}'
     print(' --- logs in --- ')
