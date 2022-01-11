@@ -12,6 +12,13 @@
 [<a href="#intro">FAQ</a>]
 </p>
 
+<style>
+    ul > li > a {
+        font-weight:bold;
+    }
+</style>
+
+
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
  - Fast data loading (even in resource constrained environments)
@@ -19,7 +26,7 @@ offering:
    computer vision tasks
 
 Install `ffcv` today and:
-- ...break the [MLPerf record*](TODO) for ImageNet training: TODO min on 8 AWS GPUs
+- ...break the <span>[MLPerf record*](TODO)</span> for ImageNet training: TODO min on 8 AWS GPUs
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
 - ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
