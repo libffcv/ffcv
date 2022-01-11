@@ -16,6 +16,7 @@ import torchmetrics
 from fastargs import Param, Section
 from fastargs.decorators import param
 from fastargs.validation import And, OneOf
+from fastargs import get_current_config
 from torch.cuda.amp import autocast
 from tqdm import tqdm
 
@@ -59,17 +60,11 @@ Section('validation', 'Validation parameters stuff').params(
     lr_tta=Param(int, 'should do lr flipping/avging at test time', default=1)
 )
 
-Section('distributed').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
-    world_size=Param(int, 'number gpus', default=1),
-    addr=Param(str, 'address', default='localhost'),
-    port=Param(str, 'port', default='12355')
-)
-
-
 class Trainer():
     @param('baselines.use_baseline')
-    def __init__(self, all_params, use_baseline, gpu=0):
-        self.all_params = all_params
+    def __init__(self, use_baseline, gpu=0):
+        print('GPU', gpu)
+        self.all_params = get_current_config()
         self.gpu = gpu
         self.model, self.scaler = self.create_model_and_scaler()
         if not use_baseline:
@@ -122,7 +117,8 @@ class Trainer():
             self.optimizer, schedule.__getitem__)
         self.loss = ch.nn.CrossEntropyLoss()
 
-    def train_loop(self, epoch):
+    @param('training.diagnostics')
+    def train_loop(self, epoch, diagnostics):
         model = self.model
         model.train()
         losses = []
@@ -145,24 +141,23 @@ class Trainer():
             with autocast():
                 output = self.model(images)
                 loss_train = self.loss(output, target)
+
+            if diagnostics:
                 losses.append(loss_train.detach())
+                group_lrs = []
+                for _, group in enumerate(self.optimizer.param_groups):
+                    group_lrs.append(group['lr'])
 
-            # Logging
-            group_lrs = []
-            for _, group in enumerate(self.optimizer.param_groups):
-                group_lrs.append(group['lr'])
-
-            names = ['ep', 'iter', 'shape', 'lrs']
-            values = [epoch, ix, tuple(images.shape), group_lrs]
-            msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
-            iterator.set_description(msg)
+                names = ['ep', 'iter', 'shape', 'lrs']
+                values = [epoch, ix, tuple(images.shape), group_lrs]
+                msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
+                iterator.set_description(msg)
 
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
 
-        loss = ch.stack(losses).mean().item()
-        print('loss', loss)
+        loss = ch.stack(losses).mean().item() if diagnostics else -1
         return loss
 
     @param('validation.lr_tta')

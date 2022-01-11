@@ -1,12 +1,12 @@
 #!/bin/bash
 
 write_dataset () {
-	write_path=/mnt/cfs/home/engstrom/store/ffcv/${1}_${2}_${3}_${4}.ffcv
+	write_path=/ssd3/${1}_${2}_${3}_${4}.ffcv
 	echo $write_path
 	python ../scripts/write_image_datasets.py \
 		--cfg.dataset=imagenet \
 		--cfg.split=${1} \
-		--cfg.data_dir=/mnt/cfs/datasets/pytorch_imagenet/${1} \
+		--cfg.data_dir=/ssd/result/raw/${1} \
 		--cfg.write_path=$write_path \
 		--cfg.max_resolution=${2} \
 		--cfg.write_mode=proportion \
