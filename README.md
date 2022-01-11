@@ -18,8 +18,7 @@ offering:
  - Efficient (yet Easy To Understand/customize) training code for standard
    computer vision tasks
 
-
-With `ffcv` you can:
+Install `ffcv` today and:
 - ...break the [MLPerf record*](TODO) for ImageNet training: TODO min on 8 AWS GPUs
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
 - ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
@@ -33,9 +32,21 @@ conda activate ffcv
 pip install ffcv
 ``` 
 
+## Quick links
+- Overview: high level introduction to `ffcv`
+- Features: how can `ffcv` help you? List of features.
+- Quickstart: "Choose Your Own Adventure" guide to `ffcv` with your dataset and cluster
+- ImageNet: results, code, and training configs for ImageNet
+- CIFAR: results, code, and training configs for CIFAR
+- Data loading benchmarks
+- Documentation
+- FAQ
+
 ## Overview
-Accelerate any PyTorch-based data loading system with `ffcv`. First,
-convert your dataset (see <a href="TODO">docs for full walkthrough</a>) into `ffcv` format with Python:
+Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
+First,
+convert your dataset into `ffcv` format (`ffcv` converts both indexed PyTorch datasets and
+<a href="https://github.com/webdataset/webdataset">WebDatasets</a>):
 ```python
 from ffcv.writer import DatasetWriter
 from ffcv.fields import RGBImageField, IntField, NDArrayField
@@ -58,8 +69,8 @@ writer = DatasetWriter(write_path, {
 # Write dataset
 writer.from_indexed_dataset(ds)
 ```
-Then replace your old loader with the `ffcv` loader at train time (no other 
-changes required!):
+Then replace your old loader with the `ffcv` loader at train time (in PyTorch,
+no other changes required!):
 ```python
 from ffcv.loader import Loader, OrderOption
 from ffcv.transforms import ToTensor, ToDevice, ToTorchImage, Cutout
@@ -86,4 +97,35 @@ loader = Loader(train_path, batch_size=bs, num_workers=num_workers,
 for epoch in range(epochs):
     ...
 ```
+
+## Features
+Why use `ffcv`? Name your slowdown, and we'll fix it!
+<p><b>Disk bottlenecks.</b> Reduce data transfer requirements by storing
+<a href="">downsized images</a> or <a href="">adjusted quality JPEGs</a>.
+Exploit 
+</p>
+
+</p>
+
+
+<p><b>CPU bottlenecks (image data).</b> Reduce compute requirements by <a href="">storing
+raw pixel values instead of JPEGs</a>. While this is expensive storage wise, you can
+<a href="TODO">control the space/compute tradeoff</a> by only compressing a
+(specified) fraction of the dataset. Finally, reduce decoding workload
+by <a href="">adjusting the JPEG quality</a> or storing <a href="TODO">downsized
+images</a>.</p>
+
+<p><b>GPU bottlenecks (any data).</b> Even if you aren't bottlenecked by data
+loading, <code>ffcv</code> can still accelerate your system with built-in
+optimized memory allocation and asynchronous CPU-GPU data transfer.
+We can also offload compute, like <a href="TODO">normalization</a>, onto the CPU.
+</p>
+
+## ImageNet
+
+## CIFAR
+
+## 
+
+
 ##  FAQ / Caveats
