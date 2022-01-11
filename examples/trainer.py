@@ -157,11 +157,11 @@ class Trainer():
             self.scaler.step(self.optimizer)
             self.scaler.update()
 
-        loss = ch.stack(losses).mean().item() if diagnostics else -1
+        loss = ch.stack(losses).mean().cpu() if diagnostics else -1
         if ch.isnan(loss):
             raise ValueError('loss is NaN')
 
-        return loss
+        return loss.item()
 
     @param('validation.lr_tta')
     def val_loop(self, lr_tta):
