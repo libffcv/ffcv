@@ -1,5 +1,5 @@
 <p align = 'center'>
-<em>fast forward computer vision: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
+<em><b>Fast Forward Computer Vision</b>: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
 </p>
 <img src='assets/logo.png' width='100%'/>
 <p align = 'center'>
