@@ -34,7 +34,7 @@ pip install ffcv
 
 ## Quick links
 - Overview: high level introduction to `ffcv`
-- Features: how can `ffcv` help you? List of features.
+- [Feature Atlas](#Feature-Atlas): how can `ffcv` help you? Mapping of data loading problems to our solutions.
 - Quickstart: "Choose Your Own Adventure" guide to `ffcv` with your dataset and cluster
 - ImageNet: results, code, and training configs for ImageNet
 - CIFAR: results, code, and training configs for CIFAR
@@ -98,28 +98,47 @@ for epoch in range(epochs):
     ...
 ```
 
-## Features
-Why use `ffcv`? Name your slowdown, and we'll fix it!
-<p><b>Disk bottlenecks.</b> Reduce data transfer requirements by storing
-<a href="">downsized images</a> or <a href="">adjusted quality JPEGs</a>.
-Exploit 
+## Feature Atlas
+Why use `ffcv`? Computer vision or not, name your bottleneck, and we'll fix it! `cv` denotes computer-vision specific.
+If you don't know how to identify your bottleneck consider reading <a href="TODO">our guide.</a>
+<p><b>Disk-read bottlenecks.</b> What if your GPUs sit idle from low disk throughput?
+Maybe you're reading from a networked drive, maybe you have too many GPUs;
+either way, try these features:
+<ul>
+<!-- <li><a href="TODO">Store your dataset in memory</a>: TODO</li> -->
+<li><a href="TODO">Use process-level page caching</a>: TODO</li>
+<li><a href="TODO">Use os-level page caching</a>: TODO Assuming your <code>ffcv</code> dataset fits in memory, use os-level page caching to ensure that concurrent training executions properly exploit caching.</li>
+<li><a href="TODO">Use quasi-random data sampling</a>: TODO</li>
+<li><a href="TODO">Store resized images</a> (<code>cv</code>): Many datasets have gigantic images
+even though most pipelines crop and resize to smaller edge lengths before training.</li>
+<li><a href="TODO">Store JPEGs</a> (<code>cv</code>): Store images as space-efficient JPEGs.</li>
+<li><a href="TODO">Store lower quality JPEGs</a> (<code>cv</code>): Lower serialized JPEG quality to decrease storage sizes.</li>
+</ul>
 </p>
 
+<p><b>CPU bottlenecks.</b> All CPUs at 100% and you're still not hitting maximal
+GPU usage? Consider the following:
+<ul>
+<!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
+<li><a href="TODO">Use premade, JIT-compiled augmentations</a>: TODO use our premade chunguses instead of the gigasped chunguses.</li>
+<li><a href="TODO">Make your own JIT-compiled augmentations</a>: Compile your optimizations into TODO </li>
+<li><a href="TODO">Fuse together redundant operations</a>: TODO </li>
+<li><a href="TODO">Store resized images</a> (<code>cv</code>): Smaller images require less compute
+to decode.</li>
+<li><a href="TODO">Store lower quality JPEGs</a> (<code>cv</code>): Lower serialized JPEG quality to decrease CPU cycles spent decoding.</li>
+<li><a href="TODO">Store a fraction of images as raw pixel data</a> (<code>cv</code>): Trade off storage and compute workload (raw pixels require no JPEG decoding) by randomly storing a specified fraction of the dataset as raw pixel data.</li>
+</ul>
 </p>
 
+<p><b>GPU bottlenecks (any data).</b> Even if you're not bottlenecked by data
+loading, <code>ffcv</code> can still accelerate your system:
+<ul>
+<!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
+<li><a href="TODO">Asynchronous CPU-GPU data transfer</a>: While we always asynchronously transfer data, we also include tools for ensuring unblocked GPU execution.</li>
+<li><a href="TODO">Offload compute to the CPU</a>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
+<!-- <li>Optimized memory allocation: No hassle memory management.</li> -->
+</ul>
 
-<p><b>CPU bottlenecks (image data).</b> Reduce compute requirements by <a href="">storing
-raw pixel values instead of JPEGs</a>. While this is expensive storage wise, you can
-<a href="TODO">control the space/compute tradeoff</a> by only compressing a
-(specified) fraction of the dataset. Finally, reduce decoding workload
-by <a href="">adjusting the JPEG quality</a> or storing <a href="TODO">downsized
-images</a>.</p>
-
-<p><b>GPU bottlenecks (any data).</b> Even if you aren't bottlenecked by data
-loading, <code>ffcv</code> can still accelerate your system with built-in
-optimized memory allocation and asynchronous CPU-GPU data transfer.
-We can also offload compute, like <a href="TODO">normalization</a>, onto the CPU.
-</p>
 
 ## ImageNet
 
