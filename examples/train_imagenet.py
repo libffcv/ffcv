@@ -30,6 +30,8 @@ import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
 
+ch.backends.cudnn.benchmark=True
+
 
 Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())),
