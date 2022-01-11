@@ -98,7 +98,7 @@ import numpy as np
 
 opt = SGD(model.parameters(), lr=.5, momentum=0.9, weight_decay=5e-4)
 iters_per_epoch = 50000 // 512
-lr_schedule = np.interp(np.arange(25 * iters_per_epoch), [0, 5 * iters_per_epoch, 24 * iters_per_epoch], [0, 1, 0])
+lr_schedule = np.interp(np.arange(25 * iters_per_epoch), [0, 24 * iters_per_epoch], [1, 0])
 scheduler = lr_scheduler.LambdaLR(opt, lr_schedule.__getitem__)
 scaler = GradScaler()
 loss_fn = CrossEntropyLoss(label_smoothing=0.1)
@@ -118,9 +118,10 @@ for ep in range(24):
 model.eval()
 with ch.no_grad():
     total_correct, total_num = 0., 0.
-    for ims, labs in tqdm(loaders['test']):
-        with autocast():
-            out = (model(ims) + model(ch.fliplr(ims))) / 2.
-            total_correct += out.argmax(1).eq(labs).sum().cpu().item()
-            total_num += ims.shape[0]
-    print(f'Accuracy: {total_correct / total_num * 100:.1f}%')
+    for name in ['train', 'test']:
+        for ims, labs in tqdm(loaders[name]):
+            with autocast():
+                out = (model(ims) + model(ch.fliplr(ims))) / 2.
+                total_correct += out.argmax(1).eq(labs).sum().cpu().item()
+                total_num += ims.shape[0]
+        print(f'{name} accuracy: {total_correct / total_num * 100:.1f}%')

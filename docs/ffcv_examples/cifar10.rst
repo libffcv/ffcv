@@ -59,7 +59,7 @@ Step 2: Create the train and test loaders
 
 
 Step 3: Define model architecture and optimization parameters
-==================================================
+=============================================================
 
 .. code-block:: python
 

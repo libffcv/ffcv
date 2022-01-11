@@ -2,7 +2,7 @@ Benchmarks
 ==========
 
 Dataset sizes (ImageNet)
-------------------------
+-------------------------
 
 In order to provide an idea of how the image encoding settings influence the resulting dataset, we generated multiple ImageNet datasets with various options. We present the results below. For more details about the options, please refer to the :ref:`relevant section<Working with Image Data in FFCV>`.
 
@@ -67,7 +67,7 @@ In order to provide an idea of how the image encoding settings influence the res
 
 
 Data loading (ImageNet)
------------
+-----------------------
 
 We selected some of the datasets generated in the section above and measure the time to go through an epoch.
 
@@ -137,7 +137,7 @@ We compare our results against existing data loading platforms:
 
 
 End-to-end training (CIFAR)
----------------------------
+----------------------------
 
 End-to-end training (ImageNet)
-------------------------------
+-------------------------------
