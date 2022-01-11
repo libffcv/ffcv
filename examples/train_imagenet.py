@@ -55,7 +55,7 @@ Section('training', 'training hyper param stuff').params(
     pretrained=Param(int, 'is pretrained?', default=0),
     bn_wd=Param(int, 'should momentum on bn', default=0),
     diagnostics=Param(int, 'use diagnostics?', default=1),
-    cpu_limited=Param(int, 'is cpu limited?', default=0),
+    cpu_limited=Param(int, 'is cpu limited?', default=1),
 )
 
 # Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
@@ -192,15 +192,15 @@ class ImageNetTrainer(Trainer):
                 ToDevice(ch.device(this_device), non_blocking=True),
                 ToTorchImage(),
                 Convert(ch.float16),
-                # Normalize((IMAGENET_MEAN * 255).tolist(),
-                #           (IMAGENET_STD * 255).tolist()),
+                Normalize((IMAGENET_MEAN * 255).tolist(),
+                          (IMAGENET_STD * 255).tolist()),
             ])
         else:
             image_pipeline.extend([
                 ToTorchImage(),
                 Convert(ch.float16),
-                # Normalize((IMAGENET_MEAN * 255).tolist(),
-                #           (IMAGENET_STD * 255).tolist()),
+                Normalize((IMAGENET_MEAN * 255).tolist(),
+                          (IMAGENET_STD * 255).tolist()),
                 ToDevice(ch.device('cuda:0'), non_blocking=True)
             ])
 

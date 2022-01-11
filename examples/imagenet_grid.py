@@ -31,7 +31,9 @@ MAPPING = {
     'bn_wd':['training', 'bn_wd'],
     'mixup':['training', 'mixup_alpha'],
     'same_lambda':['training', 'mixup_same_lambda'],
-    'schedule_type':['training', 'lr_schedule_type']
+    'schedule_type':['training', 'lr_schedule_type'],
+    'distributed':['training', 'distributed'],
+    'world_size':['dist', 'world_size'],
 }
 
 STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/resnet18_90.yaml', 'r'))
@@ -73,8 +75,8 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [1e-4/4]]
-    lrs = [Parameters(lr=float(lr)) for lr in [1.0]]
+    wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
+    lrs = [Parameters(lr=float(lr)) for lr in [1.0, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5]]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
         (160, 224) #, (192, 256)
     ]]
@@ -82,8 +84,10 @@ def main(log_dir, out_file):
     archs = [
         Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv',
                    val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv',
-                   batch_size=1024,
-                   arch='resnet18'),
+                   batch_size=512,
+                   arch='resnet50',
+                   distributed=1,
+                   world_size=8),
         # Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
         #            val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv',
         #            batch_size=512,
@@ -91,7 +95,7 @@ def main(log_dir, out_file):
     ]
 
     peaks = [Parameters(peak=k, schedule_type='linear') for k in [0]]
-    epochs = [Parameters(epochs=k) for k in [30]]
+    epochs = [Parameters(epochs=k) for k in [35]]
 
     should_mixup = [
         Parameters(mixup=0., same_lambda=1)
