@@ -1,27 +1,26 @@
 Writing a dataset to FFCV format
 ================================
 
-Datasets in FFCV are stored in a custom ``.beton`` format that allows for fast 
-reading (see the _`making_dataloaders` section).
+Datasets in FFCV are stored in a custom ``.beton`` format that allows for fast
+reading (see the :ref:`Making an FFCV dataloader <Making an FFCV dataloader>` section).
 
-Such files can be generated using the class :class:`ffcv.writer.DatasetWriter`` and
-from two potential sources:
+Such files can be generated using the class :class:`ffcv.writer.DatasetWriter` from two potential sources:
 
-- **Indexable objects**: 
+- **Indexable objects**:
   They need to implement ``__len__`` and a ``__getitem__`` function
   returning the data associated to a sample as a tuple/list (of any length).
-  Exampleis of this kind of dataset include but is not limited to:
-  ``pytorch.utils.data.Dataset``, ``numpy.ndarray`` or even python lists.
+  Examples of this kind of dataset include but is not limited to:
+  ``torch.utils.data.Dataset``, ``numpy.ndarray``, or even python lists.
 - **Webdataset** (`Github <https://github.com/webdataset/webdataset>`_):
   This allows users to integrate large scale and/or remote datasets into FFCV easily.
 
-In this tutorial we will show how to handle datasets from these two categories.
-Additionaly, in the folder ``/scripts`` of our repository we also include a
+In this tutorial, we will show how to handle datasets from these two categories.
+Additionally, in the folder ``/scripts`` of our `repository <https://github.com/MadryLab/ffcv>` we also include a
 conversion script illustrating the conversion of ``CIFAR-10`` and ``ImageNet``.
 
-The first step is to include the relevant class into your script:
+The first step is to include the following class into your script:
 
-.. code-block:: python 
+.. code-block:: python
 
     from ffcv.writer import DatasetWriter
 
@@ -39,33 +38,33 @@ returns an input vector and its corresponding label:
         def __init__(self, N, d)
             self.X = np.randn(N, d)
             self.Y = np.randn(N)
-        
+
         def __getitem__(self, idx):
             return (self.X[idx], self.Y[idx])
-        
+
         def __len(self):
             return len(self.X)
 
     N, d = (100, 6)
     dataset = LinearRegressionDataset(N, d)
-    
+
 .. note ::
     The class ``LinearRegressionDataset`` implements the interface required to be a
     ``torch.utils.data.Dataset`` so one could use a pytorch Dataset instead of our
     toy example here.
 
 The class responsible for converting datasets to FFCV format is the
-:class:`ffcv.writer.DatasetWriter`. The writer is
+:class:`ffcv.writer.DatasetWriter`. The writer takes in a
 a path (where the `.beton` will be written),
 and a dictionary mapping keys to *fields* (:class:`~ffcv.fields.Field`).
 Each field corresponds to an element of the data tuple returned by our
 dataset, and specifies how the element should be written to (and later, read
 from) the FFCV dataset file. In our case, the dataset has two fields, one
-for the (vector) input and the other for the corresponding (scalar) label.  
+for the (vector) input and the other for the corresponding (scalar) label.
 Both of these fields already have default implementations in FFCV, which we use
-below: 
+below:
 
-.. code-block:: python 
+.. code-block:: python
 
     from ffcv.fields import NDArrayField, FloatField
 
@@ -74,26 +73,25 @@ below:
         'label': FloatField(),
 
     }, num_workers=16)
-.. note:: 
+.. note::
 
     Starting in Python 3.6, dictionary keys are ordered, and the writer uses
     this order to match the given fields to the elements returned by the
     ``__getitem__`` function of the dataset. Make sure to provide
     the fields in the right order to avoid errors.
 
-Beyond these two, FFCV provides a variety of built-in fields that make most
-datasets easy to convert directly:
+Beyond these two, FFCV provides a variety of built-in fields that make it easy to directly convert most datasets:
 
-- :class:`~ffcv.fields.RGBImageField`, which handles images including (optional) compression
-  and resizing,
-- :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`, which handle simple scalar fields
-- :class:`~ffcv.fields.BytesField` can be used to store byte arrays of variable length
-- :class:`~ffcv.fields.JSONField` encodes a JSON document
+- :class:`~ffcv.fields.RGBImageField`: handles images including (optional) compression
+  and resizing
+- :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`: handle simple scalar fields
+- :class:`~ffcv.fields.BytesField`: stores byte arrays of variable length
+- :class:`~ffcv.fields.JSONField`: encodes a JSON document
 
 
 After constructing the writer, the only remaining step is to write the dataset:
 
-.. code-block:: python 
+.. code-block:: python
 
     writer.from_indexed_dataset(my_dataset)
 
@@ -105,15 +103,15 @@ For this second example we will assume that you are in possession of a
 shards in a folder called ``FOLDER``.
 
 In order to perform the conversion to a ``.beton`` file we first need to
-collect the list of shards. This can be simply done with ``glob``
+collect the list of shards. This can be simply done with ``glob``:
 
 .. code-block:: python
 
     from glob import glob
     from os import path
-    
+
     my_shards = glob(path.join(FOLDER, '*'))
-    
+
 Internally, FFCV will split the shards among the number of available workers.
 However, each worker still needs to know how to decode a given shard. This is done
 by defining a pipeline (very similar to how one would use a ``webdataset`` for training):
@@ -143,5 +141,5 @@ We now just have to put glue everything together:
     writer.from_webdataset(my_shards, pipeline)
 
 
-That's it! You are now ready to `Construct a loader <TODO>`_ for this dataset
+That's it! You are now ready to :ref:`construct loaders<Making an FFCV dataloader>` for this dataset
 and start training ML models!
