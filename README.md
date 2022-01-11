@@ -37,7 +37,7 @@ pip install ffcv
 ## Index
 - <a href="TODO"><b>Overview</b></a>: High level introduction to `ffcv`
 - <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load data today
-- <a href="TODO"><b>Feature Atlas</b></a>: How can `ffcv` help you? Mapping of data loading problems to our solutions.
+- <a href="TODO"><b>Bottleneck Doctor</b></a>: How can `ffcv` help you? Mapping of data loading problems to our solutions.
 - <a href="TODO"><b>ImageNet</b></a>: Results, code, and training configs for ImageNet
 - <a href="TODO"><b>CIFAR</b></a>: Results, code, and training configs for CIFAR
 - <a href="TODO"><b>Data loading benchmarks</b></a>:
@@ -100,7 +100,7 @@ for epoch in range(epochs):
     ...
 ```
 
-## Feature Atlas
+## Bottleneck Doctor
 Why use `ffcv`? Computer vision or not, name your bottleneck, and we'll fix it! `cv` denotes computer-vision specific.
 If you don't know how to identify your bottleneck consider reading <a href="TODO">our guide.</a>
 <p><b>Disk-read bottlenecks.</b> What if your GPUs sit idle from low disk throughput?
@@ -135,6 +135,8 @@ loading, <code>ffcv</code> can still accelerate your system:
 <ul>
 <!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
 <li><b><a href="TODO">Asynchronous CPU-GPU data transfer</a></b>: While we always asynchronously transfer data, we also include tools for ensuring unblocked GPU execution.</li>
+<li><b><a href="TODO">Train multiple models on the same GPU</a></b>: Fully
+asynchronous dataloading means that different training processes won't block eachother.</li>
 <li><b><a href="TODO">Offload compute to the CPU</a></b>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
 <!-- <li>Optimized memory allocation: No hassle memory management.</li> -->
 </ul>
