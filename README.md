@@ -99,12 +99,46 @@ loader = Loader(train_path, batch_size=bs, num_workers=num_workers,
 for epoch in range(epochs):
     ...
 ```
+## Custom Datasets Quickstart
+<!-- Accelerating data loading with `ffcv` requires two steps: dataset serialization
+into the `ffcv` format, and then deploying the `ffcv` data loader at train-time. -->
+Accelerating data loading with `ffcv` requires two steps: dataset preprocessing into `ffcv` format,
+and then deploying the `ffcv` data loader at train-time. To help you tune the
+options for each step, follow the guide below for two standard cases:
+
+<p><b>Dataset fits in memory.</b> Either your dataset is small or DARPA awarded
+your advisor 1 TB of RAM. Here, data
+reading will likely not bottleneck training, so you should focus on reducing CPU
+and GPU bottlenecks: 
+
+- Loading (`ffcv.loader.Loader`) options: Always set `os_cache=True` to cache the entire
+dataset.
+- Writing (`DatasetWriter`) options: write examples such that loading is not CPU
+bound. See a full list [below](TODO); some options here are downscaling stored images,
+storing raw pixel values in place of JPEGs, or storing lower quality JPEGs to speed up decoding.
+</p>
+<p><b>Dataset does not fit in memory.</b> Many datasets will not fit in memory;
+you should work towards reducing disk-read bottlenecks (or CPU bottlenecks if you can't decode JPEGs fast enough):
+
+- Loading (`ffcv.loader.Loader`) options: Always set `os_cache=False` and if you want random ordering `order=OptionOrder.QUASI_RANDOM` (in place of `OptionOrder.RANDOM`).
+- Writing (`DatasetWriter`) options: write examples such that loading is not CPU
+or disk bound; see a full list of strategies [below](TODO). For example,
+store lower quality or downsized JPEGs, .
+</p>
+
+<p><b>General best practices.</b> Always:
+
+- Replace data augmentations with `ffcv` <a href="TODO">built-in equivalents</a> when possible.
+- <a href="TODO">Port your data augmentations</a> over to `ffcv` via <a href="TODO">Numba</a> if you have the time; `ffcv` does support slower, non-numba augmentations as well.
+</p>
 
 ## Bottleneck Doctor
 <img src='assets/clippy.png' width='100%'/>
 
-Why use `ffcv`? Computer vision or not, name your bottleneck, and we'll fix it! `cv` denotes computer-vision specific.
+Why use `ffcv`? Computer vision or not, name your bottleneck, and we'll fix it! 
 If you don't know how to identify your bottleneck consider reading <a href="TODO">our guide.</a>
+(`cv` denotes computer-vision specific features)
+
 <p><b>Disk-read bottlenecks.</b> What if your GPUs sit idle from low disk throughput?
 Maybe you're reading from a networked drive, maybe you have too many GPUs;
 either way, try these features:
@@ -112,7 +146,7 @@ either way, try these features:
 <!-- <li><a href="TODO">Store your dataset in memory</a>: TODO</li> -->
 <li><b><a href="TODO">Use process-level page caching</a></b>: TODO</li>
 <li><b><a href="TODO">Use os-level page caching</a></b>: TODO Assuming your <code>ffcv</code> dataset fits in memory, use os-level page caching to ensure that concurrent training executions properly exploit caching.</li>
-<li><b><a href="TODO">Use quasi-random data sampling</a></b>: TODO</li>
+<li><b><a href="TODO">Use quasi-random data sampling</a></b>: TODO (NOTE DOES NOT WORK WITH DISTRIBUTED)</li>
 <li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Many datasets have gigantic images even though most pipelines crop and resize to smaller edge lengths before training.</li>
 <li><b><a href="TODO">Store JPEGs</a></b> (<code>cv</code>): Store images as space-efficient JPEGs.</li>
 <li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease storage sizes.</li>
@@ -142,7 +176,9 @@ asynchronous dataloading means that different training processes won't block eac
 <li><b><a href="TODO">Offload compute to the CPU</a></b>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
 <!-- <li>Optimized memory allocation: No hassle memory management.</li> -->
 </ul>
-
+This list is limited to what <code>ffcv</code> offers in data loading; check out
+guides like <a href="">the PyTorch performance guide</a> for more ways to speed
+up training. 
 
 ## ImageNet
 
