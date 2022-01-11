@@ -8,13 +8,12 @@ if TYPE_CHECKING:
     from ..loader.main_thread import Loader
 
 class TraversalOrder(ABC):
-    
     def __init__(self, loader: 'Loader'):
         self.loader = loader
         self.indices = self.loader.indices
         self.seed = self.loader.seed
         self.distributed = loader.distributed
-        
+
     @abstractmethod
     def sample_order(self, epoch:int) -> Sequence[int]:
         raise NotImplemented()
