@@ -24,7 +24,8 @@ With `ffcv` you can:
 ## Install
 Via [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 ```
-conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
+    pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 conda activate ffcv
 pip install ffcv
 ``` 
