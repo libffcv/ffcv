@@ -106,13 +106,12 @@ Maybe you're reading from a networked drive, maybe you have too many GPUs;
 either way, try these features:
 <ul>
 <!-- <li><a href="TODO">Store your dataset in memory</a>: TODO</li> -->
-<li><a href="TODO">Use process-level page caching</a>: TODO</li>
-<li><a href="TODO">Use os-level page caching</a>: TODO Assuming your <code>ffcv</code> dataset fits in memory, use os-level page caching to ensure that concurrent training executions properly exploit caching.</li>
-<li><a href="TODO">Use quasi-random data sampling</a>: TODO</li>
-<li><a href="TODO">Store resized images</a> (<code>cv</code>): Many datasets have gigantic images
-even though most pipelines crop and resize to smaller edge lengths before training.</li>
-<li><a href="TODO">Store JPEGs</a> (<code>cv</code>): Store images as space-efficient JPEGs.</li>
-<li><a href="TODO">Store lower quality JPEGs</a> (<code>cv</code>): Lower serialized JPEG quality to decrease storage sizes.</li>
+<li><b><a href="TODO">Use process-level page caching</a></b>: TODO</li>
+<li><b><a href="TODO">Use os-level page caching</a></b>: TODO Assuming your <code>ffcv</code> dataset fits in memory, use os-level page caching to ensure that concurrent training executions properly exploit caching.</li>
+<li><b><a href="TODO">Use quasi-random data sampling</a></b>: TODO</li>
+<li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Many datasets have gigantic images even though most pipelines crop and resize to smaller edge lengths before training.</li>
+<li><b><a href="TODO">Store JPEGs</a></b> (<code>cv</code>): Store images as space-efficient JPEGs.</li>
+<li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease storage sizes.</li>
 </ul>
 </p>
 
@@ -120,7 +119,7 @@ even though most pipelines crop and resize to smaller edge lengths before traini
 GPU usage? Consider the following:
 <ul>
 <!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
-<li><a href="TODO">Use premade, JIT-compiled augmentations</a>: TODO use our premade chunguses instead of the gigasped chunguses.</li>
+<li><a href="TODO">Use premade, JIT-compiled augmentations</a>: TODO use our premade chunguses instead of the standard chunguses.</li>
 <li><a href="TODO">Make your own JIT-compiled augmentations</a>: Compile your optimizations into TODO </li>
 <li><a href="TODO">Fuse together redundant operations</a>: TODO </li>
 <li><a href="TODO">Store resized images</a> (<code>cv</code>): Smaller images require less compute
