@@ -33,14 +33,14 @@ pip install ffcv
 ``` 
 
 ## Quick links
-- Overview: high level introduction to `ffcv`
-- [Feature Atlas](#Feature-Atlas): how can `ffcv` help you? Mapping of data loading problems to our solutions.
-- Quickstart: "Choose Your Own Adventure" guide to `ffcv` with your dataset and cluster
-- ImageNet: results, code, and training configs for ImageNet
-- CIFAR: results, code, and training configs for CIFAR
-- Data loading benchmarks
-- Documentation
-- FAQ
+- <a href="TODO"><b>Overview</b></a>: High level introduction to `ffcv`
+- <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load data today
+- <a href="TODO"><b>Feature Atlas</b></a>: How can `ffcv` help you? Mapping of data loading problems to our solutions.
+- <a href="TODO"><b>ImageNet</b></a>: Results, code, and training configs for ImageNet
+- <a href="TODO"><b>CIFAR</b></a>: Results, code, and training configs for CIFAR
+- <a href="TODO"><b>Data loading benchmarks</b></a>:
+- <a href="TODO"><b>Documentation</b></a>:
+- <a href="TODO"><b>FAQ</b></a>:
 
 ## Overview
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
