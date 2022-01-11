@@ -1,8 +1,10 @@
 data:
   gpu: 0
   num_workers: 11
-  train_dataset: /ssd3/train_350_0_100.ffcv
-  val_dataset: /ssd3/val_350_0_100.ffcv
+  # train_dataset: /ssd2/train_512_0_100.ffcv
+  # val_dataset: /ssd2/val_512_0_100.ffcv
+  train_dataset: /mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv
+  val_dataset: /mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv
 logging:
   folder: /tmp/chungolord
 model:
