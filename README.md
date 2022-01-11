@@ -12,13 +12,6 @@
 [<a href="#intro">FAQ</a>]
 </p>
 
-<style>
-    ul > li > a {
-        font-weight:bold;
-    }
-</style>
-
-
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
  - Fast data loading (even in resource constrained environments)
@@ -126,13 +119,12 @@ either way, try these features:
 GPU usage? Consider the following:
 <ul>
 <!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
-<li><a href="TODO">Use premade, JIT-compiled augmentations</a>: TODO use our premade chunguses instead of the standard chunguses.</li>
-<li><a href="TODO">Make your own JIT-compiled augmentations</a>: Compile your optimizations into TODO </li>
-<li><a href="TODO">Fuse together redundant operations</a>: TODO </li>
-<li><a href="TODO">Store resized images</a> (<code>cv</code>): Smaller images require less compute
-to decode.</li>
-<li><a href="TODO">Store lower quality JPEGs</a> (<code>cv</code>): Lower serialized JPEG quality to decrease CPU cycles spent decoding.</li>
-<li><a href="TODO">Store a fraction of images as raw pixel data</a> (<code>cv</code>): Trade off storage and compute workload (raw pixels require no JPEG decoding) by randomly storing a specified fraction of the dataset as raw pixel data.</li>
+<li><b><a href="TODO">Use premade, JIT-compiled augmentations</a></b>: TODO use our premade chunguses instead of the standard chunguses.</li>
+<li><b><a href="TODO">Make your own JIT-compiled augmentations</a></b>: Compile your optimizations into TODO </li>
+<li><b><a href="TODO">Fuse together redundant operations</a></b>: TODO </li>
+<li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Smaller images require less compute to decode.</li>
+<li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease CPU cycles spent decoding.</li>
+<li><b><a href="TODO">Store a fraction of images as raw pixel data</a></b> (<code>cv</code>): Trade off storage and compute workload (raw pixels require no JPEG decoding) by randomly storing a specified fraction of the dataset as raw pixel data.</li>
 </ul>
 </p>
 
@@ -140,8 +132,8 @@ to decode.</li>
 loading, <code>ffcv</code> can still accelerate your system:
 <ul>
 <!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
-<li><a href="TODO">Asynchronous CPU-GPU data transfer</a>: While we always asynchronously transfer data, we also include tools for ensuring unblocked GPU execution.</li>
-<li><a href="TODO">Offload compute to the CPU</a>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
+<li><b><a href="TODO">Asynchronous CPU-GPU data transfer</a></b>: While we always asynchronously transfer data, we also include tools for ensuring unblocked GPU execution.</li>
+<li><b><a href="TODO">Offload compute to the CPU</a></b>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
 <!-- <li>Optimized memory allocation: No hassle memory management.</li> -->
 </ul>
 
