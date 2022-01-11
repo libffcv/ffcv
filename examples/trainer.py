@@ -63,6 +63,7 @@ Section('validation', 'Validation parameters stuff').params(
 class Trainer():
     @param('baselines.use_baseline')
     def __init__(self, use_baseline, gpu=0):
+        print('GPU', gpu)
         self.all_params = get_current_config()
         self.gpu = gpu
         self.model, self.scaler = self.create_model_and_scaler()

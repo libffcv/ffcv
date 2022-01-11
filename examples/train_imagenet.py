@@ -190,15 +190,15 @@ class ImageNetTrainer(Trainer):
                 ToDevice(ch.device(this_device), non_blocking=True),
                 ToTorchImage(),
                 Convert(ch.float16),
-                Normalize((IMAGENET_MEAN * 255).tolist(),
-                          (IMAGENET_STD * 255).tolist()),
+                # Normalize((IMAGENET_MEAN * 255).tolist(),
+                #           (IMAGENET_STD * 255).tolist()),
             ])
         else:
             image_pipeline.extend([
                 ToTorchImage(),
                 Convert(ch.float16),
-                Normalize((IMAGENET_MEAN * 255).tolist(),
-                          (IMAGENET_STD * 255).tolist()),
+                # Normalize((IMAGENET_MEAN * 255).tolist(),
+                #           (IMAGENET_STD * 255).tolist()),
                 ToDevice(ch.device('cuda:0'), non_blocking=True)
             ])
 
