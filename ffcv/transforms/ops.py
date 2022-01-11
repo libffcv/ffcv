@@ -47,8 +47,13 @@ class ToDevice(Operation):
     
     def generate_code(self) -> Callable:
         def to_device(inp, dst):
-            dst[:inp.shape[0]].copy_(inp, non_blocking=self.non_blocking)
-            return dst[:inp.shape[0]]
+            if len(inp.shape) == 4:
+                if inp.is_contiguous(memory_format=ch.channels_last):
+                    dst = dst.reshape(inp.shape[0], inp.shape[2], inp.shape[3], inp.shape[1])
+                    dst = dst.permute(0, 3, 1, 2)
+            dst = dst[:inp.shape[0]]
+            dst.copy_(inp, non_blocking=self.non_blocking)
+            return dst
 
         return to_device
 
@@ -56,13 +61,19 @@ class ToDevice(Operation):
         return replace(previous_state, device=self.device), AllocationQuery(previous_state.shape, dtype=previous_state.dtype, device=self.device)
 
 class ToTorchImage(Operation):
-    def __init__(self, channels_last=True):
+    def __init__(self, channels_last=True, convert_back_int16=True):
         super().__init__()
         self.channels_last = channels_last
+        self.convert_int16 = convert_back_int16
+        self.enable_int16conv = False
     
     def generate_code(self) -> Callable:
+        do_conv = self.enable_int16conv
         def to_torch_image(inp: ch.Tensor, dst):
             # Returns a permuted view of the same tensor
+            if do_conv:
+                inp = inp.view(dtype=ch.float16)
+                pass
             inp = inp.permute([0, 3, 1, 2]) 
             # If channels last, it's already contiguous so we're good
             if self.channels_last:
@@ -78,9 +89,15 @@ class ToTorchImage(Operation):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         alloc = None
         H, W, C = previous_state.shape
+        new_type = previous_state.dtype
+
+        if new_type == ch.int16 and self.convert_int16:
+            new_type = ch.float16
+            self.enable_int16conv = True
+
         if not self.channels_last:
-            alloc = AllocationQuery((C, H, W), dtype=previous_state.dtype)
-        return replace(previous_state, shape=(C, H, W)), alloc
+            alloc = AllocationQuery((C, H, W), dtype=new_type)
+        return replace(previous_state, shape=(C, H, W), dtype=new_type), alloc
     
 class Convert(Operation):
     def __init__(self, target_dtype):
