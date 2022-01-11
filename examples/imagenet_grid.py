@@ -76,8 +76,8 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4]] # , 5e-5, 1e-5]]
-    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(1., 8., 8)]
+    wds = [Parameters(wd=wd) for wd in [5e-5, 1e-5]] #[5e-4, 1e-4]] # , ]
+    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 8)]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
         (160, 224) #, (192, 256)
     ]]

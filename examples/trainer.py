@@ -158,6 +158,9 @@ class Trainer():
             self.scaler.update()
 
         loss = ch.stack(losses).mean().item() if diagnostics else -1
+        if ch.isnan(loss):
+            raise ValueError('loss is NaN')
+
         return loss
 
     @param('validation.lr_tta')
