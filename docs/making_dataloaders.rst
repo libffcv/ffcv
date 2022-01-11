@@ -4,7 +4,7 @@ Making an FFCV dataloader
 After :ref:`writing an FFCV dataset <Writing a dataset to FFCV format>`, we are
 ready to start loading data (and training models)! We'll continue using the same
 regression dataset as the previous guide, and we'll assume that the dataset has
-been written to ``/path/to/data.beton``.
+been written to ``/path/to/dataset.beton``.
 
 In order to load the dataset that we've written, we'll need the
 :class:`ffcv.loader.Loader` class (which will do most of the heavy lifting), and
@@ -59,12 +59,12 @@ tells the loader what fields to read, how to read them, and what operations to
 apply on top. Specifically, a pipeline is a key-value dictionary where the key
 matches the one used in `writing the dataset <writing>`_, and the value is a
 sequence of operations to perform. The operations must start with a
-:class:`ffcv.fields.decoders.Decoder` object corresponding to that field. 
+:class:`ffcv.fields.decoders.Decoder` object corresponding to that field.
 For example, the following pipeline reads the fields and then converts each one
 to a PyTorch tensor:
 
-.. code-block:: python 
-  
+.. code-block:: python
+
   from ffcv.transforms import ToTensor
 
   PIPELINES = {
@@ -74,23 +74,23 @@ to a PyTorch tensor:
 
 This is already enough to start loading data, but pipelines are also our
 opportunity to apply fast pre-processing to the data through a series of
-transformations---transforms are automatically compiled to ---- at runtime 
-and, for GPU-intensive applications like training neural networks, can often 
-introduce no additional training overhead. 
+transformations---transforms are automatically compiled to ---- at runtime
+and, for GPU-intensive applications like training neural networks, can often
+introduce no additional training overhead.
 
 .. note::
-  
+
   In fact, declaring field pipelines is optional: for any field that the
   in the dataset file without a corresponding pipeline specified in the
   ``pipelines`` dictionary,  the :class:`~ffcv.loader.Loader` will default to
   the barebones pipeline above, i.e., first a decoder
   then a conversion to PyTorch tensor. (You can force FFCV to explicitly *not*
   load a field by adding a corresponding ``None`` entry to the ``pipelines``
-  dictionary.) 
+  dictionary.)
 
   If the entire ``pipelines`` argument is
-  unspecified, this barebones pipeline will be applied to all fields. 
- 
+  unspecified, this barebones pipeline will be applied to all fields.
+
 Transforms
 """""""""""
 
@@ -103,6 +103,6 @@ There are three easy ways to specify transformations in a pipeline:
   operation
 
 - You can easily implement your own transformations by subclassing
-  :class:`ffcv.transforms.Operation`, as discussed in the 
+  :class:`ffcv.transforms.Operation`, as discussed in the
   :ref:`Making custom transforms <Making custom transforms>` guide.
 
