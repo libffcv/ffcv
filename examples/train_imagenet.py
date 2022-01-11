@@ -1,17 +1,14 @@
-from multiprocessing import Value
+import os
 from typing import List
 from ffcv.pipeline.operation import Operation
-from ffcv.transforms import mixup
 from ffcv.transforms.mixup import ImageMixup, LabelMixup, MixupToOneHot
 import torch as ch
 from pathlib import Path
 from torch.cuda.amp import GradScaler
 import matplotlib
 matplotlib.use('module://itermplot')
-import matplotlib.pyplot as plt
 
 import time
-from uuid import uuid4
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
@@ -27,6 +24,13 @@ from argparse import ArgumentParser
 import numpy as np
 from torchvision import models
 import torch.optim as optim
+
+# distributed imports
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+import torch.multiprocessing as mp
+
+ch.backends.cudnn.benchmark=True
 
 
 Section('model', 'model details').params(
@@ -49,12 +53,15 @@ Section('training', 'training hyper param stuff').params(
                            required=True),
     eval_only=Param(int, 'eval only?', default=0),
     pretrained=Param(int, 'is pretrained?', default=0),
-    bn_wd=Param(int, 'should momentum on bn', default=0)
+    bn_wd=Param(int, 'should momentum on bn', default=0),
+    diagnostics=Param(int, 'use diagnostics?', default=1),
+    cpu_limited=Param(int, 'is cpu limited?', default=0),
 )
 
-Section('distributed').params(
+# Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
+Section('dist').params(
     world_size=Param(int, 'number gpus', default=1),
-    addr=Param(str, 'address', default='localhost'),
+    address=Param(str, 'address', default='localhost'),
     port=Param(str, 'port', default='12355')
 )
 
@@ -72,11 +79,29 @@ def get_step_lr(epoch, lr, step_ratio, step_length):
 @param('training.lr')
 @param('training.epochs')
 def get_linear_lr(epoch, lr, epochs):
-    return np.interp([epoch], [0, epochs + 1], [lr, 0])[0]
+    return np.interp([epoch], [0, epochs], [lr, 0])[0]
 
+@param('training.distributed')
+@param('baselines.use_baseline')
 class ImageNetTrainer(Trainer):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, distributed, use_baseline, gpu):
+        self.gpu = gpu
+        if distributed:
+            self.setup_distributed()
+
+        super().__init__(use_baseline=use_baseline, gpu=gpu)
+
+    @param('dist.address')
+    @param('dist.port')
+    @param('dist.world_size')
+    def setup_distributed(self, address, port, world_size):
+        os.environ['MASTER_ADDR'] = address
+        os.environ['MASTER_PORT'] = port
+
+        dist.init_process_group("nccl", rank=self.gpu, world_size=world_size)
+
+    def cleanup_distributed(self):
+        dist.destroy_process_group()
 
     @param('training.lr_schedule_type')
     def get_lr(self, epoch, lr_schedule_type):
@@ -140,8 +165,12 @@ class ImageNetTrainer(Trainer):
     @param('training.mixup_same_lambda')
     @param('data.num_workers')
     @param('training.eval_only')
+    @param('training.distributed')
+    @param('training.cpu_limited')
     def create_train_loader(self, train_dataset, batch_size, mixup_alpha,
-                            mixup_same_lambda, num_workers, eval_only):
+                            mixup_same_lambda, num_workers, eval_only,
+                            distributed, cpu_limited):
+        this_device = f'cuda:{self.gpu}'
         if eval_only:
             return []
 
@@ -152,16 +181,28 @@ class ImageNetTrainer(Trainer):
         image_pipeline: List[Operation] = [self.decoder]
         if mixup_alpha:
             image_pipeline.append(ImageMixup(mixup_alpha, mixup_same_lambda))
-        
+
         image_pipeline.extend([
             RandomHorizontalFlip(),
-            ToTensor(),
-            ToDevice(ch.device('cuda:0'), non_blocking=True),
-            ToTorchImage(),
-            Convert(ch.float16),
-            Normalize((IMAGENET_MEAN * 255).tolist(),
-                      (IMAGENET_STD * 255).tolist()),
+            ToTensor()
         ])
+        
+        if cpu_limited:
+            image_pipeline.extend([
+                ToDevice(ch.device(this_device), non_blocking=True),
+                ToTorchImage(),
+                Convert(ch.float16),
+                # Normalize((IMAGENET_MEAN * 255).tolist(),
+                #           (IMAGENET_STD * 255).tolist()),
+            ])
+        else:
+            image_pipeline.extend([
+                ToTorchImage(),
+                Convert(ch.float16),
+                # Normalize((IMAGENET_MEAN * 255).tolist(),
+                #           (IMAGENET_STD * 255).tolist()),
+                ToDevice(ch.device('cuda:0'), non_blocking=True)
+            ])
 
         label_pipeline: List[Operation] = [IntDecoder()]
         if mixup_alpha:
@@ -170,22 +211,24 @@ class ImageNetTrainer(Trainer):
         label_pipeline.extend([
             ToTensor(),
             Squeeze(),
-            ToDevice(ch.device('cuda:0'), non_blocking=True)
+            ToDevice(ch.device(this_device), non_blocking=True)
         ])
 
         if mixup_alpha:
             label_pipeline.append(MixupToOneHot(1000))
 
+        order = OrderOption.RANDOM if distributed else OrderOption.QUASI_RANDOM
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
-                        order=OrderOption.QUASI_RANDOM,
+                        order=order,
                         os_cache=True,
                         drop_last=True,
                         pipelines={
                             'image': image_pipeline,
                             'label': label_pipeline
-                        })
+                        },
+                        distributed=distributed)
 
         return loader
 
@@ -193,12 +236,14 @@ class ImageNetTrainer(Trainer):
     @param('validation.batch_size')
     @param('data.num_workers')
     @param('validation.resolution')
+    @param('training.distributed')
     def create_val_loader(self, val_dataset, batch_size, num_workers,
-                          resolution, ratio=DEFAULT_CROP_RATIO):
+                          resolution, distributed):
+        this_device = f'cuda:{self.gpu}'
         val_path = Path(val_dataset)
         assert val_path.is_file()
         res_tuple = (resolution, resolution)
-        cropper = CenterCropRGBImageDecoder(res_tuple, ratio=ratio)
+        cropper = CenterCropRGBImageDecoder(res_tuple, ratio=DEFAULT_CROP_RATIO)
         loader = Loader(val_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
@@ -208,7 +253,7 @@ class ImageNetTrainer(Trainer):
                             'image': [
                                 cropper,
                                 ToTensor(),
-                                ToDevice(ch.device('cuda:0'),
+                                ToDevice(ch.device(this_device),
                                          non_blocking=True),
                                 ToTorchImage(),
                                 Convert(ch.float16),
@@ -216,26 +261,29 @@ class ImageNetTrainer(Trainer):
                                           (IMAGENET_STD * 255).tolist())
                             ],
                             'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                      ToDevice(ch.device('cuda:0'),
+                                      ToDevice(ch.device(this_device),
                                       non_blocking=True)]
-                        })
+                        },
+                        distributed=distributed)
         return loader
 
     @param('training.epochs')
-    def train(self, epochs):
+    @param('training.diagnostics')
+    def train(self, epochs, diagnostics):
         for epoch in range(epochs):
             res = self.get_resolution(epoch)
             self.decoder.output_size = (res, res)
             train_loss = self.train_loop(epoch)
 
-            extra_dict = {
-                'train_loss': train_loss,
-                'epoch': epoch
-            }
+            if diagnostics:
+                extra_dict = {
+                    'train_loss': train_loss,
+                    'epoch': epoch
+                }
 
-            # if epoch % 5 == 0 or epoch == epochs - 1:
-            self.eval_and_log(extra_dict)
+                self.eval_and_log(extra_dict)
 
+        self.eval_and_log({'epoch':epoch})
         ch.save(self.model.state_dict(), self.log_folder / 'final_weights.pt')
 
     def eval_and_log(self, extra_dict={}):
@@ -255,7 +303,8 @@ class ImageNetTrainer(Trainer):
     @param('model.arch')
     @param('model.antialias')
     @param('training.pretrained')
-    def create_model_and_scaler(self, arch, antialias, pretrained):
+    @param('training.distributed')
+    def create_model_and_scaler(self, arch, antialias, pretrained, distributed):
         scaler = GradScaler()
         if not antialias:
             model = getattr(models, arch)(pretrained=pretrained)
@@ -263,31 +312,53 @@ class ImageNetTrainer(Trainer):
             raise ValueError('dont do this eom')
 
         model = model.to(memory_format=ch.channels_last)
-        model.cuda(self.gpu)
+        model = model.to(self.gpu)
+        if distributed:
+            model = DDP(model, device_ids=[self.gpu])
         return model, scaler
 
-def make_trainer():
+def make_config(quiet=False):
     config = get_current_config()
     parser = ArgumentParser(description='Fast imagenet training')
     config.augment_argparse(parser)
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
-    config.summary()
-    trainer = ImageNetTrainer(config)
+    if not quiet:
+        config.summary()
+
+def make_trainer(gpu=0):
+    trainer = ImageNetTrainer(gpu=gpu)
     return trainer
 
+@param('training.distributed')
 @param('training.eval_only')
-def execute(trainer, eval_only=False):
-    print(eval_only)
-    if not eval_only:
-        trainer.train()
-    else:
+def exec(gpu, distributed, eval_only):
+    trainer = make_trainer(gpu)
+    if eval_only:
         trainer.eval_and_log()
-    return trainer
+    else:
+        trainer.train()
 
-def main():
-    trainer = make_trainer()
-    return execute(trainer)
+    if distributed:
+        print('was distributed')
+        trainer.cleanup_distributed()
+
+@param('training.distributed')
+def main(distributed):
+    print(f'=> Distributed: {distributed}')
+    if distributed:
+        exec_distributed()
+    else:
+        exec(0)
+
+def exec_wrapper(*args, **kwargs):
+    make_config(quiet=True)
+    return exec(*args, **kwargs)
+
+@param('dist.world_size')
+def exec_distributed(world_size):
+    mp.spawn(exec_wrapper, nprocs=world_size, join=True)
 
 if __name__ == "__main__":
+    make_config()
     main()

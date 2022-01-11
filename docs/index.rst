@@ -12,6 +12,7 @@ Welcome to ffcv's documentation!
    making_dataloaders
    working_with_images
    benchmarks
+   parameter_tuning
    api_reference
    customizing
    :maxdepth: 2

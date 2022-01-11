@@ -1,4 +1,3 @@
-numba
 terminaltables
 fastargs
 matplotlib
