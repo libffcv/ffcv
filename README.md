@@ -23,7 +23,7 @@ With `ffcv` you can:
 - ...break the [MLPerf record*](TODO) for ImageNet training: TODO min on 8 AWS GPUs
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
 - ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
-- ...train a $YOUR_DATASET model $REALLY_FAST (for $WAY_LESS)
+- ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
 ## Install
 Via [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
