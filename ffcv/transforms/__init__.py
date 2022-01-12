@@ -1,6 +1,6 @@
 from .cutout import Cutout
 from .flip import RandomHorizontalFlip
-from .ops import Collate, ToTensor, ToDevice, ToTorchImage, Convert
+from .ops import Collate, ToTensor, ToDevice, ToTorchImage, Convert, View
 from .common import Squeeze
 from .random_resized_crop import RandomResizedCrop
 from .poisoning import Poison
@@ -9,4 +9,4 @@ from .normalize import NormalizeImage
 
 __all__ = ['Cutout', 'RandomHorizontalFlip', 'Collate', 'ToTensor', 
            'ToDevice', 'ToTorchImage', 'Squeeze', 'RandomResizedCrop',
-           'Convert', 'Poison', 'ReplaceLabel', 'NormalizeImage']
+           'Convert', 'Poison', 'ReplaceLabel', 'NormalizeImage', 'View']

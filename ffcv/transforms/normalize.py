@@ -37,10 +37,11 @@ class NormalizeImage(Operation):
         super().__init__()
         table = (np.arange(256)[:, None] - mean[None, :]) / std[None, :]
         self.original_dtype = type
+        table = table.astype(type)
         if type == np.float16:
             type = np.int16
         self.dtype = type
-        table = table.astype(type)
+        table = table.view(type)
         self.lookup_table = table
         self.previous_shape = None
         self.mode = 'cpu'
@@ -80,7 +81,6 @@ class NormalizeImage(Operation):
 
         table = self.lookup_table.view(dtype=self.dtype)
         my_range = Compiler.get_iterator()
-        previous_shape = self.previous_shape
 
         def normalize_convert(images, result, indices):
             result_flat = result.reshape(result.shape[0], -1, 3)
@@ -90,8 +90,9 @@ class NormalizeImage(Operation):
                 for px in range(num_pixels):
                     # Just in case llvm forgets to unroll this one
                     result_flat[i, px, 0] = table[image[px, 0], 0]
-                    result_flat[i, px, 1] = table[image[px, 1], 0]
-                    result_flat[i, px, 2] = table[image[px, 2], 0]
+                    result_flat[i, px, 1] = table[image[px, 1], 1]
+                    result_flat[i, px, 2] = table[image[px, 2], 2]
+                    
             return result
 
         normalize_convert.is_parallel = True

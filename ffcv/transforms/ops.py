@@ -91,7 +91,7 @@ class ToTorchImage(Operation):
         H, W, C = previous_state.shape
         new_type = previous_state.dtype
 
-        if new_type == ch.int16 and self.convert_int16:
+        if new_type is ch.int16 and self.convert_int16:
             new_type = ch.float16
             self.enable_int16conv = True
 
@@ -115,3 +115,20 @@ class Convert(Operation):
     # TODO: something weird about device to allocate on
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         return replace(previous_state, dtype=self.target_dtype), None
+
+
+class View(Operation):
+    def __init__(self, target_dtype):
+        super().__init__()
+        self.target_dtype = target_dtype
+    
+    def generate_code(self) -> Callable:
+        def convert(inp, dst):
+            return inp.view(self.target_dtype)
+
+        convert.is_parallel = True
+
+        return convert
+    
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
+        return replace(previous_state, dtype=self.target_dtype, jit_mode=False), None
