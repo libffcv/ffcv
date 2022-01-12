@@ -262,14 +262,14 @@ def {fun_name}():
 
         return_tuple = ast.Return(value=ast.Tuple(elts=[], ctx=ast.Load()))
 
+        base_code.args.args.append(ast.arg(arg='batch_indices'))
+
         for p_id in self.pipelines.keys():
             r = f'result_{p_id}'
             if stage_ix != 0:
                 base_code.args.args.append(ast.arg(arg=r))
             return_tuple.value.elts.append(ast.Name(id=r, ctx=ast.Load()))
 
-        if stage_ix == 0:
-            base_code.args.args.append(ast.arg(arg='batch_indices'))
 
         base_code.body.append(return_tuple)
         base_code.args.args.extend(memory_banks)

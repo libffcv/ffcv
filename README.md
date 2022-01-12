@@ -1,15 +1,13 @@
 <p align = 'center'>
 <em><b>Fast Forward Computer Vision</b>: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
 </p>
-<img src='assets/logo.png' width='100%'/>
+<img src='assets/logo.svg' width='100%'/>
 <p align = 'center'>
+[<a href="https://ffcv.io">homepage</a>]
 [<a href="#installation">install</a>]
 [<a href="#overview">overview</a>]
 [<a href="#docs">docs</a>]
-[<a href="#intro">ImageNet</a>]
-[<a href="#intro">CIFAR</a>]
-[<a href="#intro">custom datasets</a>]
-[<a href="#intro">FAQ</a>]
+[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">slack</a>]
 <br>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
@@ -19,9 +17,8 @@ Maintainers:
 
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
-
- - Fast data loading (even in resource constrained environments)
- - Efficient (yet Easy To Understand/customize) training code for standard
+- Fast data loading (even in resource constrained environments)
+- Efficient (yet Easy To Understand/customize) training code for standard
    computer vision tasks
 
 Install `ffcv` today and:
@@ -33,34 +30,37 @@ Install `ffcv` today and:
 Compare our time per-epoch to what you use now: 
 
 ## Install
-Via [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
+Making a clean [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 ```
 conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
     pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 
 conda activate ffcv
+
 pip install ffcv
 ``` 
 
 ## Citation
 Cite `ffcv` as:
 ```
-@misc{engstrom2016faststyletransfer,
-    author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sungmin Park and Hadi Salman and Aleksander Madry},
+@misc{leclerc2022ffcv,
+    author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
     title = {ffcv},
-    year = {2016},
-    howpublished = {\url{https://github.com/lengstrom/fast-style-transfer/}},
+    year = {2021},
+    howpublished = {\url{https://github.com/MadryLab/ffcv/}},
     note = {commit xxxxxxx}
 }
 ```
 
 ## Index
-- <a href="TODO"><b>Overview</b></a>: High level introduction to `ffcv`
+- <a href="#overview"><b>Overview</b></a>: High level introduction to `ffcv`
 - <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load your data today
-- <a href="TODO"><b>Bottleneck Doctor</b></a>: How can `ffcv` help you? Mapping of data loading problems to our solutions.
+- <a href="TODO"><b>Bottleneck Doctor</b></a>: How can `ffcv` help you? Mapping
+  of data loading problems to our solutions.
+- <a href="https://ffcv.io/docs/"><b>Documentation</b></a>, including:
 - <a href="TODO"><b>ImageNet</b></a>: Results, code, and training configs for ImageNet
 - <a href="TODO"><b>CIFAR</b></a>: Results, code, and training configs for CIFAR
-- <a href="TODO"><b>Data loading benchmarks</b></a>:
+- <a href="TODO"><b>Benchmarks</b></a>:
 - <a href="TODO"><b>Documentation</b></a>
 - <a href="TODO"><b>FAQ</b></a>
 

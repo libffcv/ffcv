@@ -92,7 +92,6 @@ class Pipeline:
 
     def allocate_memory(self, batch_size: int, batches_ahead: int):
         _, memory_allocations = self.parse_pipeline()
-
         # Contains the actual allocated memory
         memory_buffers: Mapping[int, Any] = {}
 
@@ -110,6 +109,5 @@ class Pipeline:
                 )
 
             memory_buffers[op_id] = allocated_buffer
-
 
         return memory_buffers

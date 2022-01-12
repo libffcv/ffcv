@@ -7,6 +7,7 @@ Welcome to ffcv's documentation!
 ================================
 
 .. toctree::
+   examples
    writing_datasets
    making_dataloaders
    working_with_images

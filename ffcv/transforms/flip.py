@@ -15,19 +15,21 @@ class RandomHorizontalFlip(Operation):
 
     Parameters
     ----------
-    p : float
+    flip_prob : float
         The probability with which to flip each image in the batch
         horizontally.
     """
 
-    def __init__(self):
+    def __init__(self, flip_prob: float = 0.5):
         super().__init__()
+        self.flip_prob = flip_prob
 
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
+        flip_prob = self.flip_prob
 
         def flip(images, dst):
-            should_flip = rand(images.shape[0]) > 0.5
+            should_flip = rand(images.shape[0]) < flip_prob
             for i in my_range(images.shape[0]):
                 if should_flip[i]:
                     dst[i] = images[i, :, ::-1]
