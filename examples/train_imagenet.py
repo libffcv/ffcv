@@ -186,10 +186,10 @@ class ImageNetTrainer(Trainer):
 
         if cpu_limited:
             image_pipeline.extend([
-                NormalizeImage(IMAGENET_MEAN * 255, IMAGENET_STD * 255, np.float16),
                 ToTensor(),
-                ToTorchImage(),
                 ToDevice(ch.device(this_device), non_blocking=True),
+                ToTorchImage(),
+                NormalizeImage(IMAGENET_MEAN * 255, IMAGENET_STD * 255, np.float16),
             ])
         else:
             image_pipeline.extend([
