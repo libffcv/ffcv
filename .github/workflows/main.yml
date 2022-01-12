@@ -31,6 +31,7 @@ jobs:
           pip install -U sphinx karma-sphinx-theme
           make html
           cp -r _build/html ../docs
+          cp ../.nojekyll ../docs/.nojekyll
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
           cd ..
