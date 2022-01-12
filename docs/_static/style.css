@@ -13,5 +13,5 @@ header {
 
 @font-face {
     font-family: 'Slipstream Forward';
-    src: url('/_static/slipstream.TTF')  format('truetype');
+    src: url('/_static/slipstream.ttf')  format('truetype');
 }
