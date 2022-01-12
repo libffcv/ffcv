@@ -144,6 +144,7 @@ The following other options can be specified when constructing an :class:`ffcv.l
 More information
 ''''''''''''''''
 
-For API, see
+See :ref:`API Reference`.
 
-For examples of constructing loaders, see the demos :ref:`Training CIFAR-10 in 36 seconds on a single A100 <Training CIFAR-10 in 36 seconds on a single A100>` and
+For examples of constructing loaders, see the demos :ref:`Training CIFAR-10 in 36 seconds on a single A100 `
+and :ref:`Large-Scale Linear Regression`
