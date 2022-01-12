@@ -10,12 +10,11 @@
 [<a href="#intro">CIFAR</a>]
 [<a href="#intro">custom datasets</a>]
 [<a href="#intro">FAQ</a>]
-</p>
-<p align = 'center'>
-[Maintainers:
-<a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a> •
-<a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> •
-<a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>]
+<br>
+Maintainers:
+<a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
+<a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> and
+<a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 
 `ffcv` dramatically increases data throughput in accelerated computing systems,
