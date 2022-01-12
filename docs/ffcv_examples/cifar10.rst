@@ -1,8 +1,8 @@
-Training CIFAR-10 in 30 seconds on a single A100
+Training CIFAR-10 in 36 seconds on a single A100
 ================================================
 
 In this example, we'll show how to use FFCV and the ResNet-9 architecture in
-order to train a CIFAR-10 classifier to TODO% accuracy in TODO seconds on a A100 GPU.
+order to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds on a single NVIDIA A100 GPU.
 
 First, we import ``torch`` and necessary components from ``ffcv``.
 
@@ -27,7 +27,7 @@ Step 1: Create an FFCV-compatible CIFAR-10 dataset
 --------------------------------------------------
 
 First, we'll use :class:`~ffcv.writer.DatasetWriter`
-to convert ``torchvision.datasets.CIFAR10`` to FFCV format:
+to convert ``torchvision.datasets.CIFAR10`` to FFCV format.
 (See :ref:`Writing datasets <Writing a dataset to FFCV format>` for more details.)
 We use a single ``RGBImageField`` to store the image and a single ``IntField`` to store the label.
 
@@ -203,7 +203,7 @@ Finally, we're ready to train our model.
 Wrapping up
 -----------
 
-It's that simple! In this tutorial, we used FFCV to train a CIFAR-10 classifier to TODO% accuracy in TODO seconds.
+It's that simple! In this tutorial, we used FFCV to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds.
 
 For more detailed benchmarks, see :ref:`Benchmarks`.
 
