@@ -8,8 +8,9 @@ First, we import ``torch`` and necessary components from ``ffcv``.
 
 .. code-block:: python
 
-    import torch as ch
     from typing import List
+
+    import torch as ch
     import torchvision
 
     from ffcv.fields import IntField, RGBImageField
@@ -23,10 +24,12 @@ First, we import ``torch`` and necessary components from ``ffcv``.
 
 
 Step 1: Create an FFCV-compatible CIFAR-10 dataset
-==================================================
+--------------------------------------------------
 
-First, we'll use the :ref:`Writing datasets <Writing a dataset to FFCV format>`
-guide to convert CIFAR-10 to FFCV format:
+First, we'll use :class:`~ffcv.writer.DatasetWriter`
+to convert ``torchvision.datasets.CIFAR10`` to FFCV format:
+(See :ref:`Writing datasets <Writing a dataset to FFCV format>` for more details.)
+We use a single ``RGBImageField`` to store the image and a single ``IntField`` to store the label.
 
 .. code-block:: python
 
@@ -36,21 +39,22 @@ guide to convert CIFAR-10 to FFCV format:
     }
 
     for (name, ds) in datasets.items():
-    writer = DatasetWriter(f'/tmp/cifar_{name}.beton', {
-        'image': RGBImageField(),
-        'label': IntField()
-    })
-    writer.from_indexed_dataset(ds)
+        writer = DatasetWriter(f'/tmp/cifar_{name}.beton', {
+            'image': RGBImageField(),
+            'label': IntField()
+        })
+        writer.from_indexed_dataset(ds)
 
 
-Step 2: Create the train and test loaders
-=========================================
+Step 2: Create data loaders
+-----------------------------------------
 
 Next, we construct FFCV dataloaders from the ``.beton`` dataset file created above.
-(See :ref:`Making an FFCV dataloader` for general how to.)
+(See :ref:`Making an FFCV dataloader` for more details.)
 
-For training set, we use a set of standard data augmentations: random horizontal flip,
+For the training set, we use a set of standard data augmentations: random horizontal flip,
 random translation, and Cutout.
+Note that the transformation pipeline can consist of both standard transforms from ``ffcv`` and other sources such as any ``torch.nn.Module``.
 
 .. code-block:: python
 
@@ -62,9 +66,10 @@ random translation, and Cutout.
 
     loaders = {}
     for name in ['train', 'test']:
-        # Create loaders
         label_pipeline: List[Operation] = [IntDecoder(), ToTensor(), ToDevice('cuda:0'), Squeeze()]
         image_pipeline: List[Operation] = [SimpleRGBImageDecoder()]
+
+        # Add image transforms and normalization
         if name == 'train':
             image_pipeline.extend([
                 RandomHorizontalFlip(),
@@ -79,6 +84,7 @@ random translation, and Cutout.
             torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
         ])
 
+        # Create loaders
         loaders[name] = Loader(f'/tmp/cifar_{name}.beton',
                                 batch_size=BATCH_SIZE,
                                 num_workers=8,
@@ -88,11 +94,10 @@ random translation, and Cutout.
                                            'label': label_pipeline})
 
 
-Step 3: Define model architecture and optimization parameters
-=============================================================
+Step 3: Setup model architecture and optimization parameters
+-------------------------------------------------------------
 
-We now define the model. We use a custom ResNet-9 architecture from KakaoBrain
-(https://github.com/wbaek/torchskeleton).
+For the model, we use a custom ResNet-9 architecture from `KakaoBrain <https://github.com/wbaek/torchskeleton>`_.
 
 .. code-block:: python
 
@@ -140,10 +145,10 @@ Note the ``ch.channels_last`` option when we put the model on GPU.
 
 
 Next, we define the optimizer and hyperparameters.
-We use standard SGD on the cross entropy loss with a cyclic learning rate schedule (single peak).
+We use standard SGD on the cross entropy loss with label smoothing and a cyclic learning rate schedule (triangular).
 
 .. code-block:: python
-    
+
     import numpy as np
     from torch.cuda.amp import GradScaler, autocast
     from torch.nn import CrossEntropyLoss
@@ -162,8 +167,8 @@ We use standard SGD on the cross entropy loss with a cyclic learning rate schedu
 
 
 
-Step 4: Train and evaluate the model!
-=====================================
+Step 4: Train and evaluate the model
+-------------------------------------
 
 Finally, we're ready to train our model.
 
@@ -196,8 +201,9 @@ Finally, we're ready to train our model.
 
 
 Wrapping up
-===========
+-----------
 
-In this tutorial, we used FFCV to train a CIFAR-10 classifier to TODO% accuracy in TODO seconds.
+It's that simple! In this tutorial, we used FFCV to train a CIFAR-10 classifier to TODO% accuracy in TODO seconds.
+
 For more detailed benchmarks, see :ref:`Benchmarks`.
 
