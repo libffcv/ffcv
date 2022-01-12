@@ -76,10 +76,10 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4]]
-    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 8)]
+    wds = [Parameters(wd=wd) for wd in  [5e-3, 1e-3, 5e-4, 1e-4]]
+    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 1., 4)]
     res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
-        (160, 224) #, (192, 256)
+        (160, 224)
     ]]
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
@@ -97,7 +97,7 @@ def main(log_dir, out_file):
     ]
 
     peaks = [Parameters(peak=k, schedule_type='linear') for k in [0]]
-    epochs = [Parameters(epochs=k) for k in [35]]
+    epochs = [Parameters(epochs=k) for k in [30]]
 
     should_mixup = [
         Parameters(mixup=0., same_lambda=1)

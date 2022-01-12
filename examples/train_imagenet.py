@@ -72,7 +72,11 @@ DEFAULT_CROP_RATIO = 224/256
 @param('training.lr')
 @param('training.step_ratio')
 @param('training.step_length')
-def get_step_lr(epoch, lr, step_ratio, step_length):
+@param('training.epochs')
+def get_step_lr(epoch, lr, step_ratio, step_length, epochs):
+    if epoch >= epochs:
+        return 0
+
     num_steps = epoch // step_length
     return step_ratio**num_steps * lr
 
