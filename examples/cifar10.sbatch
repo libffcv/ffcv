@@ -3,7 +3,7 @@
 #SBATCH -c 8
 #SBATCH -a 0-6
 #SBATCH --time=1-00:00:00
-#SBATCH --output=/mnt/nfs/home/aiilyas/slurm/scratch/cifar-logs/notranslate-%a-%j.log
+#SBATCH --output=/mnt/nfs/home/aiilyas/slurm/scratch/cifar-logs/B-%a-%j.log
 
 epochs=(10 15 20 25 30 35 40)
 lrs=(0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0) 

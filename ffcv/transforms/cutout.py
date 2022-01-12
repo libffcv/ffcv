@@ -3,6 +3,8 @@ Cutout augmentation [CITE]
 """
 import numpy as np
 from typing import Callable, Optional, Tuple
+
+from ffcv.pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
@@ -26,19 +28,22 @@ class Cutout(Operation):
         self.fill = np.array(fill)
     
     def generate_code(self) -> Callable:
+        my_range = Compiler.get_iterator()
         crop_size = self.crop_size
         fill = self.fill
+
         def cutout_square(images, *_):
-            for image in images:
+            for i in my_range(images.shape[0]):
                 # Generate random origin
                 coord = (
-                    np.random.randint(image.shape[0] - crop_size),
-                    np.random.randint(image.shape[1] - crop_size),
+                    np.random.randint(images.shape[1] - crop_size + 1),
+                    np.random.randint(images.shape[2] - crop_size + 1),
                 )
                 # Black out image in-place
-                image[coord[0]:coord[0] + crop_size, coord[1]:coord[1] + crop_size] = fill
+                images[i, coord[0]:coord[0] + crop_size, coord[1]:coord[1] + crop_size] = fill
             
             return images
+        cutout_square.is_parallel = True
 
         return cutout_square
     

@@ -54,7 +54,7 @@ def make_datasets(data_path):
         if name == 'train':
             image_pipeline.extend([
                 RandomHorizontalFlip(),
-                # RandomTranslate(padding=3),
+                RandomTranslate(padding=2, fill=tuple(map(int, CIFAR_MEAN))),
                 Cutout(4, tuple(map(int, CIFAR_MEAN))),
             ])
         image_pipeline.extend([

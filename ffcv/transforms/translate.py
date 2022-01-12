@@ -19,23 +19,31 @@ class RandomTranslate(Operation):
     padding : int
         The probability with which to flip each image in the batch
         horizontally.
+    fill : tuple
+        How to fill the
     """
 
-    def __init__(self, padding: int):
+    def __init__(self, padding: int, fill: Tuple[int, int, int] = (0, 0, 0)):
         super().__init__()
         self.padding = padding
+        self.fill = np.array(fill)
 
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
         pad = self.padding
+        fill = self.fill
 
         def translate(images, dst):
             n, h, w, _ = images.shape
+            # y_coords = randint(low=0, high=2 * pad + 1, size=(n,))
+            # x_coords = randint(low=0, high=2 * pad + 1, size=(n,))
+            dst[:] = fill
             dst[:, pad:pad+h, pad:pad+w] = images
-            y_coords = randint(low=0, high=2 * pad + 1, size=(n,))
-            x_coords = randint(low=0, high=2 * pad + 1, size=(n,))
             for i in my_range(n):
-                images[i] = dst[i, y_coords[i]:y_coords[i]+h, x_coords[i]:x_coords[i]+w]
+                y_coord = randint(low=0, high=2 * pad + 1)
+                x_coord = randint(low=0, high=2 * pad + 1)
+                # images[i] = dst[i, y_coords[i]:y_coords[i]+h, x_coords[i]:x_coords[i]+w]
+                images[i] = dst[i, y_coord:y_coord+h, x_coord:x_coord+w]
 
             return images
 

@@ -20,7 +20,10 @@ class ImageMixup(Operation):
     Parameters
     ----------
     alpha : float
-        Cutout parameter alpha
+        Mixup parameter alpha
+    same_lambda : bool
+        Whether to use the same value of lambda across the whole batch, or an
+        individually sampled lambda per image in the batch
     """
 
     def __init__(self, alpha: float, same_lambda: bool):
@@ -56,12 +59,8 @@ class ImageMixup(Operation):
                                                 dtype=previous_state.dtype))
 
 class LabelMixup(Operation):
-    """Cutout for labels.
-
-    Parameters
-    ----------
-    alpha : float
-        Cutout parameter alpha
+    """Mixup for labels. Should be initialized in exactly the same way as
+    :cla:`ffcv.transforms.ImageMixup`.
     """
     def __init__(self, alpha: float, same_lambda: bool):
         super().__init__()
