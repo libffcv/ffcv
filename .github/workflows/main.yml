@@ -26,7 +26,8 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build and upload the docs
         run: |
-          pip install -U -r requirements.txt
+          conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+          conda activate ffcv
           cd docs
           pip install -U ../
           make html
