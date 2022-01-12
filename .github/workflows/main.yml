@@ -32,6 +32,7 @@ jobs:
           make html
           cp -r _build/html ../docs
           cp ../.nojekyll ../docs/.nojekyll
+          echo docs.ffcv.io > ../docs/CNAME
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
           cd ..
