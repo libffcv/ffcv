@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'FFCV'
-copyright = '2021, ffcv'
+copyright = '2022, ffcv'
 author = 'ffcv'
 
 
@@ -44,7 +44,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
-autodoc_mock_imports = ['torch', 'torchvision', 'cv2', 'numpy', 'numba']
+autodoc_mock_imports = ['torch', 'torchvision', 'cv2', 'PIL', 'ffcv.libffcv']
 autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
