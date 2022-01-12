@@ -1,7 +1,7 @@
 <p align = 'center'>
 <em><b>Fast Forward Computer Vision</b>: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
 </p>
-<img src='assets/logo.png' width='100%'/>
+<img src='assets/logo.svg' width='100%'/>
 <p align = 'center'>
 [<a href="#installation">install</a>]
 [<a href="#overview">overview</a>]
@@ -31,12 +31,13 @@ Install `ffcv` today and:
 Look at how fast our per epoch speeds are!
 
 ## Install
-Via [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
+Making a clean [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 ```
 conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
     pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 
 conda activate ffcv
+
 pip install ffcv
 ``` 
 
