@@ -37,6 +37,7 @@ jobs:
           touch .nojekyll
           git config --global user.email "ailyas@mit.edu"
           git config --global user.name "Andrew Ilyas"
-          git add --force docs .nojekyll
+          git add --force docs
+          git add .nojekyll
           git commit -m generate docs
           git push --force -u origin ghpages
