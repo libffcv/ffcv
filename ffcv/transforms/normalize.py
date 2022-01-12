@@ -20,7 +20,9 @@ def ch_dtype_from_numpy(dtype):
 
 class NormalizeImage(Operation):
     """Perform Image Normalization.
-    Operates on raw arrays (not tensors).
+    Fast implementation of Normalization+type conversion for uint8 images to any floating point dtype.
+
+    Works both on GPU and CPU tensors.
 
     Parameters
     ----------
@@ -29,7 +31,9 @@ class NormalizeImage(Operation):
     std: np.ndarray
         The standard deviation
     type: np.dtype
-        The desired output type for the result
+        The desired output type for the result as a numpy type
+        If the transform is applied on a GPU tensor it will be converted
+        as the equivalent torch dtype.
     """
 
     def __init__(self, mean: np.ndarray, std: np.ndarray,
