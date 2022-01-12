@@ -17,6 +17,11 @@ fixed weight vector:
 .. code-block:: python
 
     import numpy as np
+    
+    # 1,000,000 inputs each of dimension 10,000 = 40GB of data
+    N, D = 1000000, 10000
+    X = np.random.rand(N, D)
+
 
 Our goal is to, given ``X`` and ``Y``, recover the true parameter ``W``. We will
 accomplish this via *SGD* on the squared-loss:
