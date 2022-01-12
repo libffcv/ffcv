@@ -11,6 +11,9 @@ from ffcv.transforms import RandomHorizontalFlip, Cutout, \
 from ffcv.transforms.common import Squeeze
 from ffcv.writer import DatasetWriter
 
+
+# Step 1: Create an FFCV-compatible CIFAR-10 dataset
+
 datasets = {
     'train': torchvision.datasets.CIFAR10('/tmp', train=True, download=True),
     'test': torchvision.datasets.CIFAR10('/tmp', train=False, download=True)
@@ -22,6 +25,9 @@ for (name, ds) in datasets.items():
         'label': IntField()
     })
     writer.from_indexed_dataset(ds)
+
+
+# Step 2: Create data loaders
 
 CIFAR_MEAN = [125.307, 122.961, 113.8575]
 CIFAR_STD = [51.5865, 50.847, 51.255]
@@ -54,7 +60,10 @@ for name in ['train', 'test']:
                             pipelines={'image': image_pipeline,
                                         'label': label_pipeline})
 
-# Model (from KakaoBrain: https://github.com/wbaek/torchskeleton)
+
+# Step 3: Setup model architecture and optimization parameters
+# (from KakaoBrain: https://github.com/wbaek/torchskeleton)
+
 class Mul(ch.nn.Module):
     def __init__(self, weight):
        super(Mul, self).__init__()
@@ -94,7 +103,9 @@ model = ch.nn.Sequential(
 )
 model = model.to(memory_format=ch.channels_last).cuda()
 
+
 # Make optimizer and schedule
+
 import numpy as np
 from torch.cuda.amp import GradScaler, autocast
 from torch.optim import SGD, lr_scheduler
@@ -112,6 +123,7 @@ scaler = GradScaler()
 loss_fn = CrossEntropyLoss(label_smoothing=0.1)
 
 
+# Step 4: train and evaluate model
 
 from tqdm import tqdm
 
