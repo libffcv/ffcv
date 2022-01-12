@@ -55,7 +55,7 @@ autodoc_member_order = 'bysource'
 html_theme = 'karma_sphinx_theme'
 autodoc_default_options = {
     'undoc-members': False,
-    'exclude-members': ['_libffcv']
+    'exclude-members': '_libffcv'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
