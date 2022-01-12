@@ -1,8 +1,8 @@
-Benchmarks
-==========
+Benchmarking on ImageNet
+=========================
 
-Dataset sizes (ImageNet)
--------------------------
+Dataset sizes
+--------------
 
 In order to provide an idea of how the image encoding settings influence the resulting dataset, we generated multiple ImageNet datasets with various options. We present the results below. For more details about the options, please refer to the :ref:`relevant section<Working with Image Data in FFCV>`.
 
@@ -66,8 +66,8 @@ In order to provide an idea of how the image encoding settings influence the res
      - 788.97 GB
 
 
-Data loading (ImageNet)
------------------------
+Data loading 
+------------
 
 We selected some of the datasets generated in the section above and measure the time to go through an epoch.
 
@@ -135,9 +135,5 @@ We compare our results against existing data loading platforms:
     - Random resized crop to 224x224xpx
     - Random Flip
 
-
-End-to-end training (CIFAR)
-----------------------------
-
-End-to-end training (ImageNet)
--------------------------------
+End-to-end training
+--------------------
