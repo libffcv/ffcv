@@ -44,7 +44,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
-autodoc_mock_imports = ['torch', 'torchvision', 'cv2', 'numpy', 'numba', 'PIL', 'ffcv._libffcv']
+autodoc_mock_imports = ['torch', 'torchvision', 'cv2', 'numpy', 'numba', 'PIL', 'libffcv']
 autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
