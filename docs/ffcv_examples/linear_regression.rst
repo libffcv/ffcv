@@ -19,7 +19,7 @@ fixed weight vector:
     import numpy as np
     
     # 1,000,000 inputs each of dimension 10,000 = 40GB of data
-    N, D = 1_000_000, 10_000
+    N, D = 1000000, 10000
     X = np.random.rand(N, D)
     # Ground-truth vector
     W = np.random.rand(D)
