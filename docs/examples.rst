@@ -1,5 +1,5 @@
-End-to-end examples
-===================
+Examples
+=========
 
 .. toctree::
    ffcv_examples/cifar10.rst

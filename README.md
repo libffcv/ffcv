@@ -6,7 +6,7 @@
 [<a href="https://ffcv.io">homepage</a>]
 [<a href="#installation">install</a>]
 [<a href="#overview">overview</a>]
-[<a href="#docs">docs</a>]
+[<a href="https://docs.ffcv.io">docs</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">slack</a>]
 <br>
 Maintainers:
