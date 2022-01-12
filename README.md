@@ -16,7 +16,6 @@ Maintainers:
 [<a href="#intro">custom datasets</a>]
 [<a href="#intro">FAQ</a>]
 </p>
-
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
  - Fast data loading (even in resource constrained environments)
