@@ -33,11 +33,11 @@ accomplish this via *SGD* on the squared-loss:
 
     import torch as ch
 
-    train_loader, val_loader = ... # TODO!
+    train_loader, val_loader = None # TODO!
     mean, stdev = calculate_stats(train_loader) # TODO!
     w_est = ch.zeros(D) # Initial guess for W
     num_epochs = 100 # Number of full passes over the data to do
-    
+
     for _ in range(num_epochs):
         total_loss, num_examples = 0., 0.
         for (x_batch, y_batch) in train_loader:
