@@ -26,6 +26,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build and upload the docs
         run: |
+          touch .nojekyll
           mv docs docs_src
           cd docs_src
           pip install -U sphinx karma-sphinx-theme
@@ -34,10 +35,9 @@ jobs:
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
           cd ..
-          touch .nojekyll
           git config --global user.email "ailyas@mit.edu"
           git config --global user.name "Andrew Ilyas"
           git add --force docs
-          git add .nojekyll
+          git add --force .nojekyll
           git commit -m generate docs
           git push --force -u origin ghpages
