@@ -44,7 +44,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 
-autodoc_mock_imports = ['torch', 'torchvision', 'cv2', 'numpy', 'numba', 'PIL', 'libffcv']
+autodoc_mock_imports = ['torch', 'torchvision', 'cv2', 'numpy', 'numba', 'PIL', 'ffcv._libffcv']
 autodoc_member_order = 'bysource'
 
 # -- Options for HTML output -------------------------------------------------
@@ -55,7 +55,6 @@ autodoc_member_order = 'bysource'
 html_theme = 'karma_sphinx_theme'
 autodoc_default_options = {
     'undoc-members': False,
-    'exclude-members': 'ffcv._libffcv'
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
