@@ -106,7 +106,7 @@ There are three easy ways to specify transformations in a pipeline:
   :ref:`Making custom transforms <Making custom transforms>` guide.
 
 
-The following shows an example of a full pipeline for an image field: starting with a field decoder,
+The following shows an example of a full pipeline for an image field that starts with a field decoder,
 :class:`SimpleRGBImageDecoder`, followed by a mix of transforms implemented by FFCV
 and ``torchvision.Transforms``:
 
@@ -121,15 +121,15 @@ and ``torchvision.Transforms``:
         ToDevice('cuda:0', non_blocking=True),
         ToTorchImage(),
         Convert(ch.float16),
-        torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+        torchvision.transforms.Normalize(MEAN, STD), # Normalize using image statistics
     ])
 
 
 
 Other options
--------------
+'''''''''''''
 
-The following other options can be specified when constructing a :class:`ffcv.loader.Loader`:
+The following other options can be specified when constructing an :class:`ffcv.loader.Loader`:
 
 - ``os_cache``: if True, the entire dataset is cached
 - ``distributed``: ???
@@ -141,13 +141,9 @@ The following other options can be specified when constructing a :class:`ffcv.lo
 - ``recompile``: recompile at every epoch <- why ???
 
 
-Conclusion
-----------
+More information
+''''''''''''''''
 
+For API, see
 
-TODO
-- pytorch
-- other options
-- conclude: API reference + examples
--
-
+For examples of constructing loaders, see the demos :ref:`Training CIFAR-10 in 36 seconds on a single A100 <Training CIFAR-10 in 36 seconds on a single A100>` and
