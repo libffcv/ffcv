@@ -74,9 +74,9 @@ to a PyTorch tensor:
 
 This is already enough to start loading data, but pipelines are also our
 opportunity to apply fast pre-processing to the data through a series of
-transformations---transforms are automatically compiled to ---- at runtime
-and, for GPU-intensive applications like training neural networks, can often
-introduce no additional training overhead.
+transformations---transforms are automatically compiled to at runtime
+and, for GPU-intensive applications like training neural networks, can reduce
+any additional training overhead.
 
 .. note::
 
@@ -96,13 +96,58 @@ Transforms
 
 There are three easy ways to specify transformations in a pipeline:
 
-- By default, FFCV implements a set of standard transformations in the
-  :mod:`ffcv.transforms` module
+- A set of standard transformations in the
+  :mod:`ffcv.transforms` module. These include standard image data augmentations such as :class:`RandomHorizontalFlip` and :class:`Cutout`.
 
-- Any subclass of ``torch.nn.Module`` will be automatically converted to a FFCV
-  operation
+- Any subclass of ``torch.nn.Module``: FFCV automatically converts them into an operation.
 
-- You can easily implement your own transformations by subclassing
+- Custom transformations: you can implement your own by subclassing
   :class:`ffcv.transforms.Operation`, as discussed in the
   :ref:`Making custom transforms <Making custom transforms>` guide.
+
+
+The following shows an example of a full pipeline for an image field: starting with a field decoder,
+:class:`SimpleRGBImageDecoder`, followed by a mix of transforms implemented by FFCV
+and ``torchvision.Transforms``:
+
+.. code-block:: python
+
+    image_pipeline: List[Operation] = [
+        SimpleRGBImageDecoder(),
+        RandomHorizontalFlip(),
+        torchvision.transforms.ColorJitter(.4,.4,.4),
+        RandomTranslate(padding=2),
+        ToTensor(),
+        ToDevice('cuda:0', non_blocking=True),
+        ToTorchImage(),
+        Convert(ch.float16),
+        torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
+    ])
+
+
+
+Other options
+-------------
+
+The following other options can be specified when constructing a :class:`ffcv.loader.Loader`:
+
+- ``os_cache``: if True, the entire dataset is cached
+- ``distributed``: ???
+- ``seed``: specify the random seed for batch ordering
+- ``indices``: provide indices to load a subset of the dataset
+- ``custom_fields``: ???
+- ``drop_last``: if set True, drops the last non-full batch from each iteration
+- ``batches_ahead``: set the number of batches prepared in advance. Increase for ???, decrease for ???
+- ``recompile``: recompile at every epoch <- why ???
+
+
+Conclusion
+----------
+
+
+TODO
+- pytorch
+- other options
+- conclude: API reference + examples
+-
 
