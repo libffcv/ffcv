@@ -105,25 +105,24 @@ There are three easy ways to specify transformations in a pipeline:
   :class:`ffcv.transforms.Operation`, as discussed in the
   :ref:`Making custom transforms <Making custom transforms>` guide.
 
-
-The following shows an example of a full pipeline for an image field that starts with a field decoder,
-:class:`SimpleRGBImageDecoder`, followed by a mix of transforms implemented by FFCV
-and ``torchvision.Transforms``:
+The following shows an example of a full pipeline for a vector field starts with the field decoder,
+:class:`NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
 
 .. code-block:: python
 
-    image_pipeline: List[Operation] = [
-        SimpleRGBImageDecoder(),
-        RandomHorizontalFlip(),
-        torchvision.transforms.ColorJitter(.4,.4,.4),
-        RandomTranslate(padding=2),
-        ToTensor(),
-        ToDevice('cuda:0', non_blocking=True),
-        ToTorchImage(),
-        Convert(ch.float16),
-        torchvision.transforms.Normalize(MEAN, STD), # Normalize using image statistics
-    ])
+    class AddGaussianNoise(ch.nn.Module):
+        def __init__(self, scale=1):
+            super(AddGaussianNoise, self).__init__()
+            self.scale = scale
 
+        def forward(self, x):
+            return x + ch.randn_like(x) * self.scale
+
+    pipeline: List[Operation] = [
+        NDArrayDecoder(),
+        ToTensor(),
+        AddGaussianNoise(0.1)
+    ]
 
 
 Other options
@@ -146,5 +145,5 @@ More information
 
 For information on available transforms and the :class:`ffcv.loader.Loader` class, see :ref:`API Reference`.
 
-For examples of constructing loaders, see the demos :ref:`Training CIFAR-10 in 36 seconds on a single A100`
+For examples of constructing loaders and using them, see the tutorials :ref:`Training CIFAR-10 in 36 seconds on a single A100`
 and :ref:`Large-Scale Linear Regression`.
