@@ -11,6 +11,12 @@
 [<a href="#intro">custom datasets</a>]
 [<a href="#intro">FAQ</a>]
 </p>
+<p align = 'center'>
+[Maintainers:
+<a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a> •
+<a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> •
+<a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>]
+</p>
 
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
@@ -24,6 +30,8 @@ Install `ffcv` today and:
 - ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
+Look at how fast our per epoch speeds are!
+
 ## Install
 Via [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 ```
@@ -34,9 +42,21 @@ conda activate ffcv
 pip install ffcv
 ``` 
 
+## Citation
+Cite `ffcv` as:
+```
+@misc{engstrom2016faststyletransfer,
+    author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sungmin Park and Hadi Salman and Aleksander Madry},
+    title = {ffcv},
+    year = {2016},
+    howpublished = {\url{https://github.com/lengstrom/fast-style-transfer/}},
+    note = {commit xxxxxxx}
+}
+```
+
 ## Index
 - <a href="TODO"><b>Overview</b></a>: High level introduction to `ffcv`
-- <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load data today
+- <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load your data today
 - <a href="TODO"><b>Bottleneck Doctor</b></a>: How can `ffcv` help you? Mapping of data loading problems to our solutions.
 - <a href="TODO"><b>ImageNet</b></a>: Results, code, and training configs for ImageNet
 - <a href="TODO"><b>CIFAR</b></a>: Results, code, and training configs for CIFAR
