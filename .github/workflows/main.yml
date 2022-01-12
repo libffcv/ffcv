@@ -27,7 +27,7 @@ jobs:
       - name: Build and upload the docs
         run: |
           cd docs
-          pip install -U sphinx sphinx-karma-theme
+          pip install -U sphinx karma-sphinx-theme
           make html
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
