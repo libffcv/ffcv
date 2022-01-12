@@ -12,10 +12,9 @@ import time
 from ffcv.transforms.ops import ToTorchImage
 from trainer import Trainer
 from ffcv.loader import Loader, OrderOption
-from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert, RandomHorizontalFlip
+from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert, RandomHorizontalFlip, NormalizeImage
 from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
-from torchvision.transforms import Normalize
 from fastargs import get_current_config
 from fastargs.decorators import param
 from fastargs import Param, Section
@@ -23,14 +22,13 @@ from fastargs.validation import And, OneOf
 from argparse import ArgumentParser
 import numpy as np
 from torchvision import models
+from torchvision.transforms import Normalize
 import torch.optim as optim
 
 # distributed imports
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.multiprocessing as mp
-
-ch.backends.cudnn.benchmark=True
 
 
 Section('model', 'model details').params(
@@ -184,16 +182,14 @@ class ImageNetTrainer(Trainer):
 
         image_pipeline.extend([
             RandomHorizontalFlip(),
-            ToTensor()
         ])
-        
+
         if cpu_limited:
             image_pipeline.extend([
+                ToTensor(),
                 ToDevice(ch.device(this_device), non_blocking=True),
                 ToTorchImage(),
-                Convert(ch.float16),
-                # Normalize((IMAGENET_MEAN * 255).tolist(),
-                #           (IMAGENET_STD * 255).tolist()),
+                NormalizeImage(IMAGENET_MEAN * 255, IMAGENET_STD * 255, np.float16),
             ])
         else:
             image_pipeline.extend([
@@ -203,7 +199,7 @@ class ImageNetTrainer(Trainer):
                 #           (IMAGENET_STD * 255).tolist()),
                 ToDevice(ch.device('cuda:0'), non_blocking=True)
             ])
-
+            
         label_pipeline: List[Operation] = [IntDecoder()]
         if mixup_alpha:
             label_pipeline.append(LabelMixup(mixup_alpha, mixup_same_lambda))

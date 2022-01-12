@@ -129,13 +129,13 @@ class Trainer():
         lrs = np.interp(np.arange(iters), [0, iters], [lr_start, lr_end])
 
         iterator = tqdm(self.train_loader)
+        from time import time
+        prev = time()
         for ix, (images, target) in enumerate(iterator):
+            # print(time() - prev)
             # set lr for this minibatch
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = lrs[ix]
-
-            images = images.to(memory_format=ch.channels_last,
-                               non_blocking=True)
 
             self.optimizer.zero_grad(set_to_none=True)
             with autocast():
@@ -156,6 +156,7 @@ class Trainer():
             self.scaler.scale(loss_train).backward()
             self.scaler.step(self.optimizer)
             self.scaler.update()
+            prev = time()
 
         loss = ch.stack(losses).mean().item() if diagnostics else -1
         return loss

@@ -107,7 +107,7 @@ class EpochIterator(Thread):
     def run_pipeline(self, b_ix, batch_indices, batch_slot, cuda_event):
         # print(b_ix, batch_indices)
         self.memory_context.start_batch(b_ix)
-        args = [batch_indices]
+        args = []
         if IS_CUDA:
             stream = self.cuda_streams[batch_slot]
             ctx = ch.cuda.stream(stream)
@@ -120,6 +120,7 @@ class EpochIterator(Thread):
                 if cuda_event:
                     cuda_event.wait()
             for stage, banks in self.memory_bank_per_stage.items():
+                args.insert(0, batch_indices)
                 for bank in banks:
                     if bank is not None:
                         if isinstance(bank, tuple):
