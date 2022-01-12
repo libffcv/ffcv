@@ -26,9 +26,11 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build and upload the docs
         run: |
-          cd docs
+          mv docs docs_src
+          cd docs_src
           pip install -U sphinx karma-sphinx-theme
           make html
+          cp -r _build/html ../docs
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
           cd ..
