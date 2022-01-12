@@ -1,10 +1,5 @@
 <p align = 'center'>
 <em><b>Fast Forward Computer Vision</b>: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
-<br>
-Maintainers:
-<a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
-<a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> and
-<a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 <img src='assets/logo.png' width='100%'/>
 <p align = 'center'>
@@ -15,6 +10,11 @@ Maintainers:
 [<a href="#intro">CIFAR</a>]
 [<a href="#intro">custom datasets</a>]
 [<a href="#intro">FAQ</a>]
+<br>
+Maintainers:
+<a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
+<a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> and
+<a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
