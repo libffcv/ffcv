@@ -49,7 +49,7 @@ Section('resolution', 'resolution scheduling').params(
 Section('training', 'training hyper param stuff').params(
     step_ratio=Param(float, 'learning rate step ratio', default=0.1),
     step_length=Param(int, 'learning rate step length', default=30),
-    lr_schedule_type=Param(OneOf(['step', 'linear']), 'step or linear schedule?',
+    lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or linear schedule?',
                            required=True),
     eval_only=Param(int, 'eval only?', default=0),
     pretrained=Param(int, 'is pretrained?', default=0),
@@ -82,8 +82,9 @@ def get_step_lr(epoch, lr, step_ratio, step_length, epochs):
 
 @param('training.lr')
 @param('training.epochs')
-def get_linear_lr(epoch, lr, epochs):
-    return np.interp([epoch], [0, epochs], [lr, 0])[0]
+@param('training.lr_peak_epoch')
+def get_cyclic_lr(epoch, lr, epochs, lr_peak_epoch):
+    return np.interp([epoch], [0, lr_peak_epoch, epochs], [1e-3 * lr, lr, 0])[0]
 
 @param('training.distributed')
 @param('baselines.use_baseline')
@@ -110,7 +111,7 @@ class ImageNetTrainer(Trainer):
     @param('training.lr_schedule_type')
     def get_lr(self, epoch, lr_schedule_type):
         lr_schedules = {
-            'linear': get_linear_lr,
+            'cyclic': get_cyclic_lr,
             'step': get_step_lr
         }
 

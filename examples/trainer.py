@@ -46,7 +46,7 @@ Section('training', 'training hyper param stuff').params(
     momentum=Param(float, 'SGD momentum', default=0.9),
     weight_decay=Param(float, 'weight decay', default=4e-5),
     epochs=Param(int, 'number of epochs', default=24),
-    lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=5.),
+    lr_peak_epoch=Param(float, 'Epoch at which LR peaks', default=2),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.),
     distributed=Param(int, 'is distributed?', default=0),
     mixup_alpha=Param(float, 'mixup alpha', default=0),
