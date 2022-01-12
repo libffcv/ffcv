@@ -16,19 +16,21 @@ Maintainers:
 <a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> and
 <a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
+
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
+
  - Fast data loading (even in resource constrained environments)
  - Efficient (yet Easy To Understand/customize) training code for standard
    computer vision tasks
 
 Install `ffcv` today and:
-- ...break the <span>[MLPerf record*](TODO)</span> for ImageNet training: TODO min on 8 AWS GPUs
+- ...break the <span>[MLPerf record*](TODO)</span> for (PyTorch/TensorFlow) ImageNet training: TODO min on 8 AWS GPUs
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
 - ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
-Look at how fast our per epoch speeds are!
+Compare our time per-epoch to what you use now: 
 
 ## Install
 Via [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
@@ -141,13 +143,14 @@ you should work towards reducing disk-read bottlenecks (or CPU bottlenecks if yo
 - Loading (`ffcv.loader.Loader`) options: Always set `os_cache=False` and if you want random ordering `order=OptionOrder.QUASI_RANDOM` (in place of `OptionOrder.RANDOM`).
 - Writing (`DatasetWriter`) options: write examples such that loading is not CPU
 or disk bound; see a full list of strategies [below](TODO). For example,
-store lower quality or downsized JPEGs, .
+store lower quality or downsized JPEGs.
 </p>
 
-<p><b>General best practices.</b> Always:
+<p><b>General best practices.</b> For most <code>ffcv</code> applications:
 
 - Replace data augmentations with `ffcv` <a href="TODO">built-in equivalents</a> when possible.
 - <a href="TODO">Port your data augmentations</a> over to `ffcv` via <a href="TODO">Numba</a> if you have the time; `ffcv` does support slower, non-numba augmentations as well.
+- Set `workers` in `ffcv.loader.Loader` to the number of available cores, `ffcv` does not usually benefit from hyperthreading.
 </p>
 
 ## Bottleneck Doctor
@@ -192,17 +195,22 @@ loading, <code>ffcv</code> can still accelerate your system:
 <li><b><a href="TODO">Train multiple models on the same GPU</a></b>: Fully
 asynchronous dataloading means that different training processes won't block eachother.</li>
 <li><b><a href="TODO">Offload compute to the CPU</a></b>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
-<!-- <li>Optimized memory allocation: No hassle memory management.</li> -->
 </ul>
 This list is limited to what <code>ffcv</code> offers in data loading; check out
-guides like <a href="">the PyTorch performance guide</a> for more ways to speed
+guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
 up training. 
 
+
+
 ## ImageNet
+We provide code for efficient ImageNet training. 
+
+### Single GPU training
+
+### Distributed training
 
 ## CIFAR
 
 ## 
-
 
 ##  FAQ / Caveats
