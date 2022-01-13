@@ -114,6 +114,8 @@ class ImageNetTrainer:
         self.all_params = get_current_config()
         self.gpu = gpu
 
+        self.uid = str(uuid4())
+
         if distributed:
             self.setup_distributed()
 
@@ -121,8 +123,8 @@ class ImageNetTrainer:
         self.val_loader = self.create_val_loader()
         self.model, self.scaler = self.create_model_and_scaler()
         self.create_optimizer()
-        self.uid = str(uuid4())
         self.initialize_logger()
+        
 
     @param('dist.address')
     @param('dist.port')
@@ -401,22 +403,24 @@ class ImageNetTrainer:
             'loss': MeanScalarMetric(compute_on_step=False).to(self.gpu)
         }
 
-        folder = (Path(folder) / str(self.uid)).absolute()
-        folder.mkdir(parents=True)
+        if self.gpu == 0:
+            folder = (Path(folder) / str(self.uid)).absolute()
+            folder.mkdir(parents=True)
 
-        self.log_folder = folder
-        self.start_time = time.time()
+            self.log_folder = folder
+            self.start_time = time.time()
 
-        print(f'=> Logging in {self.log_folder}')
-        params = {
-            '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()
-        }
+            print(f'=> Logging in {self.log_folder}')
+            params = {
+                '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()
+            }
 
-        with open(folder / 'params.json', 'w+') as handle:
-            json.dump(params, handle)
+            with open(folder / 'params.json', 'w+') as handle:
+                json.dump(params, handle)
 
     def log(self, content):
         print(f'=> Log: {content}')
+        if self.gpu != 0: return
         cur_time = time.time()
         with open(self.log_folder / 'log', 'a+') as fd:
             fd.write(json.dumps({
