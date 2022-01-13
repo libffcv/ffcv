@@ -125,7 +125,7 @@ The following shows an example of a full pipeline for a vector field starts with
     ]
 
 
-For a different example, this could be a pipeline for an image field:
+For an example of a differet field, this could be a pipeline for an :class:`~ffcv.fields.RGBImageField`:
 
 .. code-block:: python
 
@@ -145,7 +145,7 @@ For a different example, this could be a pipeline for an image field:
 Putting together
 ''''''''''''''''
 
-Back to our linear regression dataset example, the loader can be constructed like this:
+Back to our running linear regression dataset example, in summary the final loader can be constructed as follows:
 
 .. code-block:: python
 
@@ -164,7 +164,7 @@ Back to our linear regression dataset example, the loader can be constructed lik
 Other options
 '''''''''''''
 
-The following other options can be specified when constructing an :class:`ffcv.loader.Loader`:
+You can also specify the following additional options when constructing an :class:`ffcv.loader.Loader`:
 
 - ``os_cache``: if True, the entire dataset is cached
 - ``distributed``: ???
