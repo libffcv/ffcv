@@ -10,13 +10,13 @@ View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ff
 
 Install via ``pip``:
 
-.. code-block:: console
-   conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
+.. code-block:: bash
+   $ conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
       pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 
-   conda activate ffcv
+   $ conda activate ffcv
 
-   pip install ffcv
+   $ pip install ffcv
 
 
 ``ffcv`` is a package that we (students in the `MadryLab <https://madry-lab.ml>`_) created to
