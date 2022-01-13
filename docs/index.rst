@@ -56,6 +56,8 @@ Contributors
 - `Guillaume Leclerc <https://twitter.com/gpoleclerc>`_
 - `Andrew Ilyas <https://twitter.com/andrew_ilyas>`_
 - `Logan Engstrom <https://twitter.com/logan_engstrom>`_
+- `Sam Park <https://twitter.com/smsampark>`_
+- `Hadi Salman <https://twitter.com/hadisalmanX>`_
 
 
 Indices and tables
