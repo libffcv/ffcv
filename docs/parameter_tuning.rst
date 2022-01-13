@@ -1,7 +1,7 @@
 Tuning Guide
 =============
 
-FFCV is a generic library and achieving the best performance for a particular application may requiring tuning some parameters to optimize to the paritcular system and resource environment.
+FFCV is a generic library and achieving the best performance may require tuning some parameters to fit the particular use case and computing resources.
 
 In order to help users with that task, we consider a couple of common use cases and provide appropriate recommendations for setting parameters.
 
