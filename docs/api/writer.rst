@@ -1,5 +1,5 @@
-ffcv module
+ffcv.writer module
 ======================
 
-.. automodule:: ffcv
+.. automodule:: ffcv.writer
     :members:
