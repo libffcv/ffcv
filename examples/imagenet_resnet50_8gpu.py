@@ -7,8 +7,8 @@ def main(log_dir, out_file):
     out_dir.mkdir(exist_ok=True, parents=True)
 
     starts = []
-    wds = [Parameters(wd=k) for k in [2.5e-4/2, 2.5e-4/4]]
-    lrs = [Parameters(lr=float(k)) for k in [0.5, 1.0]]
+    wds = [Parameters(wd=k) for k in [1e-4]]
+    lrs = [Parameters(lr=float(k)) for k in [1.5, 2]]
     base_dir = '/home/ubuntu/' if os.path.exists('/home/ubuntu/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
         Parameters(train_dataset=base_dir + 'train_400_0.10_90.ffcv',
