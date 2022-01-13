@@ -35,16 +35,11 @@ TODO
 With [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 
 ```
-conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
-    pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
-
-conda activate ffcv
-
-pip install ffcv
+conda install ffcv
 ``` 
 
 ## Citation
-Cite `ffcv` as:
+If you find FFCV useful in your work, please cite it as:
 ```
 @misc{leclerc2022ffcv,
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
@@ -55,16 +50,10 @@ Cite `ffcv` as:
 }
 ```
 
-## Index
+## In this document
 - <a href="#overview"><b>Overview</b></a>: High level introduction to `ffcv`
-- <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load your data today
-- <a href="TODO"><b>Bottleneck Doctor</b></a>: How can `ffcv` help you? Mapping
-  of data loading problems to our solutions.
-- <a href="https://ffcv.io/docs/"><b>Documentation</b></a>
-- <a href="TODO"><b>ImageNet</b></a>: Results, code, and training configs for ImageNet
-- <a href="TODO"><b>CIFAR</b></a>: Results, code, and training configs for CIFAR
-- <a href="TODO"><b>Benchmarks</b></a>
-- <a href="#license"><b>License</b></a>
+- <a href="#features"><b>Features</b></a>Mapping of data loading problems to our solutions.
+- <a href="TODO"><b>Results on ImageNet and CIFAR</b></a>: Results, code, and training configs for ImageNet
 
 ## Overview
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
@@ -175,11 +164,12 @@ store lower quality or downsized JPEGs.
 - <a href="TODO">Port your data augmentations</a> over to `ffcv` via <a href="TODO">Numba</a> if you have the time; `ffcv` does support slower, non-numba augmentations as well.
 </p>
 
-## Bottleneck Doctor
+## Features
 <img src='assets/clippy.png' width='100%'/>
 
-Why use `ffcv`? Computer vision or not, name your bottleneck, and we'll fix it! 
-If you don't know how to identify your bottleneck consider reading <a href="TODO">our guide.</a>
+Computer vision or not, name your performance bottleneck, and FFCV can help! See our  
+<a href="https://docs.ffcv.io/performance_guide.html">performance guide</a> for a 
+more detailed look.
 (`cv` denotes computer-vision specific features)
 
 <p><b>Disk-read bottlenecks.</b> What if your GPUs sit idle from low disk throughput?
@@ -218,21 +208,3 @@ asynchronous dataloading means that different training processes won't block eac
 This list is limited to what <code>ffcv</code> offers in data loading; check out
 guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
 up training. 
-
-## License
-
-```
-   Copyright 2021 FFCV Maintainers
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-````
