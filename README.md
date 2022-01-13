@@ -27,10 +27,13 @@ Install `ffcv` today and:
 - ...train a CIFAR-10 model on one GPU in 36 seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
-Compare our time per-epoch to what you use now: 
+Compare our training and dataloading times to what you use now: 
+TODO
+TODO
 
 ## Install
 Making a clean [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
+
 ```
 conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
     pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
@@ -118,6 +121,27 @@ loader = Loader(train_path, batch_size=bs, num_workers=num_workers,
 for epoch in range(epochs):
     ...
 ```
+[See here](TODO) for a more detailed guide to deploying `ffcv` for your dataset.
+
+## Prepackaged Computer Vision Benchmarks
+From gridding to benchmarking to fast research iteration, there are myriad reasons for wanting to speed up your training on standard machine learning tasks. Below we present (a) extensible code and (b) premade configurations
+for training ImageNet and CIFAR-10 much faster than existing codebases can
+achieve. 
+
+### ImageNet
+We provide code for efficient ImageNet training in the `examples/` directory
+of the repository [here](chungus). Below we plot the training time versus
+accuracy frontier for 1-GPU ResNet-18 and 8-GPU ResNet-50 optimization routines:
+
+[resnet18 plot] [resnet50 plot] [time to train an epoch]
+
+**Train your own ImageNet models!** <a href="TODO">Click here</a> to use our training script and premade configurations to train any model seen on the above grpahs!
+
+### CIFAR-10
+We also include premade code for efficient CIFAR-10 training in the `examples/` <a href="">directory</a>. We plot CIFAR-10 1-GPU training times below:
+[resnet9 plot]
+**Train your own CIFAR-10 models!** <a href="TODO">Click here</a> to use our training script and premade configurations to train any model seen on the above graphs!
+
 ## Custom Datasets Quickstart
 <!-- Accelerating data loading with `ffcv` requires two steps: dataset serialization
 into the `ffcv` format, and then deploying the `ffcv` data loader at train-time. -->
@@ -163,7 +187,6 @@ If you don't know how to identify your bottleneck consider reading <a href="TODO
 Maybe you're reading from a networked drive, maybe you have too many GPUs;
 either way, try these features:
 <ul>
-<!-- <li><a href="TODO">Store your dataset in memory</a>: TODO</li> -->
 <li><b><a href="TODO">Use process-level page caching</a></b>: TODO</li>
 <li><b><a href="TODO">Use os-level page caching</a></b>: TODO Assuming your <code>ffcv</code> dataset fits in memory, use os-level page caching to ensure that concurrent training executions properly exploit caching.</li>
 <li><b><a href="TODO">Use quasi-random data sampling</a></b>: TODO (NOTE DOES NOT WORK WITH DISTRIBUTED)</li>
@@ -176,7 +199,6 @@ either way, try these features:
 <p><b>CPU bottlenecks.</b> All CPUs at 100% and you're still not hitting maximal
 GPU usage? Consider the following:
 <ul>
-<!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
 <li><b><a href="TODO">Use premade, JIT-compiled augmentations</a></b>: TODO use our premade chunguses instead of the standard chunguses.</li>
 <li><b><a href="TODO">Make your own JIT-compiled augmentations</a></b>: Compile your optimizations into TODO </li>
 <li><b><a href="TODO">Fuse together redundant operations</a></b>: TODO </li>
@@ -189,7 +211,6 @@ GPU usage? Consider the following:
 <p><b>GPU bottlenecks (any data).</b> Even if you're not bottlenecked by data
 loading, <code>ffcv</code> can still accelerate your system:
 <ul>
-<!-- <li><a href="TODO">Augment on GPU</a>: Offload CPU augmentation routines to the GPU.</li> -->
 <li><b><a href="TODO">Asynchronous CPU-GPU data transfer</a></b>: While we always asynchronously transfer data, we also include tools for ensuring unblocked GPU execution.</li>
 <li><b><a href="TODO">Train multiple models on the same GPU</a></b>: Fully
 asynchronous dataloading means that different training processes won't block eachother.</li>
@@ -198,25 +219,6 @@ asynchronous dataloading means that different training processes won't block eac
 This list is limited to what <code>ffcv</code> offers in data loading; check out
 guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
 up training. 
-
-## ImageNet
-We provide code for efficient ImageNet training in the `examples/` directory
-of the repository [here](chungus). Below we plot the training time versus
-accuracy frontier for 8-GPU ResNet-18 and ResNet-50 optimization routines:
-
-[resnet18 plot] [resnet50 plot]
-
-Quick overview:
-
-<p><b>Training setup.</b> Our chungus
-
-</p>
-
-### Single GPU training
-
-### Distributed training
-
-## CIFAR
 
 ## License
 

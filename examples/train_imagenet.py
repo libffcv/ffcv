@@ -32,12 +32,9 @@ from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, \
     RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
 
-# Ignore unless you want to train on the standard pytorch loader
-from baseline_utils import baseline_train_loader, baseline_val_loader
-
 Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())), default='resnet18'),
-    pretrained=Param(int, 'is pretrained?', default=0)
+    pretrained=Param(int, 'is pretrained? (1/0)', default=0)
 )
 
 Section('resolution', 'resolution scheduling').params(
@@ -51,8 +48,7 @@ Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
     val_dataset=Param(str, '.dat file to use for validation', required=True),
     num_workers=Param(int, 'The number of workers', required=True),
-    in_memory=Param(int, 'does the dataset fit in memory?', required=True),
-    baseline=Param(int, 'should use pytorch baseline?', default=0)
+    in_memory=Param(int, 'does the dataset fit in memory? (1/0)', required=True)
 )
 
 Section('lr', 'lr scheduling').params(
@@ -114,21 +110,15 @@ def get_cyclic_lr(epoch, lr, epochs, lr_peak_epoch):
 
 class ImageNetTrainer:
     @param('training.distributed')
-    @param('data.baseline')
-    def __init__(self, gpu, distributed, baseline):
+    def __init__(self, gpu, distributed):
         self.all_params = get_current_config()
         self.gpu = gpu
 
         if distributed:
             self.setup_distributed()
 
-        if not baseline:
-            self.train_loader = self.create_train_loader()
-            self.val_loader = self.create_val_loader()
-        else:
-            self.train_loader = baseline_train_loader()
-            self.val_loader = baseline_val_loader()
-
+        self.train_loader = self.create_train_loader()
+        self.val_loader = self.create_val_loader()
         self.model, self.scaler = self.create_model_and_scaler()
         self.create_optimizer()
         self.uid = str(uuid4())
@@ -142,6 +132,7 @@ class ImageNetTrainer:
         os.environ['MASTER_PORT'] = port
 
         dist.init_process_group("nccl", rank=self.gpu, world_size=world_size)
+        ch.cuda.set_device(self.gpu)
 
     def cleanup_distributed(self):
         dist.destroy_process_group()
@@ -171,7 +162,7 @@ class ImageNetTrainer:
 
         # otherwise, linearly interpolate to the nearest multiple of 32
         interp = np.interp([epoch], [start_ramp, end_ramp], [min_res, max_res])
-        final_res = min_res + int(interp[0] // 32) * 32
+        final_res = int(interp[0] // 32) * 32
 
         print(f'FINAL RES: {final_res}', epoch, min_res, max_res, end_ramp, start_ramp)
         return final_res
