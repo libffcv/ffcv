@@ -23,7 +23,7 @@ class NDArrayDecoder(Operation):
                     dtype=self.field.dtype),
             AllocationQuery(self.field.shape, self.field.dtype)
         )
-    
+
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
         mem_read = self.memory_read
@@ -45,6 +45,9 @@ NDArrayArgsType = np.dtype([
 ])
 
 class NDArrayField(Field):
+    """A subclass of :class:`~ffcv.fields.Field` supporting
+    multi-dimensional matrices containing elements of a single data type.
+    """
     def __init__(self, dtype:np.dtype, shape:Tuple[int, ...]):
         self.dtype = dtype
         self.shape = shape
@@ -85,6 +88,6 @@ class NDArrayField(Field):
     def encode(self, destination, field, malloc):
         destination[0], data_region = malloc(self.element_size)
         data_region[:] = field.reshape(-1).view('<u1')
-        
+
     def get_decoder_class(self) -> Type[Operation]:
         return NDArrayDecoder

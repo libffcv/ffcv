@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
 
 class BasicDecoder(Operation):
-
+    """For decoding scalar fields"""
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         my_shape = (1,)
         return (
@@ -21,7 +21,7 @@ class BasicDecoder(Operation):
                     dtype=self.dtype),
             AllocationQuery(my_shape, dtype=self.dtype)
         )
-    
+
     def generate_code(self) -> Callable:
         def decoder(indices, destination, metadata, storage_state):
             for ix, sample_id in enumerate(indices):
@@ -29,7 +29,7 @@ class BasicDecoder(Operation):
             return destination[:len(indices)]
 
         return decoder
-        
+
 class IntDecoder(BasicDecoder):
     dtype = np.dtype('<i8')
 
@@ -57,7 +57,7 @@ class FloatField(Field):
 
     def encode(self, destination, field, malloc):
         destination[0] = field
-        
+
     def get_decoder_class(self) -> Type[Operation]:
         return FloatDecoder
 
