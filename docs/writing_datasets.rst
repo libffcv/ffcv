@@ -82,14 +82,6 @@ below:
     ``__getitem__`` function of the dataset. Make sure to provide
     the fields in the right order to avoid errors.
 
-Beyond these two, FFCV provides a variety of built-in fields that make it easy to directly convert most datasets:
-
-- :class:`~ffcv.fields.RGBImageField`: handles images including (optional) compression
-  and resizing
-- :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`: handle simple scalar fields
-- :class:`~ffcv.fields.BytesField`: stores byte arrays of variable length
-- :class:`~ffcv.fields.JSONField`: encodes a JSON document
-
 
 After constructing the writer, the only remaining step is to write the dataset:
 
@@ -143,5 +135,24 @@ We now just have to glue everything together:
     writer.from_webdataset(my_shards, pipeline)
 
 
+Fields
+------
+
+Beyond the examples used above, FFCV supports a variety of built-in fields that make it easy to directly convert most datasets. We review them below:
+
+- :class:`~ffcv.fields.RGBImageField`: Handles images including (optional) compression.
+  and resizing. Pass in a PyTorch Tensor.
+- :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`: Handle simple scalar fields.
+  Pass in ``int`` or ``float``.
+- :class:`~ffcv.fields.BytesField`: Stores byte arrays of variable length. Pass in ``numpy`` byte array.
+- :class:`~ffcv.fields.JSONField`: Encodes a JSON document. Pass in ``dict`` that can be JSON-encoded.
+
+
 That's it! You are now ready to :ref:`construct loaders<Making an FFCV dataloader>` for this dataset
 and start loading the data.
+
+
+
+
+
+
