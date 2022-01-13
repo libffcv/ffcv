@@ -41,7 +41,7 @@ We encourage users to try different values for the ``num_workers`` parameters. A
 Scenario: Grid search (1 model per GPU)
 ---------------------------------------
 
-This use case is similar to the previous. One should still have one process per GPU and if all the models are getting trained using the same dataset, ``os_cache=True`` should be preferred to allow cache sharing between the jobs. Note that if the dataset is bigger than the amount of main memory, ``os_cache=False`` might still perform better and we encourage users to try both.
+This use case is similar to the previous. One should still have one process per GPU and if training all models on the same dataset, ``os_cache=True`` is preferred to allow cache sharing between the jobs. Note that if the dataset is bigger than the amount of main memory, ``os_cache=False`` might still perform better and we encourage users to try both.
 
 Scenario: Extreme grid search (2+ models per GPU)
 --------------------------------------------------
