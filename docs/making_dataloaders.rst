@@ -33,7 +33,7 @@ and ``pipelines``, which we discuss below:
 
 Dataset ordering
 ''''''''''''''''
-The ``order`` option in the loader initialization is similar to `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_'s ``shuffle`` option, with some additional optionality. This argument
+The ``order`` option in the loader initialization is similar to `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_'s ``shuffle`` option, with some additional options. This argument
 takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
 
 .. code-block:: python
@@ -48,7 +48,7 @@ takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
 
   # Memory-efficient but not truly random loading
   # Speeds up loading over RANDOM when the whole dataset does not fit in RAM!
-  ORDERING = OrderOption.QUASIRANDOM
+  ORDERING = OrderOption.QUASI_RANDOM
 
 Pipelines
 '''''''''
@@ -172,7 +172,7 @@ You can also specify the following additional options when constructing an :clas
 - ``custom_fields``: For specifying decoders for fields with custom encoders
 - ``drop_last``: If True, drops the last non-full batch from each iteration
 - ``batches_ahead``: Set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.
-- ``recompile``: Recompiler every itereaetion. Useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But if they just change their memory usage, e.g., the resolution changes, it's not necessary.)
+- ``recompile``: Recompile every iteration. Useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But if they just change their memory usage, e.g., the resolution changes, it's not necessary.)
 
 
 More information

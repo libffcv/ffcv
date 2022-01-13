@@ -17,7 +17,7 @@ hardware configuration.
 Writing image datasets
 """"""""""""""""""""""
 
-In most machine learning datsets, images are compressed using ``JPEG`` then
+In most machine learning datasets, images are compressed using ``JPEG`` then
 stored. While this scheme is very space-efficient, decoding ``JPEG`` images
 requires
 significant resources and is usually the bottleneck for loading speed.
@@ -25,7 +25,7 @@ Given access to fast
 storage (RAM, SSD) in sufficient quantities, other alternatives might be
 preferable (see :ref:`The Bottleneck Doctor` for more details).
 
-For the rest of this guide, we'll assume you've aleady read
+For the rest of this guide, we'll assume you've already read
 :ref:`Writing a dataset to FFCV format`, so you're familiar with the
 :class:`ffcv.fields.Field` classes as well as
 :class:`ffcv.writer.DatasetWriter`.
@@ -54,7 +54,7 @@ dataset, and can take the following values:
 - ``smart``: This is similar to ``proportion`` except that an image will be compressed
   if its ``raw`` representation has area (H x W) more than than
   ``smart_threshold``. This option is suited for datasets with
-  large varation in image sizes, as it will ensure that a few large outliers do
+  large variation in image sizes, as it will ensure that a few large outliers do
   not significantly impact the total dataset size or loading speed.
 
 Next, :class:`~ffcv.writer.DatasetWriter` supports a ``jpeg_quality`` argument which
@@ -64,10 +64,10 @@ will both reduce the size of the file generated and make data loading faster.
 
 Datasets like `ImageNet <http://image-net.org>`_ contain images of various sizes.
 For many applications, storing full-sized images is unnecessary, and it may be
-beneficial to reize the largest images.
+beneficial to resize the largest images.
 The ``max_resolution`` argument in the initializer of
 :class:`~ffcv.writer.DatasetWriter` lets you pick an image side length threshold
-for which all larger images are resized (while preseving their aspect ratio).
+for which all larger images are resized (while preserving their aspect ratio).
 
 The following code block provides an example of a
 :class:`~ffcv.writer.DatasetWriter` for image data:

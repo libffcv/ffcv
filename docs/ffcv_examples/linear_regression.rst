@@ -107,13 +107,13 @@ PyTorch's built-in ``TensorDataset`` class, as follows:
 
 The resulting code is runnable and correct. It will use *40GB* of memory, since the
 entire tensor ``X`` will be kept in RAM. Running our script in an environment
-with a single A100 GPU and 8 CPU cores takes *16 secounds* per epoch.
+with a single A100 GPU and 8 CPU cores takes *16 seconds* per epoch.
 
 Speeding things up with FFCV
 -----------------------------
 
 We'll now try to improve on these results by replacing the standard PyTorch
-dataloading pipeline with FFCV. The first step is to rewrite ``X`` and ``Y`` as
+data loading pipeline with FFCV. The first step is to rewrite ``X`` and ``Y`` as
 a FFCV dataset (as detailed in the :ref:`Writing a dataset to FFCV format`
 guide):
 
@@ -136,7 +136,7 @@ guide):
     writer.from_indexed_dataset(LinearRegressionDataset())
 
 This allows us to replace the TensorDataset from the previous section with an
-FFCV dataloader:
+FFCV data loader:
 
 .. code-block:: python
 
@@ -174,5 +174,5 @@ program even faster, and to reduce its memory footprint:
 
 - We can also optimize the main loop itself: for example, the gradient updates
   should be performed as in-place operations, as should the normalization. Since
-  dataloading is no longer the main bottleneck, such optimizations will result in
+  data loading is no longer the main bottleneck, such optimizations will result in
   improved performance.
