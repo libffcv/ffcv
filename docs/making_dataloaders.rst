@@ -167,7 +167,7 @@ Other options
 You can also specify the following additional options when constructing an :class:`ffcv.loader.Loader`:
 
 - ``os_cache``: if True, the entire dataset is cached
-- ``distributed``: for training on multiple GPUs. See :ref:`Scenario: Multi-GPU training (1 model, multiple GPUs)` for more information
+- ``distributed``: for training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>` for more information
 - ``seed``: specify the random seed for batch ordering
 - ``indices``: provide indices to load a subset of the dataset
 - ``custom_fields``: ???

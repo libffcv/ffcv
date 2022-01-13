@@ -54,7 +54,7 @@ Unlike other solutions, FFCV is thread based and not process based. As a result,
 - As for regular Grid search, ``os_cache=True`` is mostly the best choice here, but it doesn't hurt to try disabling it for very large scale datasets
 
 .. warning ::
-    It is a common mistake to assume that running multiple processes on the same GPU will improve speed. For security reasons and unless Nvidia MPS service is enabled, a GPU can only be used by a single process at a time. If you run morep rocesses, GPU time will be shared between them but they will never run concurrently.
+    It is a common mistake to assume that running multiple processes on the same GPU will improve speed. For security reasons and unless Nvidia MPS service is enabled, a GPU can only be used by a single process at a time. If you run more processes, GPU time will be shared between them but they will never run concurrently.
 
 .. note ::
    We have experienced some CUDNN bugs while running multiple models on the same GPU. It seems to originate from scheduling concurrently multiple BatchNorm layers. If you encounter that issue a simple fix is to put a lock around the forward pass of your models. This will make sure that no two forward pass is scheduled concurrently. This shouldn't impact performance too much as CUDA calls are asynchronous anyway.
