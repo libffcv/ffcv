@@ -106,7 +106,7 @@ There are three easy ways to specify transformations in a pipeline:
   :ref:`Making custom transforms <Making custom transforms>` guide.
 
 The following shows an example of a full pipeline for a vector field starts with the field decoder,
-:class:`NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
+:class:`NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and a custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
 
 .. code-block:: python
 
@@ -123,6 +123,42 @@ The following shows an example of a full pipeline for a vector field starts with
         ToTensor(),
         AddGaussianNoise(0.1)
     ]
+
+
+For a different example, this could be a pipeline for an image field:
+
+.. code-block:: python
+
+    image_pipeline: List[Operation] = [
+        SimpleRGBImageDecoder(),
+        RandomHorizontalFlip(),
+        torchvision.transforms.ColorJitter(.4,.4,.4),
+        RandomTranslate(padding=2),
+        ToTensor(),
+        ToDevice('cuda:0', non_blocking=True),
+        ToTorchImage(),
+        Convert(ch.float16),
+        torchvision.transforms.Normalize(MEAN, STD), # Normalize using image statistics
+    ])
+
+
+Putting together
+''''''''''''''''
+
+Back to our linear regression dataset example, the loader can be constructed like this:
+
+.. code-block:: python
+
+  loader = Loader('/path/to/dataset.beton',
+                  batch_size=BATCH_SIZE,
+                  num_workers=NUM_WORKERS,
+                  order=OrderOption.RANDOM,
+                  pipelines={
+                    'covariate': [NDArrayDecoder(), ToTensor(), AddGaussianNoise(0.1)],
+                    'label': [FloatDecoder(), ToTensor()]
+                  })
+
+
 
 
 Other options
