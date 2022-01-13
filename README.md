@@ -208,3 +208,11 @@ asynchronous dataloading means that different training processes won't block eac
 This list is limited to what <code>ffcv</code> offers in data loading; check out
 guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
 up training. 
+
+# Contributors
+
+- Guillaume Leclerc
+- Logan Engstrom
+- Andrew Ilyas
+- Sam Park
+- Hadi Salman
