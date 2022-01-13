@@ -1,9 +1,10 @@
 Tuning Guide
 =============
 
-FFCV is a generic library and achieving the best performance may require tuning some parameters to fit the particular use case and computing resources.
+FFCV is a generic library and achieving the very best performance may require
+tuning some options to fit the particular use case and computing resources.
 
-In order to help users with that task, we consider a couple of common use cases and provide appropriate recommendations for setting parameters.
+In order to help users with that task, we consider a couple of common use cases and provide recommendations for setting parameters.
 
 Scenario: Small dataset
 -----------------------
@@ -12,7 +13,7 @@ If the dataset you are working on is small or if you are lucky enough to have a 
 
 - Use ``os_cache=True``. The first epoch will be a little bit slower as the operating system is not able to pre-fetch the data as well but once the dataset has been completely cached in RAM then it will read directly from there with no overhead.
 
-- Set ``order`` to `OrderOption.RANDOM` or `OrderOption.RANDOM``. They should both perform very similarly (`QUASI_RANDOM` might be marginally better).
+- Set ``order`` to ``OrderOption.RANDOM`` or ``OrderOption.QUASI_RANDOM``. They should both perform very similarly (``QUASI_RANDOM`` might be marginally better).
 
 
 Scenario: Large scale datasets
@@ -27,14 +28,17 @@ If your dataset is too large to be cached on the machine we recommend:
 Scenario: Multi-GPU training (1 model, multiple GPUs)
 -----------------------------------------------------
 
-FFCV's :class:`~ffcv.loader.Loader` class offers a flag ``distributed`` that will make the loader behave similarly to the PyTorch's ``DistributedSampler`` used in a ``DataLoader``. If that's what your code is using, switching to FFCV should just be a matter of replacing the data loader.
+FFCV's :class:`~ffcv.loader.Loader` class offers a flag ``distributed`` that will make the loader behave similarly to the PyTorch's ``DistributedSampler`` used with their ``DataLoader``. If that's what your code is using, switching to FFCV should just be a matter of replacing the data loader.
 
 FFCV should also work fine with PyTorch's ``DataParallel`` wrapper but we agree with the developers and recommend you use ``DistributedDataParallel`` with FFCV's ``distributed`` flag enabled.
 
 The same recommendations above related to dataset size still apply here, but we emphasize that ``os_cache=True`` is particularly beneficial in this scenario. Indeed, as multiple processes will access the same dataset, having the caching at the OS level allows for data sharing between them, reducing overall memory consumption.
 
 .. note ::
-    `QUASI_RANDOM` isn't currently supported with ``distributed=True``. While this is technically possible to implement the team hasn't invested the necessary time yet. We also welcome pull requests.
+    `QUASI_RANDOM` isn't currently supported with ``distributed=True``. While
+    this is technically possible to implement, we haven't yet invested the
+    necessary time yet. It is on the medium-term roadmap, and we also welcome
+    pull requests!
 
 We encourage users to try different values for the ``num_workers`` parameters. As FFCV is usually very CPU resource efficient it is sometimes beneficial to use fewer workers to avoid scheduling and cache inefficiencies.
 
@@ -57,4 +61,9 @@ Unlike other solutions, FFCV is thread based and not process based. As a result,
     It is a common mistake to assume that running multiple processes on the same GPU will improve speed. For security reasons and unless Nvidia MPS service is enabled, a GPU can only be used by a single process at a time. If you run more processes, GPU time will be shared between them but they will never run concurrently.
 
 .. note ::
-   We have experienced some CUDNN bugs while running multiple models on the same GPU. It seems to originate from scheduling concurrently multiple BatchNorm layers. If you encounter that issue a simple fix is to put a lock around the forward pass of your models. This will make sure that no two forward pass is scheduled concurrently. This shouldn't impact performance too much as CUDA calls are asynchronous anyway.
+   We have experienced some CUDNN bugs while running multiple models on the same
+   GPU. It seems to originate from scheduling concurrently multiple BatchNorm
+   layers. If you encounter that issue a simple fix is to put a lock around the
+   forward pass of your models. This will make sure that no two forward pass is
+   scheduled concurrently. This shouldn't impact performance too much as CUDA
+   calls are asynchronous anyway.

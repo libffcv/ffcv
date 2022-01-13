@@ -11,8 +11,8 @@ hardware configuration.
 
   This page is specifically about the options and API for writing and reading
   image data with FFCV---for information about how to choose these options based
-  on your task and systems specifications, the :ref:`Benchmarks` page might be
-  more useful.
+  on your task and systems specifications, :ref:`The Bottleneck Doctor`
+  might be more useful.
 
 Writing image datasets
 """"""""""""""""""""""
@@ -23,14 +23,14 @@ requires
 significant resources and is usually the bottleneck for loading speed.
 Given access to fast
 storage (RAM, SSD) in sufficient quantities, other alternatives might be
-preferable (see :ref:`Benchmarks` for more details).
+preferable (see :ref:`The Bottleneck Doctor` for more details).
 
 For the rest of this guide, we'll assume you've aleady read
 :ref:`Writing a dataset to FFCV format`, so you're familiar with the
-:class:`ffcv.fields.Field` classes as well as the
+:class:`ffcv.fields.Field` classes as well as
 :class:`ffcv.writer.DatasetWriter`.
 
-Images are supported in FFCV via the :class:`ffcv.field.RGBImageField` class.
+Images are supported in FFCV via the :class:`ffcv.fields.RGBImageField` class.
 The first initialization parameter of the :class:`~ffcv.fields.RGBImageField` is
 the ``write_mode`` argument, which specifies the format with which to write the
 dataset, and can take the following values:
@@ -93,16 +93,16 @@ Decoding options
 Other fields offer a single :class:`Decoder` suited to read data from the dataset file. For images
 we currently offer the following options:
 
-- :class:`SimpleRGBImageDecoder`: This is the default decoder used when no
+- :class:`~ffcv.fields.decoders.SimpleRGBImageDecoder`: This is the default decoder used when no
   pipeline is passed to the :class:`Loader`. It simply produces the entire image
   and forwards it to the next operations in the pipeline. Note that as a result,
   for this decoder to work all images in a dataset need to have the same
   resolution as they have to fit in the same batch.
-- :class:`RandomResizedCropRGBImageDecoder`. This decoder will first take a
+- :class:`~ffcv.fields.decoders.RandomResizedCropRGBImageDecoder`. This decoder will first take a
   random section of the image and resize it before populating the batch with
   the image. This decoder is intended to mimic the behavior of ``torchvision.transforms.RandomResizedCrop``.
-- :class:`CenterCropRGBImageDecoder`. Similar to
-  :class:`RandomResizedCropRGBImageDecoder` except that it mimics ``torchvision.transforms.CenterCrop``.
+- :class:`~ffcv.fields.decoders.CenterCropRGBImageDecoder`. Similar to
+  :class:`~ffcv.fields.decoders.RandomResizedCropRGBImageDecoder` except that it mimics ``torchvision.transforms.CenterCrop``.
 
 .. code-block:: python
 

@@ -9,14 +9,14 @@ Such files can be generated using the class :class:`ffcv.writer.DatasetWriter` f
 - **Indexable objects**:
   They need to implement ``__len__`` and a ``__getitem__`` function
   returning the data associated to a sample as a tuple/list (of any length).
-  Examples of this kind of dataset include but is not limited to:
-  ``torch.utils.data.Dataset``, ``numpy.ndarray``, or even python lists.
+  Examples of this kind of dataset include but are not limited to:
+  ``torch.utils.data.Dataset``, ``numpy.ndarray``, or even Python lists.
 - **Webdataset** (`Github <https://github.com/webdataset/webdataset>`_):
   This allows users to integrate large scale and/or remote datasets into FFCV easily.
 
 In this tutorial, we will show how to handle datasets from these two categories.
-Additionally, in the folder ``/scripts`` of our `repository <https://github.com/MadryLab/ffcv>` we also include a
-conversion script illustrating the conversion of ``CIFAR-10`` and ``ImageNet``.
+Additionally, in the folder ``/scripts`` of our `repository <https://github.com/MadryLab/ffcv>`_ we also include a
+conversion script illustrating the conversion of `CIFAR-10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ and `ImageNet <https://www.image-net.org>`_ from their PyTourch counterparts.
 
 The first step is to include the following class into your script:
 
@@ -50,16 +50,18 @@ returns an input vector and its corresponding label:
 
 .. note ::
     The class ``LinearRegressionDataset`` implements the interface required to be a
-    ``torch.utils.data.Dataset`` so one could use a pytorch Dataset instead of our
+    ``torch.utils.data.Dataset`` so one could use any PyTorch Dataset instead of our
     toy example here.
 
 The class responsible for converting datasets to FFCV format is the
-:class:`ffcv.writer.DatasetWriter`. The writer takes in a
-a path (where the `.beton` will be written),
-and a dictionary mapping keys to *fields* (:class:`~ffcv.fields.Field`).
+:class:`ffcv.writer.DatasetWriter`. The writer takes in:
+
+- A path, where the ``.beton`` will be written
+- A dictionary mapping keys to *fields* (:class:`~ffcv.fields.Field`).
+
 Each field corresponds to an element of the data tuple returned by our
 dataset, and specifies how the element should be written to (and later, read
-from) the FFCV dataset file. In our case, the dataset has two fields, one
+from) the FFCV dataset file.  In our case, the dataset has two fields, one
 for the (vector) input and the other for the corresponding (scalar) label.
 Both of these fields already have default implementations in FFCV, which we use
 below:
@@ -75,7 +77,7 @@ below:
     }, num_workers=16)
 .. note::
 
-    Starting in Python 3.6, dictionary keys are ordered, and the writer uses
+    Starting in Python 3.6, dictionary keys are ordered, and :class:`~ffcv.writer.DatasetWriter` uses
     this order to match the given fields to the elements returned by the
     ``__getitem__`` function of the dataset. Make sure to provide
     the fields in the right order to avoid errors.
@@ -125,7 +127,7 @@ Since FFCV expects images in the numpy uint8 format we use the parameter ``'rgb8
 of ``webdataset`` to decode the images. We then convert the dictionary to a tuple
 that FFCV will be able to process.
 
-We now just have to put glue everything together:
+We now just have to glue everything together:
 
 
 .. code-block:: python
@@ -142,4 +144,4 @@ We now just have to put glue everything together:
 
 
 That's it! You are now ready to :ref:`construct loaders<Making an FFCV dataloader>` for this dataset
-and start training ML models!
+and start loading the data.
