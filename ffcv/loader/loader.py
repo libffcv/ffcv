@@ -1,3 +1,6 @@
+"""
+FFCV loader
+"""
 import enum
 from os import environ
 import ast
@@ -47,6 +50,38 @@ DEFAULT_PROCESS_CACHE = int(environ.get('FFCV_DEFAULT_CACHE_PROCESS', "0"))
 DEFAULT_OS_CACHE = not DEFAULT_PROCESS_CACHE
 
 class Loader:
+    """FFCV loader class that can be used as a drop-in replace for standard
+    (e.g. PyTorch) dataloaders.
+
+    Parameters
+    ----------
+    fname: str
+        Target file name (.beton)
+    batch_size : int
+        Batch size
+    num_workers : int
+        Number of workers
+    os_cache : bool
+        Cache entire dataset in memory
+    order : OrderOption
+        Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM
+    distributed : bool
+        For distributed training (multiple GPUs)
+    seed : int
+        Random seed for batch ordering
+    indices : Sequence[int]
+        Subset of dataset to load
+    pipelines : Mapping[str, Sequence[Union[Operation, torch.nn.Module]]
+        Sequence of decoding and transforming operations for each data field
+    custom_fields : Mapping[str, Field]
+        Specifies custom fields
+    drop_last : bool
+        Drop non-full batch in each iteration
+    batches_ahead : int
+        Number of batches prepared in advance; balances latency and memory.
+    recompile : bool
+        Recompile every iteration
+    """
     def __init__(self,
                  fname: str,
                  batch_size: int,
@@ -190,7 +225,7 @@ class Loader:
         new_args['drop_last'] = False
         sub_loader = Loader(**new_args)
         selected_indices = []
-        
+
         # Iterate through the loader and test the user defined condition
         for i, (batch,) in enumerate(sub_loader):
             for j, sample in enumerate(batch):

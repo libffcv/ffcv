@@ -8,7 +8,10 @@ from .replace_label import ReplaceLabel
 from .normalize import NormalizeImage
 from .translate import RandomTranslate
 
-__all__ = ['Cutout', 'RandomHorizontalFlip', 'Collate', 'ToTensor', 'ToDevice',
-           'ToTorchImage', 'Squeeze', 'RandomResizedCrop', 'Convert', 'Poison',
-           'ReplaceLabel', 'RandomTranslate', 'NormalizeImage', 'View',
-           'ImageMixup', 'LabelMixup', 'MixupToOneHot', 'ModuleWrapper']
+__all__ = ['ToTensor', 'ToDevice',
+           'ToTorchImage', 'NormalizeImage',
+           'Collate', 'Convert',  'Squeeze', 'View',
+           'RandomResizedCrop', 'RandomHorizontalFlip', 'RandomTranslate',
+           'Cutout', 'ImageMixup', 'LabelMixup', 'MixupToOneHot',
+           'Poison', 'ReplaceLabel',
+           'ModuleWrapper']
