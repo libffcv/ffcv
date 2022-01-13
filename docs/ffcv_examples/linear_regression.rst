@@ -35,7 +35,16 @@ accomplish this via *SGD* on the squared-loss:
     import torch as ch
 
     train_loader, val_loader = None # TODO!
-    mean, stdev = calculate_stats(train_loader) # TODO!
+
+    # Calculate data mean and variance for normalization
+    def calculate_stats(loader, N):
+        mean, stdev = 0., 0.
+        for x_batch, _ in loader:
+            mean += x_batch.sum(0) / N
+            stdev += x_batch.pow(2).sum(0) / N
+        return mean, ch.sqrt(stdev - mean.pow(2))
+
+    mean, stdev = calculate_stats(train_loader, N)
     w_est = ch.zeros(D) # Initial guess for W
     num_epochs = 100 # Number of full passes over the data to do
 
@@ -49,6 +58,7 @@ accomplish this via *SGD* on the squared-loss:
             W = W - lr * grad
             total_loss += residual.pow(2).sum()
             num_examples += x_batch.shape[0]
+
         print(f'Average loss: {total_loss / num_examples:.3f}')
 
 .. note::
@@ -62,3 +72,20 @@ accomplish this via *SGD* on the squared-loss:
 
 Naive approach: PyTorch TensorDataset
 --------------------------------------
+
+The only thing that remains unspecified in our implementation above is the
+``train_loader``. The standard way of making a loader here would be to use
+PyTorch's built-in ``TensorDataset`` class, as follows:
+
+.. code-block:: python
+
+    from torch.utils.data import TensorDataset, DataLoader
+
+    dataset = TensorDataset(ch.tensor(X), ch.tensor(Y))
+    train_loader = DataLoader(dataset, num_workers=8, shuffle=True)
+    # ... rest of code as above
+
+The resulting code is runnable and correct. It will use *40GB* of memory, since the
+entire tensor ``X`` will be kept in RAM. Running our script in an environment
+with a single A100 GPU and 8 CPU cores takes *TODO* per epoch.
+

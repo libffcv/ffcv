@@ -105,10 +105,27 @@ There are three easy ways to specify transformations in a pipeline:
   :class:`ffcv.transforms.Operation`, as discussed in the
   :ref:`Making custom transforms <Making custom transforms>` guide.
 
+The following shows an example of a full pipeline for a vector field starts with the field decoder,
+:class:`NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and a custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
 
-The following shows an example of a full pipeline for an image field that starts with a field decoder,
-:class:`SimpleRGBImageDecoder`, followed by a mix of transforms implemented by FFCV
-and ``torchvision.Transforms``:
+.. code-block:: python
+
+    class AddGaussianNoise(ch.nn.Module):
+        def __init__(self, scale=1):
+            super(AddGaussianNoise, self).__init__()
+            self.scale = scale
+
+        def forward(self, x):
+            return x + ch.randn_like(x) * self.scale
+
+    pipeline: List[Operation] = [
+        NDArrayDecoder(),
+        ToTensor(),
+        AddGaussianNoise(0.1)
+    ]
+
+
+For a different example, this could be a pipeline for an image field:
 
 .. code-block:: python
 
@@ -123,6 +140,24 @@ and ``torchvision.Transforms``:
         Convert(ch.float16),
         torchvision.transforms.Normalize(MEAN, STD), # Normalize using image statistics
     ])
+
+
+Putting together
+''''''''''''''''
+
+Back to our linear regression dataset example, the loader can be constructed like this:
+
+.. code-block:: python
+
+  loader = Loader('/path/to/dataset.beton',
+                  batch_size=BATCH_SIZE,
+                  num_workers=NUM_WORKERS,
+                  order=OrderOption.RANDOM,
+                  pipelines={
+                    'covariate': [NDArrayDecoder(), ToTensor(), AddGaussianNoise(0.1)],
+                    'label': [FloatDecoder(), ToTensor()]
+                  })
+
 
 
 
@@ -144,7 +179,7 @@ The following other options can be specified when constructing an :class:`ffcv.l
 More information
 ''''''''''''''''
 
-See :ref:`API Reference`.
+For information on available transforms and the :class:`ffcv.loader.Loader` class, see :ref:`API Reference`.
 
-For examples of constructing loaders, see the demos :ref:`Training CIFAR-10 in 36 seconds on a single A100 `
-and :ref:`Large-Scale Linear Regression`
+For examples of constructing loaders and using them, see the tutorials :ref:`Training CIFAR-10 in 36 seconds on a single A100`
+and :ref:`Large-Scale Linear Regression`.
