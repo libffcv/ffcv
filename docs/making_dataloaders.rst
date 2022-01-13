@@ -57,7 +57,8 @@ tells the loader what fields to read, how to read them, and what operations to
 apply on top. Specifically, a pipeline is a key-value dictionary where the key
 matches the one used in `writing the dataset <writing>`_, and the value is a
 sequence of operations to perform. The operations must start with a
-:class:`ffcv.fields.decoders.Decoder` object corresponding to that field.
+:class:`ffcv.fields.decoders.Decoder` object corresponding to that field followed by a
+sequence of *transforms*.
 For example, the following pipeline reads the fields and then converts each one
 to a PyTorch tensor:
 
