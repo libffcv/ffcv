@@ -10,4 +10,5 @@ from .translate import RandomTranslate
 
 __all__ = ['Cutout', 'RandomHorizontalFlip', 'Collate', 'ToTensor', 'ToDevice',
            'ToTorchImage', 'Squeeze', 'RandomResizedCrop', 'Convert', 'Poison',
-           'ReplaceLabel', 'RandomTranslate', 'NormalizeImage', 'View']
+           'ReplaceLabel', 'RandomTranslate', 'NormalizeImage', 'View',
+           'ImageMixup', 'LabelMixup', 'MixupToOneHot', 'ModuleWrapper']

@@ -1,5 +1,5 @@
 """
-Masked applied on a predefined set of images
+Mixup augmentation for images and labels (https://arxiv.org/abs/1710.09412)
 """
 from typing import Tuple
 
@@ -94,14 +94,14 @@ class LabelMixup(Operation):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         # assert previous_state.jit_mode
         # We do everything in place
-        return (replace(previous_state, shape=(3,), dtype=np.float32), 
+        return (replace(previous_state, shape=(3,), dtype=np.float32),
                 AllocationQuery((3,), dtype=np.float32))
 
 class MixupToOneHot(Operation):
     def __init__(self, num_classes: int):
         super().__init__()
         self.num_classes = num_classes
-    
+
     def generate_code(self) -> Callable:
         def one_hotter(mixedup_labels, dst):
             dst.zero_()
@@ -111,7 +111,7 @@ class MixupToOneHot(Operation):
             mixedup_labels[:, 2] += 1
             dst[ch.arange(N), mixedup_labels[:, 1].long()] = mixedup_labels[:, 2]
             return dst
-        
+
         return one_hotter
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:

@@ -10,7 +10,7 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class RandomHorizontalFlip(Operation):
-    """Flips the image horizontally with probability p.
+    """Flip the image horizontally with probability flip_prob.
     Operates on raw arrays (not tensors).
 
     Parameters

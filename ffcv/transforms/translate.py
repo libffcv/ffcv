@@ -1,5 +1,5 @@
 """
-Random crop
+Random translate
 """
 import numpy as np
 from numpy import dtype
@@ -11,21 +11,20 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class RandomTranslate(Operation):
-    """Flips the image horizontally with probability p.
-    Operates on raw arrays (not tensors).
+    """Translate each image randomly up to specified number of pixels.
 
     Parameters
     ----------
     padding : int
-        The probability with which to flip each image in the batch
-        horizontally.
+        Max number of pixels to translate in any direction
     fill : tuple
-        How to fill the
+        An RGB color ((0, 0, 0) by default) to fill the area outside the shifted image
     """
 
     def __init__(self, padding: int, fill: Tuple[int, int, int] = (0, 0, 0)):
         super().__init__()
         self.padding = padding
+        self.fill = np.array(fill)
 
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
@@ -35,6 +34,8 @@ class RandomTranslate(Operation):
             n, h, w, _ = images.shape
             # y_coords = randint(low=0, high=2 * pad + 1, size=(n,))
             # x_coords = randint(low=0, high=2 * pad + 1, size=(n,))
+            # dst = fill
+
             dst[:, pad:pad+h, pad:pad+w] = images
             for i in my_range(n):
                 y_coord = randint(low=0, high=2 * pad + 1)

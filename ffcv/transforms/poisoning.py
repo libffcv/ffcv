@@ -1,5 +1,5 @@
 """
-Masked applied on a predefined set of images
+Poison images by adding a mask
 """
 from collections.abc import Sequence
 from typing import Tuple
@@ -15,7 +15,7 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class Poison(Operation):
-    """Flips the image horizontally with probability p.
+    """Poison specified images by adding a mask with given opacity.
     Operates on raw arrays (not tensors).
 
     Parameters
@@ -27,7 +27,7 @@ class Poison(Operation):
     indices : Sequence[int]
         The indices of images that should have the mask applied
     clamp : Tuple[int, int]
-        Will clamp the value between these two values (default: (0, 255))
+        Clamps the final pixle values between these two values (default: (0, 255))
     """
 
     def __init__(self, mask: np.ndarray, alpha: np.ndarray,
