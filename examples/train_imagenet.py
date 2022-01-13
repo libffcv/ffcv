@@ -10,6 +10,7 @@ from torchvision import models
 import torchmetrics
 import numpy as np
 from tqdm import tqdm
+import pandas as pd
 
 import os
 import time
@@ -349,20 +350,46 @@ class ImageNetTrainer:
                 output = self.model(images)
                 loss_train = self.loss(output, target)
 
-            self.scaler.scale(loss_train).backward()
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
-
             ## Logging start
             if log_level > 0:
                 losses.append(loss_train.detach())
 
             group_lrs = []
             for _, group in enumerate(self.optimizer.param_groups):
-                group_lrs.append(group['lr'])
+                group_lrs.append(f'{group["lr"]:.3f}')
 
             names = ['ep', 'iter', 'shape', 'lrs']
             values = [epoch, ix, tuple(images.shape), group_lrs]
+            if log_level > 1:
+                this_loss = loss_train.clone().cpu().detach()
+                if ch.isnan(this_loss):
+                    print(self.gpu)
+                    is_nan = False
+                    for param in self.model.parameters():
+                        # Ensure the parameters are located in the same device
+                        is_nan = ch.isnan(param).any() | is_nan
+
+                    output = {
+                        'ix':f'{epoch}:{ix}',
+                        'gpu':self.gpu,
+                        'output_nan?':ch.isnan(output).any(),
+                        'params_nan?':is_nan,
+                        'images_nan?':ch.isnan(images).any(),
+                        'targets_nan?':ch.isnan(target).any()
+                    }
+
+                    print(output)
+
+                    if ch.isnan(this_loss):
+                        raise ValueError('nan loss')
+
+                names += ['loss']
+                values += [f'{this_loss.item():.3f}']
+
+            self.scaler.scale(loss_train).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+
             msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
             iterator.set_description(msg)
 
@@ -416,6 +443,7 @@ class ImageNetTrainer:
             json.dump(params, handle)
 
     def log(self, content):
+        print(f'=> Log: {content}')
         cur_time = time.time()
         with open(self.log_folder / 'log', 'a+') as fd:
             fd.write(json.dumps({
@@ -424,6 +452,33 @@ class ImageNetTrainer:
                 **content
             }) + '\n')
             fd.flush()
+
+    @classmethod
+    @param('training.distributed')
+    @param('dist.world_size')
+    def launch_from_args(cls, distributed, world_size):
+        if distributed:
+            ch.multiprocessing.spawn(cls._exec_wrapper, nprocs=world_size, join=True)
+        else:
+            cls.exec(0)
+
+    @classmethod
+    def _exec_wrapper(cls, *args, **kwargs):
+        make_config(quiet=True)
+        cls.exec(*args, **kwargs)
+
+    @classmethod
+    @param('training.distributed')
+    @param('training.eval_only')
+    def exec(cls, gpu, distributed, eval_only):
+        trainer = cls(gpu=gpu)
+        if eval_only:
+            trainer.eval_and_log()
+        else:
+            trainer.train()
+
+        if distributed:
+            trainer.cleanup_distributed()
 
 # Utils
 class MeanScalarMetric(torchmetrics.Metric):
@@ -450,38 +505,6 @@ def make_config(quiet=False):
     if not quiet:
         config.summary()
 
-def make_trainer(gpu=0):
-    trainer = ImageNetTrainer(gpu=gpu)
-    return trainer
-
-@param('training.distributed')
-@param('training.eval_only')
-def exec(gpu, distributed, eval_only):
-    trainer = make_trainer(gpu)
-    if eval_only:
-        trainer.eval_and_log()
-    else:
-        trainer.train()
-
-    if distributed:
-        trainer.cleanup_distributed()
-
-@param('training.distributed')
-def main(distributed):
-    print(f'=> Distributed: {distributed}')
-    if distributed:
-        exec_distributed()
-    else:
-        exec(0)
-
-def _exec_wrapper(*args, **kwargs):
-    make_config(quiet=True)
-    return exec(*args, **kwargs)
-
-@param('dist.world_size')
-def exec_distributed(world_size):
-    ch.multiprocessing.spawn(_exec_wrapper, nprocs=world_size, join=True)
-
 if __name__ == "__main__":
     make_config()
-    main()
+    ImageNetTrainer.launch_from_args()

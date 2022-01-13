@@ -199,10 +199,18 @@ This list is limited to what <code>ffcv</code> offers in data loading; check out
 guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
 up training. 
 
-
-
 ## ImageNet
-We provide code for efficient ImageNet training. 
+We provide code for efficient ImageNet training in the `examples/` directory
+of the repository [here](chungus). Below we plot the training time versus
+accuracy frontier for 8-GPU ResNet-18 and ResNet-50 optimization routines:
+
+[resnet18 plot] [resnet50 plot]
+
+Quick overview:
+
+<p><b>Training setup.</b> Our 
+
+</p>
 
 ### Single GPU training
 
