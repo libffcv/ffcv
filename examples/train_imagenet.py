@@ -1,75 +1,103 @@
-import os
-from typing import List
-from ffcv.pipeline.operation import Operation
-from ffcv.transforms.mixup import ImageMixup, LabelMixup, MixupToOneHot
 import torch as ch
-from pathlib import Path
 from torch.cuda.amp import GradScaler
-import matplotlib
-matplotlib.use('module://itermplot')
+from torch.cuda.amp import autocast
+import torch.distributed as dist
+ch.backends.cudnn.benchmark = True
+ch.autograd.profiler.emit_nvtx(False)
+ch.autograd.profiler.profile(False)
 
+from torchvision import models
+import torchmetrics
+import numpy as np
+from tqdm import tqdm
+
+import os
 import time
-from ffcv.transforms.ops import ToTorchImage
-from trainer import Trainer
-from ffcv.loader import Loader, OrderOption
-from ffcv.transforms import ToTensor, ToDevice, Squeeze, Convert, RandomHorizontalFlip, NormalizeImage
-from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, RandomResizedCropRGBImageDecoder
-from ffcv.fields.basics import IntDecoder
+import json
+from uuid import uuid4
+from typing import List
+from pathlib import Path
+from argparse import ArgumentParser
+
 from fastargs import get_current_config
 from fastargs.decorators import param
 from fastargs import Param, Section
 from fastargs.validation import And, OneOf
-from argparse import ArgumentParser
-import numpy as np
-from torchvision import models
-from torchvision.transforms import Normalize
-import torch.optim as optim
 
-# distributed imports
-import torch.distributed as dist
-from torch.nn.parallel import DistributedDataParallel as DDP
-import torch.multiprocessing as mp
+from ffcv.pipeline.operation import Operation
+from ffcv.loader import Loader, OrderOption
+from ffcv.transforms import ToTensor, ToDevice, Squeeze, NormalizeImage, \
+    RandomHorizontalFlip, ToTorchImage
+from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, \
+    RandomResizedCropRGBImageDecoder
+from ffcv.fields.basics import IntDecoder
 
+from baseline_utils import baseline_train_loader, baseline_val_loader
 
 Section('model', 'model details').params(
-    arch=Param(And(str, OneOf(models.__dir__())),
-               'the architecture to use', required=True),
-    antialias=Param(int, 'use blurpool or not', default=0)
+    arch=Param(And(str, OneOf(models.__dir__())), default='resnet18'),
+    antialias=Param(int, 'use blurpool or not', default=0),
+    pretrained=Param(int, 'is pretrained?', default=0)
 )
 
 Section('resolution', 'resolution scheduling').params(
-    min_res=Param(int, 'the minimum (starting) resolution', default=224),
-    max_res=Param(int, 'the maximum (starting) resolution', default=224),
+    min_res=Param(int, 'the minimum (starting) resolution', default=160),
+    max_res=Param(int, 'the maximum (starting) resolution', default=160),
     end_ramp=Param(int, 'when to stop interpolating resolution', default=0),
     start_ramp=Param(int, 'when to start interpolating resolution', default=0)
 )
 
-Section('training', 'training hyper param stuff').params(
-    step_ratio=Param(float, 'learning rate step ratio', default=0.1),
-    step_length=Param(int, 'learning rate step length', default=30),
-    lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or linear schedule?',
-                           required=True),
-    eval_only=Param(int, 'eval only?', default=0),
-    pretrained=Param(int, 'is pretrained?', default=0),
-    bn_wd=Param(int, 'should momentum on bn', default=0),
-    diagnostics=Param(int, 'use diagnostics?', default=1),
-    cpu_limited=Param(int, 'is cpu limited?', default=1),
+Section('data', 'data related stuff').params(
+    train_dataset=Param(str, '.dat file to use for training', required=True),
+    val_dataset=Param(str, '.dat file to use for validation', required=True),
+    num_workers=Param(int, 'The number of workers', required=True),
+    in_memory=Param(int, 'does the dataset fit in memory?', required=True),
+    baseline=Param(int, 'should use pytorch baseline?', default=0)
 )
 
-# Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
-Section('dist').params(
+Section('lr', 'lr scheduling').params(
+    step_ratio=Param(float, 'learning rate step ratio', default=0.1),
+    step_length=Param(int, 'learning rate step length', default=30),
+    lr_schedule_type=Param(OneOf(['step', 'cyclic']), default='cyclic'),
+    lr=Param(float, 'learning rate', default=0.5)
+)
+
+Section('logging', 'how to log stuff').params(
+    folder=Param(str, 'log location', required=True),
+    level=Param(int, '0 if only at end 1 otherwise', default=1)
+)
+
+Section('validation', 'Validation parameters stuff').params(
+    batch_size=Param(int, 'The batch size for validation', default=512),
+    resolution=Param(int, 'final resized validation image size', default=224),
+    lr_tta=Param(int, 'should do lr flipping/avging at test time', default=1)
+)
+
+Section('training', 'training hyper param stuff').params(
+    eval_only=Param(int, 'eval only?', default=0),
+    batch_size=Param(int, 'The batch size', default=512),
+    optimizer=Param(And(str, OneOf(['sgd'])), 'The optimizer', default='sgd'),
+    momentum=Param(float, 'SGD momentum', default=0.9),
+    weight_decay=Param(float, 'weight decay', default=4e-5),
+    epochs=Param(int, 'number of epochs', default=30), # TODO
+    lr_peak_epoch=Param(int, 'Epoch at which LR peaks', default=2),
+    label_smoothing=Param(float, 'label smoothing parameter', default=0.1),
+    distributed=Param(int, 'is distributed?', default=0),
+)
+
+Section('dist', 'distributed training options').params(
     world_size=Param(int, 'number gpus', default=1),
     address=Param(str, 'address', default='localhost'),
     port=Param(str, 'port', default='12355')
 )
 
-IMAGENET_MEAN = np.array([0.485, 0.456, 0.406])
-IMAGENET_STD = np.array([0.229, 0.224, 0.225])
+IMAGENET_MEAN = np.array([0.485, 0.456, 0.406]) * 255
+IMAGENET_STD = np.array([0.229, 0.224, 0.225]) * 255
 DEFAULT_CROP_RATIO = 224/256
 
-@param('training.lr')
-@param('training.step_ratio')
-@param('training.step_length')
+@param('lr.lr')
+@param('lr.step_ratio')
+@param('lr.step_length')
 @param('training.epochs')
 def get_step_lr(epoch, lr, step_ratio, step_length, epochs):
     if epoch >= epochs:
@@ -78,21 +106,33 @@ def get_step_lr(epoch, lr, step_ratio, step_length, epochs):
     num_steps = epoch // step_length
     return step_ratio**num_steps * lr
 
-@param('training.lr')
+@param('lr.lr')
 @param('training.epochs')
-@param('training.lr_peak_epoch')
+@param('lr.lr_peak_epoch')
 def get_cyclic_lr(epoch, lr, epochs, lr_peak_epoch):
     return np.interp([epoch], [0, lr_peak_epoch, epochs], [1e-3 * lr, lr, 0])[0]
 
-@param('training.distributed')
-@param('baselines.use_baseline')
-class ImageNetTrainer(Trainer):
-    def __init__(self, distributed, use_baseline, gpu):
+class ImageNetTrainer:
+    @param('training.distributed')
+    @param('data.baseline')
+    def __init__(self, gpu, distributed, baseline):
+        self.all_params = get_current_config()
         self.gpu = gpu
+        self.model, self.scaler = self.create_model_and_scaler()
+
+        if not baseline:
+            self.train_loader = self.create_train_loader()
+            self.val_loader = self.create_val_loader()
+        else:
+            self.train_loader = baseline_train_loader()
+            self.val_loader = baseline_val_loader()
+
+        self.create_optimizer()
+        self.uid = str(uuid4())
+        self.initialize_logger()
+
         if distributed:
             self.setup_distributed()
-
-        super().__init__(use_baseline=use_baseline, gpu=gpu)
 
     @param('dist.address')
     @param('dist.port')
@@ -106,7 +146,7 @@ class ImageNetTrainer(Trainer):
     def cleanup_distributed(self):
         dist.destroy_process_group()
 
-    @param('training.lr_schedule_type')
+    @param('lr.lr_schedule_type')
     def get_lr(self, epoch, lr_schedule_type):
         lr_schedules = {
             'cyclic': get_cyclic_lr,
@@ -137,95 +177,60 @@ class ImageNetTrainer(Trainer):
     @param('training.optimizer')
     @param('training.weight_decay')
     @param('training.label_smoothing')
-    @param('training.bn_wd')
     def create_optimizer(self, momentum, optimizer, weight_decay,
-                         label_smoothing, bn_wd):
+                         label_smoothing):
         assert optimizer == 'sgd'
+        
+        # Only do weight decay on non-batchnorm parameters
+        all_params = list(self.model.named_parameters())
+        bn_params = [v for k, v in all_params if ('bn' in k)]
+        other_params = [v for k, v in all_params if not ('bn' in k)]
+        param_groups = [{
+            'params': bn_params,
+            'weight_decay': 0.
+        }, {
+            'params': other_params,
+            'weight_decay': weight_decay
+        }]
 
-        if not bn_wd:
-            all_params = list(self.model.named_parameters())
-            bn_params = [v for k, v in all_params if ('bn' in k)]
-            other_params = [v for k, v in all_params if not ('bn' in k)]
-            param_groups = [{
-                'params': bn_params,
-                'weight_decay': 0.
-            }, {
-                'params': other_params,
-                'weight_decay': weight_decay
-            }]
-        else:
-            param_groups = [{
-                'params': self.model.parameters(),
-                'weight_decay': weight_decay
-            }]
-
-        self.optimizer = optim.SGD(param_groups, lr=1, momentum=momentum)
+        self.optimizer = ch.optim.SGD(param_groups, lr=1, momentum=momentum)
         self.loss = ch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
 
     @param('data.train_dataset')
-    @param('training.batch_size')
-    @param('training.mixup_alpha')
-    @param('training.mixup_same_lambda')
     @param('data.num_workers')
-    @param('training.eval_only')
+    @param('training.batch_size')
     @param('training.distributed')
-    @param('training.cpu_limited')
-    def create_train_loader(self, train_dataset, batch_size, mixup_alpha,
-                            mixup_same_lambda, num_workers, eval_only,
-                            distributed, cpu_limited):
+    @param('data.in_memory')
+    def create_train_loader(self, train_dataset, num_workers, batch_size,
+                            distributed, in_memory):
         this_device = f'cuda:{self.gpu}'
-        if eval_only:
-            return []
-
         train_path = Path(train_dataset)
         assert train_path.is_file()
-        self.decoder = RandomResizedCropRGBImageDecoder((224, 224))
 
-        image_pipeline: List[Operation] = [self.decoder]
-        if mixup_alpha:
-            image_pipeline.append(ImageMixup(mixup_alpha, mixup_same_lambda))
-
-        image_pipeline.extend([
+        res = self.get_resolution(epoch=0)
+        self.decoder = RandomResizedCropRGBImageDecoder((res, res))
+        image_pipeline: List[Operation] = [
+            self.decoder,
             RandomHorizontalFlip(),
-        ])
+            ToTensor(),
+            ToDevice(ch.device(this_device), non_blocking=True),
+            ToTorchImage(),
+            NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16)
+        ]
 
-        if cpu_limited:
-            image_pipeline.extend([
-                ToTensor(),
-                ToDevice(ch.device(this_device), non_blocking=True),
-                ToTorchImage(),
-                Convert(ch.float16),
-                Normalize((IMAGENET_MEAN * 255).tolist(),
-                          (IMAGENET_STD * 255).tolist()),
-            ])
-        else:
-            image_pipeline.extend([
-                ToTorchImage(),
-                Convert(ch.float16),
-                Normalize((IMAGENET_MEAN * 255).tolist(),
-                          (IMAGENET_STD * 255).tolist()),
-                ToDevice(ch.device('cuda:0'), non_blocking=True)
-            ])
-            
-        label_pipeline: List[Operation] = [IntDecoder()]
-        if mixup_alpha:
-            label_pipeline.append(LabelMixup(mixup_alpha, mixup_same_lambda))
-
-        label_pipeline.extend([
+        label_pipeline: List[Operation] = [
+            IntDecoder(),
             ToTensor(),
             Squeeze(),
             ToDevice(ch.device(this_device), non_blocking=True)
-        ])
-
-        if mixup_alpha:
-            label_pipeline.append(MixupToOneHot(1000))
+        ]
 
         order = OrderOption.RANDOM if distributed else OrderOption.QUASI_RANDOM
         loader = Loader(train_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
                         order=order,
-                        os_cache=True,
+                        os_cache=in_memory,
                         drop_last=True,
                         pipelines={
                             'image': image_pipeline,
@@ -236,49 +241,54 @@ class ImageNetTrainer(Trainer):
         return loader
 
     @param('data.val_dataset')
-    @param('validation.batch_size')
     @param('data.num_workers')
+    @param('validation.batch_size')
     @param('validation.resolution')
     @param('training.distributed')
-    def create_val_loader(self, val_dataset, batch_size, num_workers,
+    def create_val_loader(self, val_dataset, num_workers, batch_size,
                           resolution, distributed):
         this_device = f'cuda:{self.gpu}'
         val_path = Path(val_dataset)
         assert val_path.is_file()
         res_tuple = (resolution, resolution)
         cropper = CenterCropRGBImageDecoder(res_tuple, ratio=DEFAULT_CROP_RATIO)
+        image_pipeline = [
+            cropper,
+            ToTensor(),
+            ToDevice(ch.device(this_device), non_blocking=True),
+            ToTorchImage(),
+            NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16)
+        ]
+
+        label_pipeline = [
+            IntDecoder(),
+            ToTensor(),
+            Squeeze(),
+            ToDevice(ch.device(this_device),
+            non_blocking=True)
+        ]
+
         loader = Loader(val_dataset,
                         batch_size=batch_size,
                         num_workers=num_workers,
                         order=OrderOption.SEQUENTIAL,
                         drop_last=False,
                         pipelines={
-                            'image': [
-                                cropper,
-                                ToTensor(),
-                                ToDevice(ch.device(this_device),
-                                         non_blocking=True),
-                                ToTorchImage(),
-                                Convert(ch.float16),
-                                Normalize((IMAGENET_MEAN * 255).tolist(),
-                                          (IMAGENET_STD * 255).tolist())
-                            ],
-                            'label': [IntDecoder(), ToTensor(), Squeeze(),
-                                      ToDevice(ch.device(this_device),
-                                      non_blocking=True)]
+                            'image': image_pipeline,
+                            'label': label_pipeline
                         },
                         distributed=distributed)
         return loader
 
     @param('training.epochs')
-    @param('training.diagnostics')
-    def train(self, epochs, diagnostics):
+    @param('log.level')
+    def train(self, epochs, log_level):
         for epoch in range(epochs):
             res = self.get_resolution(epoch)
             self.decoder.output_size = (res, res)
             train_loss = self.train_loop(epoch)
 
-            if diagnostics:
+            if log_level > 0:
                 extra_dict = {
                     'train_loss': train_loss,
                     'epoch': epoch
@@ -287,7 +297,8 @@ class ImageNetTrainer(Trainer):
                 self.eval_and_log(extra_dict)
 
         self.eval_and_log({'epoch':epoch})
-        ch.save(self.model.state_dict(), self.log_folder / 'final_weights.pt')
+        if self.gpu == 0:
+            ch.save(self.model.state_dict(), self.log_folder / 'final_weights.pt')
 
     def eval_and_log(self, extra_dict={}):
         start_val = time.time()
@@ -304,22 +315,142 @@ class ImageNetTrainer(Trainer):
         return stats
 
     @param('model.arch')
-    @param('model.antialias')
     @param('training.pretrained')
     @param('training.distributed')
-    def create_model_and_scaler(self, arch, antialias, pretrained, distributed):
+    def create_model_and_scaler(self, arch, pretrained, distributed):
         scaler = GradScaler()
-        if not antialias:
-            model = getattr(models, arch)(pretrained=pretrained)
-        else:
-            raise ValueError('dont do this eom')
-
+        model = getattr(models, arch)(pretrained=pretrained)
         model = model.to(memory_format=ch.channels_last)
         model = model.to(self.gpu)
+
         if distributed:
-            model = DDP(model, device_ids=[self.gpu])
+            model = ch.nn.parallel.DistributedDataParallel(model, device_ids=[self.gpu])
+
         return model, scaler
 
+    @param('log.level')
+    def train_loop(self, epoch, log_level):
+        model = self.model
+        model.train()
+        losses = []
+
+        lr_start = self.get_lr(epoch)
+        lr_end = self.get_lr(epoch + 1)
+        iters = len(self.train_loader)
+        lrs = np.interp(np.arange(iters), [0, iters], [lr_start, lr_end])
+
+        iterator = tqdm(self.train_loader)
+        for ix, (images, target) in enumerate(iterator):
+            ## Training start
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = lrs[ix]
+
+            self.optimizer.zero_grad(set_to_none=True)
+            with autocast():
+                output = self.model(images)
+                loss_train = self.loss(output, target)
+
+            self.scaler.scale(loss_train).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+
+            ## Logging start
+            if log_level > 0:
+                losses.append(loss_train.detach())
+
+            group_lrs = []
+            for _, group in enumerate(self.optimizer.param_groups):
+                group_lrs.append(group['lr'])
+
+            names = ['ep', 'iter', 'shape', 'lrs']
+            values = [epoch, ix, tuple(images.shape), group_lrs]
+            msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
+            iterator.set_description(msg)
+
+        if log_level > 0:
+            loss = ch.stack(losses).mean().cpu() 
+            assert not ch.isnan(loss), 'Loss is NaN!'
+            return loss.item()
+
+    @param('validation.lr_tta')
+    def val_loop(self, lr_tta):
+        model = self.model
+        model.eval()
+        losses = []
+
+        with ch.no_grad():
+            for images, target in tqdm(self.val_loader):
+                images = images.to(memory_format=ch.channels_last,
+                                   non_blocking=True)
+
+                with autocast():
+                    output = self.model(images)
+                    if lr_tta:
+                        output += self.model(ch.flip(images, dims=[3]))
+
+                    for k in ['top_1', 'top_5']:
+                        self.val_meters[k](output, target)
+
+                    loss_val = self.loss(output, target)
+                    self.val_meters['loss'](loss_val)
+
+        stats = {
+            k: meter.compute().item() for k, meter in self.val_meters.items()
+        }
+
+        [meter.reset() for meter in self.val_meters.values()]
+        return stats
+
+    @param('logging.folder')
+    def initialize_logger(self, folder):
+        self.val_meters = {
+            'top_1': torchmetrics.Accuracy(compute_on_step=False).to(self.gpu),
+            'top_5': torchmetrics.Accuracy(compute_on_step=False, top_k=5).to(self.gpu),
+            'loss': MeanScalarMetric(compute_on_step=False).to(self.gpu)
+        }
+
+        folder = (Path(folder) / str(self.uid)).absolute()
+        folder.mkdir(parents=True)
+
+        self.log_folder = folder
+        self.logging_fp = str(folder / 'log')
+        self.start_time = time()
+
+        print(f'=> Logging in {self.log_folder}')
+
+        params = {
+            '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()
+        }
+
+        with open(folder / 'params.json', 'w+') as handle:
+            json.dump(params, handle)
+
+    def log(self, content):
+        cur_time = time()
+        with open(self.logging_fp, 'a+') as fd:
+            fd.write(json.dumps({
+                'timestamp': cur_time,
+                'relative_time': cur_time - self.start_time,
+                **content
+            }) + '\n')
+            fd.flush()
+
+# Utils
+class MeanScalarMetric(torchmetrics.Metric):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.add_state('sum', default=ch.tensor(0.), dist_reduce_fx='sum')
+        self.add_state('count', default=ch.tensor(0), dist_reduce_fx='sum')
+
+    def update(self, sample: ch.Tensor):
+        self.sum += sample.sum()
+        self.count += sample.numel()
+
+    def compute(self):
+        return self.sum.float() / self.count
+
+# Running 
 def make_config(quiet=False):
     config = get_current_config()
     parser = ArgumentParser(description='Fast imagenet training')
@@ -354,13 +485,13 @@ def main(distributed):
     else:
         exec(0)
 
-def exec_wrapper(*args, **kwargs):
+def _exec_wrapper(*args, **kwargs):
     make_config(quiet=True)
     return exec(*args, **kwargs)
 
 @param('dist.world_size')
 def exec_distributed(world_size):
-    mp.spawn(exec_wrapper, nprocs=world_size, join=True)
+    ch.multiprocessing.spawn(_exec_wrapper, nprocs=world_size, join=True)
 
 if __name__ == "__main__":
     make_config()
