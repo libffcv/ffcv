@@ -23,7 +23,7 @@ def main(log_dir, out_file):
 
     lr = [Parameters(lr=k) for k in [0.5, 0.6, 0.4]]
 
-    res = [Parameters(min_res=160, max_res=224, val_res=312)]
+    res = [Parameters(min_res=160, max_res=192, val_res=312)]
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
