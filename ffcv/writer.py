@@ -120,6 +120,20 @@ def worker_job_indexed_dataset(input_queue, metadata_sm, metadata_type, fields,
 
 
 class DatasetWriter():
+    """Writes given dataset into FFCV format (.beton).
+    Supports indexable objects (e.g., PyTorch Datasets) and webdataset.
+
+    Parameters
+    ----------
+    fname: str
+        File name to store dataset in FFCV format (.beton)
+    fields : Mapping[str, Field]
+        Map from keys to Field's (order matters!)
+    page_size : int
+        Page size used internally
+    num_workers : int
+        Number of processes to use
+    """
     def __init__(self, fname: str, fields: Mapping[str, Field],
                  page_size: int = 4 * MIN_PAGE_SIZE, num_workers: int = -1):
         self.fields = fields
