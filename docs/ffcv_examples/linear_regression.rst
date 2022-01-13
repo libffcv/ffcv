@@ -151,5 +151,28 @@ FFCV dataloader:
                     'label': [NDArrayDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
                 })
 
-**With just this simple substitution, our code goes from 16 seconds per epoch to 6 seconds**.
+**With just this simple substitution, our code goes from 16 seconds per epoch on
+an A100 GPU to 6 seconds**.
 
+As expected, GPU utilization also increases dramatically since data loading is
+no longer a bottleneck---this allows us to make optimizations elsewhere and make
+the code even faster!
+
+More speed, less memory
+-----------------------
+We conclude this guide by suggesting a few ways to make our linear regression
+program even faster, and to reduce its memory footprint:
+
+- In our example above, FFCV *caches* the entire dataset in-memory: which means
+  that, in the event of insufficient RAM, the program will not error our (unlike
+  the TensorDataset example, which will raise a Segmentation Fault), but it will
+  become significantly slower. An alternative discussed in the :ref:`Tuning Guide`
+  that we didn't explore here is to initialize the loader with ``os_cache=False``
+  and ``order=OrderOption.QUASI_RANDOM``---this will disable caching of the full
+  dataset (and thus can operate with very little memory!), and will read examples
+  in an order which is nearly random but still minimizes underlying disk reads.
+
+- We can also optimize the main loop itself: for example, the gradient updates
+  should be performed as in-place operations, as should the normalization. Since
+  dataloading is no longer the main bottleneck, such optimizations will result in
+  improved performance.

@@ -1,5 +1,5 @@
-Parameter Tuning
-================
+Tuning Guide
+=============
 
 FFCV is a generic library and to be able to provide great performance in many situations, some parameters might be required to tune the system to your particular application.
 
