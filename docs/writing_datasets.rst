@@ -35,7 +35,7 @@ returns an input vector and its corresponding label:
     import numpy as np
 
     class LinearRegressionDataset:
-        def __init__(self, N, d)
+        def __init__(self, N, d):
             self.X = np.randn(N, d)
             self.Y = np.randn(N)
 
@@ -69,7 +69,7 @@ below:
     from ffcv.fields import NDArrayField, FloatField
 
     writer = DatasetWriter(write_path, {
-        'covariate': NDArrayField(shape=(d,), dtype=np.float32),
+        'covariate': NDArrayField(shape=(d,), dtype=np.dtype('float32')),
         'label': FloatField(),
 
     }, num_workers=16)

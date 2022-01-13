@@ -11,6 +11,7 @@ View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ff
 Install via ``pip``:
 
 .. code-block:: bash
+   
    $ conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
       pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 
