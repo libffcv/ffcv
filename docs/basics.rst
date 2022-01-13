@@ -8,7 +8,7 @@ At a basic level, working with FFCV just requires you to:
 In :ref:`Working with Image Data in FFCV`, we give more details on working with image data,
 including how to finetune to your specific resource requirements.
 
-In :ref:`Parameter Tuning`, we give recommendations on how to optimize your system for a couple of common use cases.
+In the :ref:`Tuning Guide`, we give recommendations on how to optimize your system for a couple of common use cases.
 
 .. toctree::
    writing_datasets
