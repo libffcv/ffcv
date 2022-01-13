@@ -236,8 +236,7 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 
 class RGBImageField(Field):
     """
-    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
-    values.
+    A subclass of :class:`~ffcv.fields.Field` supporting RGB image data.
 
     Parameters
     ----------
@@ -259,8 +258,8 @@ class RGBImageField(Field):
         Ignored unless ``write_mode='proportion'``; in the latter case it is the
         probability with which image is JPEG-compressed, by default 0.5
     """
-    def __init__(self, write_mode='raw', max_resolution: int = None, 
-                 smart_threshold: int = None, jpeg_quality: int = 90, 
+    def __init__(self, write_mode='raw', max_resolution: int = None,
+                 smart_threshold: int = None, jpeg_quality: int = 90,
                  compress_probability: float = 0.5) -> None:
         self.write_mode = write_mode
         self.smart_threshold = smart_threshold
