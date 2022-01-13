@@ -1,9 +1,10 @@
 Tuning Guide
 =============
 
-FFCV is a generic library and achieving the best performance may require tuning some parameters to fit the particular use case and computing resources.
+FFCV is a generic library and achieving the very best performance may require
+tuning some options to fit the particular use case and computing resources.
 
-In order to help users with that task, we consider a couple of common use cases and provide appropriate recommendations for setting parameters.
+In order to help users with that task, we consider a couple of common use cases and provide recommendations for setting parameters.
 
 Scenario: Small dataset
 -----------------------
@@ -34,7 +35,10 @@ FFCV should also work fine with PyTorch's ``DataParallel`` wrapper but we agree 
 The same recommendations above related to dataset size still apply here, but we emphasize that ``os_cache=True`` is particularly beneficial in this scenario. Indeed, as multiple processes will access the same dataset, having the caching at the OS level allows for data sharing between them, reducing overall memory consumption.
 
 .. note ::
-    `QUASI_RANDOM` isn't currently supported with ``distributed=True``. While this is technically possible to implement the team hasn't invested the necessary time yet. We also welcome pull requests.
+    `QUASI_RANDOM` isn't currently supported with ``distributed=True``. While
+    this is technically possible to implement, we haven't yet invested the
+    necessary time yet. It is on the medium-term roadmap, and we also welcome
+    pull requests!
 
 We encourage users to try different values for the ``num_workers`` parameters. As FFCV is usually very CPU resource efficient it is sometimes beneficial to use fewer workers to avoid scheduling and cache inefficiencies.
 

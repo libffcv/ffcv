@@ -11,8 +11,8 @@ hardware configuration.
 
   This page is specifically about the options and API for writing and reading
   image data with FFCV---for information about how to choose these options based
-  on your task and systems specifications, the :ref:`Benchmarks` page might be
-  more useful.
+  on your task and systems specifications, :ref:`The Bottleneck Doctor`
+  might be more useful.
 
 Writing image datasets
 """"""""""""""""""""""
@@ -23,7 +23,7 @@ requires
 significant resources and is usually the bottleneck for loading speed.
 Given access to fast
 storage (RAM, SSD) in sufficient quantities, other alternatives might be
-preferable (see :ref:`Benchmarks` for more details).
+preferable (see :ref:`The Bottleneck Doctor` for more details).
 
 For the rest of this guide, we'll assume you've aleady read
 :ref:`Writing a dataset to FFCV format`, so you're familiar with the
