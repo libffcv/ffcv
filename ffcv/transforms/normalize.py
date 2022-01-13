@@ -69,6 +69,7 @@ class NormalizeImage(Operation):
             B, C, H, W = images.shape
             table = self.lookup_table.view(-1)
             assert images.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
+            result = result[:B]
             result_c = result.view(-1)
             images = images.permute(0, 2, 3, 1).view(-1)
 
