@@ -6,12 +6,12 @@
 Welcome to ffcv's documentation!
 ================================
 
-View `Homepage <https://ffcv.io`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
+View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
 
 Install via ``pip``: ``pip install ffcv``
 
-``ffcv`` is a package that we (students in the `MadryLab` <https://madry-lab.ml>) created to
-make training machine learning models *fast*.
+``ffcv`` is a package that we (students in the `MadryLab <https://madry-lab.ml>`_) created to
+make training machine learning models *fast* and easy to use.
 
 
 Walkthroughs
@@ -52,6 +52,13 @@ follows:
    }
 
 *(Have you used the package and found it useful? Let us know!)*.
+
+
+Contributors
+-------------
+- `Guillaume Leclerc <https://twitter.com/gpoleclerc>`_
+- `Andrew Ilyas <https://twitter.com/andrew_ilyas>`_
+- `Logan Engstrom <https://twitter.com/logan_engstrom>`_
 
 
 Indices and tables
