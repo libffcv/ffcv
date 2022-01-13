@@ -7,7 +7,7 @@
 [<a href="#installation">install</a>]
 [<a href="#overview">overview</a>]
 [<a href="https://docs.ffcv.io">docs</a>]
-[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">slack</a>]
+[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
 <br>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
@@ -22,7 +22,6 @@ offering:
    computer vision tasks
 
 Install `ffcv` today and:
-- ...break the <span>[MLPerf record*](TODO)</span> for (PyTorch/TensorFlow) ImageNet training: TODO min on 8 AWS GPUs
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
 - ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
