@@ -302,7 +302,7 @@ class ImageNetTrainer:
 
     def eval_and_log(self, extra_dict={}):
         start_val = time.time()
-        _, stats = self.val_loop()
+        stats = self.val_loop()
         val_time = time.time() - start_val
 
         self.log(dict({

@@ -7,6 +7,7 @@
 [<a href="#installation">install</a>]
 [<a href="#overview">overview</a>]
 [<a href="https://docs.ffcv.io">docs</a>]
+[<a href="#imagenet">ImageNet</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
 <br>
 Maintainers:
@@ -56,12 +57,11 @@ Cite `ffcv` as:
 - <a href="TODO"><b>Quickstart</b></a>: Use `ffcv` to load your data today
 - <a href="TODO"><b>Bottleneck Doctor</b></a>: How can `ffcv` help you? Mapping
   of data loading problems to our solutions.
-- <a href="https://ffcv.io/docs/"><b>Documentation</b></a>, including:
+- <a href="https://ffcv.io/docs/"><b>Documentation</b></a>
 - <a href="TODO"><b>ImageNet</b></a>: Results, code, and training configs for ImageNet
 - <a href="TODO"><b>CIFAR</b></a>: Results, code, and training configs for CIFAR
-- <a href="TODO"><b>Benchmarks</b></a>:
-- <a href="TODO"><b>Documentation</b></a>
-- <a href="TODO"><b>FAQ</b></a>
+- <a href="TODO"><b>Benchmarks</b></a>
+- <a href="#license"><b>License</b></a>
 
 ## Overview
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
@@ -210,6 +210,27 @@ We provide code for efficient ImageNet training.
 
 ## CIFAR
 
-## 
+## License
+MIT Licensed:
 
-##  FAQ / Caveats
+```
+Copyright (c) 2022 FFCV authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```

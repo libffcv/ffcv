@@ -1,4 +1,5 @@
 terminaltables
+pytorch_pfn_extras
 fastargs
 matplotlib
 sklearn
