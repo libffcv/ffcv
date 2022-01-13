@@ -1,5 +1,5 @@
-Benchmarking on ImageNet
-=========================
+ImageNet Benchmarks
+====================
 
 Dataset sizes
 --------------
