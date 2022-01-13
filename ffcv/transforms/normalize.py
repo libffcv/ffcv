@@ -74,9 +74,8 @@ class NormalizeImage(Operation):
             images = images.permute(0, 2, 3, 1).view(-1)
 
             current_stream = ch.cuda.current_stream()
-            with cp.cuda.Device(images.device.index):
-                with ppe.cuda.stream(current_stream):
-                    kernel(images, table, result_c)
+            with ppe.cuda.stream(current_stream):
+                kernel(images, table, result_c)
 
             # Mark the result as channel last
             final_result = result.reshape(B, H, W, C).permute(0, 3, 1, 2)
