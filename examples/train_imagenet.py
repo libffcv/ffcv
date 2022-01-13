@@ -12,7 +12,7 @@ import numpy as np
 from tqdm import tqdm
 
 import os
-from time import time
+import time
 import json
 from uuid import uuid4
 from typing import List
@@ -405,7 +405,7 @@ class ImageNetTrainer:
         folder.mkdir(parents=True)
 
         self.log_folder = folder
-        self.start_time = time()
+        self.start_time = time.time()
 
         print(f'=> Logging in {self.log_folder}')
         params = {
@@ -416,7 +416,7 @@ class ImageNetTrainer:
             json.dump(params, handle)
 
     def log(self, content):
-        cur_time = time()
+        cur_time = time.time()
         with open(self.log_folder / 'log', 'a+') as fd:
             fd.write(json.dumps({
                 'timestamp': cur_time,
