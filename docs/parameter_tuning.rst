@@ -13,7 +13,7 @@ If the dataset you are working on is small or if you are lucky enough to have a 
 
 - Use ``os_cache=True``. The first epoch will be a little bit slower as the operating system is not able to pre-fetch the data as well but once the dataset has been completely cached in RAM then it will read directly from there with no overhead.
 
-- Set ``order`` to `OrderOption.RANDOM` or `OrderOption.RANDOM``. They should both perform very similarly (`QUASI_RANDOM` might be marginally better).
+- Set ``order`` to ``OrderOption.RANDOM`` or ``OrderOption.QUASI_RANDOM``. They should both perform very similarly (``QUASI_RANDOM`` might be marginally better).
 
 
 Scenario: Large scale datasets
@@ -28,7 +28,7 @@ If your dataset is too large to be cached on the machine we recommend:
 Scenario: Multi-GPU training (1 model, multiple GPUs)
 -----------------------------------------------------
 
-FFCV's :class:`~ffcv.loader.Loader` class offers a flag ``distributed`` that will make the loader behave similarly to the PyTorch's ``DistributedSampler`` used in a ``DataLoader``. If that's what your code is using, switching to FFCV should just be a matter of replacing the data loader.
+FFCV's :class:`~ffcv.loader.Loader` class offers a flag ``distributed`` that will make the loader behave similarly to the PyTorch's ``DistributedSampler`` used with their ``DataLoader``. If that's what your code is using, switching to FFCV should just be a matter of replacing the data loader.
 
 FFCV should also work fine with PyTorch's ``DataParallel`` wrapper but we agree with the developers and recommend you use ``DistributedDataParallel`` with FFCV's ``distributed`` flag enabled.
 
