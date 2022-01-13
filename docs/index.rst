@@ -30,6 +30,7 @@ Walkthroughs
 .. toctree::
    examples
    basics
+   performance_guide
    benchmarks
    customizing
    :maxdepth: 2
