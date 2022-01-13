@@ -205,5 +205,4 @@ Wrapping up
 
 It's that simple! In this tutorial, we used FFCV to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds.
 
-For more detailed benchmarks, see :ref:`Benchmarks`.
-
+For a different example, see :ref:`Large-Scale Linear Regression`.
