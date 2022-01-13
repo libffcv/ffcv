@@ -10,13 +10,16 @@ As we demonstrate below, FFCV significantly outperforms existing systems such as
 Dataset sizes
 --------------
 
-In order to provide an idea of how the image encoding settings influence the resulting dataset, we generated multiple ImageNet datasets with various options. We present the results below. For more details about the options, please refer to the :ref:`relevant section<Working with Image Data in FFCV>`.
+In order to provide an idea of how the image encoding settings influence the resulting dataset, we generated multiple ImageNet datasets with various options. We present the results below. For more details about the image encoding options, please refer to :ref:`Working with Image Data in FFCV`.
 
+We vary between three encoding options (JPEG, Mix (``proportion``), and RAW) and
+four sizes (256px, 384px, 512px, 1600px).
 
 .. image:: _static/dataset_sizes.svg
   :width: 60%
   :align: center
   :alt: Alternative text
+
 
 .. list-table:: Dataset sizes
    :widths: 16 16 16 16 16 16
@@ -75,18 +78,16 @@ In order to provide an idea of how the image encoding settings influence the res
 Data loading
 ------------
 
-We selected some of the datasets generated in the section above and measure the time to go through an epoch.
+Next, we measured the data loading performance of FFCV on some of the generated datasets from above when loaded from:
 
-We then measure the data loading performance of FFCV on some of the generated dataset both when loaded from:
-
-- RAM (simulating the case where the dataset is smaller than the amount of RAM available for caching)
-- EBS (network attached drives on AWS) to simulate the worst case scenario one would encounter on large datasets that are too big to be cached and even be stored on local storage.
+- RAM, simulating the case where the dataset is smaller than the amount of RAM available for caching).
+- EBS (network attached drives on AWS), simulating the worst case scenario one would encounter on large datasets that are too big to be cached and even be stored on local storage.
 
 We compare our results against existing data loading platforms:
 
-- `Pytorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_: This is the default option that comes with the Pytorch library and uses individual JPEG files as a source
+- `Pytorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_: This is the default option that comes with the Pytorch library and uses individual JPEG files as the source.
 - `Webdataset <https://github.com/webdataset/webdataset>`_: This loader requires pre-processed files aggregated in multiple big `.tar` archives.
-- `DALI <https://docs.nvidia.com/deeplearning/dali/user-guide/docs/>`_: Data loading pipeline developed by Nvidia, In this experiment we used the default file format which is the same as the Pytorch DataLoader
+- `DALI <https://docs.nvidia.com/deeplearning/dali/user-guide/docs/>`_: Data loading pipeline developed by Nvidia. In this experiment we used the default file format which is the same as the Pytorch DataLoader.
 
 
 
@@ -138,8 +139,8 @@ We compare our results against existing data loading platforms:
     The data loading pipeline consists in:
 
     - Loading the images
-    - Random resized crop to 224x224xpx
-    - Random Flip
+    - Random resized crop to 224x224 px
+    - Random Horizontal Flip
 
 End-to-end training
 --------------------

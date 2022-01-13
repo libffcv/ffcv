@@ -33,7 +33,7 @@ and ``pipelines``, which we discuss below:
 
 Dataset ordering
 ''''''''''''''''
-The ``order`` option in the loader initialization is similar to `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_'s ``shuffle`` option, with some additional optionality. This argument
+The ``order`` option in the loader initialization is similar to `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_'s ``shuffle`` option, with some additional options. This argument
 takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
 
 .. code-block:: python
@@ -48,7 +48,7 @@ takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
 
   # Memory-efficient but not truly random loading
   # Speeds up loading over RANDOM when the whole dataset does not fit in RAM!
-  ORDERING = OrderOption.QUASIRANDOM
+  ORDERING = OrderOption.QUASI_RANDOM
 
 Pipelines
 '''''''''
@@ -57,7 +57,8 @@ tells the loader what fields to read, how to read them, and what operations to
 apply on top. Specifically, a pipeline is a key-value dictionary where the key
 matches the one used in `writing the dataset <writing>`_, and the value is a
 sequence of operations to perform. The operations must start with a
-:class:`ffcv.fields.decoders.Decoder` object corresponding to that field.
+:class:`ffcv.fields.decoders.Decoder` object corresponding to that field followed by a
+sequence of *transforms*.
 For example, the following pipeline reads the fields and then converts each one
 to a PyTorch tensor:
 
@@ -164,14 +165,14 @@ Other options
 
 You can also specify the following additional options when constructing an :class:`ffcv.loader.Loader`:
 
-- ``os_cache``: if True, the entire dataset is cached
-- ``distributed``: for training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>` for more information
-- ``seed``: specify the random seed for batch ordering
-- ``indices``: provide indices to load a subset of the dataset
-- ``custom_fields``: for specifying decoders for fields with custom encoders
-- ``drop_last``: if set True, drops the last non-full batch from each iteration
-- ``batches_ahead``: set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.
-- ``recompile``: useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But they just change their memory usage, e.g., the resolution changes, it's not necessary.)
+- ``os_cache``: If True, the entire dataset is cached
+- ``distributed``: For training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>`
+- ``seed``: Specify the random seed for batch ordering
+- ``indices``: Provide indices to load a subset of the dataset
+- ``custom_fields``: For specifying decoders for fields with custom encoders
+- ``drop_last``: If True, drops the last non-full batch from each iteration
+- ``batches_ahead``: Set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.
+- ``recompile``: Recompile every iteration. Useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But if they just change their memory usage, e.g., the resolution changes, it's not necessary.)
 
 
 More information

@@ -16,7 +16,7 @@ Such files can be generated using the class :class:`ffcv.writer.DatasetWriter` f
 
 In this tutorial, we will show how to handle datasets from these two categories.
 Additionally, in the folder ``/scripts`` of our `repository <https://github.com/MadryLab/ffcv>`_ we also include a
-conversion script illustrating the conversion of `CIFAR-10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ and `ImageNet <https://www.image-net.org>`_ from their PyTourch counterparts.
+conversion script illustrating the conversion of `CIFAR-10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ and `ImageNet <https://www.image-net.org>`_ from their PyTorch counterparts.
 
 The first step is to include the following class into your script:
 
@@ -82,14 +82,6 @@ below:
     ``__getitem__`` function of the dataset. Make sure to provide
     the fields in the right order to avoid errors.
 
-Beyond these two, FFCV provides a variety of built-in fields that make it easy to directly convert most datasets:
-
-- :class:`~ffcv.fields.RGBImageField`: handles images including (optional) compression
-  and resizing
-- :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`: handle simple scalar fields
-- :class:`~ffcv.fields.BytesField`: stores byte arrays of variable length
-- :class:`~ffcv.fields.JSONField`: encodes a JSON document
-
 
 After constructing the writer, the only remaining step is to write the dataset:
 
@@ -143,5 +135,24 @@ We now just have to glue everything together:
     writer.from_webdataset(my_shards, pipeline)
 
 
+Fields
+------
+
+Beyond the examples used above, FFCV supports a variety of built-in fields that make it easy to directly convert most datasets. We review them below:
+
+- :class:`~ffcv.fields.RGBImageField`: Handles images including (optional) compression.
+  and resizing. Pass in a PyTorch Tensor.
+- :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`: Handle simple scalar fields.
+  Pass in ``int`` or ``float``.
+- :class:`~ffcv.fields.BytesField`: Stores byte arrays of variable length. Pass in ``numpy`` byte array.
+- :class:`~ffcv.fields.JSONField`: Encodes a JSON document. Pass in ``dict`` that can be JSON-encoded.
+
+
 That's it! You are now ready to :ref:`construct loaders<Making an FFCV dataloader>` for this dataset
 and start loading the data.
+
+
+
+
+
+
