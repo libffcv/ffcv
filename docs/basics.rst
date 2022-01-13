@@ -15,4 +15,5 @@ In the :ref:`Tuning Guide`, we give recommendations on how to optimize your syst
    making_dataloaders
    working_with_images
    parameter_tuning
+   bottleneck_doctor
    :maxdepth: 2
