@@ -164,14 +164,14 @@ Other options
 
 You can also specify the following additional options when constructing an :class:`ffcv.loader.Loader`:
 
-- ``os_cache``: if True, the entire dataset is cached
-- ``distributed``: for training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>` for more information
-- ``seed``: specify the random seed for batch ordering
-- ``indices``: provide indices to load a subset of the dataset
-- ``custom_fields``: for specifying decoders for fields with custom encoders
-- ``drop_last``: if set True, drops the last non-full batch from each iteration
-- ``batches_ahead``: set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.
-- ``recompile``: useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But they just change their memory usage, e.g., the resolution changes, it's not necessary.)
+- ``os_cache``: If True, the entire dataset is cached
+- ``distributed``: For training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>`
+- ``seed``: Specify the random seed for batch ordering
+- ``indices``: Provide indices to load a subset of the dataset
+- ``custom_fields``: For specifying decoders for fields with custom encoders
+- ``drop_last``: If True, drops the last non-full batch from each iteration
+- ``batches_ahead``: Set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.
+- ``recompile``: Recompiler every itereaetion. Useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But if they just change their memory usage, e.g., the resolution changes, it's not necessary.)
 
 
 More information
