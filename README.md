@@ -138,9 +138,7 @@ accuracy frontier for 1-GPU ResNet-18 and 8-GPU ResNet-50 optimization routines:
 **Train your own ImageNet models!** <a href="TODO">Click here</a> to use our training script and premade configurations to train any model seen on the above grpahs!
 
 ### CIFAR-10
-We also include premade code for efficient CIFAR-10 training in the `examples/` <a href="">directory</a>. We plot CIFAR-10 1-GPU training times below:
-[resnet9 plot]
-**Train your own CIFAR-10 models!** <a href="TODO">Click here</a> to use our training script and premade configurations to train any model seen on the above graphs!
+We also include premade code for efficient CIFAR-10 training in the `examples/` directory; we obtain 93\% top1 accuracy in 36 seconds with one A100 GPU. You can find the training script and configuration <a href="TODO">here</a>.
 
 ## Custom Datasets Quickstart
 <!-- Accelerating data loading with `ffcv` requires two steps: dataset serialization
