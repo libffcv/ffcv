@@ -1,8 +1,8 @@
 Examples
 =========
 
-We provide two complete examples of using FFCV to train machine learning models *fast*
-to illustrate its ease ous as well as the significant gains in speed:
+We provide two complete examples of using FFCV to train machine learning models
+to illustrate its ease of use as well as the significant gains in speed:
 
 .. toctree::
    ffcv_examples/cifar10.rst

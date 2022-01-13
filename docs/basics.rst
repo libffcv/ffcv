@@ -1,4 +1,4 @@
-FFCV basics
+FFCV Basics
 ===========
 
 At a basic level, working with FFCV just requires two steps:
