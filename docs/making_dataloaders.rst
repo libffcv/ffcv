@@ -33,8 +33,7 @@ and ``pipelines``, which we discuss below:
 
 Dataset ordering
 ''''''''''''''''
-The ``order`` option in the loader initialization is similar to PyTorch
-DataLoaders' ``shuffle`` option, with some additional optionality. This argument
+The ``order`` option in the loader initialization is similar to `PyTorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_'s ``shuffle`` option, with some additional optionality. This argument
 takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
 
 .. code-block:: python
@@ -48,13 +47,12 @@ takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
   ORDERING = OrderOption.SEQUENTIAL
 
   # Memory-efficient but not truly random loading
-  # <TODO: explain what it does>
   # Speeds up loading over RANDOM when the whole dataset does not fit in RAM!
   ORDERING = OrderOption.QUASIRANDOM
 
 Pipelines
 '''''''''
-The ``pipeline`` option in :class:`ffcv.loader.Loader` specifies the dataset and
+The ``pipeline`` option in :class:`~ffcv.loader.Loader` specifies the dataset and
 tells the loader what fields to read, how to read them, and what operations to
 apply on top. Specifically, a pipeline is a key-value dictionary where the key
 matches the one used in `writing the dataset <writing>`_, and the value is a
@@ -97,16 +95,16 @@ Transforms
 There are three easy ways to specify transformations in a pipeline:
 
 - A set of standard transformations in the
-  :mod:`ffcv.transforms` module. These include standard image data augmentations such as :class:`RandomHorizontalFlip` and :class:`Cutout`.
+  :mod:`ffcv.transforms` module. These include standard image data augmentations such as :class:`~ffcv.transforms.RandomHorizontalFlip` and :class:`~ffcv.transforms.Cutout`.
 
 - Any subclass of ``torch.nn.Module``: FFCV automatically converts them into an operation.
 
 - Custom transformations: you can implement your own by subclassing
   :class:`ffcv.transforms.Operation`, as discussed in the
-  :ref:`Making custom transforms <Making custom transforms>` guide.
+  :ref:`Making custom transforms <Extending FFCV>` guide.
 
 The following shows an example of a full pipeline for a vector field starts with the field decoder,
-:class:`NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and a custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
+:class:`~ffcv.fields.decoders.NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and a custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
 
 .. code-block:: python
 
@@ -125,7 +123,7 @@ The following shows an example of a full pipeline for a vector field starts with
     ]
 
 
-For an example of a differet field, this could be a pipeline for an :class:`~ffcv.fields.RGBImageField`:
+For an example of a different field, this could be a pipeline for an :class:`~ffcv.fields.RGBImageField`:
 
 .. code-block:: python
 
@@ -179,7 +177,7 @@ You can also specify the following additional options when constructing an :clas
 More information
 ''''''''''''''''
 
-For information on available transforms and the :class:`ffcv.loader.Loader` class, see :ref:`API Reference`.
+For information on available transforms and the :class:`~ffcv.loader.Loader` class, see our :ref:`API Reference`.
 
 For examples of constructing loaders and using them, see the tutorials :ref:`Training CIFAR-10 in 36 seconds on a single A100`
 and :ref:`Large-Scale Linear Regression`.
