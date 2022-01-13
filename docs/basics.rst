@@ -16,4 +16,3 @@ In :ref:`Parameter Tuning`, we give recommendations on how to optimize your syst
    working_with_images
    parameter_tuning
    :maxdepth: 2
-   :caption: Contents:

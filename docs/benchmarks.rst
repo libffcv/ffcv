@@ -1,6 +1,13 @@
 ImageNet Benchmarks
 ====================
 
+We benchmark our system using the `ImageNet <https://www.image-net.org>`_ dataset,
+covering dataset size (storage), data loading,
+and end-to-end training.
+
+FFCV significantly outperforms existing systems such as `Pytorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_, `Webdataset <https://github.com/webdataset/webdataset>`_, and `DALI <https://docs.nvidia.com/deeplearning/dali/user-guide/docs/>`_, while being much easier to use and extend.
+
+
 Dataset sizes
 --------------
 
@@ -66,7 +73,7 @@ In order to provide an idea of how the image encoding settings influence the res
      - 788.97 GB
 
 
-Data loading 
+Data loading
 ------------
 
 We selected some of the datasets generated in the section above and measure the time to go through an epoch.
@@ -130,7 +137,7 @@ We compare our results against existing data loading platforms:
     For a fair comparison the baseline frameworks were evaluated on similarly resized datasets.
 
     The data loading pipeline consists in:
-    
+
     - Loading the images
     - Random resized crop to 224x224xpx
     - Random Flip
