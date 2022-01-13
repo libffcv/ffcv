@@ -8,7 +8,16 @@ Welcome to ffcv's documentation!
 
 View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
 
-Install via ``pip``: ``pip install ffcv``
+Install via ``pip``:
+
+```
+conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
+    pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+
+conda activate ffcv
+
+pip install ffcv
+```
 
 ``ffcv`` is a package that we (students in the `MadryLab <https://madry-lab.ml>`_) created to
 make training machine learning models *fast* and easy to use.
