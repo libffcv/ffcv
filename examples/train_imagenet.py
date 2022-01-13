@@ -341,7 +341,7 @@ class ImageNetTrainer:
 
         iterator = tqdm(self.train_loader)
         for ix, (images, target) in enumerate(iterator):
-            ## Training start
+            ### Training start
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = lrs[ix]
 
@@ -350,7 +350,12 @@ class ImageNetTrainer:
                 output = self.model(images)
                 loss_train = self.loss(output, target)
 
-            ## Logging start
+            self.scaler.scale(loss_train).backward()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
+            ### Training end
+
+            ### Logging start
             if log_level > 0:
                 losses.append(loss_train.detach())
 
@@ -361,37 +366,12 @@ class ImageNetTrainer:
             names = ['ep', 'iter', 'shape', 'lrs']
             values = [epoch, ix, tuple(images.shape), group_lrs]
             if log_level > 1:
-                this_loss = loss_train.clone().cpu().detach()
-                if ch.isnan(this_loss):
-                    print(self.gpu)
-                    is_nan = False
-                    for param in self.model.parameters():
-                        # Ensure the parameters are located in the same device
-                        is_nan = ch.isnan(param).any() | is_nan
-
-                    output = {
-                        'ix':f'{epoch}:{ix}',
-                        'gpu':self.gpu,
-                        'output_nan?':ch.isnan(output).any(),
-                        'params_nan?':is_nan,
-                        'images_nan?':ch.isnan(images).any(),
-                        'targets_nan?':ch.isnan(target).any()
-                    }
-
-                    print(output)
-
-                    if ch.isnan(this_loss):
-                        raise ValueError('nan loss')
-
                 names += ['loss']
-                values += [f'{this_loss.item():.3f}']
-
-            self.scaler.scale(loss_train).backward()
-            self.scaler.step(self.optimizer)
-            self.scaler.update()
+                values += [f'{loss_train.item():.3f}']
 
             msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
             iterator.set_description(msg)
+            ### Logging end
 
         if log_level > 0:
             loss = ch.stack(losses).mean().cpu()

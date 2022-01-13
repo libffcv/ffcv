@@ -6,43 +6,37 @@ def main(log_dir, out_file):
     out_dir = Path(log_dir) / str(uuid4())
     out_dir.mkdir(exist_ok=True, parents=True)
 
-    wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
-    lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 9)]
-    res = [Parameters(min_res=k, max_res=k, val_res=kv) for k, kv in [
-        (160, 224) #, (192, 256)
-    ]]
+    # wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
+    # lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 9)]
+
+    starts = []
+    res = [Parameters(min_res=224, max_res=224, val_res=312)]
+    for num_epochs in [20, 40]:
+        lengths, ends = [4, 8, 12], [num_epochs, num_epochs - 4]
+        res += [Parameters(min_res=160, max_res=224, val_res=312, start_ramp=l - e,
+                           end_ramp=e) for l, e in itertools.product(lengths, ends)]
+    import random
+    random.shuffle(res)
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
-        Parameters(train_dataset=base_dir + 'train_500_0.5_90.ffcv',
-                   val_dataset=base_dir + 'val_500_0.5_90.ffcv',
+        Parameters(train_dataset=base_dir + 'train_400_0.10_90.ffcv',
+                   val_dataset=base_dir + 'val_400_0.10_90.ffcv',
                    batch_size=1024,
                    arch='resnet18',
                    distributed=0,
                    world_size=1),
-        # Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
-        #            val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv',
-        #            batch_size=512,
-        #            arch='resnet50')
     ]
 
-    peaks = [Parameters(peak=k, schedule_type='linear') for k in [0]]
-    epochs = [Parameters(epochs=k) for k in [30]]
+    axes = [archs, res]
 
-    should_mixup = [
-        Parameters(mixup=0., same_lambda=1)
-    ]
-
-    should_bn_wd = [Parameters(bn_wd=False)]
-
-    axes = [wds, lrs, [Parameters(logs=log_dir)], archs, epochs, res,
-            should_mixup, should_bn_wd, peaks, archs]
-    design_command(axes, out_dir, out_file)
+    rn18_base = 'imagenet_configs/resnet18_base.yaml'
+    design_command(axes, out_dir, out_file, rn18_base)
 
 if __name__ == '__main__':
     Section('grid', 'data related stuff').params(
         log_dir=Param(str, 'out directory', default='/mnt/cfs/home/engstrom/store/ffcv_rn18_1gpu/'),
-        out_file=Param(str, 'out file', default='/tmp/jobs_18.txt')
+        out_file=Param(str, 'out file', default='/mnt/cfs/home/engstrom/store/ffcv_rn18_1gpu/jobs_18.txt')
     )
 
     config = get_current_config()
@@ -52,3 +46,4 @@ if __name__ == '__main__':
     config.validate(mode='stderr')
     config.summary()
     main()
+

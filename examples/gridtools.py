@@ -16,6 +16,8 @@ MAPPING = {
     'wd': ['training', 'weight_decay'],
     'lr': ['lr', 'lr'],
     'momentum': ['training', 'momentum'],
+    'start_ramp': ['resolution', 'start_ramp'],
+    'end_ramp': ['resolution', 'end_ramp'],
     'label_smoothing': ['training', 'label_smoothing'],
     'epochs': ['training', 'epochs'],
     'arch': ['model', 'arch'],
@@ -63,15 +65,15 @@ class Parameters():
 
         return ret
 
-STANDARD_CONFIG = yaml.safe_load(open('imagenet_configs/base.yaml', 'r'))
 
 
-def design_command(axes, out_dir, out_file):
+def design_command(axes, out_dir, out_file, base_path):
+    base_config = yaml.safe_load(open(base_path, 'r'))
     out_write = []
     configs = list(itertools.product(*axes))
 
     for these_settings in configs:
-        d = copy.deepcopy(STANDARD_CONFIG)
+        d = copy.deepcopy(base_config)
         for settings in these_settings:
             settings.override(d)
 
