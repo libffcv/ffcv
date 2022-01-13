@@ -13,8 +13,8 @@ class Field(ABC):
 
     Each dataset entry is comprised of one or more fields (for example, standard
     object detection datasets may have one field for images, and one for
-    bounding boxes). Fields are responsible for implementing encoder and decoder
-    function that determine how they will be written and read from the dataset file,
+    bounding boxes). Fields are responsible for implementing encode and get_decoder_class
+    functions that determine how they will be written and read from the dataset file,
     respectively.
 
     See :ref:`here <TODO>` for information on how to implement a subclass of Field.
@@ -36,7 +36,7 @@ class Field(ABC):
     @abstractmethod
     def encode(field, metadata_destination, malloc):
         raise NotImplementedError
-    
+
     @abstractmethod
     def get_decoder_class(self) -> Type[Operation]:
         raise NotImplementedError

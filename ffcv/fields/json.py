@@ -9,6 +9,7 @@ ENCODING = 'utf8'
 SEPARATOR = '\0'  # Null byte
 
 class JSONField(BytesField):
+    """A subclass of :class:`~ffcv.fields.BytesField` supporting JSON data."""
 
     @property
     def metadata_type(self) -> np.dtype:
