@@ -13,8 +13,8 @@ from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from dataclasses import replace
 
+
 class Collate(Operation):
-    """TODO"""
     def __init__(self):
         super().__init__()
 
@@ -27,6 +27,7 @@ class Collate(Operation):
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         return replace(previous_state), None
+
 
 class ToTensor(Operation):
     """Convert to from Numpy array to PyTorch Tensor"""
@@ -41,6 +42,7 @@ class ToTensor(Operation):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         new_dtype = ch.from_numpy(np.empty((), dtype=previous_state.dtype)).dtype
         return replace(previous_state, jit_mode=False, dtype=new_dtype), None
+
 
 class ToDevice(Operation):
     """Move tensor to device
@@ -72,6 +74,7 @@ class ToDevice(Operation):
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         return replace(previous_state, device=self.device), AllocationQuery(previous_state.shape, dtype=previous_state.dtype, device=self.device)
 
+
 class ToTorchImage(Operation):
     """Change tensor to PyTorch format for images (B x C x H x W).
 
@@ -80,7 +83,7 @@ class ToTorchImage(Operation):
     channels_last : bool
         use torch.channels_last
     convert_back_int16 : bool
-        TODO
+        convert to float16
     """
     def __init__(self, channels_last=True, convert_back_int16=True):
         super().__init__()
@@ -120,12 +123,13 @@ class ToTorchImage(Operation):
             alloc = AllocationQuery((C, H, W), dtype=new_type)
         return replace(previous_state, shape=(C, H, W), dtype=new_type), alloc
 
+
 class Convert(Operation):
     """Convert to target data type
 
     Parameters
     ----------
-    dtype: torch.dtype
+    target_dtype: numpy.dtype or torch.dtype
         Target data type
     """
     def __init__(self, target_dtype):
@@ -146,13 +150,12 @@ class Convert(Operation):
 
 
 class View(Operation):
-    """Return a new tensor with the same data but of a different shape.
-    TODO
+    """View array using np.view or torch.view
 
     Parameters
     ----------
-    module: torch.nn.Module
-        The module for transformation
+    target_dtype: numpy.dtype or torch.dtype
+        Target data type
     """
     def __init__(self, target_dtype):
         super().__init__()
