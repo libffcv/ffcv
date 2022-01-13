@@ -27,6 +27,7 @@ MAPPING = {
     'train_dataset': ['data', 'train_dataset'],
     'val_dataset': ['data', 'val_dataset'],
     'end_ramp': ['resolution', 'end_ramp'],
+    'workers': ['data', 'num_workers'],
     'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
     'batch_size':['training', 'batch_size'],
