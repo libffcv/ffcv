@@ -376,7 +376,6 @@ class ImageNetTrainer:
     def val_loop(self, lr_tta):
         model = self.model
         model.eval()
-        losses = []
 
         with ch.no_grad():
             for images, target in tqdm(self.val_loader):
@@ -413,11 +412,9 @@ class ImageNetTrainer:
         folder.mkdir(parents=True)
 
         self.log_folder = folder
-        self.logging_fp = str(folder / 'log')
         self.start_time = time()
 
         print(f'=> Logging in {self.log_folder}')
-
         params = {
             '.'.join(k): self.all_params[k] for k in self.all_params.entries.keys()
         }
@@ -427,7 +424,7 @@ class ImageNetTrainer:
 
     def log(self, content):
         cur_time = time()
-        with open(self.logging_fp, 'a+') as fd:
+        with open(self.log_folder / 'log', 'a+') as fd:
             fd.write(json.dumps({
                 'timestamp': cur_time,
                 'relative_time': cur_time - self.start_time,
