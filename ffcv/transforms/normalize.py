@@ -59,6 +59,7 @@ class NormalizeImage(Operation):
 
         # We only import cupy if it's truly needed
         import cupy as cp
+        import pytorch_pfn_extras as ppe
 
         tn = np.zeros((), dtype=self.dtype).dtype.name
         kernel = cp.ElementwiseKernel(f'uint8 input, raw {tn} table', f'{tn} output', 'output = table[input * 3 + i % 3];')
@@ -70,7 +71,11 @@ class NormalizeImage(Operation):
             assert images.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
             result_c = result.view(-1)
             images = images.permute(0, 2, 3, 1).view(-1)
-            kernel(images, table, result_c)
+
+            current_stream = ch.cuda.current_stream()
+            with cp.cuda.Device(images.device.index):
+                with ppe.cuda.stream(current_stream):
+                    kernel(images, table, result_c)
 
             # Mark the result as channel last
             final_result = result.reshape(B, H, W, C).permute(0, 3, 1, 2)
