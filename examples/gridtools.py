@@ -14,10 +14,9 @@ import yaml
 
 MAPPING = {
     'wd': ['training', 'weight_decay'],
-    'lr': ['training', 'lr'],
+    'lr': ['lr', 'lr'],
     'momentum': ['training', 'momentum'],
     'label_smoothing': ['training', 'label_smoothing'],
-    'blurpool': ['model', 'antialias'],
     'epochs': ['training', 'epochs'],
     'arch': ['model', 'arch'],
     'min_res': ['resolution', 'min_res'],
@@ -28,15 +27,11 @@ MAPPING = {
     'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
     'batch_size':['training', 'batch_size'],
-    'peak':['training', 'lr_peak_epoch'],
-    'bn_wd':['training', 'bn_wd'],
-    'mixup':['training', 'mixup_alpha'],
-    'same_lambda':['training', 'mixup_same_lambda'],
-    'schedule_type':['training', 'lr_schedule_type'],
+    'peak':['lr', 'lr_peak_epoch'],
+    'schedule_type':['lr', 'lr_schedule_type'],
     'distributed':['training', 'distributed'],
     'world_size':['dist', 'world_size'],
 }
-
 
 class Parameters():
     def __init__(self, mapping=MAPPING, **kwargs):

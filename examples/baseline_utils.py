@@ -2,7 +2,6 @@ from torchvision import transforms
 from torchvision import datasets
 from fastargs.decorators import param
 from fastargs import Param, Section
-from fastargs.validation import And, OneOf
 
 import torch
 ch = torch

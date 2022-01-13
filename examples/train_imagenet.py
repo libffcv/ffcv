@@ -12,7 +12,7 @@ import numpy as np
 from tqdm import tqdm
 
 import os
-import time
+from time import time
 import json
 from uuid import uuid4
 from typing import List
@@ -32,11 +32,11 @@ from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, \
     RandomResizedCropRGBImageDecoder
 from ffcv.fields.basics import IntDecoder
 
+# Ignore unless you want to train on the standard pytorch loader
 from baseline_utils import baseline_train_loader, baseline_val_loader
 
 Section('model', 'model details').params(
     arch=Param(And(str, OneOf(models.__dir__())), default='resnet18'),
-    antialias=Param(int, 'use blurpool or not', default=0),
     pretrained=Param(int, 'is pretrained?', default=0)
 )
 
@@ -59,12 +59,13 @@ Section('lr', 'lr scheduling').params(
     step_ratio=Param(float, 'learning rate step ratio', default=0.1),
     step_length=Param(int, 'learning rate step length', default=30),
     lr_schedule_type=Param(OneOf(['step', 'cyclic']), default='cyclic'),
-    lr=Param(float, 'learning rate', default=0.5)
+    lr=Param(float, 'learning rate', default=0.5),
+    lr_peak_epoch=Param(int, 'Epoch at which LR peaks', default=2),
 )
 
 Section('logging', 'how to log stuff').params(
     folder=Param(str, 'log location', required=True),
-    level=Param(int, '0 if only at end 1 otherwise', default=1)
+    log_level=Param(int, '0 if only at end 1 otherwise', default=1)
 )
 
 Section('validation', 'Validation parameters stuff').params(
@@ -80,7 +81,6 @@ Section('training', 'training hyper param stuff').params(
     momentum=Param(float, 'SGD momentum', default=0.9),
     weight_decay=Param(float, 'weight decay', default=4e-5),
     epochs=Param(int, 'number of epochs', default=30), # TODO
-    lr_peak_epoch=Param(int, 'Epoch at which LR peaks', default=2),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.1),
     distributed=Param(int, 'is distributed?', default=0),
 )
@@ -118,7 +118,9 @@ class ImageNetTrainer:
     def __init__(self, gpu, distributed, baseline):
         self.all_params = get_current_config()
         self.gpu = gpu
-        self.model, self.scaler = self.create_model_and_scaler()
+
+        if distributed:
+            self.setup_distributed()
 
         if not baseline:
             self.train_loader = self.create_train_loader()
@@ -127,12 +129,10 @@ class ImageNetTrainer:
             self.train_loader = baseline_train_loader()
             self.val_loader = baseline_val_loader()
 
+        self.model, self.scaler = self.create_model_and_scaler()
         self.create_optimizer()
         self.uid = str(uuid4())
         self.initialize_logger()
-
-        if distributed:
-            self.setup_distributed()
 
     @param('dist.address')
     @param('dist.port')
@@ -180,7 +180,7 @@ class ImageNetTrainer:
     def create_optimizer(self, momentum, optimizer, weight_decay,
                          label_smoothing):
         assert optimizer == 'sgd'
-        
+
         # Only do weight decay on non-batchnorm parameters
         all_params = list(self.model.named_parameters())
         bn_params = [v for k, v in all_params if ('bn' in k)]
@@ -281,7 +281,7 @@ class ImageNetTrainer:
         return loader
 
     @param('training.epochs')
-    @param('log.level')
+    @param('logging.log_level')
     def train(self, epochs, log_level):
         for epoch in range(epochs):
             res = self.get_resolution(epoch)
@@ -315,7 +315,7 @@ class ImageNetTrainer:
         return stats
 
     @param('model.arch')
-    @param('training.pretrained')
+    @param('model.pretrained')
     @param('training.distributed')
     def create_model_and_scaler(self, arch, pretrained, distributed):
         scaler = GradScaler()
@@ -328,14 +328,13 @@ class ImageNetTrainer:
 
         return model, scaler
 
-    @param('log.level')
+    @param('logging.log_level')
     def train_loop(self, epoch, log_level):
         model = self.model
         model.train()
         losses = []
 
-        lr_start = self.get_lr(epoch)
-        lr_end = self.get_lr(epoch + 1)
+        lr_start, lr_end = self.get_lr(epoch), self.get_lr(epoch + 1)
         iters = len(self.train_loader)
         lrs = np.interp(np.arange(iters), [0, iters], [lr_start, lr_end])
 
@@ -368,7 +367,7 @@ class ImageNetTrainer:
             iterator.set_description(msg)
 
         if log_level > 0:
-            loss = ch.stack(losses).mean().cpu() 
+            loss = ch.stack(losses).mean().cpu()
             assert not ch.isnan(loss), 'Loss is NaN!'
             return loss.item()
 
@@ -378,11 +377,8 @@ class ImageNetTrainer:
         model.eval()
 
         with ch.no_grad():
-            for images, target in tqdm(self.val_loader):
-                images = images.to(memory_format=ch.channels_last,
-                                   non_blocking=True)
-
-                with autocast():
+            with autocast():
+                for images, target in tqdm(self.val_loader):
                     output = self.model(images)
                     if lr_tta:
                         output += self.model(ch.flip(images, dims=[3]))
@@ -393,10 +389,7 @@ class ImageNetTrainer:
                     loss_val = self.loss(output, target)
                     self.val_meters['loss'](loss_val)
 
-        stats = {
-            k: meter.compute().item() for k, meter in self.val_meters.items()
-        }
-
+        stats = {k: m.compute().item() for k, m in self.val_meters.items()}
         [meter.reset() for meter in self.val_meters.values()]
         return stats
 
@@ -447,7 +440,7 @@ class MeanScalarMetric(torchmetrics.Metric):
     def compute(self):
         return self.sum.float() / self.count
 
-# Running 
+# Running
 def make_config(quiet=False):
     config = get_current_config()
     parser = ArgumentParser(description='Fast imagenet training')
@@ -471,7 +464,6 @@ def exec(gpu, distributed, eval_only):
         trainer.train()
 
     if distributed:
-        print('was distributed')
         trainer.cleanup_distributed()
 
 @param('training.distributed')

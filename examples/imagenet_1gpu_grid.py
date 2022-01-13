@@ -16,8 +16,8 @@ def main(log_dir, out_file):
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
-        Parameters(train_dataset=base_dir + 'train_350_0_100.ffcv',
-                   val_dataset=base_dir + 'val_350_0_100.ffcv',
+        Parameters(train_dataset=base_dir + 'train_400_0.10_90.ffcv',
+                   val_dataset=base_dir + 'val_400_0.10_90.ffcv',
                    batch_size=512,
                    arch='resnet50',
                    distributed=1,
@@ -28,7 +28,7 @@ def main(log_dir, out_file):
         #            arch='resnet50')
     ]
 
-    peaks = [Parameters(peak=k, schedule_type='linear') for k in [0]]
+    peaks = [Parameters(peak=k, schedule_type='cyclic') for k in [0]]
     epochs = [Parameters(epochs=k) for k in [35]]
 
     should_mixup = [
