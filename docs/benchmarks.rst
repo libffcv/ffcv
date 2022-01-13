@@ -4,8 +4,7 @@ ImageNet Benchmarks
 We benchmark our system using the `ImageNet <https://www.image-net.org>`_ dataset,
 covering dataset size (storage), data loading,
 and end-to-end training.
-
-FFCV significantly outperforms existing systems such as `Pytorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_, `Webdataset <https://github.com/webdataset/webdataset>`_, and `DALI <https://docs.nvidia.com/deeplearning/dali/user-guide/docs/>`_, while being much easier to use and extend.
+As we demonstrate below, FFCV significantly outperforms existing systems such as `Pytorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_, `Webdataset <https://github.com/webdataset/webdataset>`_, and `DALI <https://docs.nvidia.com/deeplearning/dali/user-guide/docs/>`_, while being much easier to use and extend.
 
 
 Dataset sizes
