@@ -27,8 +27,8 @@ def main(log_dir, out_file):
 
 if __name__ == '__main__':
     Section('grid', 'data related stuff').params(
-        log_dir=Param(str, 'out directory', default='/mnt/cfs/home/engstrom/store/ffcv_rn50_8gpu/'),
-        out_file=Param(str, 'out file', default='/mnt/cfs/home/engstrom/store/ffcv_rn50_8gpu/jobs_18.txt')
+        log_dir=Param(str, 'out directory', default=str(Path('~/store/ffcv_rn50_8gpu/').expanduser())),
+        out_file=Param(str, 'out file', default=str(Path('~/store/ffcv_rn50_8gpu/jobs_18.txt').expanduser()))
     )
 
     config = get_current_config()
