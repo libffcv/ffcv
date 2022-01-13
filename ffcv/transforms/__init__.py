@@ -5,6 +5,7 @@ from .common import Squeeze
 from .random_resized_crop import RandomResizedCrop
 from .poisoning import Poison
 from .replace_label import ReplaceLabel
+from .normalize import NormalizeImage
 from .translate import RandomTranslate
 
 __all__ = ['Cutout', 'RandomHorizontalFlip', 'Collate', 'ToTensor', 'ToDevice',

@@ -47,13 +47,13 @@ Section('resolution', 'resolution scheduling').params(
 Section('training', 'training hyper param stuff').params(
     step_ratio=Param(float, 'learning rate step ratio', default=0.1),
     step_length=Param(int, 'learning rate step length', default=30),
-    lr_schedule_type=Param(OneOf(['step', 'linear']), 'step or linear schedule?',
+    lr_schedule_type=Param(OneOf(['step', 'cyclic']), 'step or linear schedule?',
                            required=True),
     eval_only=Param(int, 'eval only?', default=0),
     pretrained=Param(int, 'is pretrained?', default=0),
     bn_wd=Param(int, 'should momentum on bn', default=0),
     diagnostics=Param(int, 'use diagnostics?', default=1),
-    cpu_limited=Param(int, 'is cpu limited?', default=0),
+    cpu_limited=Param(int, 'is cpu limited?', default=1),
 )
 
 # Section('dist').enable_if(lambda cfg: cfg['training.distributed'] == 1).params(
@@ -70,14 +70,19 @@ DEFAULT_CROP_RATIO = 224/256
 @param('training.lr')
 @param('training.step_ratio')
 @param('training.step_length')
-def get_step_lr(epoch, lr, step_ratio, step_length):
+@param('training.epochs')
+def get_step_lr(epoch, lr, step_ratio, step_length, epochs):
+    if epoch >= epochs:
+        return 0
+
     num_steps = epoch // step_length
     return step_ratio**num_steps * lr
 
 @param('training.lr')
 @param('training.epochs')
-def get_linear_lr(epoch, lr, epochs):
-    return np.interp([epoch], [0, epochs], [lr, 0])[0]
+@param('training.lr_peak_epoch')
+def get_cyclic_lr(epoch, lr, epochs, lr_peak_epoch):
+    return np.interp([epoch], [0, lr_peak_epoch, epochs], [1e-3 * lr, lr, 0])[0]
 
 @param('training.distributed')
 @param('baselines.use_baseline')
@@ -104,7 +109,7 @@ class ImageNetTrainer(Trainer):
     @param('training.lr_schedule_type')
     def get_lr(self, epoch, lr_schedule_type):
         lr_schedules = {
-            'linear': get_linear_lr,
+            'cyclic': get_cyclic_lr,
             'step': get_step_lr
         }
 
@@ -189,14 +194,16 @@ class ImageNetTrainer(Trainer):
                 ToTensor(),
                 ToDevice(ch.device(this_device), non_blocking=True),
                 ToTorchImage(),
-                NormalizeImage(IMAGENET_MEAN * 255, IMAGENET_STD * 255, np.float16),
+                Convert(ch.float16),
+                Normalize((IMAGENET_MEAN * 255).tolist(),
+                          (IMAGENET_STD * 255).tolist()),
             ])
         else:
             image_pipeline.extend([
                 ToTorchImage(),
                 Convert(ch.float16),
-                # Normalize((IMAGENET_MEAN * 255).tolist(),
-                #           (IMAGENET_STD * 255).tolist()),
+                Normalize((IMAGENET_MEAN * 255).tolist(),
+                          (IMAGENET_STD * 255).tolist()),
                 ToDevice(ch.device('cuda:0'), non_blocking=True)
             ])
             

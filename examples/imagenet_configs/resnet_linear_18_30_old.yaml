@@ -1,0 +1,36 @@
+data:
+  gpu: 0
+  num_workers: 11
+  train_dataset: /mnt/cfs/home/engstrom/store/ffcv/train_350_0_100.ffcv
+  val_dataset: /mnt/cfs/home/engstrom/store/ffcv/val_350_0_100.ffcv
+logging:
+  folder: /tmp/chungolord
+model:
+  antialias: false
+  arch: resnet18
+resolution:
+  end_ramp: 0
+  max_res: 160
+  min_res: 160
+training:
+  batch_size: 1024
+  bn_momentum: 0
+  bn_wd: false
+  epochs: 60
+  label_smoothing: 0.1
+  lr: 1.0
+  lr_peak_epoch: 0
+  lr_schedule_type: step
+  mixup_alpha: 0.0
+  mixup_same_lambda: 1
+  momentum: 0.9
+  optimizer: sgd
+  step_length: 20
+  step_ratio: 0.1
+  weight_decay: 2.5e-05
+uid: b88e875c-a056-49d6-af2f-6650f0e848dd
+validation:
+  batch_size: 1024
+  lr_tta: true
+  resolution: 224
+

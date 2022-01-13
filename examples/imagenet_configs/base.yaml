@@ -1,0 +1,23 @@
+data:
+  gpu: 0
+  num_workers: 10
+logging:
+  folder: /tmp/
+model:
+  antialias: false
+resolution:
+  end_ramp: 0
+training:
+  bn_wd: 0
+  epochs: 90
+  label_smoothing: 0.1
+  mixup_alpha: 0.0
+  mixup_same_lambda: 1
+  momentum: 0.9
+  optimizer: sgd
+  distributed: 0
+validation:
+  batch_size: 1024
+  lr_tta: true
+dist:
+  world_size: 1

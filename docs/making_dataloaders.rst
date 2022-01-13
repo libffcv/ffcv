@@ -74,9 +74,9 @@ to a PyTorch tensor:
 
 This is already enough to start loading data, but pipelines are also our
 opportunity to apply fast pre-processing to the data through a series of
-transformations---transforms are automatically compiled to ---- at runtime
-and, for GPU-intensive applications like training neural networks, can often
-introduce no additional training overhead.
+transformations---transforms are automatically compiled to at runtime
+and, for GPU-intensive applications like training neural networks, can reduce
+any additional training overhead.
 
 .. note::
 
@@ -96,13 +96,90 @@ Transforms
 
 There are three easy ways to specify transformations in a pipeline:
 
-- By default, FFCV implements a set of standard transformations in the
-  :mod:`ffcv.transforms` module
+- A set of standard transformations in the
+  :mod:`ffcv.transforms` module. These include standard image data augmentations such as :class:`RandomHorizontalFlip` and :class:`Cutout`.
 
-- Any subclass of ``torch.nn.Module`` will be automatically converted to a FFCV
-  operation
+- Any subclass of ``torch.nn.Module``: FFCV automatically converts them into an operation.
 
-- You can easily implement your own transformations by subclassing
+- Custom transformations: you can implement your own by subclassing
   :class:`ffcv.transforms.Operation`, as discussed in the
   :ref:`Making custom transforms <Making custom transforms>` guide.
 
+The following shows an example of a full pipeline for a vector field starts with the field decoder,
+:class:`NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and a custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:
+
+.. code-block:: python
+
+    class AddGaussianNoise(ch.nn.Module):
+        def __init__(self, scale=1):
+            super(AddGaussianNoise, self).__init__()
+            self.scale = scale
+
+        def forward(self, x):
+            return x + ch.randn_like(x) * self.scale
+
+    pipeline: List[Operation] = [
+        NDArrayDecoder(),
+        ToTensor(),
+        AddGaussianNoise(0.1)
+    ]
+
+
+For a different example, this could be a pipeline for an image field:
+
+.. code-block:: python
+
+    image_pipeline: List[Operation] = [
+        SimpleRGBImageDecoder(),
+        RandomHorizontalFlip(),
+        torchvision.transforms.ColorJitter(.4,.4,.4),
+        RandomTranslate(padding=2),
+        ToTensor(),
+        ToDevice('cuda:0', non_blocking=True),
+        ToTorchImage(),
+        Convert(ch.float16),
+        torchvision.transforms.Normalize(MEAN, STD), # Normalize using image statistics
+    ])
+
+
+Putting together
+''''''''''''''''
+
+Back to our linear regression dataset example, the loader can be constructed like this:
+
+.. code-block:: python
+
+  loader = Loader('/path/to/dataset.beton',
+                  batch_size=BATCH_SIZE,
+                  num_workers=NUM_WORKERS,
+                  order=OrderOption.RANDOM,
+                  pipelines={
+                    'covariate': [NDArrayDecoder(), ToTensor(), AddGaussianNoise(0.1)],
+                    'label': [FloatDecoder(), ToTensor()]
+                  })
+
+
+
+
+Other options
+'''''''''''''
+
+The following other options can be specified when constructing an :class:`ffcv.loader.Loader`:
+
+- ``os_cache``: if True, the entire dataset is cached
+- ``distributed``: ???
+- ``seed``: specify the random seed for batch ordering
+- ``indices``: provide indices to load a subset of the dataset
+- ``custom_fields``: ???
+- ``drop_last``: if set True, drops the last non-full batch from each iteration
+- ``batches_ahead``: set the number of batches prepared in advance. Increase for ???, decrease for ???
+- ``recompile``: recompile at every epoch <- why ???
+
+
+More information
+''''''''''''''''
+
+For information on available transforms and the :class:`ffcv.loader.Loader` class, see :ref:`API Reference`.
+
+For examples of constructing loaders and using them, see the tutorials :ref:`Training CIFAR-10 in 36 seconds on a single A100`
+and :ref:`Large-Scale Linear Regression`.
