@@ -7,7 +7,7 @@ def main(log_dir, out_file):
     out_dir.mkdir(exist_ok=True, parents=True)
 
     starts = []
-    wds = [Parameters(wd=k) for k in [5e-4, 2.5e-4]]
+    wds = [Parameters(wd=k) for k in [2.5e-4/2]]
     lrs = [Parameters(lr=float(k)) for k in np.linspace(0.1, 1.5, 4)]
     base_dir = '/home/ubuntu/' if os.path.exists('/home/ubuntu/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [

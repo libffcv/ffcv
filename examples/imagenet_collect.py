@@ -97,6 +97,10 @@ def main(log_dir):
     print(logs)
     print(last)
     print(logs)
+
+    outpath = f'{uuid4()}.csv'
+    print(outpath)
+    last.to_csv(outpath)
     import pdb
     pdb.set_trace()
 
