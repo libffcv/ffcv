@@ -124,18 +124,20 @@ for epoch in range(epochs):
 [See here](TODO) for a more detailed guide to deploying `ffcv` for your dataset.
 
 ## Prepackaged Computer Vision Benchmarks
-From gridding to benchmarking to fast research iteration, there are myriad reasons for wanting to speed up your training on standard machine learning tasks. Below we present (a) extensible code and (b) premade configurations
-for training ImageNet and CIFAR-10 much faster than existing codebases can
-achieve. 
+From gridding to benchmarking to fast research iteration, there are many reasons
+to want faster model training. Below we present premade codebases for training 
+on ImageNet and CIFAR, including both (a) extensible codebases and (b)
+numerous premade training configurations.
 
 ### ImageNet
-We provide code for efficient ImageNet training in the `examples/` directory
-of the repository [here](chungus). Below we plot the training time versus
-accuracy frontier for 1-GPU ResNet-18 and 8-GPU ResNet-50 optimization routines:
+We provide a self-contained script for training ImageNet <it>fast</it>. Below we
+plot the training time versus
+accuracy frontier for 1-GPU ResNet-18 and 8-GPU ResNet-50 alongside
+a few baselines:
 
-[resnet18 plot] [resnet50 plot] [time to train an epoch]
+[resnet18 plot] [resnet50 plot]
 
-**Train your own ImageNet models!** <a href="TODO">Click here</a> to use our training script and premade configurations to train any model seen on the above grpahs!
+**Train your own ImageNet models!** <a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/imagenet">Use our training script and premade configurations</a> to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient CIFAR-10 training in the `examples/` directory; we obtain 93\% top1 accuracy in 36 seconds with one A100 GPU. You can find the training script and configuration <a href="TODO">here</a>.
