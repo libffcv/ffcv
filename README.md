@@ -18,8 +18,8 @@ Maintainers:
 
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
-- Fast data loading (even in resource constrained environments)
-- Efficient (yet Easy To Understand/customize) training code for standard
+- <a href="#overview">Fast data loading</a> (even in resource constrained environments)
+- Efficient (yet Easy To Understand/customize) <a href="">training code</a> for standard
    computer vision tasks
 
 Install `ffcv` today and:
@@ -32,7 +32,7 @@ TODO
 TODO
 
 ## Install
-Making a clean [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
+With [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 
 ```
 conda create -n ffcv python=3.9 pkg-config compilers libjpeg-turbo opencv \
@@ -171,7 +171,6 @@ store lower quality or downsized JPEGs.
 
 - Replace data augmentations with `ffcv` <a href="TODO">built-in equivalents</a> when possible.
 - <a href="TODO">Port your data augmentations</a> over to `ffcv` via <a href="TODO">Numba</a> if you have the time; `ffcv` does support slower, non-numba augmentations as well.
-- Set `workers` in `ffcv.loader.Loader` to the number of available cores, `ffcv` does not usually benefit from hyperthreading.
 </p>
 
 ## Bottleneck Doctor

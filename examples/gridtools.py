@@ -74,12 +74,17 @@ def design_command(axes, out_dir, out_file, base_path,
     out_write = []
     configs = list(itertools.product(*axes))
 
+    ls = []
     for these_settings in configs:
         d = copy.deepcopy(base_config)
         for settings in these_settings:
             settings.override(d)
+        ls.append(d)
 
+    ls = sorted(ls, key=lambda x:-x['training']['epochs'])
+    for d in ls:
         uid = str(uuid4())
+        print(d['training']['epochs'])
         d['uid'] = uid
         out_conf = out_dir / (uid + '.yaml')
         yaml.safe_dump(d, open(out_conf, 'w+'))

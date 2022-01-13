@@ -9,19 +9,21 @@ def main(log_dir, out_file):
     # wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
     # lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 9)]
 
-    epochs = [Parameters(epochs=e) for e in [15, 20, 30, 50, 70, 90]]
-    chungers = [Parameters(peak=e) for e in [0, 2]]
+    
+    epochs = []
+    for e in [16, 32, 48, 64, 90]:
+        eighth = int(e // 8)
+        start_ramp = e - eighth * 2
+        end_ramp = e - eighth
+        epochs.append(Parameters(
+            epochs=e,
+            start_ramp=start_ramp,
+            end_ramp=end_ramp
+        ))
 
-    res = [Parameters(min_res=res, max_res=res, val_res=vres)
-        for (res, vres) in [
-            [160, 224],
-            [224, 312],
-            [196, 256]
-        ]]
-    # for num_epochs in [30]:
-    #     lengths, ends = [4, 8], [num_epochs, num_epochs - 4]
-    #     res += [Parameters(min_res=160, max_res=224, val_res=312, start_ramp=e - l,
-    #                        end_ramp=e) for l, e in itertools.product(lengths, ends)]
+    lr = [Parameters(lr=k) for k in [0.5, 0.6, 0.4]]
+
+    res = [Parameters(min_res=160, max_res=224, val_res=312)]
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
@@ -31,11 +33,11 @@ def main(log_dir, out_file):
                    arch='resnet18',
                    distributed=0,
                    logs=log_dir,
-                   workers=7,
+                   workers=12,
                    world_size=1),
     ]
 
-    axes = [archs, res, epochs, chungers]
+    axes = [archs, res, epochs, lr]
     rn18_base = 'imagenet_configs/resnet18_base.yaml'
     design_command(axes, out_dir, out_file, rn18_base)
 
