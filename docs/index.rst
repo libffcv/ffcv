@@ -29,9 +29,6 @@ Walkthroughs
 API Reference
 -------------
 
-We provide an API reference where we discuss the role of each module and
-provide extensive documentation.
-
 .. toctree::
    api_reference
 
