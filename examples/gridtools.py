@@ -1,3 +1,4 @@
+from inspect import Parameter
 import subprocess
 import os
 import itertools
@@ -65,9 +66,9 @@ class Parameters():
 
         return ret
 
-
-
-def design_command(axes, out_dir, out_file, base_path):
+def design_command(axes, out_dir, out_file, base_path,
+                   cuda_preamble="CUDA_VISIBLE_DEVICES='$(({%} - 1))'", jobs=9):
+    axes += [[Parameters(logs=str(out_dir.expanduser().absolute()))]]
     base_config = yaml.safe_load(open(base_path, 'r'))
     out_write = []
     configs = list(itertools.product(*axes))
@@ -87,7 +88,7 @@ def design_command(axes, out_dir, out_file, base_path):
     print('jobs', len(out_write))
     to_write = '\n'.join(out_write)
     open(out_file, 'w+').write(to_write)
-    cmd = "parallel -j9 CUDA_VISIBLE_DEVICES='$(({%} - 1))'"
+    cmd = f"parallel -j{jobs} " + cuda_preamble
     cmd = f'cat {out_file} | ' + cmd + ' python train_imagenet.py --config-file'
     cmd = cmd + ' {}'
     print(' --- logs in --- ')
