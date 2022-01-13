@@ -1,5 +1,5 @@
 """
-Cutout augmentation [CITE]
+Cutout augmentation (https://arxiv.org/abs/1708.04552)
 """
 import numpy as np
 from typing import Callable, Optional, Tuple
@@ -10,7 +10,7 @@ from ..pipeline.operation import Operation
 from ..pipeline.state import State
 
 class Cutout(Operation):
-    """Cutout data augmentation (https://arxiv.org/abs/1708.04552)
+    """Cutout data augmentation (https://arxiv.org/abs/1708.04552).
 
     Parameters
     ----------
@@ -26,7 +26,7 @@ class Cutout(Operation):
         super().__init__()
         self.crop_size = crop_size
         self.fill = np.array(fill)
-    
+
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
         crop_size = self.crop_size
@@ -41,12 +41,12 @@ class Cutout(Operation):
                 )
                 # Black out image in-place
                 images[i, coord[0]:coord[0] + crop_size, coord[1]:coord[1] + crop_size] = fill
-            
+
             return images
         cutout_square.is_parallel = True
 
         return cutout_square
-    
+
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         assert previous_state.jit_mode
         return previous_state, None

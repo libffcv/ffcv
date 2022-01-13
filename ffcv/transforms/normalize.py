@@ -1,5 +1,5 @@
 """
-Masked applied on a predefined set of images
+Image normalization
 """
 from collections.abc import Sequence
 from typing import Tuple
@@ -20,16 +20,16 @@ def ch_dtype_from_numpy(dtype):
 
 class NormalizeImage(Operation):
     """Perform Image Normalization.
-    Fast implementation of Normalization+type conversion for uint8 images to any floating point dtype.
+    Fast implementation of Normalization and type conversion for uint8 images to any floating point dtype.
 
-    Works both on GPU and CPU tensors.
+    Works on both GPU and CPU tensors.
 
     Parameters
     ----------
     mean: np.ndarray
         The mean vector
     std: np.ndarray
-        The standard deviation
+        The standard deviation vector
     type: np.dtype
         The desired output type for the result as a numpy type
         If the transform is applied on a GPU tensor it will be converted
@@ -54,7 +54,7 @@ class NormalizeImage(Operation):
         if self.mode == 'cpu':
             return self.generate_code_cpu()
         return self.generate_code_gpu()
-        
+
     def generate_code_gpu(self) -> Callable:
 
         # We only import cupy if it's truly needed
@@ -84,7 +84,7 @@ class NormalizeImage(Operation):
             assert final_result.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
 
             return final_result.view(final_type)
-        
+
         return normalize_convert
 
     def generate_code_cpu(self) -> Callable:
@@ -102,7 +102,7 @@ class NormalizeImage(Operation):
                     result_flat[i, px, 0] = table[image[px, 0], 0]
                     result_flat[i, px, 1] = table[image[px, 1], 1]
                     result_flat[i, px, 2] = table[image[px, 2], 2]
-                    
+
             return result
 
         normalize_convert.is_parallel = True

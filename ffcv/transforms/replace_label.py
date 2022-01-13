@@ -1,5 +1,5 @@
 """
-Masked applied on a predefined set of images
+Replace label
 """
 from collections.abc import Sequence
 from typing import Tuple
@@ -15,13 +15,12 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class ReplaceLabel(Operation):
-    """Flips the image horizontally with probability p.
-    Operates on raw arrays (not tensors).
+    """Replace label of specified images.
 
     Parameters
     ----------
     indices : Sequence[int]
-        The indices of images that should have the mask applied
+        The indices of images to relabel
     new_label : int
         The new label to assign
     """
