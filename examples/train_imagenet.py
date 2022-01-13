@@ -10,7 +10,6 @@ from torchvision import models
 import torchmetrics
 import numpy as np
 from tqdm import tqdm
-import pandas as pd
 
 import os
 import time
@@ -172,7 +171,10 @@ class ImageNetTrainer:
 
         # otherwise, linearly interpolate to the nearest multiple of 32
         interp = np.interp([epoch], [start_ramp, end_ramp], [min_res, max_res])
-        return min_res + int(interp[0] // 32) * 32
+        final_res = min_res + int(interp[0] // 32) * 32
+
+        print(f'FINAL RES: {final_res}', epoch, min_res, max_res, end_ramp, start_ramp)
+        return final_res
 
     @param('training.momentum')
     @param('training.optimizer')

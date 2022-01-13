@@ -13,7 +13,7 @@ def main(log_dir, out_file):
     res = [Parameters(min_res=224, max_res=224, val_res=312)]
     for num_epochs in [20, 40]:
         lengths, ends = [4, 8, 12], [num_epochs, num_epochs - 4]
-        res += [Parameters(min_res=160, max_res=224, val_res=312, start_ramp=l - e,
+        res += [Parameters(min_res=160, max_res=224, val_res=312, start_ramp=e - l,
                            end_ramp=e) for l, e in itertools.product(lengths, ends)]
     import random
     random.shuffle(res)
