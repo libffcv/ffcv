@@ -24,7 +24,7 @@ offering:
 
 Install `ffcv` today and:
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
-- ...train a CIFAR-10 model on one GPU in TODO seconds (XX$ on AWS)
+- ...train a CIFAR-10 model on one GPU in 36 seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
 Compare our time per-epoch to what you use now: 
@@ -208,7 +208,7 @@ accuracy frontier for 8-GPU ResNet-18 and ResNet-50 optimization routines:
 
 Quick overview:
 
-<p><b>Training setup.</b> Our 
+<p><b>Training setup.</b> Our chungus
 
 </p>
 
@@ -219,4 +219,19 @@ Quick overview:
 ## CIFAR
 
 ## License
-Apache License Version 2.0
+
+```
+   Copyright 2021 FFCV Maintainers
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+````
