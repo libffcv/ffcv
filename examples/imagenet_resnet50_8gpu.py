@@ -24,7 +24,7 @@ def main(log_dir, out_file):
                    world_size=8),
     ]
 
-    axes = [archs, wds, lrs]
+    axes = [archs, wds, lrs, res]
 
     rn18_base = 'imagenet_configs/resnet50_base.yaml'
     design_command(axes, out_dir, out_file, rn18_base, cuda_preamble="CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7", jobs=1)
