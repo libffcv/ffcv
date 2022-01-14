@@ -127,14 +127,12 @@ on ImageNet and CIFAR, including both (a) extensible codebases and (b)
 numerous premade training configurations.
 
 ### ImageNet
-We provide a self-contained script for training ImageNet <it>fast</it>. Below we
-plot the training time versus
-accuracy frontier for 1-GPU ResNet-18 and 8-GPU ResNet-50 alongside
-a few baselines:
+We provide a self-contained script for training ImageNet <it>fast</it>. 
+[Above](#plots) we plot the training time versus
+accuracy frontier, and the dataloading speeds, for 1-GPU ResNet-18 and 8-GPU
+ResNet-50 alongside a few baselines.
 
-[resnet18 plot] [resnet50 plot]
-
-**Train your own ImageNet models!** <a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/imagenet">Use our training script and premade configurations</a> to train any model seen on the above graphs.
+**Train your own ImageNet models!** You can <a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient training on CIFAR-10 in the `examples/`
