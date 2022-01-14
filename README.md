@@ -4,7 +4,7 @@
 <img src='assets/logo.svg' width='100%'/>
 <p align = 'center'>
 [<a href="https://ffcv.io">homepage</a>]
-[<a href="#installation">install</a>]
+[<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
 [<a href="https://docs.ffcv.io">docs</a>]
 [<a href="#imagenet">ImageNet</a>]
@@ -23,14 +23,14 @@ In this repo, you will find:
 - Efficient, simple, easy-to-understand, customizable training code for standard
    vision tasks
 
-See the [Features](#features) section below for a glance at what FFCV can do!
+See the [Features](#features) section below for a glance at what FFCV can do! Or
+[install `ffcv`](#install-with-anaconda) today and:
 
-Install `ffcv` today and:
-- ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
-- ...train a CIFAR-10 model on one GPU in 36 seconds (XX$ on AWS)
+- ...[train an ImageNet model]() on one GPU in TODO minutes (XX$ on AWS)
+- ...[train a CIFAR-10 model]() on one GPU in 36 seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
-Compare our training and dataloading times to what you use now: 
+Compare our training and dataloading times to what you might use now: 
 
 <img src="assets/headline.svg"/>
 
