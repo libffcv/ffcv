@@ -44,7 +44,7 @@ Tutorials
 
 We provide a walk-through of the basic usage, performance guide, complete
 examples (including advanced customizations), as well as extensive benchmarks on
-ImageNet. 
+ImageNet.
 
 .. toctree::
    quickstart
@@ -84,13 +84,13 @@ FFCV can adapt to different performance bottlenecks.
   reading, pre-fetching, caching, and transfer between devices in an extremely
   efficiently way, so that users don't have to think about it.
 - **Automatically fused-and-compiled data processing**: By either using
-  [pre-written](https://docs.ffcv.io/api/transforms.html) FFCV transformations
+  `pre-written <https://docs.ffcv.io/api/transforms.html>`_ FFCV transformations
   or
-  [easily writing custom ones](https://docs.ffcv.io/ffcv_examples/custom_transforms.html),
+  :ref:`easily writing custom ones <Fast custom image transforms>`,
   users can
   take advantage of FFCV's compilation and pipelining abilities, which will
   automatically fuse and compile simple Python augmentations to machine code
-  using [Numba](https://numba.org), and schedule them asynchronously to avoid
+  using `Numba <https://numba.org>`_, and schedule them asynchronously to avoid
   loading delays.
 - **Load data fast from RAM, SSD, or networked disk**: FFCV exposes
   user-friendly options that can be adjusted based on the resources
@@ -98,18 +98,17 @@ FFCV can adapt to different performance bottlenecks.
   at the OS level and ensure that multiple concurrent processes all get fast
   data access. Otherwise, FFCV can use fast process-level caching and will
   optimize data loading to minimize the underlying number of disk reads. See
-  [The Bottleneck Doctor](https://docs.ffcv.io/bottleneck_doctor.html)
+  :ref:`The Bottleneck Doctor <The Bottleneck Doctor>`
   guide for more information.
 - **Training multiple models per GPU**: Thanks to fully asynchronous
   thread-based data loading, you can now interleave training multiple models on
   the same GPU efficiently, without any data-loading overhead. See
-  [this guide](https://docs.ffcv.io/parameter_tuning.html) for more info.
+  :ref:`this guide <Tuning Guide>` for more info.
 - **Dedicated tools for image handling**: All the features above work are
   equally applicable to all sorts of machine learning models, but FFCV also
   offers some vision-specific features, such as fast JPEG encoding and decoding,
   storing datasets as mixtures of raw and compressed images to trade off I/O
-  overhead and compute overhead, etc. See the
-  [Working with images](https://docs.ffcv.io/working_with_images.html) guide for
+  overhead and compute overhead, etc. See the :ref:`Working with images <Working with Image Data in FFCV>`guide for
   more information.
 
 
