@@ -56,31 +56,34 @@ class Loader:
     Parameters
     ----------
     fname: str
-        Target file name (.beton)
+        Full path to the location of the dataset (.beton file format)
     batch_size : int
         Batch size
     num_workers : int
-        Number of workers
+        Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-trheading
     os_cache : bool
-        Cache entire dataset in memory
+        Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine train using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
     order : OrderOption
         Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM
+
+        QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distrubuted mode.
     distributed : bool
-        For distributed training (multiple GPUs)
+        For distributed training (multiple GPUs). Emulates the behavior of DistributedSampler from Pytorch.
     seed : int
         Random seed for batch ordering
     indices : Sequence[int]
-        Subset of dataset to load
+        Subset of dataset by selecting on only some indices.
     pipelines : Mapping[str, Sequence[Union[Operation, torch.nn.Module]]
-        Sequence of decoding and transforming operations for each data field
+        Dictionary definig for each field the sequence of Decoders and transforms to apply. Missing entries will use the default pipeline which consists in the default decoder and `ToTensor()`.
+        However, It is possible to disable a field by explicitely by passing `None` as its pipeline.
     custom_fields : Mapping[str, Field]
-        Specifies custom fields
+        Dictonary Informing the loader of the types associated to fields that are using a custom type.
     drop_last : bool
-        Drop non-full batch in each iteration
+        Drop non-full batch in each iteration.
     batches_ahead : int
         Number of batches prepared in advance; balances latency and memory.
     recompile : bool
-        Recompile every iteration
+        Recompile every iteration. This is necessary if the implementation of some augmentations are expected to change during training.
     """
     def __init__(self,
                  fname: str,
