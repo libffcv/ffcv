@@ -132,8 +132,6 @@ a few baselines:
 We also include premade code for efficient CIFAR-10 training in the `examples/` directory; we obtain 93\% top1 accuracy in 36 seconds with one A100 GPU. You can find the training script and configuration <a href="TODO">here</a>.
 
 ## Custom Datasets Quickstart
-<!-- Accelerating data loading with `ffcv` requires two steps: dataset serialization
-into the `ffcv` format, and then deploying the `ffcv` data loader at train-time. -->
 Accelerating data loading with `ffcv` requires two steps: dataset preprocessing into `ffcv` format,
 and then deploying the `ffcv` data loader at train-time. To help you tune the
 options for each step, follow the guide below for two standard cases:

@@ -12,7 +12,7 @@ Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/inde
 
 ``ffcv`` is a package that we (students in the `MadryLab <https://madry-lab.ml>`_) created to
 make training machine learning models *fast* and *easy* to use.
-Below we provide a detailed walkthrough of complete examples, basics of using FFCV, advanced customizations, as well as benchmarks on ImageNet.
+Below we provide a detailed walk-through of complete examples, basics of using FFCV, extensive benchmarks on ImageNet, and (coming soon!) advanced customizations.
 
 Walkthroughs
 ------------
@@ -27,9 +27,6 @@ Walkthroughs
 
 API Reference
 -------------
-
-We provide an API reference where we discuss the role of each module and
-provide extensive documentation.
 
 .. toctree::
    api_reference
@@ -58,6 +55,8 @@ Contributors
 - `Guillaume Leclerc <https://twitter.com/gpoleclerc>`_
 - `Andrew Ilyas <https://twitter.com/andrew_ilyas>`_
 - `Logan Engstrom <https://twitter.com/logan_engstrom>`_
+- `Sam Park <https://twitter.com/smsampark>`_
+- `Hadi Salman <https://twitter.com/hadisalmanX>`_
 
 
 Indices and tables

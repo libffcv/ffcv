@@ -17,14 +17,14 @@ fixed weight vector:
 .. code-block:: python
 
     import numpy as np
-    
+
     # 1,000,000 inputs each of dimension 10,000 = 40GB of data
     N, D = 1000000, 10000
     X = np.random.rand(N, D).astype('float32')
     # Ground-truth vector
     W, b = np.random.rand(D).astype('float32'), np.random.rand()
     # Response variables
-    Y = X @ W + np.random.randn(N) 
+    Y = X @ W + np.random.randn(N)
     # Save the dataset:
     pkl.dump((X, W, b, Y), open('/tmp/linreg_data.pkl', 'wb'))
 
@@ -65,7 +65,7 @@ accomplish this via *SGD* on the squared-loss:
             y_batch = y_batch.cuda()
             # Normalize the data for stability
             x_batch = (x_batch - mean) / stdev
-            residual = x_batch @ w_est + b_est - y_batch 
+            residual = x_batch @ w_est + b_est - y_batch
             # Gradients
             w_grad = x_batch.T @ residual / x_batch.shape[0]
             b_grad = ch.mean(residual, dim=0)
@@ -77,7 +77,7 @@ accomplish this via *SGD* on the squared-loss:
         print('Epoch time:', time.time() - start_time)
         print(f'Average loss: {total_loss / num_examples:.3f} | ',
             f'Norm diff', ch.norm(w_est / stdev - ch.tensor(W).cuda()).cpu().item())
-        
+
     print(f'Total script running time: {time.time() - start_time:.2f}s')
 
 .. note::
@@ -107,13 +107,13 @@ PyTorch's built-in ``TensorDataset`` class, as follows:
 
 The resulting code is runnable and correct. It will use *40GB* of memory, since the
 entire tensor ``X`` will be kept in RAM. Running our script in an environment
-with a single A100 GPU and 8 CPU cores takes *TODO* per epoch.
+with a single A100 GPU and 8 CPU cores takes *16 seconds* per epoch.
 
 Speeding things up with FFCV
 -----------------------------
 
 We'll now try to improve on these results by replacing the standard PyTorch
-dataloading pipeline with FFCV. The first step is to rewrite ``X`` and ``Y`` as
+data loading pipeline with FFCV. The first step is to rewrite ``X`` and ``Y`` as
 a FFCV dataset (as detailed in the :ref:`Writing a dataset to FFCV format`
 guide):
 
@@ -136,7 +136,7 @@ guide):
     writer.from_indexed_dataset(LinearRegressionDataset())
 
 This allows us to replace the TensorDataset from the previous section with an
-FFCV dataloader:
+FFCV data loader:
 
 .. code-block:: python
 
@@ -144,7 +144,7 @@ FFCV dataloader:
     from ffcv.fields.decoders import NDArrayDecoder
     from ffcv.transforms import ToTensor, Squeeze, ToDevice
 
-    train_loader = Loader('/tmp/linreg_data.beton', batch_size=2048, 
+    train_loader = Loader('/tmp/linreg_data.beton', batch_size=2048,
                 num_workers=8, order=OrderOption.RANDOM,
                 pipelines={
                     'covariate': [NDArrayDecoder(), ToTensor(), ToDevice(ch.device('cuda:0'))],
@@ -174,5 +174,5 @@ program even faster, and to reduce its memory footprint:
 
 - We can also optimize the main loop itself: for example, the gradient updates
   should be performed as in-place operations, as should the normalization. Since
-  dataloading is no longer the main bottleneck, such optimizations will result in
+  data loading is no longer the main bottleneck, such optimizations will result in
   improved performance.
