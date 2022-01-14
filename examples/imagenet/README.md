@@ -27,7 +27,11 @@ The configs corresponding to the above results are:
 
 ## Training Models
 
-First, generate an ImageNet dataset; make the dataset used for the results above with the following command (`IMAGENET_DIR` should point to a PyTorch style [ImageNet dataset](https://github.com/MadryLab/pytorch-imagenet-dataset):
+First pip install the requirements file in this directory:
+```
+pip install -r requirements.txt
+```
+Then, generate an ImageNet dataset; make the dataset used for the results above with the following command (`IMAGENET_DIR` should point to a PyTorch style [ImageNet dataset](https://github.com/MadryLab/pytorch-imagenet-dataset):
 
 ```bash
 # Required environmental variables for the script:
@@ -56,6 +60,7 @@ python train_imagenet.py --config-file path/to/config/file.yaml \
 	--data.num_workers=6 --data.in_memory=1 
 ```
 Adjust the configuration by either changing the passed YAML file or by specifying arguments via [fastargs](https://github.com/GuillaumeLeclerc/fastargs) (i.e. how the dataset paths were passed above).
+
 ## Training Details
 <p><b>System setup.</b> We trained on p4.24xlarge ec2 instances and on our own cluster machines (9 A100s / 504GB RAM / 48 cores).
 </p>
