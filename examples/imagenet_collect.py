@@ -98,9 +98,9 @@ def main(log_dir):
     print(last)
     print(logs)
 
-    outpath = f'{uuid4()}.csv'
+    outpath = f'{log_dir}/agg.csv'
     print(outpath)
-    last.to_csv(outpath)
+    logs.to_csv(outpath)
     import pdb
     pdb.set_trace()
 
