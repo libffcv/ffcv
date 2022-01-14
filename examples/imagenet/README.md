@@ -3,7 +3,7 @@
 ## Models and Configurations
 ### Results
 
-<img src="docs/_static/perf_scatterplot.svg" width='830px'/>
+<img src="../../docs/_static/perf_scatterplot.svg" width='830px'/>
 
 See benchmark setup here: [https://docs.ffcv.io/benchmarks.html](https://docs.ffcv.io/benchmarks.html).
 
