@@ -11,19 +11,19 @@ def main(log_dir, out_file):
 
     
     epochs = []
-    for e in [16, 32, 48, 64, 90]:
-        eighth = int(e // 8)
-        start_ramp = e - eighth * 2
-        end_ramp = e - eighth
+    for e in [15, 20, 30, 40, 60, 90]:
+        fifth = int(e // 5)
+        start_ramp = e - fifth * 2
+        end_ramp = e - fifth
         epochs.append(Parameters(
             epochs=e,
             start_ramp=start_ramp,
             end_ramp=end_ramp
         ))
 
-    lr = [Parameters(lr=k) for k in [0.5, 0.6, 0.4]]
+    lr = [Parameters(lr=0.5, peak=k) for k in [0, 2]]
 
-    res = [Parameters(min_res=160, max_res=192, val_res=312)]
+    res = [Parameters(min_res=160, max_res=192, val_res=256)]
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
@@ -33,6 +33,7 @@ def main(log_dir, out_file):
                    arch='resnet18',
                    distributed=0,
                    logs=log_dir,
+                   log_level=0,
                    workers=12,
                    world_size=1),
     ]

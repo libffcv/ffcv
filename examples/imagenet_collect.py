@@ -77,7 +77,7 @@ def main(log_dir):
     plot_all(x='epoch')
     plot_all(x='relative_time')
 
-    for chungus in ['delta']: 
+    for chungus in ['delta']:
         # 'training.weight_decay',
         #             'resolution.max_res', 'resolution.min_res',
         #             'training.lr_peak_epoch']:
@@ -89,11 +89,11 @@ def main(log_dir):
                                             'validation.resolution'])
 
     keep = []
-    for c in last.columns:
-        if len(last[c].unique()) > 1:
-            keep.append(c)
+    #for c in last.columns:
+    #    if len(last[c].unique()) > 1:
+    #        keep.append(c)
 
-    last = last[keep].sort_values('top_1')
+    last = last.sort_values('top_1')
     print(logs)
     print(last)
     print(logs)
