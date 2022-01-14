@@ -90,7 +90,7 @@ FFCV can adapt to different performance bottlenecks.
   users can
   take advantage of FFCV's compilation and pipelining abilities, which will
   automatically fuse and compile simple Python augmentations to machine code
-  using `Numba <https://numba.org>`_, and schedule them asynchronously to avoid
+  using `Numba <https://numba.pydata.org/>`_, and schedule them asynchronously to avoid
   loading delays.
 - **Load data fast from RAM, SSD, or networked disk**: FFCV exposes
   user-friendly options that can be adjusted based on the resources
