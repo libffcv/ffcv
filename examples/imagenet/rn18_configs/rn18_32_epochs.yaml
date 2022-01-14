@@ -2,12 +2,10 @@ data:
   gpu: 0
   in_memory: 1
   num_workers: 12
-  train_dataset: /mnt/cfs/home/engstrom/store/ffcv/train_400_0.10_90.ffcv
-  val_dataset: /mnt/cfs/home/engstrom/store/ffcv/val_400_0.10_90.ffcv
 dist:
   world_size: 1
 logging:
-  folder: /mnt/cfs/home/engstrom/store/ffcv_rn18_1gpu_FINAL/6930d095-6a4b-49ba-9ed8-6fd73ba1ff2f
+  folder: /tmp/
   log_level: 0
 lr:
   lr: 0.5
@@ -29,7 +27,6 @@ training:
   momentum: 0.9
   optimizer: sgd
   weight_decay: 5e-5
-uid: baefac94-ed5c-4b0b-af01-ebead347ca46
 validation:
   lr_tta: true
   resolution: 256

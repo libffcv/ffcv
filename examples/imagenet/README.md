@@ -12,18 +12,18 @@ The configs corresponding to the above results are:
 
 | Link to Config                                                                                                                         |   top_1 |   top_5 |   # Epochs |   Time (mins) | Architecture   | Setup    |
 |:---------------------------------------------------------------------------------------------------------------------------------------|--------:|--------:|-----------:|--------------:|:---------------|:---------|
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/23cf4c2e-2111-472c-8b9d-e47325c51253.yaml'>Link</a> | 0.780 | 0.941  |         88 |       69.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/a2e443e4-0a42-49b5-a1f4-18f19689b2b1.yaml'>Link</a> | 0.773 | 0.937 |         56 |       44.6 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/70a2ecb0-1719-40bd-b1eb-cb0c37b8fc89.yaml'>Link</a> | 0.763 | 0.932 |         40 |       32.2 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/2eca7655-82df-4e4a-b51b-950b31c2bebe.yaml'>Link</a> | 0.754 | 0.927 |         32 |       25.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/c01efd78-d20b-4064-a9a8-aa0274430e60.yaml'>Link</a> | 0.746 | 0.921 |         24 |       19.6  | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/2018a9be-f0ec-453c-9a00-bfd68dc94d58.yaml'>Link</a> | 0.724 | 0.908 |         16 |       13.4 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/67117b5b-ab11-45c2-87a6-9999a66a3f37.yaml'>Link</a> | 0.715 | 0.903   |         88 |      189.7  | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/1a584c27-fdd0-483b-b358-dd9895e510da.yaml'>Link</a> | 0.707  | 0.899 |         56 |      117.9   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/8249f454-c718-4a38-8dae-04effa3a43de.yaml'>Link</a> | 0.698 | 0.894 |         40 |       85.4 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/baefac94-ed5c-4b0b-af01-ebead347ca46.yaml'>Link</a> | 0.690 | 0.889 |         32 |       68.4   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/05b0053a-c036-4992-9c4e-f9ea662abfc5.yaml'>Link</a> | 0.679  | 0.881 |         24 |       51.2 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/08508b1c-ae7f-4022-9090-06a520f998c8.yaml'>Link</a> | 0.655 | 0.868 |         16 |       34.8 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.780 | 0.941  |         88 |       69.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.773 | 0.937 |         56 |       44.6 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.763 | 0.932 |         40 |       32.2 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.754 | 0.927 |         32 |       25.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.746 | 0.921 |         24 |       19.6  | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.724 | 0.908 |         16 |       13.4 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.715 | 0.903   |         88 |      189.7  | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.707  | 0.899 |         56 |      117.9   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.698 | 0.894 |         40 |       85.4 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.690 | 0.889 |         32 |       68.4   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.679  | 0.881 |         24 |       51.2 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.655 | 0.868 |         16 |       34.8 | ResNet-18      | 1 x A100 |
 
 ## Training Models
 
@@ -54,10 +54,11 @@ export CUDA_VISIBLE_DEVICES=0
 
 # Set the visible GPUs according to the `world_size` configuration parameter
 # Modify `data.in_memory` and `data.num_workers` based on your machine
-python train_imagenet.py --config-file path/to/config/file.yaml \
+python train_imagenet.py --config-file rn18_configs/<your config file>.yaml \
     --data.train_dataset=/path/to/train/dataset.ffcv \
     --data.val_dataset=/path/to/val/dataset.ffcv \
-	--data.num_workers=6 --data.in_memory=1 
+	--data.num_workers=12 --data.in_memory=1 
+    --logging.folder=/your/path/here
 ```
 Adjust the configuration by either changing the passed YAML file or by specifying arguments via [fastargs](https://github.com/GuillaumeLeclerc/fastargs) (i.e. how the dataset paths were passed above).
 

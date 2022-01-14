@@ -1,12 +1,10 @@
 data:
   in_memory: 1
   num_workers: 12
-  train_dataset: /home/ubuntu/train_500_0.5_90.ffcv
-  val_dataset: /home/ubuntu/val_500_0.5_90.ffcv
 dist:
   world_size: 8
 logging:
-  folder: /home/ubuntu/store/ffcv_rn50_8gpu/3872322e-0a9f-4102-a05a-803f0fea30e1
+  folder: /tmp/
 lr:
   lr: 1.7
   lr_schedule_type: cyclic
@@ -26,7 +24,6 @@ training:
   momentum: 0.9
   optimizer: sgd
   weight_decay: 0.0001
-uid: 23cf4c2e-2111-472c-8b9d-e47325c51253
 validation:
   lr_tta: true
   resolution: 256
