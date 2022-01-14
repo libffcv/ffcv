@@ -38,9 +38,12 @@ Compare our training and dataloading times to what you might use now:
 
 <img src="assets/headline.svg"/>
 
-Holding constant the same training routine and optimizing only the dataloading and data transfer routines with `ffcv`, we enable significantly faster training
-(see [here](TODO) for further benchmark details).
+Holding constant the same training routine and optimizing only the dataloading
+and data transfer routines with `ffcv`, we enable significantly faster training:
 
+[ TODO image ]
+
+See [here](TODO) for further benchmark details.
 
 ## Install with Anaconda
 ```
