@@ -16,11 +16,14 @@ Maintainers:
 <a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 
-`ffcv` dramatically increases data throughput in accelerated computing systems,
-offering:
-- <a href="#quickstart">Fast data loading and processing</a> (even in resource constrained environments)
+`ffcv` dramatically increases data throughput in accelerated computing systems.
+In this repo, you will find:
+- Our library for <a href="#quickstart">fast data loading and processing</a>
+  (even in resource constrained environments) 
 - Efficient, simple, easy-to-understand, customizable training code for standard
-   computer vision tasks
+   vision tasks
+
+See the [Features](#features) section below for a glance at what FFCV can do!
 
 Install `ffcv` today and:
 - ...train an ImageNet model on one GPU in TODO minutes (XX$ on AWS)
@@ -35,9 +38,7 @@ Holding constant the same training routine and optimizing only the dataloading a
 (see [here](TODO) for further benchmark details).
 
 
-## Install
-With [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
-
+## Install with Anaconda
 ```
 conda install ffcv -c pytorch -c conda-forge -c ffcv
 ``` 
