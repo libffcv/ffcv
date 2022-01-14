@@ -28,8 +28,8 @@ Install `ffcv` today and:
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
 Compare our training and dataloading times to what you use now: 
-TODO
-TODO
+<img src="assets/headline.svg">
+*Here, the 
 
 ## Install
 With [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
