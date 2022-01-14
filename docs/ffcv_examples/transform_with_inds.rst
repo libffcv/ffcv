@@ -33,4 +33,4 @@ corrupts the labels of a *fixed* set of images throughout training.
             # No updates to state or extra memory necessary!
             return previous_state, None
 
-We provide the corresponding script to test the above augmentation `here <https://github.com/MadryLab/ffcv/blob/new_ver/examples/transform_with_inds.py>`_.
+We provide the corresponding script to test the above augmentation `here <https://github.com/MadryLab/ffcv/blob/main/examples/docs_examples/transform_with_inds.py>`_.

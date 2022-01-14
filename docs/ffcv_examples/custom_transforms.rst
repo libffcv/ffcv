@@ -220,5 +220,5 @@ on CPU or GPU (but cannot be pre-compiled).
   *compileable* state (i.e., whether it is on-CPU and in NumPy format).
 
 
-See `here <https://github.com/MadryLab/ffcv/blob/new_ver/examples/custom_transform.py>`_
+See `here <https://github.com/MadryLab/ffcv/blob/main/examples/docs_examples/custom_transform.py>`_
 for the code corresponding to this post.
