@@ -22,7 +22,6 @@ Walkthroughs
    basics
    performance_guide
    benchmarks
-   customizing
    :maxdepth: 2
 
 
