@@ -9,21 +9,21 @@ def main(log_dir, out_file):
     # wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
     # lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 9)]
 
+    res = [Parameters(min_res=160, max_res=a, val_res=b) for a, b in
+            [(160, 224), (192, 256), (224, 312)]]
     
     epochs = []
-    for e in [15, 20, 30, 40, 60, 90]:
-        fifth = int(e // 5)
-        start_ramp = e - fifth * 2
-        end_ramp = e - fifth
+    for e in [16, 24, 32, 40, 56, 88]:
+        fifth = int(e // 8)
+        start_ramp = e - fifth * 2 - 1
+        end_ramp = e - fifth - 1
         epochs.append(Parameters(
             epochs=e,
             start_ramp=start_ramp,
             end_ramp=end_ramp
         ))
 
-    lr = [Parameters(lr=0.5, peak=k) for k in [0, 2]]
-
-    res = [Parameters(min_res=160, max_res=192, val_res=256)]
+    lr = [Parameters(lr=k) for k in [0.5]]
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
