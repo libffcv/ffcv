@@ -29,23 +29,23 @@ Maintainers:
 <!-- See the [Features](#features) section below for a glance at what FFCV can do! Or
 [install `ffcv`](#install-with-anaconda) today and: -->
 
-`ffcv` is a drop-in data loading system that dramatically increases data throughput in model training that enables...
+`ffcv` is a drop-in data loading system that dramatically increases data throughput in model training:
 
-- [Training an ImageNet model](https://github.com/MadryLab/ffcv/tree/main/examples/imagenet)
+- [Train an ImageNet model](https://github.com/MadryLab/ffcv/tree/main/examples/imagenet)
 on one GPU in 35 minutes (98¢/model on AWS)
-- [Training a CIFAR-10 model](https://docs.ffcv.io/ffcv_examples/cifar10.html)
+- [Train a CIFAR-10 model](https://docs.ffcv.io/ffcv_examples/cifar10.html)
 on one GPU in 36 seconds (2¢/model on AWS)
-- Training a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
+- Train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
 <!-- Holding constant the same training routine and optimizing only the dataloading
 and data transfer routines with `ffcv`, we enable significantly faster training: -->
 Keep your training algorithm the same, just replace the data loader! Look at these speedups:
 
-<img src="assets/headline.svg"/>
+<img src="assets/headline.svg" width='830px'/>
 
 `ffcv` also comes prepacked with fast, simple code for [standard vision benchmarks]((https://docs.ffcv.io/benchmarks.html)): 
 
-<img src="docs/_static/perf_scatterplot.svg"/>
+<img src="docs/_static/perf_scatterplot.svg" width='830px'/>
 
 ## Install with Anaconda
 ```
