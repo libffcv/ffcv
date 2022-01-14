@@ -5,7 +5,7 @@
 <p align = 'center'>
 [<a href="https://ffcv.io">homepage</a>]
 [<a href="#installation">install</a>]
-[<a href="#overview">overview</a>]
+[<a href="#quickstart">quickstart</a>]
 [<a href="https://docs.ffcv.io">docs</a>]
 [<a href="#imagenet">ImageNet</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
@@ -35,11 +35,11 @@ TODO
 With [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 
 ```
-conda install ffcv
+conda install ffcv -c pytorch -c conda-forge -c ffcv
 ``` 
 
 ## Citation
-If you use `ffcv` cite it as:
+If you use FFCV, please cite it as:
 
 ```
 @misc{leclerc2022ffcv,
@@ -52,11 +52,11 @@ If you use `ffcv` cite it as:
 ```
 
 ## Index
-- <a href="#overview"><b>Overview</b></a>: High level guide to `ffcv`.
+- <a href="#quickstart"><b>Quickstart</b></a>: High level guide to `ffcv`.
 - <a href="#features"><b>Features</b></a>: What can `ffcv` do for you?
 - <a href="#prepackaged-computer-vision-benchmarks"><b>Fast Training Code</b></a>: Results, code, and training configs for ImageNet and CIFAR-10.
 
-## Overview
+## Quickstart
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
 First,
 convert your dataset into `ffcv` format (`ffcv` converts both indexed PyTorch datasets and
