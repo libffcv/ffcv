@@ -132,6 +132,7 @@ a few baselines:
 ### CIFAR-10
 We also include premade code for efficient CIFAR-10 training in the `examples/` directory; we obtain 93\% top1 accuracy in 36 seconds with one A100 GPU. You can find the training script and configuration <a href="TODO">here</a>.
 
+<!--
 ## Custom Datasets Quickstart
 Accelerating data loading with `ffcv` requires two steps: dataset preprocessing into `ffcv` format,
 and then deploying the `ffcv` data loader at train-time. To help you tune the
@@ -162,6 +163,7 @@ store lower quality or downsized JPEGs.
 - Replace data augmentations with `ffcv` <a href="TODO">built-in equivalents</a> when possible.
 - <a href="TODO">Port your data augmentations</a> over to `ffcv` via <a href="TODO">Numba</a> if you have the time; `ffcv` does support slower, non-numba augmentations as well.
 </p>
+-->
 
 ## Features
 <img src='assets/clippy.png' width='100%'/>
