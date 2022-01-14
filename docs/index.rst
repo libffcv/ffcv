@@ -14,16 +14,11 @@ Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/inde
 Introduction
 ------------
 
-``ffcv`` dramatically increases data throughput in ML training. Our package provides:
+``ffcv`` is a drop-in data loading system that dramatically increases data throughput in model training:
 
-- A library for fast data loading and processing (even in resource constrained environments)
-- Efficient, simple, easy-to-understand, customizable training code for standard vision tasks
-
-For example, use FFCV to:
-
-- ...train an ImageNet model on one GPU in 35 minutes ((98¢/model on AWS)
-- ...train a CIFAR-10 model on one GPU in 36 seconds ((2¢/model on AWS)
-- ...train a ``$YOUR_DATASET`` model ``$REALLY_FAST`` (for ``$WAY_LESS``)
+- Train an ImageNet model on one GPU in 35 minutes ((98¢/model on AWS)
+- Train a CIFAR-10 model on one GPU in 36 seconds ((2¢/model on AWS)
+- Train a ``$YOUR_DATASET`` model ``$REALLY_FAST`` (for ``$WAY_LESS``)
 
 Compare our training and dataloading times to what you might use now:
 
