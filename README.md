@@ -4,11 +4,13 @@
 <img src='assets/logo.svg' width='100%'/>
 <p align = 'center'>
 [<a href="https://ffcv.io">homepage</a>]
+[<a href="https://docs.ffcv.io">docs</a>]
+[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
+<br />
 [<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
-[<a href="https://docs.ffcv.io">docs</a>]
-[<a href="#imagenet">ImageNet</a>]
-[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
+[<a href="#quickstart">ImageNet results</a>]
+[<a href="#features">features</a>]
 <br>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
