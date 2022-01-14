@@ -23,7 +23,7 @@ data, and will:
 
 
 FFCV transforms are implemented by subclassing the
-:class:`ffcv.pipeline.operation.Operation` class. 
+:class:`ffcv.pipeline.operation.Operation` class.
 Doing so requires providing implementation for two functions:
 
 .. code-block:: python
@@ -31,30 +31,31 @@ Doing so requires providing implementation for two functions:
     from ffcv.pipeline.operation import Operation
 
     class MaybeBrighten(Operation):
-        
+
         # Return the code to run this operation
         @abstractmethod
         def generate_code(self) -> Callable:
             raise NotImplementedError
-        
+
         @abstractmethod
-        def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]: 
+        def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
             raise NotImplementedError
 
 Advancing state and pre-allocating memory
 ------------------------------------------
 As mentioned earlier, transforms are chained together in FFCV to form data
-*pipelines*. 
+*pipelines*.
 In order to get maximum data processing performance, FFCV:
 
 - keeps track of the *state* of the data being read at each stage in the
-  pipeline, and 
+  pipeline (for now, think of state as storing the shape and data type,
+  and some additional info useful to the compiler), and
 
 - pre-allocates a *single* block of memory for the output of each transform in
   the pipeline; transforms thus (over-)write to the same block of memory for
   each batch, saving allocation time.
 
-To help FFCV accomplish both of these tasks, every transform should implement a 
+To help FFCV accomplish both of these tasks, every transform should implement a
 :meth:`~ffcv.pipeline.operation.Operation.declare_state_and_memory` method which
 specifies (a) how the given transform will change the state of the data, and (b)
 what memory to allocate such that the transform itself does not need to allocate
@@ -69,7 +70,7 @@ implementation looks like this:
     from ffcv.pipeline.allocation_query import AllocationQuery
 
     # Inside the MaybeBrighten class:
-    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]: 
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         new_state = previous_state # We are not changing the data format
         # We need to allocate memory for storing the mean pixel value of each
         # image in the batch---so below, we ask for a *scalar* memory allocation
