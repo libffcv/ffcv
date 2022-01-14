@@ -8,19 +8,20 @@ Welcome to FFCV's documentation!
 
 View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
 
-Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_:  ``conda install ffcv``
+Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_:  ``conda install ffcv -c pytorch -c conda-forge -c ffcv``
 
 ``ffcv`` is a package that we (students in the `MadryLab <https://madry-lab.ml>`_) created to
 make training machine learning models *fast* and *easy* to use.
-Below we provide a detailed walk-through of complete examples, basics of using FFCV, extensive benchmarks on ImageNet, and (coming soon!) advanced customizations.
+Below we provide a walk-through of the basic usage, performance guide, complete examples (including advanced customizations), as well as extensive benchmarks on ImageNet.
 
 Walkthroughs
 ------------
 
 .. toctree::
-   examples
+   quickstart
    basics
    performance_guide
+   examples
    benchmarks
    :maxdepth: 2
 

@@ -8,11 +8,26 @@ def main(log_dir, out_file):
 
     starts = []
     wds = [Parameters(wd=k) for k in [1e-4]]
-    lrs = [Parameters(lr=float(k)) for k in [0.5, 1, 2, 4]]
+    lrs = [Parameters(lr=float(k)) for k in [1.7]]
+    res = [Parameters(min_res=160, max_res=a, val_res=b) for a, b in
+    [(192, 256)]]
+
+    epochs = []
+    for e in [16, 24, 32, 40, 56, 88]:
+        fifth = int(e // 8)
+        start_ramp = e - fifth * 2 - 1
+        end_ramp = e - fifth - 1
+        epochs.append(Parameters(
+            epochs=e,
+            start_ramp=start_ramp,
+            end_ramp=end_ramp,
+            workers=12
+        ))
+
     base_dir = '/home/ubuntu/' if os.path.exists('/home/ubuntu/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
-        Parameters(train_dataset=base_dir + 'train_400_0.10_90.ffcv',
-                   val_dataset=base_dir + 'val_400_0.10_90.ffcv',
+        Parameters(train_dataset=base_dir + 'train_500_0.5_90.ffcv',
+                   val_dataset=base_dir + 'val_500_0.5_90.ffcv',
                    batch_size=512,
                    arch='resnet50',
                    distributed=1,
@@ -20,7 +35,7 @@ def main(log_dir, out_file):
                    world_size=8),
     ]
 
-    axes = [archs, wds, lrs]
+    axes = [archs, wds, lrs, res, epochs]
 
     rn18_base = 'imagenet_configs/resnet50_base.yaml'
     design_command(axes, out_dir, out_file, rn18_base, cuda_preamble="CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7", jobs=1)

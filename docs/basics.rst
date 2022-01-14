@@ -1,7 +1,7 @@
-FFCV Basics
-===========
+Getting started
+===============
 
-At a basic level, working with FFCV just requires two steps:
+Working with FFCV just requires two steps:
 
 1. :ref:`Converting an existing dataset into FFCV format<Writing a dataset to FFCV format>`, and
 2. :ref:`Making FFCV data loaders <Making an FFCV dataloader>`.

@@ -1,0 +1,16 @@
+data:
+  gpu: 0
+  num_workers: 8
+  train_dataset: /mnt/nfs/home/spark/store/cifar_train.beton
+  val_dataset: /mnt/nfs/home/spark/store/cifar_test.beton
+training:
+  batch_size: 512
+  epochs: 24
+  lr: 0.5
+  momentum: 0.9
+  lr_peak_epoch: 5
+  momentum: 0.9
+  weight_decay: 5e-4
+  label_smoothing: 0.1
+  lr_tta: true
+  num_workers: 8
