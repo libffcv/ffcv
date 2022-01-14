@@ -9,3 +9,4 @@ assertpy
 tqdm
 psutil
 webdataset
+torchmetrics
