@@ -1,0 +1,35 @@
+data:
+  gpu: 0
+  in_memory: 1
+  num_workers: 12
+  train_dataset: /mnt/cfs/home/engstrom/store/ffcv/train_400_0.10_90.ffcv
+  val_dataset: /mnt/cfs/home/engstrom/store/ffcv/val_400_0.10_90.ffcv
+dist:
+  world_size: 1
+logging:
+  folder: /mnt/cfs/home/engstrom/store/ffcv_rn18_1gpu_FINAL/6930d095-6a4b-49ba-9ed8-6fd73ba1ff2f
+  log_level: 0
+lr:
+  lr: 0.5
+  lr_peak_epoch: 2
+  lr_schedule_type: cyclic
+model:
+  arch: resnet18
+resolution:
+  end_ramp: 13
+  max_res: 192
+  min_res: 160
+  start_ramp: 11
+training:
+  batch_size: 1024
+  bn_wd: 0
+  distributed: 0
+  epochs: 16
+  label_smoothing: 0.1
+  momentum: 0.9
+  optimizer: sgd
+  weight_decay: 5e-5
+uid: 08508b1c-ae7f-4022-9090-06a520f998c8
+validation:
+  lr_tta: true
+  resolution: 256
