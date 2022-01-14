@@ -1,5 +1,9 @@
 The Bottleneck Doctor
 ======================
+.. image:: /_static/clippy-transparent-2.png
+  :width: 100%
+  :alt: Alternative text
+
 To summarize the scenarios from the :ref:`Tuning Guide`, we provide a map from a
 type of *system bottleneck* to the FFCV options that will help get the most
 performance out of your system:  

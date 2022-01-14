@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 from torch.utils.data import Subset
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
@@ -11,13 +10,13 @@ from fastargs.decorators import param, section
 from fastargs import get_current_config
 
 Section('cfg', 'arguments to give the writer').params(
-    dataset=Param(And(str, OneOf(['cifar', 'imagenet'])), 'Which dataset to write', required=True),
+    dataset=Param(And(str, OneOf(['cifar', 'imagenet'])), 'Which dataset to write', default='imagenet'),
     split=Param(And(str, OneOf(['train', 'val'])), 'Train or val set', required=True),
     data_dir=Param(str, 'Where to find the PyTorch dataset', required=True),
     write_path=Param(str, 'Where to write the new dataset', required=True),
     write_mode=Param(str, 'Mode: raw, smart or jpg', required=False, default='smart'),
     max_resolution=Param(int, 'Max image side length', required=True),
-    num_workers=Param(int, 'Number of workers to use', default=96//2),
+    num_workers=Param(int, 'Number of workers to use', default=16),
     chunk_size=Param(int, 'Chunk size for writing', default=100),
     jpeg_quality=Param(float, 'Quality of jpeg images', default=90),
     subset=Param(int, 'How many images to use (-1 for all)', default=-1),
@@ -59,7 +58,7 @@ def main(dataset, split, data_dir, write_path, max_resolution, num_workers,
 
 if __name__ == '__main__':
     config = get_current_config()
-    parser = ArgumentParser(description='Fast imagenet training')
+    parser = ArgumentParser()
     config.augment_argparse(parser)
     config.collect_argparse_args(parser)
     config.validate(mode='stderr')
