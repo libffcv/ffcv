@@ -60,10 +60,10 @@ If you use FFCV, please cite it as:
 }
 ```
 
-## Index
+<!-- ## Index
 - <a href="#quickstart"><b>Quickstart</b></a>: High level guide to `ffcv`.
 - <a href="#features"><b>Features</b></a>: What can `ffcv` do for you?
-- <a href="#prepackaged-computer-vision-benchmarks"><b>Fast Training Code</b></a>: Results, code, and training configs for ImageNet and CIFAR-10.
+- <a href="#prepackaged-computer-vision-benchmarks"><b>Fast Training Code</b></a>: Results, code, and training configs for ImageNet and CIFAR-10. -->
 
 ## Quickstart
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
