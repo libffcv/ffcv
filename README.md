@@ -1,5 +1,5 @@
 <p align = 'center'>
-<em><b>Fast Forward Computer Vision</b>: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
+<em><b>Fast Forward Computer Vision</b>: train models at a fraction of the cost with accelerated data loading!</em>
 </p>
 <p align='center'>
 [<a href="https://ffcv.io">homepage</a>]
@@ -11,7 +11,7 @@
 <!-- <br /> -->
 [<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
-[<a href="#quickstart">ImageNet training</a>]
+[<a href="#prepackaged-computer-vision-benchmarks">results</a>]
 [<a href="#features">features</a>]
 <br>
 Maintainers:
@@ -30,7 +30,7 @@ In this repo, you will find:
 See the [Features](#features) section below for a glance at what FFCV can do! Or
 [install `ffcv`](#install-with-anaconda) today and:
 
-- ...[train an ImageNet model]() on one GPU in TODO minutes (XX$ on AWS)
+- ...[train an ImageNet model]() on one GPU in 30 minutes (XX$ on AWS)
 - ...[train a CIFAR-10 model]() on one GPU in 36 seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
@@ -62,11 +62,6 @@ If you use FFCV, please cite it as:
     note = {commit xxxxxxx}
 }
 ```
-
-<!-- ## Index
-- <a href="#quickstart"><b>Quickstart</b></a>: High level guide to `ffcv`.
-- <a href="#features"><b>Features</b></a>: What can `ffcv` do for you?
-- <a href="#prepackaged-computer-vision-benchmarks"><b>Fast Training Code</b></a>: Results, code, and training configs for ImageNet and CIFAR-10. -->
 
 ## Quickstart
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
@@ -207,45 +202,6 @@ performance bottlenecks.
   overhead and compute overhead, etc. See the 
   [Working with images](https://docs.ffcv.io/working_with_images.html) guide for
   more information.
-
-<!-- for a 
-more detailed look.
-(`cv` denotes computer-vision specific features)
-
-<p><b>Disk-read bottlenecks.</b> What if your GPUs sit idle from low disk throughput?
-Maybe you're reading from a networked drive, maybe you have too many GPUs;
-either way, try these features:
-<ul>
-<li><b><a href="TODO">Cache options</a></b>: use OS or process-level caching depending on whether your dataset fits in memory (or not).</li>
-<li><b><a href="TODO">Use quasi-random data sampling</a></b>: </li>
-<li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Many datasets have gigantic images even though most pipelines crop and resize to smaller edge lengths before training.</li>
-<li><b><a href="TODO">Store JPEGs</a></b> (<code>cv</code>): Store images as space-efficient JPEGs.</li>
-<li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease storage sizes.</li>
-</ul>
-</p>
-
-<p><b>CPU bottlenecks.</b> All CPUs at 100% and you're still not hitting maximal
-GPU usage? Consider the following:
-<ul>
-<li><b><a href="TODO">Use premade, JIT-compiled augmentations</a></b>: `ffcv` comes with JIT-compiled equivalents of standard augmentation routines.</li>
-<li><b><a href="TODO">Make your own JIT-compiled augmentations</a></b>: `ffcv` supports custom JIT-compiled augmentations.</li>
-<li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Smaller images require less compute to decode.</li>
-<li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease CPU cycles spent decoding.</li>
-<li><b><a href="TODO">Store a fraction of images as raw pixel data</a></b> (<code>cv</code>): Trade off storage and compute workload (raw pixels require no JPEG decoding) by randomly storing a specified fraction of the dataset as raw pixel data.</li>
-</ul>
-</p>
-
-<p><b>GPU bottlenecks (any data).</b> Even if you're not bottlenecked by data
-loading, <code>ffcv</code> can still accelerate your system:
-<ul>
-<li><b><a href="TODO">Asynchronous CPU-GPU data transfer</a></b>: While we always asynchronously transfer data, we also include tools for ensuring unblocked GPU execution.</li>
-<li><b><a href="TODO">Train multiple models on the same GPU</a></b>: Fully
-asynchronous dataloading means that different training processes won't block eachother.</li>
-<li><b><a href="TODO">Offload compute to the CPU</a></b>: offload compute, like <a href="TODO">normalization</a> or <a href="">other augmentations</a>, onto the CPU.</li>
-</ul>
-This list is limited to what <code>ffcv</code> offers in data loading; check out
-guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
-up training.  -->
 
 # Contributors
 
