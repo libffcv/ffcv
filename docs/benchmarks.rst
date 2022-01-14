@@ -137,11 +137,11 @@ We compare our results against existing data loading platforms:
 
     For a fair comparison the baseline frameworks were evaluated on similarly resized datasets.
 
-    The data loading pipeline consists in:
+    The data loading pipeline consists of:
 
     - Loading the images
     - Random resized crop to 224x224 px
-    - Random Horizontal Flip
+    - Random horizontal flip
 
 End-to-end training
 --------------------
@@ -149,7 +149,7 @@ Training ResNet-18s and ResNet-50s on ImageNet using code `here <https://github.
 we plot the results below:
 
 .. image:: _static/headline.svg
-  :width: 60%
+  :width: 90%
   :align: center
   :alt: Alternative text
 
