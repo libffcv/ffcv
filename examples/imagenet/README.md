@@ -3,7 +3,7 @@
 ## Models and Configurations
 ### Results
 
-<img src='https://raw.githubusercontent.com/MadryLab/ffcv/866f474f7b58c3206ba90325aa204c3f1ac5099c/docs/_static/perf_scatterplot.svg?token=AAFZYINFHDVX6SX433OQHATB4HKTU'/>
+<img src="../../docs/_static/perf_scatterplot.svg" width='830px'/>
 
 See benchmark setup here: [https://docs.ffcv.io/benchmarks.html](https://docs.ffcv.io/benchmarks.html).
 
