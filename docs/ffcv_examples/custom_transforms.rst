@@ -19,7 +19,7 @@ data, and will, for each image, return either the top-left or bottom-right
 quadrant of the image (deciding randomly).
 
 FFCV transforms are implemented by subclassing the
-:class:`ffcv.pipeline.operation.Operation` class. 
+:class:`ffcv.pipeline.operation.Operation` class.
 Doing so requires providing implementation for two functions:
 
 .. code-block:: python
@@ -27,30 +27,31 @@ Doing so requires providing implementation for two functions:
     from ffcv.pipeline.operation import Operation
 
     class PickACorner(Operation):
-        
+
         # Return the code to run this operation
         @abstractmethod
         def generate_code(self) -> Callable:
             raise NotImplementedError
-        
+
         @abstractmethod
-        def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]: 
+        def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
             raise NotImplementedError
 
 Advancing state and pre-allocating memory
 ------------------------------------------
 As mentioned earlier, transforms are chained together in FFCV to form data
-*pipelines*. 
+*pipelines*.
 In order to get maximum data processing performance, FFCV:
 
 - keeps track of the *state* of the data being read at each stage in the
-  pipeline, and 
+  pipeline (for now, think of state as storing the shape and data type,
+  and some additional info useful to the compiler), and
 
 - pre-allocates a *single* block of memory for the output of each transform in
   the pipeline; transforms thus (over-)write to the same block of memory for
   each batch, saving allocation time.
 
-To help FFCV accomplish both of these tasks, every transform should implement a 
+To help FFCV accomplish both of these tasks, every transform should implement a
 :meth:`~ffcv.pipeline.operation.Operation.declare_state_and_memory` method which
 specifies (a) how the given transform will change the state of the data, and (b)
 what memory to allocate such that the transform itself does not need to allocate
@@ -65,7 +66,7 @@ implementation looks like this:
     from dataclasses import replace
 
     # Inside the MaybeBrighten class:
-    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]: 
+    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         h, w, c = previous_state.shape
         new_shape = (h // 2, w // 2, c)
 
@@ -87,7 +88,7 @@ the state images will change at this stage in the pipeline.
 
 Implementing the transform function
 -----------------------------------
-Now it is time to implement the transform itself: we do this using the 
+Now it is time to implement the transform itself: we do this using the
 :meth:`~ffcv.operation.Operation.generate_code` function, which is actually a
 factory function. That is, :meth:`~ffcv.operation.Operation.generate_code`
 should return a *function*: this function takes as arguments (a) the output of
@@ -143,7 +144,7 @@ together a little test script to check that our augmentation runs:
         # First epoch includes compilation time
         for ims, labs in loader: pass
         start_time = time.time()
-        for _ in range(100): 
+        for _ in range(100):
             for ims, labs in loader: pass
         print(f'Method: {name} | Shape: {ims.shape} | Time per epoch: {(time.time() - start_time) / 100:.4f}s')
 
@@ -190,7 +191,7 @@ to FFCV that the for loop should be compiled to parallel machine code. With just
 these two changes, our new output is:
 
 .. code-block::
-    
+
     Method: with | Shape: torch.Size([512, 16, 16, 3]) | Time per epoch: 0.03404s
     Method: without | Shape: torch.Size([512, 32, 32, 3]) | Time per epoch: 0.02703s
 
