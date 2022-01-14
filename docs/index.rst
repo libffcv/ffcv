@@ -21,8 +21,8 @@ Introduction
 
 For example, use FFCV to:
 
-- ...train an ImageNet model on one GPU in 30 minutes (XX$ on AWS)
-- ...train a CIFAR-10 model on one GPU in 36 seconds (XX$ on AWS)
+- ...train an ImageNet model on one GPU in 35 minutes ((98¢/model on AWS)
+- ...train a CIFAR-10 model on one GPU in 36 seconds ((2¢/model on AWS)
 - ...train a ``$YOUR_DATASET`` model ``$REALLY_FAST`` (for ``$WAY_LESS``)
 
 Compare our training and dataloading times to what you might use now:
@@ -30,10 +30,13 @@ Compare our training and dataloading times to what you might use now:
 .. image:: /_static/headline.svg
   :width: 100%
 
+|
+
 With ``ffcv``, we enable significantly faster training:
 
 .. image:: /_static/perf_scatterplot.svg
 
+|
 See :ref:`ImageNet Benchmarks` for further benchmark details.
 
 See the :ref:`Features` section below for a more detailed glance at what FFCV can do.
