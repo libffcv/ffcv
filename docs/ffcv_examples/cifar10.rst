@@ -29,7 +29,7 @@ Step 1: Create an FFCV-compatible CIFAR-10 dataset
 First, we'll use :class:`~ffcv.writer.DatasetWriter`
 to convert ``torchvision.datasets.CIFAR10`` to FFCV format.
 (See :ref:`Writing datasets <Writing a dataset to FFCV format>` for more details.)
-We use a single ``RGBImageField`` to store the image and a single ``IntField`` to store the label.
+We use a single :class:`~ffcv.fields.RGBImageField` to store the image and a single ``IntField`` to store the label.
 
 .. code-block:: python
 

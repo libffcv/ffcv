@@ -106,7 +106,9 @@ def get_step_lr(epoch, lr, step_ratio, step_length, epochs):
 @param('training.epochs')
 @param('lr.lr_peak_epoch')
 def get_cyclic_lr(epoch, lr, epochs, lr_peak_epoch):
-    return np.interp([epoch], [0, lr_peak_epoch, epochs], [1e-3 * lr, lr, 0])[0]
+    xs = [0, lr_peak_epoch, epochs]
+    ys = [1e-4 * lr, lr, 0]
+    return np.interp([epoch], xs, ys)[0]
 
 class ImageNetTrainer:
     @param('training.distributed')
@@ -164,9 +166,7 @@ class ImageNetTrainer:
 
         # otherwise, linearly interpolate to the nearest multiple of 32
         interp = np.interp([epoch], [start_ramp, end_ramp], [min_res, max_res])
-        final_res = int(interp[0] // 32) * 32
-
-        print(f'FINAL RES: {final_res}', epoch, min_res, max_res, end_ramp, start_ramp)
+        final_res = int(np.round(interp[0] / 32)) * 32
         return final_res
 
     @param('training.momentum')
@@ -354,18 +354,18 @@ class ImageNetTrainer:
             if log_level > 0:
                 losses.append(loss_train.detach())
 
-            group_lrs = []
-            for _, group in enumerate(self.optimizer.param_groups):
-                group_lrs.append(f'{group["lr"]:.3f}')
+                group_lrs = []
+                for _, group in enumerate(self.optimizer.param_groups):
+                    group_lrs.append(f'{group["lr"]:.3f}')
 
-            names = ['ep', 'iter', 'shape', 'lrs']
-            values = [epoch, ix, tuple(images.shape), group_lrs]
-            if log_level > 1:
-                names += ['loss']
-                values += [f'{loss_train.item():.3f}']
+                names = ['ep', 'iter', 'shape', 'lrs']
+                values = [epoch, ix, tuple(images.shape), group_lrs]
+                if log_level > 1:
+                    names += ['loss']
+                    values += [f'{loss_train.item():.3f}']
 
-            msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
-            iterator.set_description(msg)
+                msg = ', '.join(f'{n}={v}' for n, v in zip(names, values))
+                iterator.set_description(msg)
             ### Logging end
 
         if log_level > 0:
