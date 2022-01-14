@@ -30,7 +30,7 @@ class Collate(Operation):
 
 
 class ToTensor(Operation):
-    """Convert to from Numpy array to PyTorch Tensor"""
+    """Convert from Numpy array to PyTorch Tensor."""
     def __init__(self):
         super().__init__()
 
@@ -45,14 +45,14 @@ class ToTensor(Operation):
 
 
 class ToDevice(Operation):
-    """Move tensor to device
+    """Move tensor to device.
 
     Parameters
     ----------
     device: torch.device
-        device to move to
+        Device to move to.
     non_blocking: bool
-        Asynchronous if copying from CPU to GPU
+        Asynchronous if copying from CPU to GPU.
     """
     def __init__(self, device, non_blocking=True):
         super().__init__()
@@ -81,9 +81,9 @@ class ToTorchImage(Operation):
     Parameters
     ----------
     channels_last : bool
-        use torch.channels_last
+        Use torch.channels_last.
     convert_back_int16 : bool
-        convert to float16
+        Convert to float16.
     """
     def __init__(self, channels_last=True, convert_back_int16=True):
         super().__init__()
@@ -125,12 +125,12 @@ class ToTorchImage(Operation):
 
 
 class Convert(Operation):
-    """Convert to target data type
+    """Convert to target data type.
 
     Parameters
     ----------
     target_dtype: numpy.dtype or torch.dtype
-        Target data type
+        Target data type.
     """
     def __init__(self, target_dtype):
         super().__init__()
@@ -150,12 +150,12 @@ class Convert(Operation):
 
 
 class View(Operation):
-    """View array using np.view or torch.view
+    """View array using np.view or torch.view.
 
     Parameters
     ----------
     target_dtype: numpy.dtype or torch.dtype
-        Target data type
+        Target data type.
     """
     def __init__(self, target_dtype):
         super().__init__()

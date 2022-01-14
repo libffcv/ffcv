@@ -11,14 +11,15 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class RandomTranslate(Operation):
-    """Translate each image randomly up to specified number of pixels.
+    """Translate each image randomly in vertical and horizontal directions
+    up to specified number of pixels.
 
     Parameters
     ----------
     padding : int
-        Max number of pixels to translate in any direction
+        Max number of pixels to translate in any direction.
     fill : tuple
-        An RGB color ((0, 0, 0) by default) to fill the area outside the shifted image
+        An RGB color ((0, 0, 0) by default) to fill the area outside the shifted image.
     """
 
     def __init__(self, padding: int, fill: Tuple[int, int, int] = (0, 0, 0)):

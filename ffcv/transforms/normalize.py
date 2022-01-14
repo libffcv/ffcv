@@ -19,8 +19,8 @@ def ch_dtype_from_numpy(dtype):
     return ch.from_numpy(np.zeros((), dtype=dtype)).dtype
 
 class NormalizeImage(Operation):
-    """Perform Image Normalization.
-    Fast implementation of Normalization and type conversion for uint8 images to any floating point dtype.
+    """Fast implementation of normalization and type conversion for uint8 images
+    to any floating point dtype.
 
     Works on both GPU and CPU tensors.
 
@@ -31,7 +31,7 @@ class NormalizeImage(Operation):
     std: np.ndarray
         The standard deviation vector
     type: np.dtype
-        The desired output type for the result as a numpy type
+        The desired output type for the result as a numpy type.
         If the transform is applied on a GPU tensor it will be converted
         as the equivalent torch dtype.
     """

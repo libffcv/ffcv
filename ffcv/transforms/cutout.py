@@ -15,7 +15,7 @@ class Cutout(Operation):
     Parameters
     ----------
     crop_size : int
-        Size of the random square to cut out
+        Size of the random square to cut out.
     fill : Tuple[int, int, int], optional
         An RGB color ((0, 0, 0) by default) to fill the cutout square with.
         Useful for when a normalization layer follows cutout, in which case

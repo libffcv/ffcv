@@ -50,8 +50,8 @@ DEFAULT_PROCESS_CACHE = int(environ.get('FFCV_DEFAULT_CACHE_PROCESS', "0"))
 DEFAULT_OS_CACHE = not DEFAULT_PROCESS_CACHE
 
 class Loader:
-    """FFCV loader class that can be used as a drop-in replace for standard
-    (e.g. PyTorch) dataloaders.
+    """FFCV loader class that can be used as a drop-in replacement
+    for standard (e.g. PyTorch) data loaders.
 
     Parameters
     ----------
@@ -60,24 +60,25 @@ class Loader:
     batch_size : int
         Batch size.
     num_workers : int
-        Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-trheading.
+        Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-threading.
     os_cache : bool
-        Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine train using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
+        Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine training using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
     order : OrderOption
         Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM
 
-        QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distrubuted mode.
+        QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distributed mode.
     distributed : bool
-        For distributed training (multiple GPUs). Emulates the behavior of DistributedSampler from Pytorch.
+        For distributed training (multiple GPUs). Emulates the behavior of DistributedSampler from PyTorch.
     seed : int
-        Random seed for batch ordering
+        Random seed for batch ordering.
     indices : Sequence[int]
-        Subset of dataset by selecting on only some indices.
+        Subset of dataset by filtering only some indices.
     pipelines : Mapping[str, Sequence[Union[Operation, torch.nn.Module]]
-        Dictionary definig for each field the sequence of Decoders and transforms to apply. Missing entries will use the default pipeline which consists in the default decoder and `ToTensor()`.
-        However, It is possible to disable a field by explicitely by passing `None` as its pipeline.
+        Dictionary defining for each field the sequence of Decoders and transforms to apply.
+        Fileds with missing entries will use the default pipeline, which consists of the default decoder and `ToTensor()`,
+        but a field can also be disabled by explicitly by passing `None` as its pipeline.
     custom_fields : Mapping[str, Field]
-        Dictonary Informing the loader of the types associated to fields that are using a custom type.
+        Dictonary informing the loader of the types associated to fields that are using a custom type.
     drop_last : bool
         Drop non-full batch in each iteration.
     batches_ahead : int

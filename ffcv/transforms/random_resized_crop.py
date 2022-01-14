@@ -15,11 +15,11 @@ class RandomResizedCrop(Operation):
     Parameters
     ----------
     scale : Tuple[float, float]
-        Lower and upper bounds for the ratio of random area of the crop
+        Lower and upper bounds for the ratio of random area of the crop.
     ratio : Tuple[float, float]
-        Lower and upper bounds for random aspect ratio of the crop
+        Lower and upper bounds for random aspect ratio of the crop.
     size : int
-        Side length of the output
+        Side length of the output.
     """
     def __init__(self, scale: Tuple[float, float], ratio: Tuple[float, float], size: int):
         super().__init__()
