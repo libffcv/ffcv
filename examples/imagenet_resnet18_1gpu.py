@@ -11,10 +11,10 @@ def main(log_dir, out_file):
 
     
     epochs = []
-    for e in [15, 20, 30, 40, 60, 90]:
-        fifth = int(e // 5)
-        start_ramp = e - fifth * 2
-        end_ramp = e - fifth
+    for e in [16, 24, 32, 40, 56, 88]:
+        fifth = int(e // 8)
+        start_ramp = e - fifth * 2 - 1
+        end_ramp = e - fifth - 1
         epochs.append(Parameters(
             epochs=e,
             start_ramp=start_ramp,
