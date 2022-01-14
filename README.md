@@ -1,11 +1,11 @@
 <p align = 'center'>
 <em><b>Fast Forward Computer Vision</b>: train models at <a href="#imagenet">1/10th the cost*</a> with accelerated data loading!</em>
 </p>
-<img src='assets/logo.svg' width='100%'/>
-<p align = 'center'>
 [<a href="https://ffcv.io">homepage</a>]
 [<a href="https://docs.ffcv.io">docs</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
+<img src='assets/logo.svg' width='100%'/>
+<p align = 'center'>
 <br />
 [<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
