@@ -8,7 +8,13 @@ Welcome to FFCV's documentation!
 
 View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
 
-Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_:  ``conda create -n ffcv -c pytorch -c conda-forge -c ffcv ffcv``
+Install ``ffcv``:
+
+.. code-block:: bash
+
+   conda create -y -n ffcv python=3.9 cupy pkg-config compilers libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+   conda activate ffcv
+   pip install ffcv
 
 
 Introduction
