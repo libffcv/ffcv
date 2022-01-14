@@ -56,11 +56,11 @@ class Loader:
     Parameters
     ----------
     fname: str
-        Full path to the location of the dataset (.beton file format)
+        Full path to the location of the dataset (.beton file format).
     batch_size : int
-        Batch size
+        Batch size.
     num_workers : int
-        Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-trheading
+        Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-trheading.
     os_cache : bool
         Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine train using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
     order : OrderOption

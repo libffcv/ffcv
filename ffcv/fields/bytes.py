@@ -40,10 +40,12 @@ class BytesField(Field):
     """
     A subclass of :class:`~ffcv.fields.Field` supporting variable-length byte
     arrays.
-    
+
     Intended for use with data such as text or raw data which may not have a
     fixed size. Data is written sequentially while saving pointers and read by
     pointer lookup.
+
+    The writer expects to be passed a 1D uint8 numpy array of variable length for each sample.
     """
     def __init__(self):
         pass

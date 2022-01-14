@@ -82,6 +82,10 @@ def get_center_crop(height, width, _, ratio):
 
 
 class SimpleRGBImageDecoder(Operation):
+    """Most basic decoder for the :class:`~ffcv.fields.RGBImageField`.
+
+    It only supports dataset with constant image resolution and will simply read (potentially decompress) and pass the images as is.
+    """
     def __init__(self):
         super().__init__()
 
@@ -136,6 +140,10 @@ instead."""
 
 
 class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
+    """Abstract decoder for :class:`~ffcv.fields.RGBImageField` that performs a crop and and a resize operation.
+
+    It supports both variable and constant resolution datasets.
+    """
     def __init__(self, output_size):
         super().__init__()
         self.output_size = output_size
@@ -210,6 +218,19 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
 
 class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
+    """Decoder for :class:`~ffcv.fields.RGBImageField` that performs a Random crop and and a resize operation.
+
+    It supports both variable and constant resolution datasets.
+
+    Parameters
+    ----------
+    output_size : Tuple[int]
+        The desired resized resolution of the images
+    scale : Tuple[float]
+        The range of possible ratios (in area) than can randomly sampled
+    ratio : Tuple[float]
+        The range of potential aspect ratios that can be randomly sampled
+    """
     def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
         super().__init__(output_size)
         self.scale = scale
@@ -222,7 +243,17 @@ class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
 
 
 class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
-    # Ratio: ratio of (crop size) / (min side length)
+    """Decoder for :class:`~ffcv.fields.RGBImageField` that performs a center crop followed by a resize operation.
+
+    It supports both variable and constant resolution datasets.
+
+    Parameters
+    ----------
+    output_size : Tuple[int]
+        The desired resized resolution of the images
+    ratio: float
+        ratio of (crop size) / (min side length)
+    """
     # output size: resize crop size -> output size
     def __init__(self, output_size, ratio):
         super().__init__(output_size)
@@ -250,13 +281,13 @@ class RGBImageField(Field):
         If specified, will resize images to have maximum side length equal to
         this value before saving, by default None
     smart_threshold : int, optional
-        [description], by default None
+        When `write_mode='smart`, will compress an image if it would take more than `smart_threshold` times to use RAW instead of jpeg.
     jpeg_quality : int, optional
         The quality parameter for JPEG encoding (ignored for
         ``write_mode='raw'``), by default 90
     compress_probability : float, optional
         Ignored unless ``write_mode='proportion'``; in the latter case it is the
-        probability with which image is JPEG-compressed, by default 0.5
+        probability with which image is JPEG-compressed, by default 0.5.
     """
     def __init__(self, write_mode='raw', max_resolution: int = None,
                  smart_threshold: int = None, jpeg_quality: int = 90,

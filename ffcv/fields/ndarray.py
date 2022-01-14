@@ -15,6 +15,9 @@ if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
 
 class NDArrayDecoder(Operation):
+    """
+    Default decoder for :class:`~ffcv.fields.NDArrayField`.
+    """
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         return (
@@ -46,7 +49,7 @@ NDArrayArgsType = np.dtype([
 
 class NDArrayField(Field):
     """A subclass of :class:`~ffcv.fields.Field` supporting
-    multi-dimensional matrices containing elements of a single data type.
+    multi-dimensional fixed size matrices of any numpy type.
     """
     def __init__(self, dtype:np.dtype, shape:Tuple[int, ...]):
         self.dtype = dtype
