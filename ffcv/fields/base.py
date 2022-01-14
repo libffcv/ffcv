@@ -17,6 +17,9 @@ class Field(ABC):
     functions that determine how they will be written and read from the dataset file,
     respectively.
 
+    .. note ::
+        It is possible to have multiple potential decoder for a given Field. ``RGBImageField`` one example. Users can specify which decoder to use in the ``piplines`` argument of the ``Loader`` class.
+
     See :ref:`here <TODO>` for information on how to implement a subclass of Field.
     """
     @property

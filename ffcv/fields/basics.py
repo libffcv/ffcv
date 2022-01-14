@@ -12,7 +12,10 @@ if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
 
 class BasicDecoder(Operation):
-    """For decoding scalar fields"""
+    """For decoding scalar fields
+
+    This Decoder can be extend to decode any fixed length numpy data type
+    """
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         my_shape = (1,)
         return (
@@ -31,14 +34,18 @@ class BasicDecoder(Operation):
         return decoder
 
 class IntDecoder(BasicDecoder):
+    """Decoder for signed integers scalars (int64)
+    """
     dtype = np.dtype('<i8')
 
 class FloatDecoder(BasicDecoder):
+    """Decoder for floating point scalars (float64)
+    """
     dtype = np.dtype('<f8')
 
 class FloatField(Field):
     """
-    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point
+    A subclass of :class:`~ffcv.fields.Field` supporting (scalar) floating-point (float64)
     values.
     """
     def __init__(self):

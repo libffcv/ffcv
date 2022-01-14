@@ -9,7 +9,14 @@ ENCODING = 'utf8'
 SEPARATOR = '\0'  # Null byte
 
 class JSONField(BytesField):
-    """A subclass of :class:`~ffcv.fields.BytesField` supporting JSON data."""
+    """A subclass of :class:`~ffcv.fields.BytesField` that encodes JSON data.
+
+    The writer expects to be passed a dict that is compatible with the JSON specification.
+
+    .. warning ::
+        Because FFCV is based on tensors/ndarrays the reader and therefore the loader can't give return JSON to the user. This is why we provide :class:`~ffcv.fields.JSONField.unpack` which does the conversion. It's up to the user to call it in the main body of the loop
+
+    """
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -26,6 +33,10 @@ class JSONField(BytesField):
 
     @staticmethod
     def unpack(batch):
+        """Convert back the output of a :class:`~ffcv.fields.JSONField` field produced by :class:`~ffcv.Loader` into an actual JSON.
+        
+        It works both on an entire batch and will return an array of python dicts or a single sample and will simply return a dict.
+        """
         if isinstance(batch, ch.Tensor):
             batch = batch.numpy()
 
