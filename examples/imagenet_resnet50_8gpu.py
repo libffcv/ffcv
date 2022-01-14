@@ -20,7 +20,8 @@ def main(log_dir, out_file):
         epochs.append(Parameters(
             epochs=e,
             start_ramp=start_ramp,
-            end_ramp=end_ramp
+            end_ramp=end_ramp,
+            workers=12
         ))
 
     base_dir = '/home/ubuntu/' if os.path.exists('/home/ubuntu/') else '/mnt/cfs/home/engstrom/store/ffcv/'
