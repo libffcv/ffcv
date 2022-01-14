@@ -154,13 +154,13 @@ performance bottlenecks.
   which turn out to be a problem everywhere from neural network training to
   linear regression. This means that:
 
-    (a) FFCV can be introduced into any existing training code in just a few
-    lines of code (e.g., just swapping out the data loader and optionally the
-    augmentation pipeline);
-    (b) you don't have to change the model itself to make it faster (e.g., feel
-    free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
-    (c) FFCV can speed up a lot more than just neural network training---in
-    fact, the more data-bottlenecked the application, the faster FFCV will make it!
+    - FFCV can be introduced into any existing training code in just a few
+      lines of code (e.g., just swapping out the data loader and optionally the
+      augmentation pipeline);
+    - you don't have to change the model itself to make it faster (e.g., feel
+      free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
+    - FFCV can speed up a lot more than just neural network training---in
+      fact, the more data-bottlenecked the application, the faster FFCV will make it!
 
   See our [Getting started]() guide, [Example walkthroughs](), and [Code
   examples]() to see how easy it is to get started!
