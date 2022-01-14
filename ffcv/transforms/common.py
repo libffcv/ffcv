@@ -11,7 +11,7 @@ class Squeeze(Operation):
     Parameters
     ----------
     *dims : List[int]
-        Dimensions to squeeze
+        Dimensions to squeeze.
     """
 
     def __init__(self, *dims):
