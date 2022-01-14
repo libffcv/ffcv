@@ -1,18 +1,15 @@
 <p align = 'center'>
 <em><b>Fast Forward Computer Vision</b>: train models at a fraction of the cost with accelerated data loading!</em>
 </p>
-<p align='center'>
-[<a href="https://ffcv.io">homepage</a>]
-[<a href="https://docs.ffcv.io">docs</a>]
-[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
-</p>
 <img src='assets/logo.svg' width='100%'/>
 <p align = 'center'>
 <!-- <br /> -->
 [<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
-[<a href="#prepackaged-computer-vision-benchmarks">results</a>]
 [<a href="#features">features</a>]
+[<a href="https://docs.ffcv.io">docs</a>]
+[<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
+[<a href="https://ffcv.io">homepage</a>]
 <br>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
@@ -20,25 +17,14 @@ Maintainers:
 <a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 
-<!-- In this repo, you will find:
-- Our library for <a href="#quickstart">fast data loading and processing</a>
-  (even in resource constrained environments)
-- Efficient, simple, easy-to-understand, customizable training code for standard
-   vision tasks -->
-
-<!-- See the [Features](#features) section below for a glance at what FFCV can do! Or
-[install `ffcv`](#install-with-anaconda) today and: -->
-
 `ffcv` is a drop-in data loading system that dramatically increases data throughput in model training:
 
-- [Train an ImageNet model](https://github.com/MadryLab/ffcv/tree/main/examples/imagenet)
+- [Train an ImageNet model](#prepackaged-computer-vision-benchmarks)
 on one GPU in 35 minutes (98¢/model on AWS)
 - [Train a CIFAR-10 model](https://docs.ffcv.io/ffcv_examples/cifar10.html)
 on one GPU in 36 seconds (2¢/model on AWS)
 - Train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
-<!-- Holding constant the same training routine and optimizing only the dataloading
-and data transfer routines with `ffcv`, we enable significantly faster training: -->
 Keep your training algorithm the same, just replace the data loader! Look at these speedups:
 
 <img src="assets/headline.svg" width='830px'/>

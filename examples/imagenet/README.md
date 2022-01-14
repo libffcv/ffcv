@@ -1,23 +1,29 @@
 # `ffcv` ImageNet Training
-<p>
-    <center> Train ImageNet efficiently with FFCV! </center>
-</p>
 
-Our ffcv-based training code is:
+## Models and Configurations
+### Results
 
-<p><b>Fast.</b> [concrete example] [something about dataloading being fast as fuck so you're just limited by the algorithms you implement]</p>
-<p><b>Transparent.</b> Our script is a single file written in an imperative style: it is the same size as and implements the same functionality as the <a href='https://github.com/pytorch/examples/tree/master/imagenet'>PyTorch ImageNet example</a>. No more digging into documentation to understand someone's <code>training.optimizer.learning_rates.ConstantLR</code> class.</p>
-<p><b>Parallelizable.</b> Concurrent training runs on different GPUs (or even the same) don't pay </p>
+<img src='https://raw.githubusercontent.com/MadryLab/ffcv/866f474f7b58c3206ba90325aa204c3f1ac5099c/docs/_static/perf_scatterplot.svg?token=AAFZYINFHDVX6SX433OQHATB4HKTU'/>
 
-fast and accurate: 
-[plot]
-- simple training script
-- minimal tricks
-- meant for modifiabilty and reesearch
+See benchmark setup here: [https://docs.ffcv.io/benchmarks.html](https://docs.ffcv.io/benchmarks.html).
 
-: `train_imagenet.py`. To use it in research or on downstream applications we recommend copying the file and modifying it in place as needed (for example, to add features or additional logging). The script's accuracy vs training time graph is as follows for ResNet-18s (single A100 GPU) and ResNet-50s (8 A100 GPUs):
+### Configurations
+The configs corresponding to the above results are:
 
-TODO
+| Link to Config                                                                                                                         |   top_1 |   top_5 |   # Epochs |   Time (mins) | Architecture   | Setup    |
+|:---------------------------------------------------------------------------------------------------------------------------------------|--------:|--------:|-----------:|--------------:|:---------------|:---------|
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/23cf4c2e-2111-472c-8b9d-e47325c51253.yaml'>Link</a> | 0.780 | 0.941  |         88 |       69.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/a2e443e4-0a42-49b5-a1f4-18f19689b2b1.yaml'>Link</a> | 0.773 | 0.937 |         56 |       44.6 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/70a2ecb0-1719-40bd-b1eb-cb0c37b8fc89.yaml'>Link</a> | 0.763 | 0.932 |         40 |       32.2 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/2eca7655-82df-4e4a-b51b-950b31c2bebe.yaml'>Link</a> | 0.754 | 0.927 |         32 |       25.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/c01efd78-d20b-4064-a9a8-aa0274430e60.yaml'>Link</a> | 0.746 | 0.921 |         24 |       19.6  | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/2018a9be-f0ec-453c-9a00-bfd68dc94d58.yaml'>Link</a> | 0.724 | 0.908 |         16 |       13.4 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/67117b5b-ab11-45c2-87a6-9999a66a3f37.yaml'>Link</a> | 0.715 | 0.903   |         88 |      189.7  | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/1a584c27-fdd0-483b-b358-dd9895e510da.yaml'>Link</a> | 0.707  | 0.899 |         56 |      117.9   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/8249f454-c718-4a38-8dae-04effa3a43de.yaml'>Link</a> | 0.698 | 0.894 |         40 |       85.4 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/baefac94-ed5c-4b0b-af01-ebead347ca46.yaml'>Link</a> | 0.690 | 0.889 |         32 |       68.4   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/05b0053a-c036-4992-9c4e-f9ea662abfc5.yaml'>Link</a> | 0.679  | 0.881 |         24 |       51.2 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/08508b1c-ae7f-4022-9090-06a520f998c8.yaml'>Link</a> | 0.655 | 0.868 |         16 |       34.8 | ResNet-18      | 1 x A100 |
 
 ## Training Models
 
@@ -37,7 +43,7 @@ cd examples;
 # - quality=90 JPEGs
 ./write_dataset.sh 400 0.10 90
 ```
-Then, choose a configuration from the [configuration table](TODO). With the config file path in hand, train as follows:
+Then, choose a configuration from the [configuration table](#configurations). With the config file path in hand, train as follows:
 ```bash
 # 1 GPU training
 export CUDA_VISIBLE_DEVICES=0
@@ -54,12 +60,12 @@ Adjust the configuration by either changing the passed YAML file or by specifyin
 <p><b>System setup.</b> We trained on p4.24xlarge ec2 instances and on our own cluster machines (9 A100s / 504GB RAM / 48 cores).
 </p>
 
-<p><b>Algorithmic details.</b> We use a standard ImageNet training pipeline (à la the PyTorch ImageNet example) with the following differences/highlights:
+<p><b>Algorithmic details.</b> We use a standard ImageNet training pipeline (à la the PyTorch ImageNet example) with only the following differences/highlights:
 
 - SGD optimizer with momentum
 - Test-time augmentation over left/right flips
 - Validation set sizing according to ["Fixing the train-test resolution discrepancy"](https://arxiv.org/abs/1906.06423) 
-- Progressive resizing from 160px to 224px
+- Progressive resizing from 160px to 196px
 - Label smoothing
 - Cyclic learning rate schedule
 </p>
@@ -68,9 +74,6 @@ Refer to the code and configuration files for a more exact specification.
 To obtain configurations we first gridded for hyperparameters at a 30 epoch schedule. Fixing these parameters, we then varied only the number of epochs (stretching the learning rate schedule across the number of epochs as motivated by [Budgeted Training](https://arxiv.org/abs/1905.04753)) and plotted the results above.
 
 ## FAQ
-
-
-
 ### How do I choose my dataset parameters?
 If you want to reproduce our numbers you will need to make a dataset that can fully saturate your GPUs when loaded; 
 we recommend making your dataset in-memory with the following (sweeping) guidelines depending on your system:
@@ -78,10 +81,10 @@ we recommend making your dataset in-memory with the following (sweeping) guideli
 - \>500 GB RAM, >46 cores: Run `./write_dataset.sh 400 0.10 90`
 - 300-500 GB RAM, >24 cores: Run `./write_dataset.sh 350 0.10 90`
 
-These may not work depending on your system. Refer to [TODO](TODO) for general guidelines that you can apply more specifically; we strongly recommend generating a dataset (a) small enough to fully fit in memory and (b) fast enough to decode that your GPU is saturated. 
+These may not work depending on your system. Refer to [the performance guide](https://docs.ffcv.io/performance_guide.html) for guidelines that you can apply more specifically; we strongly recommend generating a dataset (a) small enough to fully fit in memory and (b) fast enough to decode that your GPU is saturated. 
 
 ### What if I can't fit my dataset in memory?
-First look at the [guide here](todo); if you still can't succeed, use the flag `data.in_memory=0` to set the required settings for disk-limited training,  
+See this [guide here](https://docs.ffcv.io/parameter_tuning.html#scenario-large-scale-datasets).
 
 ### Other questions
 Please open up a [GitHub discussion](https://github.com/MadryLab/ffcv/discussions) for non-bug related questions; if you find a bug please report it on [GitHub issues](https://github.com/MadryLab/ffcv/issues).
