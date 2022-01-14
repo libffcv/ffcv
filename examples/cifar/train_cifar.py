@@ -25,9 +25,10 @@ from ffcv.transforms import RandomHorizontalFlip, Cutout, \
 from ffcv.fields.decoders import IntDecoder, SimpleRGBImageDecoder
 from ffcv.fields import IntField, RGBImageField
 
-Section('params', 'hyperparameters').params(
+Section('training', 'hyperparameters').params(
     lr=Param(float, 'the learning rate to use', required=True),
-    num_epochs=Param(int, 'number of epochs to run for', required=True),
+    epochs=Param(int, 'number of epochs to run for', required=True),
+    lr_peak_epoch=Param(int, 'peak epoch for cyclic lr', required=True),
     batch_size=Param(int, 'batch size', default=512),
     momentum=Param(float, 'momentum for SGD', default=0.9),
     weight_decay=Param(float, 'l2 weight decay', default=5e-4),
@@ -36,18 +37,22 @@ Section('params', 'hyperparameters').params(
     lr_tta=Param(int, 'should do lr flipping/avging at test time', default=1)
 )
 
-@param('params.batch_size')
-@param('params.num_workers')
-def make_datasets(data_path, batch_size=None, num_workers=None):
-    datasets = {'train': torchvision.datasets.CIFAR10('/tmp', train=True, download=True),
-        'test': torchvision.datasets.CIFAR10('/tmp', train=False, download=True)}
+Section('data', 'data related stuff').params(
+    train_dataset=Param(str, '.dat file to use for training', required=True),
+    val_dataset=Param(str, '.dat file to use for validation', required=True),
+)
 
-    for (name, ds) in datasets.items():
-        writer = DatasetWriter(data_path + name, {
-            'image': RGBImageField(),
-            'label': IntField()
-        })
-        writer.from_indexed_dataset(ds)
+
+@param('data.train_dataset')
+@param('data.val_dataset')
+@param('training.batch_size')
+@param('training.num_workers')
+def make_datasets(train_dataset=None, val_dataset=None, batch_size=None, num_workers=None):
+    paths = {
+        'train': train_dataset,
+        'test': val_dataset
+
+    }
 
     start_time = time.time()
     CIFAR_MEAN = [125.307, 122.961, 113.8575]
@@ -71,7 +76,7 @@ def make_datasets(data_path, batch_size=None, num_workers=None):
             torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
         ])
 
-        loaders[name] = Loader(data_path + name, batch_size=batch_size, num_workers=num_workers,
+        loaders[name] = Loader(paths[name], batch_size=batch_size, num_workers=num_workers,
                             order=OrderOption.RANDOM, drop_last=(name == 'train'),
                             pipelines={'image': image_pipeline, 'label': label_pipeline})
 
@@ -119,20 +124,25 @@ def construct_model():
     model = model.to(memory_format=ch.channels_last).cuda()
     return model
 
-@param('params.lr')
-@param('params.num_epochs')
-@param('params.momentum')
-@param('params.weight_decay')
-@param('params.label_smoothing')
-def train(model, loaders, lr=None, num_epochs=None, label_smoothing=None,
+@param('training.lr')
+@param('training.epochs')
+@param('training.momentum')
+@param('training.weight_decay')
+@param('training.label_smoothing')
+def train(model, loaders, lr=None, epochs=None, label_smoothing=None,
           momentum=None, weight_decay=None):
     opt = SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
-    total_iters = len(loaders['train']) * num_epochs
+    total_iters = len(loaders['train']) * epochs
     scheduler = lr_scheduler.LambdaLR(opt, lambda step: 1 - float(step) / total_iters)
+    #lr_schedule = np.interp(np.arange((EPOCHS+1) * iters_per_epoch),
+    #                    [0, 5 * iters_per_epoch, EPOCHS * iters_per_epoch],
+    #                    [0, 1, 0])
+    #scheduler = lr_scheduler.LambdaLR(opt, lr_schedule.__getitem__)
+
     scaler = GradScaler()
     loss_fn = CrossEntropyLoss(label_smoothing=label_smoothing)
 
-    for _ in range(num_epochs):
+    for _ in range(epochs):
         for ims, labs in tqdm(loaders['train']):
             opt.zero_grad(set_to_none=True)
             with autocast():
@@ -144,7 +154,7 @@ def train(model, loaders, lr=None, num_epochs=None, label_smoothing=None,
             scaler.update()
             scheduler.step()
 
-@param('params.lr_tta')
+@param('training.lr_tta')
 def evaluate(model, loaders, lr_tta=False):
     model.eval()
     with ch.no_grad():
@@ -162,14 +172,17 @@ def evaluate(model, loaders, lr_tta=False):
 if __name__ == "__main__":
     config = get_current_config()
     parser = ArgumentParser(description='Fast CIFAR-10 training')
-    config.augment_argparse(parser)
-    config.collect_argparse_args(parser)
+    parser.add_argument('--config-path', required=True)
+    args = parser.parse_args()
+
+    config.collect_config_file(args.config_path)
+    #config.augment_argparse(parser)
+    #config.collect_argparse_args(parser)
     config.validate(mode='stderr')
     config.summary()
 
-    with NamedTemporaryFile() as handle:
-        loaders, start_time = make_datasets(handle.name)
-        model = construct_model()
-        train(model, loaders)
-        print(f'Total time: {time.time() - start_time:.5f}')
-        evaluate(model, loaders)
+    loaders, start_time = make_datasets()
+    model = construct_model()
+    train(model, loaders)
+    print(f'Total time: {time.time() - start_time:.5f}')
+    evaluate(model, loaders)
