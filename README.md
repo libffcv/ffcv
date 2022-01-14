@@ -166,7 +166,7 @@ store lower quality or downsized JPEGs.
 -->
 
 ## Features
-<img src='assets/clippy.png' width='100%'/>
+<img src='docs/_static/clippy-transparent-2.png' width='100%'/>
 
 Computer vision or not, name your performance bottleneck, and FFCV can help! See our  
 <a href="https://docs.ffcv.io/performance_guide.html">performance guide</a> for a 
