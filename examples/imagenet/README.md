@@ -1,5 +1,21 @@
-# ImageNet with `ffcv`
-We provide a self-contained script for training ImageNet efficiently: `train_imagenet.py`. To use it in research or on downstream applications we recommend copying the file and modifying it in place as needed (for example, to add features or additional logging). The script's accuracy vs training time graph is as follows for ResNet-18s (single A100 GPU) and ResNet-50s (8 A100 GPUs):
+# `ffcv` ImageNet Training
+<p>
+    <center> Train ImageNet efficiently with FFCV! </center>
+</p>
+
+Our ffcv-based training code is:
+
+<p><b>Fast.</b> [concrete example] [something about dataloading being fast as fuck so you're just limited by the algorithms you implement]</p>
+<p><b>Transparent.</b> Our script is a single file written in an imperative style: it is the same size as and implements the same functionality as the <a href='https://github.com/pytorch/examples/tree/master/imagenet'>PyTorch ImageNet example</a>. No more digging into documentation to understand someone's <code>training.optimizer.learning_rates.ConstantLR</code> class.</p>
+<p><b>Parallelizable.</b> Concurrent training runs on different GPUs (or even the same) don't pay </p>
+
+fast and accurate: 
+[plot]
+- simple training script
+- minimal tricks
+- meant for modifiabilty and reesearch
+
+: `train_imagenet.py`. To use it in research or on downstream applications we recommend copying the file and modifying it in place as needed (for example, to add features or additional logging). The script's accuracy vs training time graph is as follows for ResNet-18s (single A100 GPU) and ResNet-50s (8 A100 GPUs):
 
 TODO
 
@@ -52,6 +68,8 @@ Refer to the code and configuration files for a more exact specification.
 To obtain configurations we first gridded for hyperparameters at a 30 epoch schedule. Fixing these parameters, we then varied only the number of epochs (stretching the learning rate schedule across the number of epochs as motivated by [Budgeted Training](https://arxiv.org/abs/1905.04753)) and plotted the results above.
 
 ## FAQ
+
+
 
 ### How do I choose my dataset parameters?
 If you want to reproduce our numbers you will need to make a dataset that can fully saturate your GPUs when loaded; 
