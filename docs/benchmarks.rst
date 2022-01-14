@@ -312,29 +312,29 @@ for training results.
 
 We detail the tested systems below:
 
-- FFCV: We train using the code and system detailed  `here <https://github.com/MadryLab/ffcv/tree/main/examples/imagenet>`.
+- FFCV: We train using the code and system detailed  `in our repository <https://github.com/MadryLab/ffcv/tree/main/examples/imagenet>`_.
 - PyTorch Example: This is the popular ImageNet training code found
-`here <https://github.com/pytorch/examples/blob/master/imagenet/main.py>`.
-we measured the time to complete a epoch of training (after warmup) and then
-used that to extrapolate how long the implemented schedule would take. We took
-accurcies from
-`PyTorch model hub <https://pytorch.org/hub/pytorch_vision_resnet/>`,
-assuming a 90 epoch schedule (a lower bound; the original ResNet paper used 120).
-We modified the PyTorch example to add half precision training (via PyTorch nativeAMP).
+  `the PyTorch repository <https://github.com/pytorch/examples/blob/master/imagenet/main.py>`_.
+  we measured the time to complete a epoch of training (after warmup) and then
+  used that to extrapolate how long the implemented schedule would take. We took
+  accurcies from
+  `PyTorch model hub <https://pytorch.org/hub/pytorch_vision_resnet/>`_,
+  assuming a 90 epoch schedule (a lower bound; the original ResNet paper used 120).
+  We modified the PyTorch example to add half precision training (via PyTorch nativeAMP).
 - PyTorch Lightning: Another popular training library, we used the example
-code from `here <https://github.com/PyTorchLightning/pytorch-lightning/blob/master/pl_examples/domain_templates/imagenet.py>`,
-removed the import on line 46, and called the file with the DDP accelerator and
-half precision. We measured single epoch time (after warmup) and
-then, similar to the PyTorch example, assumed a 90 epoch schedule and correctness:
-that the resulting model would obtain the accuracy of a standard ResNet-50 trained
-on 90 epochs (i.e. the number listed in `PyTorch hub <https://pytorch.org/hub/pytorch_vision_resnet/>`)
-- NVDIA PyTorch: NVIDIA's PyTorch ImageNet implementation, number and time lifted
-from the 
-`website <https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/Classification/ConvNets/resnet50v1.5/README.md#results>`. 
+  code from `the Lightning repository <https://github.com/PyTorchLightning/pytorch-lightning/blob/master/pl_examples/domain_templates/imagenet.py>`_,
+  removed the import on line 46, and called the file with the DDP accelerator and
+  half precision. We measured single epoch time (after warmup) and
+  then, similar to the PyTorch example, assumed a 90 epoch schedule and correctness:
+  that the resulting model would obtain the accuracy of a standard ResNet-50 trained
+  on 90 epochs (i.e. the number listed in `PyTorch hub <https://pytorch.org/hub/pytorch_vision_resnet/>`_)
+- NVIDIA PyTorch: NVIDIA's PyTorch ImageNet implementation, number and time lifted
+  from the 
+  `website <https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/Classification/ConvNets/resnet50v1.5/README.md#results>`_. 
 - TIMM A3: The TIMM A3 ResNet-50 from 
-`ResNet Strikes Back <https://arxiv.org/abs/2110.00476>`.
-The paper originally used 4 V100s in training, so we assumed perfect scaling and
-lower bounded the training time by dividing the reported training time 
-(15 hours) by 4 (V100s are at most
-`twice as slow <https://lambdalabs.com/blog/nvidia-a100-vs-v100-benchmarks/>` 
-as A100s and we used 8 GPUs instead of 4)
+  `ResNet Strikes Back <https://arxiv.org/abs/2110.00476>`_.
+  The paper originally used 4 V100s in training, so we assumed perfect scaling and
+  lower bounded the training time by dividing the reported training time 
+  (15 hours) by 4 (V100s are at most
+  `twice as slow <https://lambdalabs.com/blog/nvidia-a100-vs-v100-benchmarks/>`_
+  as A100s and we used 8 GPUs instead of 4)
