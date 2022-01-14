@@ -1,3 +1,25 @@
+'''
+Fast training script for CIFAR-10 using FFCV.
+
+First, from the same directory, run:
+
+    `python write_datasets.py --train-path [TRAIN_PATH] \
+                              --test-path [TEST_PATH]`
+
+to generate the FFCV-formatted versions of CIFAR.
+
+Then, simply run this to train models with default hyperparameters:
+
+    `python train_cifar.py --config-file default_config.yaml`
+
+You can override arguments as follows:
+
+    `python train_cifar.py --config-file default_config.yaml \
+                           --lr 0.2 --num-workers 4 ... [etc]`
+
+or by using a different config file.
+'''
+
 from argparse import ArgumentParser
 from typing import List
 from tempfile import NamedTemporaryFile
@@ -41,7 +63,6 @@ Section('data', 'data related stuff').params(
     train_dataset=Param(str, '.dat file to use for training', required=True),
     val_dataset=Param(str, '.dat file to use for validation', required=True),
 )
-
 
 @param('data.train_dataset')
 @param('data.val_dataset')
@@ -134,11 +155,6 @@ def train(model, loaders, lr=None, epochs=None, label_smoothing=None,
     opt = SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
     total_iters = len(loaders['train']) * epochs
     scheduler = lr_scheduler.LambdaLR(opt, lambda step: 1 - float(step) / total_iters)
-    #lr_schedule = np.interp(np.arange((EPOCHS+1) * iters_per_epoch),
-    #                    [0, 5 * iters_per_epoch, EPOCHS * iters_per_epoch],
-    #                    [0, 1, 0])
-    #scheduler = lr_scheduler.LambdaLR(opt, lr_schedule.__getitem__)
-
     scaler = GradScaler()
     loss_fn = CrossEntropyLoss(label_smoothing=label_smoothing)
 
@@ -172,12 +188,8 @@ def evaluate(model, loaders, lr_tta=False):
 if __name__ == "__main__":
     config = get_current_config()
     parser = ArgumentParser(description='Fast CIFAR-10 training')
-    parser.add_argument('--config-path', required=True)
-    args = parser.parse_args()
-
-    config.collect_config_file(args.config_path)
-    #config.augment_argparse(parser)
-    #config.collect_argparse_args(parser)
+    config.augment_argparse(parser)
+    config.collect_argparse_args(parser)
     config.validate(mode='stderr')
     config.summary()
 
