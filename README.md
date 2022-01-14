@@ -16,7 +16,7 @@ Maintainers:
 <a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 
-`ffcv` dramatically increases data throughput in accelerated computing systems.
+`ffcv` dramatically increases data throughput in ML training.
 In this repo, you will find:
 - Our library for <a href="#quickstart">fast data loading and processing</a>
   (even in resource constrained environments) 
