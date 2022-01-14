@@ -1,4 +1,4 @@
-'''
+"""
 Fast training script for CIFAR-10 using FFCV.
 For tutorial, see https://docs.ffcv.io/ffcv_examples/cifar10.html.
 
@@ -19,7 +19,7 @@ You can override arguments as follows:
                            --training.lr 0.2 --training.num_workers 4 ... [etc]`
 
 or by using a different config file.
-'''
+"""
 from argparse import ArgumentParser
 from typing import List
 import time

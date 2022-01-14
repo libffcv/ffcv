@@ -1,3 +1,8 @@
+"""
+Example of defining a custom (image) transform using FFCV.
+For tutorial, see https://docs.ffcv.io/ffcv_examples/custom_transforms.html.
+
+"""
 import time
 import numpy as np
 import torchvision
@@ -26,8 +31,8 @@ class PickACorner(Operation):
 
         pick_a_corner.is_parallel = True
         return pick_a_corner
-    
-    def declare_state_and_memory(self, previous_state): 
+
+    def declare_state_and_memory(self, previous_state):
         h, w, c = previous_state.shape
         new_shape = (h // 2, w // 2, c)
 
@@ -59,6 +64,6 @@ for name, pipeline in image_pipelines.items():
     # First epoch includes compilation time
     for ims, labs in loader: pass
     start_time = time.time()
-    for _ in range(100): 
+    for _ in range(100):
         for ims, labs in loader: pass
     print(f'Method: {name} | Shape: {ims.shape} | Time per epoch: {(time.time() - start_time) / 100:.5f}s')
