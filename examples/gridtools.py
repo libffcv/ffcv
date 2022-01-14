@@ -30,6 +30,7 @@ MAPPING = {
     'workers': ['data', 'num_workers'],
     'val_res': ['validation', 'resolution'],
     'logs': ['logging', 'folder'],
+    'log_level': ['logging', 'log_level'],
     'batch_size':['training', 'batch_size'],
     'peak':['lr', 'lr_peak_epoch'],
     'schedule_type':['lr', 'lr_schedule_type'],

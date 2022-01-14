@@ -39,7 +39,8 @@ conda install ffcv
 ``` 
 
 ## Citation
-If you find FFCV useful in your work, please cite it as:
+If you use `ffcv` cite it as:
+
 ```
 @misc{leclerc2022ffcv,
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
@@ -50,10 +51,10 @@ If you find FFCV useful in your work, please cite it as:
 }
 ```
 
-## In this document
-- <a href="#overview"><b>Overview</b></a>: High level introduction to `ffcv`
-- <a href="#features"><b>Features</b></a>Mapping of data loading problems to our solutions.
-- <a href="TODO"><b>Results on ImageNet and CIFAR</b></a>: Results, code, and training configs for ImageNet
+## Index
+- <a href="#overview"><b>Overview</b></a>: High level guide to `ffcv`.
+- <a href="#features"><b>Features</b></a>: What can `ffcv` do for you?
+- <a href="#prepackaged-computer-vision-benchmarks"><b>Fast Training Code</b></a>: Results, code, and training configs for ImageNet and CIFAR-10.
 
 ## Overview
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
@@ -174,9 +175,8 @@ more detailed look.
 Maybe you're reading from a networked drive, maybe you have too many GPUs;
 either way, try these features:
 <ul>
-<li><b><a href="TODO">Use process-level page caching</a></b>: TODO</li>
-<li><b><a href="TODO">Use os-level page caching</a></b>: TODO Assuming your <code>ffcv</code> dataset fits in memory, use os-level page caching to ensure that concurrent training executions properly exploit caching.</li>
-<li><b><a href="TODO">Use quasi-random data sampling</a></b>: TODO (NOTE DOES NOT WORK WITH DISTRIBUTED)</li>
+<li><b><a href="TODO">Cache options</a></b>: use OS or process-level caching depending on whether your dataset fits in memory (or not).</li>
+<li><b><a href="TODO">Use quasi-random data sampling</a></b>: </li>
 <li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Many datasets have gigantic images even though most pipelines crop and resize to smaller edge lengths before training.</li>
 <li><b><a href="TODO">Store JPEGs</a></b> (<code>cv</code>): Store images as space-efficient JPEGs.</li>
 <li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease storage sizes.</li>
@@ -186,9 +186,8 @@ either way, try these features:
 <p><b>CPU bottlenecks.</b> All CPUs at 100% and you're still not hitting maximal
 GPU usage? Consider the following:
 <ul>
-<li><b><a href="TODO">Use premade, JIT-compiled augmentations</a></b>: TODO use our premade chunguses instead of the standard chunguses.</li>
-<li><b><a href="TODO">Make your own JIT-compiled augmentations</a></b>: Compile your optimizations into TODO </li>
-<li><b><a href="TODO">Fuse together redundant operations</a></b>: TODO </li>
+<li><b><a href="TODO">Use premade, JIT-compiled augmentations</a></b>: `ffcv` comes with JIT-compiled equivalents of standard augmentation routines.</li>
+<li><b><a href="TODO">Make your own JIT-compiled augmentations</a></b>: `ffcv` supports custom JIT-compiled augmentations.</li>
 <li><b><a href="TODO">Store resized images</a></b> (<code>cv</code>): Smaller images require less compute to decode.</li>
 <li><b><a href="TODO">Store lower quality JPEGs</a></b> (<code>cv</code>): Lower serialized JPEG quality to decrease CPU cycles spent decoding.</li>
 <li><b><a href="TODO">Store a fraction of images as raw pixel data</a></b> (<code>cv</code>): Trade off storage and compute workload (raw pixels require no JPEG decoding) by randomly storing a specified fraction of the dataset as raw pixel data.</li>

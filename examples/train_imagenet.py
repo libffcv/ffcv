@@ -167,8 +167,6 @@ class ImageNetTrainer:
         # otherwise, linearly interpolate to the nearest multiple of 32
         interp = np.interp([epoch], [start_ramp, end_ramp], [min_res, max_res])
         final_res = int(np.round(interp[0] / 32)) * 32
-
-        print(f'FINAL RES: {final_res}', epoch, min_res, max_res, end_ramp, start_ramp)
         return final_res
 
     @param('training.momentum')
