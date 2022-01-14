@@ -43,7 +43,7 @@ and data transfer routines with `ffcv`, we enable significantly faster training:
 
 <img src="docs/_static/perf_scatterplot.svg"/>
 
-See [here](TODO) for further benchmark details.
+See [here](https://docs.ffcv.io/benchmarks.html) for further benchmark details.
 
 ## Install with Anaconda
 ```
