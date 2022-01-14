@@ -13,12 +13,12 @@ PyTorch datasets and `WebDatasets <https://github.com/webdataset/webdataset>`_):
     import numpy as np
 
     # Your dataset (`torch.utils.data.Dataset`) of (image, label) pairs
-    my_dataset = make_my_dataset() 
+    my_dataset = make_my_dataset()
     write_path = '/output/path/for/converted/ds.ffcv'
 
     # Pass a type for each data field
     writer = DatasetWriter(write_path, {
-        # Tune options to optimize dataset size, throughput at train-time 
+        # Tune options to optimize dataset size, throughput at train-time
         'image': RGBImageField({
             max_resolution=256,
             jpeg_quality=jpeg_quality
@@ -59,4 +59,4 @@ no other changes required!):
     for epoch in range(epochs):
         ...
 
-[See here](TODO) for a more detailed guide to deploying `ffcv` for your dataset.
+See :ref:`here <Getting started>` for a more detailed guide to deploying `ffcv` for your dataset.
