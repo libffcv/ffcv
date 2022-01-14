@@ -8,7 +8,12 @@ Welcome to FFCV's documentation!
 
 View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
 
-Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_:  ``conda create -n ffcv -c pytorch -c conda-forge -c ffcv ffcv``
+Install ``ffcv``:
+
+.. code-block:: bash
+
+   conda create -n ffcv python=3.9 cupy pkg-config compilers libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+   pip install git+https://github.com/MadryLab/ffcv.git
 
 
 Introduction
@@ -16,8 +21,8 @@ Introduction
 
 ``ffcv`` is a drop-in data loading system that dramatically increases data throughput in model training:
 
-- Train an ImageNet model on one GPU in 35 minutes ((98¢/model on AWS)
-- Train a CIFAR-10 model on one GPU in 36 seconds ((2¢/model on AWS)
+- Train an ImageNet model on one GPU in 35 minutes (98¢/model on AWS)
+- Train a CIFAR-10 model on one GPU in 36 seconds (2¢/model on AWS)
 - Train a ``$YOUR_DATASET`` model ``$REALLY_FAST`` (for ``$WAY_LESS``)
 
 Keep your training algorithm the same, just replace the data loader! Look at these speedups:
@@ -40,8 +45,8 @@ See the :ref:`Features` section below for a more detailed glance at what FFCV ca
 Tutorials
 ---------
 
-We provide a walk-through of the basic usage, performance guide, complete
-examples (including advanced customizations), as well as extensive benchmarks on
+We provide a walk-through of basic usage, a performance guide, complete
+examples (including advanced customizations), as well as detailed benchmarks on
 ImageNet.
 
 .. toctree::
@@ -106,7 +111,7 @@ FFCV can adapt to different performance bottlenecks.
   equally applicable to all sorts of machine learning models, but FFCV also
   offers some vision-specific features, such as fast JPEG encoding and decoding,
   storing datasets as mixtures of raw and compressed images to trade off I/O
-  overhead and compute overhead, etc. See the :ref:`Working with images <Working with Image Data in FFCV>`guide for
+  overhead and compute overhead, etc. See the :ref:`Working with images <Working with Image Data in FFCV>` guide for
   more information.
 
 
