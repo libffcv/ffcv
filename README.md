@@ -33,6 +33,8 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 
 <img src="docs/_static/perf_scatterplot.svg" width='830px'/>
 
+Train to the same accuracy, way faster!
+
 ## Install with Anaconda
 ```
 conda install ffcv -c pytorch -c conda-forge -c ffcv
