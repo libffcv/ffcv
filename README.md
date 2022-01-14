@@ -168,7 +168,7 @@ performance bottlenecks.
   [Example walkthroughs](https://docs.ffcv.io/examples.html), and 
   [Code examples](https://github.com/MadryLab/ffcv/tree/new_ver/examples) 
   to see how easy it is to get started!
-- **Fast data processing without the pain**: FFCV automatically handle data
+- **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely
   efficiently way, so that users don't have to think about it.
 - **Automatically fused-and-compiled data processing**: By either using
