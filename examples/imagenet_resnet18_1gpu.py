@@ -10,7 +10,7 @@ def main(log_dir, out_file):
     # lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 9)]
 
     res = [Parameters(min_res=160, max_res=a, val_res=b) for a, b in
-            [(160, 224), (192, 256), (224, 312)]]
+            [(192, 256)]]
     
     epochs = []
     for e in [16, 24, 32, 40, 56, 88]:
