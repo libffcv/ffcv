@@ -41,7 +41,7 @@ Compare our training and dataloading times to what you might use now:
 Holding constant the same training routine and optimizing only the dataloading
 and data transfer routines with `ffcv`, we enable significantly faster training:
 
-[ TODO image ]
+<img src="docs/_static/perf_scatterplot.svg"/>
 
 See [here](TODO) for further benchmark details.
 
