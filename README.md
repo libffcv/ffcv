@@ -147,14 +147,14 @@ ResNet-50 alongside a few baselines.
 | <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/693bdc59-3dba-45b4-ae4c-8c274da87b95.yaml'>Link</a> | 0.6786  | 0.88094 |         24 |       51.2127 | ResNet-18      | 1 x A100 |
 | <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/2294bc2a-9f6d-420e-be91-6acff51f7f22.yaml'>Link</a> | 0.65478 | 0.86844 |         16 |       34.8248 | ResNet-18      | 1 x A100 |
 
-**Train your own ImageNet models!** You can <a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
+**Train your own ImageNet models!** You can <a href="https://github.com/MadryLab/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient training on CIFAR-10 in the `examples/`
 directory, obtaining 93\% top1 accuracy in 36 seconds on a single A100 GPU
 (without optimizations such as MixUp, Ghost BatchNorm, etc. which have the
 potential to raise the accuracy even further). You can find the training script
-<a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/cifar">here</a>.
+<a href="https://github.com/MadryLab/ffcv/tree/main/examples/cifar">here</a>.
 
 ## Features
 <img src='docs/_static/clippy-transparent-2.png' width='100%'/>
@@ -182,7 +182,7 @@ performance bottlenecks.
 
   See our [Getting started](https://docs.ffcv.io/basics.html) guide,
   [Example walkthroughs](https://docs.ffcv.io/examples.html), and
-  [Code examples](https://github.com/MadryLab/ffcv/tree/new_ver/examples)
+  [Code examples](https://github.com/MadryLab/ffcv/tree/main/examples)
   to see how easy it is to get started!
 - **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely

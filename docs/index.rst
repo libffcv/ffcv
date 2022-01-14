@@ -69,14 +69,14 @@ We provide a self-contained script for training ImageNet <it>fast</it>.
 accuracy frontier, and the dataloading speeds, for 1-GPU ResNet-18 and 8-GPU
 ResNet-50 alongside a few baselines.
 
-**Train your own ImageNet models!** You can `use our training script and premade configurations <https://github.com/MadryLab/ffcv/tree/new_ver/examples/imagenet>`_ to train any model seen on the above graphs.
+**Train your own ImageNet models!** You can `use our training script and premade configurations <https://github.com/MadryLab/ffcv/tree/main/examples/imagenet>`_ to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient training on CIFAR-10 in the `examples/`
 directory, obtaining 93\% top1 accuracy in 36 seconds on a single A100 GPU
 (without optimizations such as MixUp, Ghost BatchNorm, etc. which have the
 potential to raise the accuracy even further). You can find the training script
-<a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/cifar">here</a>.
+<a href="https://github.com/MadryLab/ffcv/tree/main/examples/cifar">here</a>.
 
 
 Features
@@ -106,7 +106,7 @@ performance bottlenecks.
 
   See our [Getting started](https://docs.ffcv.io/basics.html) guide,
   [Example walkthroughs](https://docs.ffcv.io/examples.html), and
-  [Code examples](https://github.com/MadryLab/ffcv/tree/new_ver/examples)
+  [Code examples](https://github.com/MadryLab/ffcv/tree/main/examples)
   to see how easy it is to get started!
 - **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely
