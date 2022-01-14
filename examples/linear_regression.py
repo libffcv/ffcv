@@ -1,3 +1,8 @@
+"""
+Example of using FFCV to speed up large scale linear regression.
+For tutorial, see https://docs.ffcv.io/ffcv_examples/linear_regression.html.
+
+"""
 from tqdm import tqdm
 import time
 import numpy as np
@@ -10,7 +15,7 @@ from ffcv.fields.decoders import NDArrayDecoder
 from ffcv.loader import Loader, OrderOption
 from ffcv.writer import DatasetWriter
 from ffcv.transforms import ToTensor, ToDevice, Squeeze
-import os 
+import os
 
 # 1,000,000 inputs each of dimension 10,000 = 40GB of data
 N, D = 1000000, 10000
@@ -44,19 +49,19 @@ if USE_FFCV and not os.path.exists('/tmp/linreg_data.beton'):
 else:
     print('FFCV file already written')
 
+
 ### PART 2: actual regression
 
 if not USE_FFCV:
     dataset = TensorDataset(ch.tensor(X), ch.tensor(Y))
     train_loader = DataLoader(dataset, batch_size=2048, num_workers=8, shuffle=True)
 else:
-    train_loader = Loader('/tmp/linreg_data.beton', batch_size=2048, 
+    train_loader = Loader('/tmp/linreg_data.beton', batch_size=2048,
                     num_workers=8, order=OrderOption.QUASI_RANDOM, os_cache=False,
                     pipelines={
                         'covariate': [NDArrayDecoder(), ToTensor(), ToDevice(ch.device('cuda:0'))],
                         'label': [NDArrayDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'))]
                     })
-
 
 # Calculate data mean and variance for normalization
 def calculate_stats(loader, N):
@@ -81,11 +86,10 @@ for _ in range(num_epochs):
             y_batch = y_batch.cuda()
         # Normalize the data for stability
         x_batch = (x_batch - mean) / stdev
-        residual = x_batch @ w_est + b_est - y_batch 
+        residual = x_batch @ w_est + b_est - y_batch
         # Gradients
         w_grad = x_batch.T @ residual / x_batch.shape[0]
         b_grad = ch.mean(residual, dim=0)
-        # import ipdb; ipdb.set_trace()
         w_est = w_est - lr * w_grad
         b_est = b_est - lr * b_grad
         total_loss += residual.pow(2).sum()

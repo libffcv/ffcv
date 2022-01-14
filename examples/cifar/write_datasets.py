@@ -15,13 +15,13 @@ from fastargs.validation import And, OneOf
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
 
-Section('cfg', 'arguments to give the writer').params(
+Section('data', 'arguments to give the writer').params(
     train_path=Param(str, 'Where to write the new dataset', required=True),
     test_path=Param(str, 'Where to write the new dataset', required=True),
 )
 
-@param('cfg.train_path')
-@param('cfg.test_path')
+@param('data.train_path')
+@param('data.test_path')
 def main(train_path, test_path):
     datasets = {
         'train': torchvision.datasets.CIFAR10('/tmp', train=True, download=True),

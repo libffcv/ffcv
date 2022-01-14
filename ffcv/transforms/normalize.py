@@ -27,9 +27,9 @@ class NormalizeImage(Operation):
     Parameters
     ----------
     mean: np.ndarray
-        The mean vector
+        The mean vector.
     std: np.ndarray
-        The standard deviation vector
+        The standard deviation vector.
     type: np.dtype
         The desired output type for the result as a numpy type.
         If the transform is applied on a GPU tensor it will be converted

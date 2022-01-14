@@ -4,6 +4,9 @@ Training CIFAR-10 in 36 seconds on a single A100
 In this example, we'll show how to use FFCV and the ResNet-9 architecture in
 order to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds on a single NVIDIA A100 GPU.
 
+We also provide the code `here <https://github.com/MadryLab/ffcv/blob/new_ver/examples/cifar/train_cifar.py>`_ and the corresponding script `here <https://github.com/MadryLab/ffcv/blob/new_ver/examples/cifar/train_cifar.sh>`_.
+
+Here, we show a step by step walkthrough.
 First, we import ``torch`` and necessary components from ``ffcv``.
 
 .. code-block:: python
@@ -205,4 +208,4 @@ Wrapping up
 
 It's that simple! In this tutorial, we used FFCV to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds.
 
-For a different example, see :ref:`Large-Scale Linear Regression`.
+For a different example using FFCV to speed up training, see :ref:`Large-Scale Linear Regression`.
