@@ -14,29 +14,27 @@ Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/inde
 Introduction
 ------------
 
-`ffcv` dramatically increases data throughput in ML training. Our package provides:
+``ffcv`` dramatically increases data throughput in ML training. Our package provides:
 
-- A library for <a href="#quickstart">fast data loading and processing</a>
-  (even in resource constrained environments)
-- Efficient, simple, easy-to-understand, customizable training code for standard
-   vision tasks
+- A library for fast data loading and processing (even in resource constrained environments)
+- Efficient, simple, easy-to-understand, customizable training code for standard vision tasks
 
 For example, use FFCV to:
 
-- ...[train an ImageNet model]() on one GPU in 30 minutes (XX$ on AWS)
-- ...[train a CIFAR-10 model]() on one GPU in 36 seconds (XX$ on AWS)
-- ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
+- ...train an ImageNet model on one GPU in 30 minutes (XX$ on AWS)
+- ...train a CIFAR-10 model on one GPU in 36 seconds (XX$ on AWS)
+- ...train a ``$YOUR_DATASET`` model ``$REALLY_FAST`` (for ``$WAY_LESS``)
 
 Compare our training and dataloading times to what you might use now:
 
-<img src="assets/headline.svg"/>
+.. image:: /_static/headline.svg
+  :width: 100%
 
-Holding constant the same training routine and optimizing only the dataloading
-and data transfer routines with `ffcv`, we enable significantly faster training:
+With ``ffcv``, we enable significantly faster training:
 
-<img src="docs/_static/perf_scatterplot.svg"/>
+.. image:: /_static/perf_scatterplot.svg
 
-See [here](https://docs.ffcv.io/benchmarks.html) for further benchmark details.
+See :ref:`ImageNet Benchmarks` for further benchmark details.
 
 See the :ref:`Features` section below for a more detailed glance at what FFCV can do.
 
@@ -44,7 +42,9 @@ See the :ref:`Features` section below for a more detailed glance at what FFCV ca
 Tutorials
 ---------
 
-We provide a walk-through of the basic usage, performance guide, complete examples (including advanced customizations), as well as extensive benchmarks on ImageNet.
+We provide a walk-through of the basic usage, performance guide, complete
+examples (including advanced customizations), as well as extensive benchmarks on
+ImageNet. 
 
 .. toctree::
    quickstart
@@ -54,40 +54,13 @@ We provide a walk-through of the basic usage, performance guide, complete exampl
    benchmarks
    :maxdepth: 2
 
-
-
-Prepackaged Computer Vision Benchmarks
---------------------------------------
-From gridding to benchmarking to fast research iteration, there are many reasons
-to want faster model training. Below we present premade codebases for training
-on ImageNet and CIFAR, including both (a) extensible codebases and (b)
-numerous premade training configurations.
-
-### ImageNet
-We provide a self-contained script for training ImageNet <it>fast</it>.
-[Above](#plots) we plot the training time versus
-accuracy frontier, and the dataloading speeds, for 1-GPU ResNet-18 and 8-GPU
-ResNet-50 alongside a few baselines.
-
-**Train your own ImageNet models!** You can `use our training script and premade configurations <https://github.com/MadryLab/ffcv/tree/main/examples/imagenet>`_ to train any model seen on the above graphs.
-
-### CIFAR-10
-We also include premade code for efficient training on CIFAR-10 in the `examples/`
-directory, obtaining 93\% top1 accuracy in 36 seconds on a single A100 GPU
-(without optimizations such as MixUp, Ghost BatchNorm, etc. which have the
-potential to raise the accuracy even further). You can find the training script
-<a href="https://github.com/MadryLab/ffcv/tree/main/examples/cifar">here</a>.
-
-
 Features
 --------
-<img src='_static/clippy-transparent-2.png' width='100%'/>
 
 Computer vision or not, FFCV can help make training faster in a variety of
 resource-constrained settings!
-Our <a href="https://docs.ffcv.io/performance_guide.html">performance guide</a>
-has a more detailed account of the ways in which FFCV can adapt to different
-performance bottlenecks.
+Our :ref:`Performance Guide` has a more detailed account of the ways in which
+FFCV can adapt to different performance bottlenecks.
 
 
 - **Plug-and-play with any existing training code**: Rather than changing
@@ -95,18 +68,17 @@ performance bottlenecks.
   which turn out to be a problem everywhere from neural network training to
   linear regression. This means that:
 
-    - FFCV can be introduced into any existing training code in just a few
-      lines of code (e.g., just swapping out the data loader and optionally the
-      augmentation pipeline);
-    - you don't have to change the model itself to make it faster (e.g., feel
-      free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
-    - FFCV can speed up a lot more beyond just neural network training---in
-      fact, the more data-bottlenecked the application (e.g., linear regression,
-      bulk inference, etc.), the faster FFCV will make it!
+  - FFCV can be introduced into any existing training code in just a few
+    lines of code (e.g., just swapping out the data loader and optionally the
+    augmentation pipeline);
+  - you don't have to change the model itself to make it faster (e.g., feel
+    free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
+  - FFCV can speed up a lot more beyond just neural network training---in
+    fact, the more data-bottlenecked the application (e.g., linear regression,
+    bulk inference, etc.), the faster FFCV will make it!
 
-  See our [Getting started](https://docs.ffcv.io/basics.html) guide,
-  [Example walkthroughs](https://docs.ffcv.io/examples.html), and
-  [Code examples](https://github.com/MadryLab/ffcv/tree/main/examples)
+  See our :ref:`Getting started` guide, :ref:`Examples`, and
+  `code examples <https://github.com/MadryLab/ffcv/tree/main/examples>`_
   to see how easy it is to get started!
 - **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely
