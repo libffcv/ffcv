@@ -5,7 +5,7 @@
 <p align = 'center'>
 [<a href="https://ffcv.io">homepage</a>]
 [<a href="#installation">install</a>]
-[<a href="#overview">overview</a>]
+[<a href="#quickstart">quickstart</a>]
 [<a href="https://docs.ffcv.io">docs</a>]
 [<a href="#imagenet">ImageNet</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
@@ -35,11 +35,11 @@ TODO
 With [Anaconda](https://docs.anaconda.com/anaconda/install/index.html):
 
 ```
-conda install ffcv
+conda install ffcv -c pytorch -c conda-forge -c ffcv
 ``` 
 
 ## Citation
-If you use `ffcv` cite it as:
+If you use FFCV, please cite it as:
 
 ```
 @misc{leclerc2022ffcv,
@@ -52,11 +52,11 @@ If you use `ffcv` cite it as:
 ```
 
 ## Index
-- <a href="#overview"><b>Overview</b></a>: High level guide to `ffcv`.
+- <a href="#quickstart"><b>Quickstart</b></a>: High level guide to `ffcv`.
 - <a href="#features"><b>Features</b></a>: What can `ffcv` do for you?
 - <a href="#prepackaged-computer-vision-benchmarks"><b>Fast Training Code</b></a>: Results, code, and training configs for ImageNet and CIFAR-10.
 
-## Overview
+## Quickstart
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
 First,
 convert your dataset into `ffcv` format (`ffcv` converts both indexed PyTorch datasets and
@@ -132,6 +132,7 @@ a few baselines:
 ### CIFAR-10
 We also include premade code for efficient CIFAR-10 training in the `examples/` directory; we obtain 93\% top1 accuracy in 36 seconds with one A100 GPU. You can find the training script and configuration <a href="TODO">here</a>.
 
+<!--
 ## Custom Datasets Quickstart
 Accelerating data loading with `ffcv` requires two steps: dataset preprocessing into `ffcv` format,
 and then deploying the `ffcv` data loader at train-time. To help you tune the
@@ -162,6 +163,7 @@ store lower quality or downsized JPEGs.
 - Replace data augmentations with `ffcv` <a href="TODO">built-in equivalents</a> when possible.
 - <a href="TODO">Port your data augmentations</a> over to `ffcv` via <a href="TODO">Numba</a> if you have the time; `ffcv` does support slower, non-numba augmentations as well.
 </p>
+-->
 
 ## Features
 <img src='assets/clippy.png' width='100%'/>

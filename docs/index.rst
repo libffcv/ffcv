@@ -18,9 +18,10 @@ Walkthroughs
 ------------
 
 .. toctree::
-   examples
+   quickstart
    basics
    performance_guide
+   examples
    benchmarks
    :maxdepth: 2
 
