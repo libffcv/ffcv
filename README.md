@@ -18,8 +18,8 @@ Maintainers:
 
 `ffcv` dramatically increases data throughput in accelerated computing systems,
 offering:
-- <a href="#overview">Fast data loading</a> (even in resource constrained environments)
-- Efficient (yet Easy To Understand/customize) <a href="">training code</a> for standard
+- <a href="#quickstart">Fast data loading and processing</a> (even in resource constrained environments)
+- Efficient, simple, easy-to-understand, customizable training code for standard
    computer vision tasks
 
 Install `ffcv` today and:
