@@ -41,5 +41,18 @@ setup(name='ffcv',
 Load and train computer vision fast
        ''',
       packages=find_packages(),
-      ext_modules=[libffcv]
+      ext_modules=[libffcv],
+      install_requires=[
+          'terminaltables',
+            'pytorch_pfn_extras',
+            'fastargs',
+            'matplotlib',
+            'sklearn',
+            'imgcat',
+            'pandas',
+            'assertpy',
+            'tqdm',
+            'psutil',
+            'webdataset',
+      ]
       )
