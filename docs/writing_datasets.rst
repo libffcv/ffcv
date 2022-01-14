@@ -15,7 +15,7 @@ Such files can be generated using the class :class:`ffcv.writer.DatasetWriter` f
   This allows users to integrate large scale and/or remote datasets into FFCV easily.
 
 In this tutorial, we will show how to handle datasets from these two categories.
-Additionally, in the folder ``/scripts`` of our `repository <https://github.com/MadryLab/ffcv>`_ we also include a
+Additionally, in the folder ``/examples`` of our `repository <https://github.com/MadryLab/ffcv>`_ we also include a
 conversion script illustrating the conversion of `CIFAR-10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_ and `ImageNet <https://www.image-net.org>`_ from their PyTorch counterparts.
 
 The first step is to include the following class into your script:

@@ -160,8 +160,9 @@ performance bottlenecks.
       augmentation pipeline);
     - you don't have to change the model itself to make it faster (e.g., feel
       free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
-    - FFCV can speed up a lot more than just neural network training---in
-      fact, the more data-bottlenecked the application, the faster FFCV will make it!
+    - FFCV can speed up a lot more beyond just neural network training---in
+      fact, the more data-bottlenecked the application (e.g., linear regression,
+      bulk inference, etc.), the faster FFCV will make it!
 
   See our [Getting started](https://docs.ffcv.io/basics.html) guide, 
   [Example walkthroughs](https://docs.ffcv.io/examples.html), and 
