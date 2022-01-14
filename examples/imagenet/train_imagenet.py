@@ -76,7 +76,7 @@ Section('training', 'training hyper param stuff').params(
     optimizer=Param(And(str, OneOf(['sgd'])), 'The optimizer', default='sgd'),
     momentum=Param(float, 'SGD momentum', default=0.9),
     weight_decay=Param(float, 'weight decay', default=4e-5),
-    epochs=Param(int, 'number of epochs', default=30), # TODO
+    epochs=Param(int, 'number of epochs', default=30),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.1),
     distributed=Param(int, 'is distributed?', default=0),
 )
@@ -300,13 +300,13 @@ class ImageNetTrainer:
         start_val = time.time()
         stats = self.val_loop()
         val_time = time.time() - start_val
-
-        self.log(dict({
-            'current_lr': self.optimizer.param_groups[0]['lr'],
-            'top_1': stats['top_1'],
-            'top_5': stats['top_5'],
-            'val_time': val_time
-        }, **extra_dict))
+        if self.gpu == 0:
+            self.log(dict({
+                'current_lr': self.optimizer.param_groups[0]['lr'],
+                'top_1': stats['top_1'],
+                'top_5': stats['top_5'],
+                'val_time': val_time
+            }, **extra_dict))
 
         return stats
 

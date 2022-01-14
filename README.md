@@ -11,7 +11,7 @@
 <!-- <br /> -->
 [<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
-[<a href="#quickstart">ImageNet results</a>]
+[<a href="#quickstart">ImageNet training</a>]
 [<a href="#features">features</a>]
 <br>
 Maintainers:
