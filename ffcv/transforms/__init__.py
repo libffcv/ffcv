@@ -10,7 +10,7 @@ from .translate import RandomTranslate
 
 __all__ = ['ToTensor', 'ToDevice',
            'ToTorchImage', 'NormalizeImage',
-           'Collate', 'Convert',  'Squeeze', 'View',
+           'Convert',  'Squeeze', 'View',
            'RandomResizedCrop', 'RandomHorizontalFlip', 'RandomTranslate',
            'Cutout', 'ImageMixup', 'LabelMixup', 'MixupToOneHot',
            'Poison', 'ReplaceLabel',
