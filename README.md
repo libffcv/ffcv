@@ -36,7 +36,7 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 
 ## Install with Anaconda
 ```
-conda install ffcv -c pytorch -c conda-forge -c ffcv
+conda create -n ffcv -c pytorch -c conda-forge -c ffcv ffcv
 ```
 
 ## Citation
