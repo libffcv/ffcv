@@ -57,7 +57,7 @@ If you use FFCV, please cite it as:
 @misc{leclerc2022ffcv,
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
     title = {ffcv},
-    year = {2021},
+    year = {2022},
     howpublished = {\url{https://github.com/MadryLab/ffcv/}},
     note = {commit xxxxxxx}
 }
@@ -127,25 +127,25 @@ on ImageNet and CIFAR, including both (a) extensible codebases and (b)
 numerous premade training configurations.
 
 ### ImageNet
-We provide a self-contained script for training ImageNet <it>fast</it>. 
+We provide a self-contained script for training ImageNet <it>fast</it>.
 [Above](#plots) we plot the training time versus
 accuracy frontier, and the dataloading speeds, for 1-GPU ResNet-18 and 8-GPU
 ResNet-50 alongside a few baselines.
 
 | Link to Config                                                                                                                         |   top_1 |   top_5 |   # Epochs |   Time (mins) | Architecture   | Setup    |
 |:---------------------------------------------------------------------------------------------------------------------------------------|--------:|--------:|-----------:|--------------:|:---------------|:---------|
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/7dc8b207-dd8f-405e-bbc1-61bf387e5ba5.yaml'>Link</a> | 0.77996 | 0.9406  |         88 |       69.9297 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/33990e2f-96b1-4b34-9ea6-a90be740bb7b.yaml'>Link</a> | 0.77298 | 0.93742 |         56 |       44.5882 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/9d44df9f-e73d-4730-84fa-170c9fcd98aa.yaml'>Link</a> | 0.76314 | 0.93198 |         40 |       32.2155 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/d2325c91-210e-4212-b935-a04675bba779.yaml'>Link</a> | 0.75374 | 0.92746 |         32 |       25.8984 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/5a3a96cf-db8b-4ba1-986e-bbc154f9ea3a.yaml'>Link</a> | 0.74618 | 0.92108 |         24 |       19.647  | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/641fa341-88f2-4382-9306-c3fe3fbad70f.yaml'>Link</a> | 0.72386 | 0.90848 |         16 |       13.4037 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/663dd2ac-b127-4073-b824-6f19f0d15193.yaml'>Link</a> | 0.71456 | 0.903   |         88 |      189.736  | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/8f21c0e9-9d68-4c4b-899b-e32770503fff.yaml'>Link</a> | 0.7066  | 0.89854 |         56 |      117.88   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/9cb3047b-ed52-4b3a-a3fb-7fe995063865.yaml'>Link</a> | 0.69848 | 0.89444 |         40 |       85.4398 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/d683ce23-431e-4f7d-bfd2-6ee26882f4e4.yaml'>Link</a> | 0.69046 | 0.88852 |         32 |       68.39   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/693bdc59-3dba-45b4-ae4c-8c274da87b95.yaml'>Link</a> | 0.6786  | 0.88094 |         24 |       51.2127 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/2294bc2a-9f6d-420e-be91-6acff51f7f22.yaml'>Link</a> | 0.65478 | 0.86844 |         16 |       34.8248 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/23cf4c2e-2111-472c-8b9d-e47325c51253.yaml'>Link</a> | 0.77996 | 0.9406  |         88 |       69.9297 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/a2e443e4-0a42-49b5-a1f4-18f19689b2b1.yaml'>Link</a> | 0.77298 | 0.93742 |         56 |       44.5882 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/70a2ecb0-1719-40bd-b1eb-cb0c37b8fc89.yaml'>Link</a> | 0.76314 | 0.93198 |         40 |       32.2155 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/2eca7655-82df-4e4a-b51b-950b31c2bebe.yaml'>Link</a> | 0.75374 | 0.92746 |         32 |       25.8984 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/c01efd78-d20b-4064-a9a8-aa0274430e60.yaml'>Link</a> | 0.74618 | 0.92108 |         24 |       19.647  | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/2018a9be-f0ec-453c-9a00-bfd68dc94d58.yaml'>Link</a> | 0.72386 | 0.90848 |         16 |       13.4037 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/67117b5b-ab11-45c2-87a6-9999a66a3f37.yaml'>Link</a> | 0.71456 | 0.903   |         88 |      189.736  | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/1a584c27-fdd0-483b-b358-dd9895e510da.yaml'>Link</a> | 0.7066  | 0.89854 |         56 |      117.88   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/8249f454-c718-4a38-8dae-04effa3a43de.yaml'>Link</a> | 0.69848 | 0.89444 |         40 |       85.4398 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/baefac94-ed5c-4b0b-af01-ebead347ca46.yaml'>Link</a> | 0.69046 | 0.88852 |         32 |       68.39   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/05b0053a-c036-4992-9c4e-f9ea662abfc5.yaml'>Link</a> | 0.6786  | 0.88094 |         24 |       51.2127 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/08508b1c-ae7f-4022-9090-06a520f998c8.yaml'>Link</a> | 0.65478 | 0.86844 |         16 |       34.8248 | ResNet-18      | 1 x A100 |
 
 **Train your own ImageNet models!** You can <a href="https://github.com/MadryLab/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
