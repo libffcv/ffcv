@@ -22,10 +22,6 @@ def main(log_dir, out_file):
                    arch='resnet50',
                    distributed=1,
                    world_size=8),
-        # Parameters(train_dataset='/mnt/cfs/home/engstrom/store/ffcv/train_500_0.5_90.ffcv',
-        #            val_dataset='/mnt/cfs/home/engstrom/store/ffcv/val_500_0.5_90.ffcv',
-        #            batch_size=512,
-        #            arch='resnet50')
     ]
 
     peaks = [Parameters(peak=k, schedule_type='cyclic') for k in [0]]

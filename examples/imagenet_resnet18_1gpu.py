@@ -21,7 +21,7 @@ def main(log_dir, out_file):
             end_ramp=end_ramp
         ))
 
-    lr = [Parameters(lr=0.5, peak=k) for k in [0, 2]]
+    lr = [Parameters(lr=k) for k in [0.5]]
 
     res = [Parameters(min_res=160, max_res=192, val_res=256)]
 
