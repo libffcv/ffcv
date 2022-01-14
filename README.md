@@ -23,7 +23,7 @@ Maintainers:
 `ffcv` dramatically increases data throughput in ML training.
 In this repo, you will find:
 - Our library for <a href="#quickstart">fast data loading and processing</a>
-  (even in resource constrained environments) 
+  (even in resource constrained environments)
 - Efficient, simple, easy-to-understand, customizable training code for standard
    vision tasks
 
@@ -34,7 +34,7 @@ See the [Features](#features) section below for a glance at what FFCV can do! Or
 - ...[train a CIFAR-10 model]() on one GPU in 36 seconds (XX$ on AWS)
 - ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
 
-Compare our training and dataloading times to what you might use now: 
+Compare our training and dataloading times to what you might use now:
 
 <img src="assets/headline.svg"/>
 
@@ -48,7 +48,7 @@ See [here](TODO) for further benchmark details.
 ## Install with Anaconda
 ```
 conda install ffcv -c pytorch -c conda-forge -c ffcv
-``` 
+```
 
 ## Citation
 If you use FFCV, please cite it as:
@@ -79,12 +79,12 @@ from ffcv.fields import RGBImageField, IntField, NDArrayField
 import numpy as np
 
 # Your dataset (`torch.utils.data.Dataset`) of (image, label) pairs
-my_dataset = make_my_dataset() 
+my_dataset = make_my_dataset()
 write_path = '/output/path/for/converted/ds.ffcv'
 
 # Pass a type for each data field
 writer = DatasetWriter(write_path, {
-    # Tune options to optimize dataset size, throughput at train-time 
+    # Tune options to optimize dataset size, throughput at train-time
     'image': RGBImageField({
         max_resolution=256,
         jpeg_quality=jpeg_quality
@@ -123,11 +123,11 @@ loader = Loader(train_path, batch_size=bs, num_workers=num_workers,
 for epoch in range(epochs):
     ...
 ```
-[See here](TODO) for a more detailed guide to deploying `ffcv` for your dataset.
+[See here](https://docs.ffcv.io/basics.html) for a more detailed guide to deploying `ffcv` for your dataset.
 
 ## Prepackaged Computer Vision Benchmarks
 From gridding to benchmarking to fast research iteration, there are many reasons
-to want faster model training. Below we present premade codebases for training 
+to want faster model training. Below we present premade codebases for training
 on ImageNet and CIFAR, including both (a) extensible codebases and (b)
 numerous premade training configurations.
 
@@ -146,7 +146,7 @@ We also include premade code for efficient training on CIFAR-10 in the `examples
 directory, obtaining 93\% top1 accuracy in 36 seconds on a single A100 GPU
 (without optimizations such as MixUp, Ghost BatchNorm, etc. which have the
 potential to raise the accuracy even further). You can find the training script
-<a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/cifar">here</a>. 
+<a href="https://github.com/MadryLab/ffcv/tree/new_ver/examples/cifar">here</a>.
 
 ## Features
 <img src='docs/_static/clippy-transparent-2.png' width='100%'/>
@@ -172,17 +172,17 @@ performance bottlenecks.
       fact, the more data-bottlenecked the application (e.g., linear regression,
       bulk inference, etc.), the faster FFCV will make it!
 
-  See our [Getting started](https://docs.ffcv.io/basics.html) guide, 
-  [Example walkthroughs](https://docs.ffcv.io/examples.html), and 
-  [Code examples](https://github.com/MadryLab/ffcv/tree/new_ver/examples) 
+  See our [Getting started](https://docs.ffcv.io/basics.html) guide,
+  [Example walkthroughs](https://docs.ffcv.io/examples.html), and
+  [Code examples](https://github.com/MadryLab/ffcv/tree/new_ver/examples)
   to see how easy it is to get started!
 - **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely
   efficiently way, so that users don't have to think about it.
 - **Automatically fused-and-compiled data processing**: By either using
-  [pre-written](https://docs.ffcv.io/api/transforms.html) FFCV transformations 
-  or 
-  [easily writing custom ones](https://docs.ffcv.io/ffcv_examples/custom_transforms.html), 
+  [pre-written](https://docs.ffcv.io/api/transforms.html) FFCV transformations
+  or
+  [easily writing custom ones](https://docs.ffcv.io/ffcv_examples/custom_transforms.html),
   users can
   take advantage of FFCV's compilation and pipelining abilities, which will
   automatically fuse and compile simple Python augmentations to machine code
@@ -194,21 +194,21 @@ performance bottlenecks.
   at the OS level and ensure that multiple concurrent processes all get fast
   data access. Otherwise, FFCV can use fast process-level caching and will
   optimize data loading to minimize the underlying number of disk reads. See
-  [The Bottleneck Doctor](https://docs.ffcv.io/bottleneck_doctor.html) 
+  [The Bottleneck Doctor](https://docs.ffcv.io/bottleneck_doctor.html)
   guide for more information.
 - **Training multiple models per GPU**: Thanks to fully asynchronous
   thread-based data loading, you can now interleave training multiple models on
-  the same GPU efficiently, without any data-loading overhead. See 
-  [this guide](https://docs.ffcv.io/parameter_tuning.html) for more info.  
+  the same GPU efficiently, without any data-loading overhead. See
+  [this guide](https://docs.ffcv.io/parameter_tuning.html) for more info.
 - **Dedicated tools for image handling**: All the features above work are
   equally applicable to all sorts of machine learning models, but FFCV also
   offers some vision-specific features, such as fast JPEG encoding and decoding,
   storing datasets as mixtures of raw and compressed images to trade off I/O
-  overhead and compute overhead, etc. See the 
+  overhead and compute overhead, etc. See the
   [Working with images](https://docs.ffcv.io/working_with_images.html) guide for
   more information.
 
-<!-- for a 
+<!-- for a
 more detailed look.
 (`cv` denotes computer-vision specific features)
 
