@@ -218,3 +218,7 @@ on CPU or GPU (but cannot be pre-compiled).
   the data is being stored.
 - ``jit_mode``: this is a boolean flag for whether the data is in a
   *compileable* state (i.e., whether it is on-CPU and in NumPy format).
+
+
+See `here <https://github.com/MadryLab/ffcv/blob/new_ver/examples/custom_transform.py>`_
+for the code corresponding to this post.

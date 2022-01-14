@@ -14,21 +14,6 @@ from ..pipeline.state import State
 from dataclasses import replace
 
 
-class Collate(Operation):
-    def __init__(self):
-        super().__init__()
-
-    def generate_code(self) -> Callable:
-        # Should do nothing
-        def collate(batch, destination):
-            destination[:] = batch
-            return destination
-        return collate
-
-    def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        return replace(previous_state), None
-
-
 class ToTensor(Operation):
     """Convert from Numpy array to PyTorch Tensor."""
     def __init__(self):

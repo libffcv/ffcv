@@ -7,15 +7,16 @@ Another invaluable feature of FFCV transforms is that, by assigning the
 argument that contains the index of each image in the batch within the dataset.
 This feature makes it possible to implement transforms in FFCV that are not
 possible in standard PyTorch: for example, we can implement an augmentation that
-corrupts the labels of a *fixed* set of images throughout training:
+corrupts the labels of a *fixed* set of images throughout training.
 
 .. code-block:: python
 
     class CorruptFixedLabels(Operation):
         def generate_code(self) -> Callable:
+            parallel_range = Compiler.get_iterator()
             # dst will be None since we don't ask for an allocation
             def corrupt_fixed(labs, _, inds):
-                for i in range(labs.shape[0]):
+                for i in parallel_range(labs.shape[0]):
                     # Because the random seed is tied to the image index, the
                     # same images will be corrupted every epoch:
                     np.random.seed(inds[i])
@@ -31,3 +32,5 @@ corrupts the labels of a *fixed* set of images throughout training:
         def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
             # No updates to state or extra memory necessary!
             return previous_state, None
+
+We provide the corresponding script to test the above augmentation `here <https://github.com/MadryLab/ffcv/blob/new_ver/examples/transform_with_inds.py>`_.
