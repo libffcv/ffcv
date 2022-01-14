@@ -3,7 +3,6 @@ from typing import Callable, List, Mapping
 from os import SEEK_END, path
 import numpy as np
 from time import sleep
-from concurrent.futures import ThreadPoolExecutor
 import ctypes
 from multiprocessing import (shared_memory, cpu_count, Queue, Process, Value)
 
@@ -266,7 +265,19 @@ class DatasetWriter():
     def from_indexed_dataset(self, dataset,
                               indices: List[int]=None, chunksize=100,
                               shuffle_indices: bool = False):
+        """"Read dataset from an indexable dataset.
 
+        Parameters
+        ----------
+        dataset: Indexable
+            An indexable object that implements `__getitem__` and `__len__`.
+        chunksize : int
+            Size of chunks processed by each worker during conversion.
+        indices :
+            Use a subset of the dataset specified by indices.
+        shuffle_indices : int
+            Shuffle order of the dataset.
+        """
         # If the user didn't specify an order we just add samples
         # sequentially
         if indices is None:
@@ -284,7 +295,16 @@ class DatasetWriter():
 
 
     def from_webdataset(self, shards: List[str], pipeline: Callable):
-        # executor = ThreadPoolExecutor(self.num_workers)
+        """Read from webdataset-like format.
+
+        Parameters
+        ----------
+        shards: List[str]
+            List of shards that comprise the dataset folder.
+        pipeline: Callable
+            Called by each worker to decode. Similar to pipelines used to load webdataset.
+            See https://docs.ffcv.io/writing_datasets.html for more information.
+        """
         counter = partial(count_samples_in_shard, pipeline=pipeline)
         lengths = thread_map(counter, shards, max_workers=self.num_workers)
         total_len = sum(lengths)

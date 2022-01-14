@@ -1,8 +1,10 @@
 Examples
 =========
 
-We provide two complete examples of using FFCV to train machine learning models
+First two examples use FFCV to train machine learning models
 to illustrate its ease of use as well as the significant gains in speed:
+
+The next two examples cover how to use **custom transforms** in data loaders.
 
 .. toctree::
    ffcv_examples/cifar10.rst
