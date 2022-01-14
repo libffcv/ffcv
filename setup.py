@@ -4,6 +4,11 @@ from glob import glob
 
 from distutils.core import setup, Extension
 
+# read the contents of your README file
+from pathlib import Path
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.md").read_text()
+
 
 def pkgconfig(package, kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
@@ -32,15 +37,14 @@ libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
 
 setup(name='ffcv',
-      version='0.1',
-      description='Training go BrrRr',
-      author='Guillaume Leclerc',
+      version='0.0.2',
+      description=' FFCV: Fast Forward Computer Vision ',
+      author='MadryLab',
       author_email='leclerc@mit.edu',
       url='https://github.com/MadryLab/fastercv',
-      long_description='''
-Load and train computer vision fast
-       ''',
       packages=find_packages(),
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       ext_modules=[libffcv],
       install_requires=[
           'terminaltables',
