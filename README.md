@@ -191,7 +191,7 @@ performance bottlenecks.
   overhead and compute overhead, etc. See the [Working with images]() guide for
   more information!
 
-for a 
+<!-- for a 
 more detailed look.
 (`cv` denotes computer-vision specific features)
 
@@ -228,7 +228,7 @@ asynchronous dataloading means that different training processes won't block eac
 </ul>
 This list is limited to what <code>ffcv</code> offers in data loading; check out
 guides like <a href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more ways to speed
-up training. 
+up training.  -->
 
 # Contributors
 
