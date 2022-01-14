@@ -1,6 +1,9 @@
 <p align = 'center'>
 <em><b>Fast Forward Computer Vision</b>: train models at a fraction of the cost with accelerated data loading!</em>
-<br />
+</p>
+<img src='assets/logo.svg' width='100%'/>
+<p align = 'center'>
+<!-- <br /> -->
 [<a href="#install-with-anaconda">install</a>]
 [<a href="#quickstart">quickstart</a>]
 [<a href="#features">features</a>]
@@ -8,10 +11,6 @@
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
 [<a href="https://ffcv.io">homepage</a>]
 <br>
-</p>
-
-<img src='assets/logo.svg' width='100%'/>
-<p align = 'center'>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
 <a href="https://twitter.com/andrew_ilyas">Andrew Ilyas</a> and
