@@ -39,13 +39,13 @@ on one GPU in 36 seconds (2¢/model on AWS)
 
 <!-- Holding constant the same training routine and optimizing only the dataloading
 and data transfer routines with `ffcv`, we enable significantly faster training: -->
-Keep your training code, replace the data loader! Look at these speedups:
+Keep your training algorithm the same, just replace the data loader! Look at these speedups:
+
 <img src="assets/headline.svg"/>
 
-`ffcv` also comes prepacked with fast, simple code and configurations for standard benchmarks: 
-<img src="docs/_static/perf_scatterplot.svg"/>
+`ffcv` also comes prepacked with fast, simple code for [standard vision benchmarks]((https://docs.ffcv.io/benchmarks.html)): 
 
-(See [here](https://docs.ffcv.io/benchmarks.html) for further benchmark details.)
+<img src="docs/_static/perf_scatterplot.svg"/>
 
 ## Install with Anaconda
 ```
