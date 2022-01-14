@@ -20,26 +20,31 @@ Maintainers:
 <a href="https://twitter.com/logan_engstrom">Logan Engstrom</a>
 </p>
 
-`ffcv` dramatically increases data throughput in ML training.
-In this repo, you will find:
+<!-- In this repo, you will find:
 - Our library for <a href="#quickstart">fast data loading and processing</a>
   (even in resource constrained environments)
 - Efficient, simple, easy-to-understand, customizable training code for standard
-   vision tasks
+   vision tasks -->
 
-See the [Features](#features) section below for a glance at what FFCV can do! Or
-[install `ffcv`](#install-with-anaconda) today and:
+<!-- See the [Features](#features) section below for a glance at what FFCV can do! Or
+[install `ffcv`](#install-with-anaconda) today and: -->
 
-- ...[train an ImageNet model]() on one GPU in 30 minutes (XX$ on AWS)
-- ...[train a CIFAR-10 model]() on one GPU in 36 seconds (XX$ on AWS)
-- ...train a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
+`ffcv` is a drop-in data loading system that dramatically increases data throughput in model training that enables...
 
-Compare our training and dataloading times to what you might use now:
+- [Training an ImageNet model](https://github.com/MadryLab/ffcv/tree/main/examples/imagenet)
+on one GPU in 35 minutes (98¢/model on AWS)
+- [Training a CIFAR-10 model](https://docs.ffcv.io/ffcv_examples/cifar10.html)
+on one GPU in 36 seconds (2¢/model on AWS)
+- Training a `$YOUR_DATASET` model `$REALLY_FAST` (for `$WAY_LESS`)
+
+<!-- Holding constant the same training routine and optimizing only the dataloading
+and data transfer routines with `ffcv`, we enable significantly faster training: -->
+Keep your training system the same, just replace the data loader. Look at these speeds!
 
 <img src="assets/headline.svg"/>
 
-Holding constant the same training routine and optimizing only the dataloading
-and data transfer routines with `ffcv`, we enable significantly faster training:
+`ffcv` also comes prepacked with fast, simple training code for
+standard benchmarks: 
 
 <img src="docs/_static/perf_scatterplot.svg"/>
 
