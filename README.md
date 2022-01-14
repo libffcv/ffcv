@@ -37,7 +37,7 @@ Train to the same accuracy, way faster!
 
 ## Install with Anaconda
 ```
-conda install ffcv -c pytorch -c conda-forge -c ffcv
+conda create -n ffcv -c pytorch -c conda-forge -c ffcv ffcv
 ```
 
 ## Citation

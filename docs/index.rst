@@ -8,7 +8,7 @@ Welcome to FFCV's documentation!
 
 View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
 
-Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_:  ``conda install ffcv -c pytorch -c conda-forge -c ffcv``
+Install ``ffcv`` with `Anaconda <https://docs.anaconda.com/anaconda/install/index.html>`_:  ``conda create -n ffcv -c pytorch -c conda-forge -c ffcv ffcv``
 
 
 Introduction
@@ -20,7 +20,7 @@ Introduction
 - Train a CIFAR-10 model on one GPU in 36 seconds ((2¢/model on AWS)
 - Train a ``$YOUR_DATASET`` model ``$REALLY_FAST`` (for ``$WAY_LESS``)
 
-Compare our training and dataloading times to what you might use now:
+Keep your training algorithm the same, just replace the data loader! Look at these speedups:
 
 .. image:: /_static/headline.svg
   :width: 100%
