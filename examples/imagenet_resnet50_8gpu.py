@@ -10,7 +10,7 @@ def main(log_dir, out_file):
     wds = [Parameters(wd=k) for k in [1e-4]]
     lrs = [Parameters(lr=float(k)) for k in [1.7]]
     res = [Parameters(min_res=160, max_res=a, val_res=b) for a, b in
-    [(192, 256), (160, 224)]]
+    [(192, 256)]]
 
     epochs = []
     for e in [16, 24, 32, 40, 56, 88]:
