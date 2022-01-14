@@ -30,10 +30,13 @@ Compare our training and dataloading times to what you might use now:
 .. image:: /_static/headline.svg
   :width: 100%
 
+|
+
 With ``ffcv``, we enable significantly faster training:
 
 .. image:: /_static/perf_scatterplot.svg
 
+|
 See :ref:`ImageNet Benchmarks` for further benchmark details.
 
 See the :ref:`Features` section below for a more detailed glance at what FFCV can do.
