@@ -20,9 +20,9 @@ class ReplaceLabel(Operation):
     Parameters
     ----------
     indices : Sequence[int]
-        The indices of images to relabel
+        The indices of images to relabel.
     new_label : int
-        The new label to assign
+        The new label to assign.
     """
 
     def __init__(self, indices, new_label: int):

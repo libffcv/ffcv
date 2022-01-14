@@ -21,13 +21,13 @@ class Poison(Operation):
     Parameters
     ----------
     mask : ndarray
-        The mask to apply to each image
+        The mask to apply to each image.
     alpha: float
-        The opacity of the mask
+        The opacity of the mask.
     indices : Sequence[int]
-        The indices of images that should have the mask applied
+        The indices of images that should have the mask applied.
     clamp : Tuple[int, int]
-        Clamps the final pixle values between these two values (default: (0, 255))
+        Clamps the final pixel values between these two values (default: (0, 255)).
     """
 
     def __init__(self, mask: np.ndarray, alpha: np.ndarray,
