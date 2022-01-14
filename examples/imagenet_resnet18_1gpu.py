@@ -9,6 +9,8 @@ def main(log_dir, out_file):
     # wds = [Parameters(wd=wd) for wd in [5e-4, 1e-4, 5e-5, 1e-5]]
     # lrs = [Parameters(lr=float(lr)) for lr in np.linspace(.1, 2., 9)]
 
+    res = [Parameters(min_res=160, max_res=a, val_res=b) for a, b in
+            [(160, 224), (192, 256), (224, 312)]]
     
     epochs = []
     for e in [16, 24, 32, 40, 56, 88]:
@@ -22,8 +24,6 @@ def main(log_dir, out_file):
         ))
 
     lr = [Parameters(lr=k) for k in [0.5]]
-
-    res = [Parameters(min_res=160, max_res=192, val_res=256)]
 
     base_dir = '/ssd3/' if os.path.exists('/ssd3/') else '/mnt/cfs/home/engstrom/store/ffcv/'
     archs = [
