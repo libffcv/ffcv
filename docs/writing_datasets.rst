@@ -92,11 +92,11 @@ After constructing the writer, the only remaining step is to write the dataset:
 Webdataset
 ----------
 
-For this second example we will assume that you are in possession of a
-``webdataset`` version of ImageNet (or similar) dataset and that all the
-shards in a folder called ``FOLDER``.
+For this second example we will assume that you have access to a
+``webdataset`` version of ImageNet (or similar) dataset, and that all the
+shards are in a folder called ``FOLDER``.
 
-In order to perform the conversion to a ``.beton`` file we first need to
+In order to perform the conversion to a ``.beton`` file, we first need to
 collect the list of shards. This can be simply done with ``glob``:
 
 .. code-block:: python
@@ -106,7 +106,7 @@ collect the list of shards. This can be simply done with ``glob``:
 
     my_shards = glob(path.join(FOLDER, '*'))
 
-Internally, FFCV will split the shards among the number of available workers.
+Internally, FFCV will split the shards between the available workers.
 However, each worker still needs to know how to decode a given shard. This is done
 by defining a pipeline (very similar to how one would use a ``webdataset`` for training):
 
@@ -115,7 +115,7 @@ by defining a pipeline (very similar to how one would use a ``webdataset`` for t
     def pipeline(dataset):
         return dataset.decode('rgb8').to_tuple('jpg:png;jpeg cls')
 
-Since FFCV expects images in the numpy uint8 format we use the parameter ``'rgb8'``
+Since FFCV expects images in the numpy ``uint8`` format, we use the parameter ``'rgb8'``
 of ``webdataset`` to decode the images. We then convert the dictionary to a tuple
 that FFCV will be able to process.
 
@@ -140,7 +140,7 @@ Fields
 
 Beyond the examples used above, FFCV supports a variety of built-in fields that make it easy to directly convert most datasets. We review them below:
 
-- :class:`~ffcv.fields.RGBImageField`: Handles images including (optional) compression.
+- :class:`~ffcv.fields.RGBImageField`: Handles images including (optional) compression
   and resizing. Pass in a PyTorch Tensor.
 - :class:`~ffcv.fields.IntField` and :class:`~ffcv.fields.FloatField`: Handle simple scalar fields.
   Pass in ``int`` or ``float``.

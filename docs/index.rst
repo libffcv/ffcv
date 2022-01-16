@@ -108,7 +108,7 @@ FFCV can adapt to different performance bottlenecks.
   thread-based data loading, you can now interleave training multiple models on
   the same GPU efficiently, without any data-loading overhead. See
   :ref:`this guide <Tuning Guide>` for more info.
-- **Dedicated tools for image handling**: All the features above work are
+- **Dedicated tools for image handling**: All the features above are
   equally applicable to all sorts of machine learning models, but FFCV also
   offers some vision-specific features, such as fast JPEG encoding and decoding,
   storing datasets as mixtures of raw and compressed images to trade off I/O
