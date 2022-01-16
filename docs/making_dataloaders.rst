@@ -15,7 +15,7 @@ our case, we will use the :class:`~ffcv.fields.decoders.FloatDecoder` and
 .. code-block:: python
 
     from ffcv.loader import Loader, OrderOption
-    from ffcv.fields.decoders import SimpleRGBImageDecoder, FloatDecoder
+    from ffcv.fields.decoders import NDArrayDecoder, FloatDecoder
 
 Our first step is instantiating the :class:`~ffcv.loader.Loader` class:
 
@@ -55,7 +55,7 @@ Pipelines
 The ``pipeline`` option in :class:`~ffcv.loader.Loader` specifies the dataset and
 tells the loader what fields to read, how to read them, and what operations to
 apply on top. Specifically, a pipeline is a key-value dictionary where the key
-matches the one used in `writing the dataset <writing>`_, and the value is a
+matches the one used in :ref:`writing the dataset <Writing a dataset to FFCV format>`, and the value is a
 sequence of operations to perform. The operations must start with a
 :class:`ffcv.fields.decoders.Decoder` object corresponding to that field followed by a
 sequence of *transforms*.
@@ -73,13 +73,13 @@ to a PyTorch tensor:
 
 This is already enough to start loading data, but pipelines are also our
 opportunity to apply fast pre-processing to the data through a series of
-transformations---transforms are automatically compiled to at runtime
+transformations---transforms are automatically compiled to machine code at runtime
 and, for GPU-intensive applications like training neural networks, can reduce
 any additional training overhead.
 
 .. note::
 
-  In fact, declaring field pipelines is optional: for any field that the
+  In fact, declaring field pipelines is optional: for any field that exists
   in the dataset file without a corresponding pipeline specified in the
   ``pipelines`` dictionary,  the :class:`~ffcv.loader.Loader` will default to
   the barebones pipeline above, i.e., first a decoder
