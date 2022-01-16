@@ -35,9 +35,11 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 
 Train to the same accuracy, way faster!
 
-## Install with Anaconda
+## Installation
 ```
-conda create -n ffcv -c pytorch -c conda-forge -c ffcv ffcv
+conda create -y -n ffcv python=3.9 cupy pkg-config compilers libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+conda activate ffcv
+pip install ffcv
 ```
 
 ## Citation
