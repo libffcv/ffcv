@@ -159,20 +159,18 @@ For the same accuracy, we obtain much faster ImageNet training time than
 the tested baselines. All testing was performed on a *p4d.24xlarge* AWS instance
 with 8 A100s, and were given a training run before to warm up.
 We tested two distinct benchmarks:
-- ImageNet (Resnet-50 8xA100): Train a ResNet-50 on ImageNet with 8 A100s using data
-parallelism.
-- ImageNet (Resnet-18 1xA100): Train a ResNet-18 on ImageNet with 1 A100. To make
-the benchmark realistic, we mimick standard cluster conditions by training 8
-models at once, each on a separate GPU. Such training parallelism situations are
-also highly relevant for tasks like grid searching or finding confidence intervals
-for training results.
+
+- ImageNet (Resnet-50 8xA100): Train a ResNet-50 on ImageNet with 8 A100s using data parallelism.
+- ImageNet (Resnet-18 1xA100): Train a ResNet-18 on ImageNet with 1 A100. 
+
+To make the benchmark realistic, we mimick standard cluster conditions by training 8 models at once, each on a separate GPU. Such training parallelism situations are also highly relevant for tasks like grid searching or finding confidence intervals for training results.
 
 We detail the tested systems below:
 
 - **FFCV**: We train using the code and system detailed  `in our repository <https://github.com/MadryLab/ffcv/tree/main/examples/imagenet>`_.
 - **PyTorch Example**: This is the popular ImageNet training code found
   `the PyTorch repository <https://github.com/pytorch/examples/blob/master/imagenet/main.py>`_.
-  we measured the time to complete a epoch of training (after warmup) and then
+  we measured the time to complete an epoch of training (after warmup) and then
   used that to extrapolate how long the implemented schedule would take. We took
   accurcies from
   `PyTorch model hub <https://pytorch.org/hub/pytorch_vision_resnet/>`_,

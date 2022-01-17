@@ -50,12 +50,12 @@ This use case is similar to the previous. One should still have one process per 
 Scenario: Extreme grid search (2+ models per GPU)
 --------------------------------------------------
 
-Unlike other solutions, FFCV is thread based and not process based. As a result, users are able to train multiple models on a single GPU. This is particularly useful for small models that can't leverage the compute power of powerful GPUs. To do so users have to do the following:
+Unlike other solutions, FFCV is thread based and not process based. As a result, users are able to train multiple models on a single GPU. This is particularly useful for small models that can't leverage the compute power of powerful GPUs. To do so, users have to do the following:
 
 - Run a **single** process per GPU
-- The main thread of that process should start one thread for each model will be trained concurrently
+- The main thread of that process should start one thread for each model which will be trained concurrently
 - Each thread creates its own FFCV :class:`~ffcv.loader.Loader` and model and trains normally
-- As for regular Grid search, ``os_cache=True`` is mostly the best choice here, but it doesn't hurt to try disabling it for very large scale datasets
+- As for regular grid search, ``os_cache=True`` is mostly the best choice here, but it doesn't hurt to try disabling it for very large scale datasets
 
 .. warning ::
     It is a common mistake to assume that running multiple processes on the same GPU will improve speed. For security reasons and unless Nvidia MPS service is enabled, a GPU can only be used by a single process at a time. If you run more processes, GPU time will be shared between them but they will never run concurrently.
@@ -64,6 +64,6 @@ Unlike other solutions, FFCV is thread based and not process based. As a result,
    We have experienced some CUDNN bugs while running multiple models on the same
    GPU. It seems to originate from scheduling concurrently multiple BatchNorm
    layers. If you encounter that issue a simple fix is to put a lock around the
-   forward pass of your models. This will make sure that no two forward pass is
+   forward pass of your models. This will make sure that no two forward passes are
    scheduled concurrently. This shouldn't impact performance too much as CUDA
    calls are asynchronous anyway.

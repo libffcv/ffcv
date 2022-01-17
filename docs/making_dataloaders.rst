@@ -102,7 +102,7 @@ There are three easy ways to specify transformations in a pipeline:
 
 - Custom transformations: you can implement your own by subclassing
   :class:`ffcv.transforms.Operation`, as discussed in the
-  :ref:`Making custom transforms <Extending FFCV>` guide.
+  :ref:`Making custom transforms <Fast custom image transforms>` guide.
 
 The following shows an example of a full pipeline for a vector field starts with the field decoder,
 :class:`~ffcv.fields.decoders.NDArrayDecoder`, followed by conversion to ``torch.Tensor``, and a custom transform implemented as a :class:`torch.nn.Module` that adds Gaussian noise to each vector:

@@ -52,7 +52,7 @@ dataset, and can take the following values:
   ``compress_probability``. This option is mostly useful for users who wish to
   achieve storage/speed trade-offs between ``jpg`` and ``raw``.
 - ``smart``: This is similar to ``proportion`` except that an image will be compressed
-  if its ``raw`` representation has area (H x W) more than than
+  if its ``raw`` representation has area (H x W) more than
   ``smart_threshold``. This option is suited for datasets with
   large variation in image sizes, as it will ensure that a few large outliers do
   not significantly impact the total dataset size or loading speed.

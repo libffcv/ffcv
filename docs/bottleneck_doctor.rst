@@ -66,7 +66,7 @@ accelerate your system:
   data transformations, it's often helpful to move parts of the data pipeline (e.g.,
   input normalization or image augmentation) to CPU; FFCV will handle compilation
   and parallelization of these functions so that the CPU-induced slowdown isn't too
-  great, and the freed-up GPU time can be used for more GPU-intensive tasks (e.g.,
+  much, and the freed-up GPU time can be used for more GPU-intensive tasks (e.g.,
   matrix multiplication).
 
 .. note:: 
