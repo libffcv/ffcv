@@ -46,7 +46,7 @@ following:
   augmentation is simple and only requires implementing a single Python
   function. See any of the existing augmentations for an example, or read the
   `Customization guide <#>`_ (coming soon!) for a tutorial.
-- *Store (some) raw pixel data* (<code>cv</code>): FFCV allows you to smoothly
+- *Store (some) raw pixel data*: FFCV allows you to smoothly
   trade off I/O workload and compute workload (raw pixels require no JPEG decoding) by
   randomly storing a specified fraction of the dataset as raw pixel data instead
   of JPEG.
