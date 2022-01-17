@@ -16,20 +16,20 @@ from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
 
 Section('data', 'arguments to give the writer').params(
-    train_path=Param(str, 'Where to write the new dataset', required=True),
-    test_path=Param(str, 'Where to write the new dataset', required=True),
+    train_dataset=Param(str, 'Where to write the new dataset', required=True),
+    val_dataset=Param(str, 'Where to write the new dataset', required=True),
 )
 
-@param('data.train_path')
-@param('data.test_path')
-def main(train_path, test_path):
+@param('data.train_dataset')
+@param('data.val_dataset')
+def main(train_dataset, val_dataset):
     datasets = {
         'train': torchvision.datasets.CIFAR10('/tmp', train=True, download=True),
         'test': torchvision.datasets.CIFAR10('/tmp', train=False, download=True)
         }
 
     for (name, ds) in datasets.items():
-        path = train_path if name == 'train' else test_path
+        path = train_dataset if name == 'train' else val_dataset
         writer = DatasetWriter(path, {
             'image': RGBImageField(),
             'label': IntField()
