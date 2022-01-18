@@ -50,7 +50,7 @@ If you use FFCV, please cite it as:
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
     title = {ffcv},
     year = {2022},
-    howpublished = {\url{https://github.com/MadryLab/ffcv/}},
+    howpublished = {\url{https://github.com/libffcv/ffcv/}},
     note = {commit xxxxxxx}
 }
 ```
@@ -127,27 +127,27 @@ ResNet-50 alongside a few baselines.
 
 | Link to Config                                                                                                                         |   top_1 |   top_5 |   # Epochs |   Time (mins) | Architecture   | Setup    |
 |:---------------------------------------------------------------------------------------------------------------------------------------|--------:|--------:|-----------:|--------------:|:---------------|:---------|
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.780 | 0.941  |         88 |       69.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.773 | 0.937 |         56 |       44.6 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.763 | 0.932 |         40 |       32.2 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.754 | 0.927 |         32 |       25.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.746 | 0.921 |         24 |       19.6  | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.724 | 0.908 |         16 |       13.4 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.715 | 0.903   |         88 |      189.7  | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.707  | 0.899 |         56 |      117.9   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.698 | 0.894 |         40 |       85.4 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.690 | 0.889 |         32 |       68.4   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.679  | 0.881 |         24 |       51.2 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/MadryLab/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.655 | 0.868 |         16 |       34.8 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.780 | 0.941  |         88 |       69.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.773 | 0.937 |         56 |       44.6 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.763 | 0.932 |         40 |       32.2 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.754 | 0.927 |         32 |       25.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.746 | 0.921 |         24 |       19.6  | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.724 | 0.908 |         16 |       13.4 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.715 | 0.903   |         88 |      189.7  | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.707  | 0.899 |         56 |      117.9   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.698 | 0.894 |         40 |       85.4 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.690 | 0.889 |         32 |       68.4   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.679  | 0.881 |         24 |       51.2 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.655 | 0.868 |         16 |       34.8 | ResNet-18      | 1 x A100 |
 
-**Train your own ImageNet models!** You can <a href="https://github.com/MadryLab/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
+**Train your own ImageNet models!** You can <a href="https://github.com/libffcv/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient training on CIFAR-10 in the `examples/`
 directory, obtaining 93\% top1 accuracy in 36 seconds on a single A100 GPU
 (without optimizations such as MixUp, Ghost BatchNorm, etc. which have the
 potential to raise the accuracy even further). You can find the training script
-<a href="https://github.com/MadryLab/ffcv/tree/main/examples/cifar">here</a>.
+<a href="https://github.com/libffcv/ffcv/tree/main/examples/cifar">here</a>.
 
 ## Features
 <img src='docs/_static/clippy-transparent-2.png' width='100%'/>
@@ -175,7 +175,7 @@ performance bottlenecks.
 
   See our [Getting started](https://docs.ffcv.io/basics.html) guide,
   [Example walkthroughs](https://docs.ffcv.io/examples.html), and
-  [Code examples](https://github.com/MadryLab/ffcv/tree/main/examples)
+  [Code examples](https://github.com/libffcv/ffcv/tree/main/examples)
   to see how easy it is to get started!
 - **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely

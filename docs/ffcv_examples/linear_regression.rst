@@ -5,7 +5,7 @@ In this example, we'll see how to run large-scale regularized linear
 regression with FFCV (by "large-scale" here we mean a dataset that *definitely*
 doesn't fit in GPU memory, and may barely even fit in RAM).
 
-See `here <https://github.com/MadryLab/ffcv/blob/main/examples/docs_examples/linear_regression.py>`_ for the script corresponding to this tutorial.
+See `here <https://github.com/libffcv/ffcv/blob/main/examples/docs_examples/linear_regression.py>`_ for the script corresponding to this tutorial.
 
 Setup: Generating a fake dataset
 --------------------------------

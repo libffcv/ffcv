@@ -6,7 +6,7 @@
 Welcome to FFCV's documentation!
 ================================
 
-View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/MadryLab/ffcv>`_.
+View `Homepage <https://ffcv.io>`_ or on `GitHub <https://github.com/libffcv/ffcv>`_.
 
 Install ``ffcv``:
 
@@ -82,7 +82,7 @@ FFCV can adapt to different performance bottlenecks.
     bulk inference, etc.), the faster FFCV will make it!
 
   See our :ref:`Getting started` guide, :ref:`Examples`, and
-  `code examples <https://github.com/MadryLab/ffcv/tree/main/examples>`_
+  `code examples <https://github.com/libffcv/ffcv/tree/main/examples>`_
   to see how easy it is to get started!
 - **Fast data processing without the pain**: FFCV automatically handles data
   reading, pre-fetching, caching, and transfer between devices in an extremely
@@ -134,7 +134,7 @@ follows:
       author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
       title = {ffcv},
       year = {2022},
-      howpublished = {\url{https://github.com/MadryLab/ffcv/}},
+      howpublished = {\url{https://github.com/libffcv/ffcv/}},
       note = {commit xxxxxxx}
    }
 
