@@ -9,12 +9,11 @@ PyTorch datasets and `WebDatasets <https://github.com/webdataset/webdataset>`_):
 .. code-block:: python
 
     from ffcv.writer import DatasetWriter
-    from ffcv.fields import RGBImageField, IntField, NDArrayField
-    import numpy as np
+    from ffcv.fields import RGBImageField, IntField
 
     # Your dataset (`torch.utils.data.Dataset`) of (image, label) pairs
     my_dataset = make_my_dataset()
-    write_path = '/output/path/for/converted/ds.ffcv'
+    write_path = '/output/path/for/converted/ds.beton'
 
     # Pass a type for each data field
     writer = DatasetWriter(write_path, {
@@ -36,7 +35,7 @@ no other changes required!):
 
     from ffcv.loader import Loader, OrderOption
     from ffcv.transforms import ToTensor, ToDevice, ToTorchImage, Cutout
-    from ffcv.fields.rgb_image import RandomResizedCropRGBImageDecoder
+    from ffcv.fields.decoders import IntDecoder, RandomResizedCropRGBImageDecoder
 
     # Random resized crop
     decoder = RandomResizedCropRGBImageDecoder((224, 224))
@@ -52,7 +51,7 @@ no other changes required!):
     }
 
     # Replaces PyTorch data loader (`torch.utils.data.Dataloader`)
-    loader = Loader(train_path, batch_size=bs, num_workers=num_workers,
+    loader = Loader(write_path, batch_size=bs, num_workers=num_workers,
                     order=OrderOption.RANDOM, pipelines=pipelines)
 
     # rest of training / validation proceeds identically
