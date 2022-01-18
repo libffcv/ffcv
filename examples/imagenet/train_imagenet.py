@@ -34,7 +34,7 @@ from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, \
 from ffcv.fields.basics import IntDecoder
 
 Section('model', 'model details').params(
-    arch=Param(str, default='resnet18'),
+    arch=Param(And(str, OneOf(models.__dir__())), default='resnet18'),
     pretrained=Param(int, 'is pretrained? (1/0)', default=0)
 )
 
