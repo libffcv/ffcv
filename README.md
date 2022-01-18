@@ -164,7 +164,7 @@ performance bottlenecks.
     - FFCV can be introduced into any existing training code in just a few
       lines of code (e.g., just swapping out the data loader and optionally the
       augmentation pipeline);
-    - you don't have to change the model itself to make it faster (e.g., feel
+    - You don't have to change the model itself to make it faster (e.g., feel
       free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
     - FFCV can speed up a lot more beyond just neural network training---in
       fact, the more data-bottlenecked the application (e.g., linear regression,
@@ -184,7 +184,7 @@ performance bottlenecks.
   users can
   take advantage of FFCV's compilation and pipelining abilities, which will
   automatically fuse and compile simple Python augmentations to machine code
-  using [Numba](https://numba.org), and schedule them asynchronously to avoid
+  using [Numba](https://numba.pydata.org), and schedule them asynchronously to avoid
   loading delays.
 - **Load data fast from RAM, SSD, or networked disk**: FFCV exposes
   user-friendly options that can be adjusted based on the resources
