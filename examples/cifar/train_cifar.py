@@ -4,8 +4,8 @@ For tutorial, see https://docs.ffcv.io/ffcv_examples/cifar10.html.
 
 First, from the same directory, run:
 
-    `python write_datasets.py --train-path [TRAIN_PATH] \
-                              --test-path [TEST_PATH]`
+    `python write_datasets.py --data.train_dataset [TRAIN_PATH] \
+                              --data.val_dataset [VAL_PATH]`
 
 to generate the FFCV-formatted versions of CIFAR.
 
