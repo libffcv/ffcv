@@ -1,6 +1,7 @@
 import torch as ch
 from torch.cuda.amp import GradScaler
 from torch.cuda.amp import autocast
+import torch.nn.functional as F
 import torch.distributed as dist
 ch.backends.cudnn.benchmark = True
 ch.autograd.profiler.emit_nvtx(False)
@@ -33,7 +34,7 @@ from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, \
 from ffcv.fields.basics import IntDecoder
 
 Section('model', 'model details').params(
-    arch=Param(And(str, OneOf(models.__dir__())), default='resnet18'),
+    arch=Param(str, default='resnet18'),
     pretrained=Param(int, 'is pretrained? (1/0)', default=0)
 )
 
@@ -79,6 +80,7 @@ Section('training', 'training hyper param stuff').params(
     epochs=Param(int, 'number of epochs', default=30),
     label_smoothing=Param(float, 'label smoothing parameter', default=0.1),
     distributed=Param(int, 'is distributed?', default=0),
+    use_blurpool=Param(int, 'use blurpool?', default=0)
 )
 
 Section('dist', 'distributed training options').params(
@@ -109,6 +111,19 @@ def get_cyclic_lr(epoch, lr, epochs, lr_peak_epoch):
     xs = [0, lr_peak_epoch, epochs]
     ys = [1e-4 * lr, lr, 0]
     return np.interp([epoch], xs, ys)[0]
+
+class BlurPoolConv2d(ch.nn.Module):
+    def __init__(self, conv):
+        super().__init__()
+        default_filter = ch.tensor([[[[1, 2, 1], [2, 4, 2], [1, 2, 1]]]]) / 16.0
+        filt = default_filter.repeat(conv.in_channels, 1, 1, 1)
+        self.conv = conv
+        self.register_buffer('blur_filter', filt)
+
+    def forward(self, x):
+        blurred = F.conv2d(x, self.blur_filter, stride=1, padding=(1, 1),
+                           groups=self.conv.in_channels, bias=None)
+        return self.conv.forward(blurred)
 
 class ImageNetTrainer:
     @param('training.distributed')
@@ -313,9 +328,17 @@ class ImageNetTrainer:
     @param('model.arch')
     @param('model.pretrained')
     @param('training.distributed')
-    def create_model_and_scaler(self, arch, pretrained, distributed):
+    @param('training.use_blurpool')
+    def create_model_and_scaler(self, arch, pretrained, distributed, use_blurpool):
         scaler = GradScaler()
         model = getattr(models, arch)(pretrained=pretrained)
+        def apply_blurpool(mod: ch.nn.Module):
+            for (name, child) in mod.named_children():
+                if isinstance(child, ch.nn.Conv2d) and (np.max(child.stride) > 1 and child.in_channels >= 16): 
+                    setattr(mod, name, BlurPoolConv2d(child))
+                else: apply_blurpool(child)
+        if use_blurpool: apply_blurpool(model)
+
         model = model.to(memory_format=ch.channels_last)
         model = model.to(self.gpu)
 
