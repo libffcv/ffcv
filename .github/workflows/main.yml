@@ -27,6 +27,8 @@ jobs:
       - name: Build and upload the docs
         run: |
           mv docs docs_src
+          rm -f .gitmodules
+          rm -rf examples/imagenet-example
           cd docs_src
           pip install -U sphinx karma-sphinx-theme
           pip install -U numpy==1.20 numba tqdm
