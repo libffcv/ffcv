@@ -62,8 +62,7 @@ convert your dataset into `ffcv` format (`ffcv` converts both indexed PyTorch da
 <a href="https://github.com/webdataset/webdataset">WebDatasets</a>):
 ```python
 from ffcv.writer import DatasetWriter
-from ffcv.fields import RGBImageField, IntField, NDArrayField
-import numpy as np
+from ffcv.fields import RGBImageField, IntField
 
 # Your dataset (`torch.utils.data.Dataset`) of (image, label) pairs
 my_dataset = make_my_dataset()
@@ -87,7 +86,7 @@ no other changes required!):
 ```python
 from ffcv.loader import Loader, OrderOption
 from ffcv.transforms import ToTensor, ToDevice, ToTorchImage, Cutout
-from ffcv.fields.rgb_image import RandomResizedCropRGBImageDecoder
+from ffcv.fields.decoders import IntDecoder, RandomResizedCropRGBImageDecoder
 
 # Random resized crop
 decoder = RandomResizedCropRGBImageDecoder((224, 224))
