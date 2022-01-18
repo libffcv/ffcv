@@ -127,18 +127,18 @@ ResNet-50 alongside a few baselines.
 
 | Link to Config                                                                                                                         |   top_1 |   top_5 |   # Epochs |   Time (mins) | Architecture   | Setup    |
 |:---------------------------------------------------------------------------------------------------------------------------------------|--------:|--------:|-----------:|--------------:|:---------------|:---------|
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.780 | 0.941  |         88 |       69.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.773 | 0.937 |         56 |       44.6 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.763 | 0.932 |         40 |       32.2 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.754 | 0.927 |         32 |       25.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.746 | 0.921 |         24 |       19.6  | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.724 | 0.908 |         16 |       13.4 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.715 | 0.903   |         88 |      189.7  | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.707  | 0.899 |         56 |      117.9   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.698 | 0.894 |         40 |       85.4 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.690 | 0.889 |         32 |       68.4   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.679  | 0.881 |         24 |       51.2 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.655 | 0.868 |         16 |       34.8 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.784 | 0.941  |         88 |       77.2 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.780 | 0.937 |         56 |       49.4 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.772 | 0.932 |         40 |       35.6 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.766 | 0.927 |         32 |       28.7 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.756 | 0.921 |         24 |       21.7  | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.738 | 0.908 |         16 |       14.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.724 | 0.903   |         88 |      187.3  | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.713  | 0.899 |         56 |      119.4   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.706 | 0.894 |         40 |       85.5 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.700 | 0.889 |         32 |       68.9   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.688  | 0.881 |         24 |       51.6 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.669 | 0.868 |         16 |       35.0 | ResNet-18      | 1 x A100 |
 
 **Train your own ImageNet models!** You can <a href="https://github.com/libffcv/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
