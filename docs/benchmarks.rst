@@ -145,7 +145,7 @@ We compare our results against existing data loading platforms:
 
 End-to-end training
 --------------------
-Training ResNet-18s and ResNet-50s on ImageNet using code `here <https://github.com/libffcv/ffcv/tree/main/examples/imagenet>`_,
+Training ResNet-18s and ResNet-50s on ImageNet using code `here <https://github.com/libffcv/ffcv-imagenet/tree/main/>`_,
 we plot the results below:
 
 .. image:: _static/headline.svg
@@ -167,7 +167,7 @@ To make the benchmark realistic, we mimick standard cluster conditions by traini
 
 We detail the tested systems below:
 
-- **FFCV**: We train using the code and system detailed  `in our repository <https://github.com/libffcv/ffcv/tree/main/examples/imagenet>`_.
+- **FFCV**: We train using the code and system detailed  `in our repository <https://github.com/libffcv/ffcv-imagenet/tree/main/>`_.
 - **PyTorch Example**: This is the popular ImageNet training code found
   `the PyTorch repository <https://github.com/pytorch/examples/blob/master/imagenet/main.py>`_.
   we measured the time to complete an epoch of training (after warmup) and then
