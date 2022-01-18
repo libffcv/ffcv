@@ -137,7 +137,7 @@ ResNet-50 alongside a few baselines.
 | <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.688  | 0.881 |         24 |       51.6 | ResNet-18      | 1 x A100 |
 | <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.669 | 0.868 |         16 |       35.0 | ResNet-18      | 1 x A100 |
 
-**Train your own ImageNet models!** You can <a href="https://github.com/libffcv/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
+**Train your own ImageNet models!** You can <a href="https://github.com/libffcv/imagenet-example/tree/main">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient training on CIFAR-10 in the `examples/`
