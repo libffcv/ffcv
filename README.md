@@ -29,11 +29,9 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 
 <img src="assets/headline.svg" width='830px'/>
 
-`ffcv` also comes prepacked with fast, simple code for [standard vision benchmarks]((https://docs.ffcv.io/benchmarks.html)):
+`ffcv` also comes prepacked with [fast, simple code](https://github.com/libffcv/imagenet-example) for [standard vision benchmarks]((https://docs.ffcv.io/benchmarks.html)):
 
 <img src="docs/_static/perf_scatterplot.svg" width='830px'/>
-
-Train to the same accuracy, way faster!
 
 ## Installation
 ```
