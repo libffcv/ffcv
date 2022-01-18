@@ -80,6 +80,9 @@ Refer to the code and configuration files for a more exact specification.
 To obtain configurations we first gridded for hyperparameters at a 30 epoch schedule. Fixing these parameters, we then varied only the number of epochs (stretching the learning rate schedule across the number of epochs as motivated by [Budgeted Training](https://arxiv.org/abs/1905.04753)) and plotted the results above.
 
 ## FAQ
+### Why is the first epoch slow?
+The first epoch can be slow for the first epoch if the dataset hasn't been cached in memory yet.
+
 ### How do I choose my dataset parameters?
 If you want to reproduce our numbers you will need to make a dataset that can fully saturate your GPUs when loaded; 
 we recommend making your dataset in-memory with the following (sweeping) guidelines depending on your system:
