@@ -38,6 +38,8 @@ jobs:
           git branch -D ghpages || echo "branch exists"
           git checkout -B ghpages
           cd ..
+          rm -f .gitmodules
+          rm -rf examples/imagenet-example
           git config --global user.email "ailyas@mit.edu"
           git config --global user.name "Andrew Ilyas"
           git add --force docs
