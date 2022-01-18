@@ -117,7 +117,7 @@ numerous premade training configurations.
 
 ### ImageNet
 We provide a self-contained script for training ImageNet <it>fast</it>.
-[Above](#plots) we plot the training time versus
+Above we plot the training time versus
 accuracy frontier, and the dataloading speeds, for 1-GPU ResNet-18 and 8-GPU
 ResNet-50 alongside a few baselines.
 
