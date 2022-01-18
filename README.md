@@ -29,7 +29,7 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 
 <img src="assets/headline.svg" width='830px'/>
 
-`ffcv` also comes prepacked with fast, simple code for [standard vision benchmarks]((https://docs.ffcv.io/benchmarks.html)): 
+`ffcv` also comes prepacked with fast, simple code for [standard vision benchmarks]((https://docs.ffcv.io/benchmarks.html)):
 
 <img src="docs/_static/perf_scatterplot.svg" width='830px'/>
 
@@ -66,7 +66,7 @@ from ffcv.fields import RGBImageField, IntField
 
 # Your dataset (`torch.utils.data.Dataset`) of (image, label) pairs
 my_dataset = make_my_dataset()
-write_path = '/output/path/for/converted/ds.ffcv'
+write_path = '/output/path/for/converted/ds.beton'
 
 # Pass a type for each data field
 writer = DatasetWriter(write_path, {
@@ -102,7 +102,7 @@ pipelines = {
 }
 
 # Replaces PyTorch data loader (`torch.utils.data.Dataloader`)
-loader = Loader(train_path, batch_size=bs, num_workers=num_workers,
+loader = Loader(write_path, batch_size=bs, num_workers=num_workers,
                 order=OrderOption.RANDOM, pipelines=pipelines)
 
 # rest of training / validation proceeds identically
