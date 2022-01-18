@@ -117,27 +117,27 @@ numerous premade training configurations.
 
 ### ImageNet
 We provide a self-contained script for training ImageNet <it>fast</it>.
-[Above](#plots) we plot the training time versus
+Above we plot the training time versus
 accuracy frontier, and the dataloading speeds, for 1-GPU ResNet-18 and 8-GPU
 ResNet-50 alongside a few baselines.
 
 
 | Link to Config                                                                                                                         |   top_1 |   top_5 |   # Epochs |   Time (mins) | Architecture   | Setup    |
 |:---------------------------------------------------------------------------------------------------------------------------------------|--------:|--------:|-----------:|--------------:|:---------------|:---------|
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.784 | 0.941  |         88 |       77.2 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.780 | 0.937 |         56 |       49.4 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.772 | 0.932 |         40 |       35.6 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.766 | 0.927 |         32 |       28.7 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.756 | 0.921 |         24 |       21.7  | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.738 | 0.908 |         16 |       14.9 | ResNet-50      | 8 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.724 | 0.903   |         88 |      187.3  | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.713  | 0.899 |         56 |      119.4   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.706 | 0.894 |         40 |       85.5 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.700 | 0.889 |         32 |       68.9   | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.688  | 0.881 |         24 |       51.6 | ResNet-18      | 1 x A100 |
-| <a href='https://github.com/libffcv/ffcv/blob/main/examples/imagenet/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.669 | 0.868 |         16 |       35.0 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn50_configs/rn50_88_epochs.yaml'>Link</a> | 0.784 | 0.941  |         88 |       77.2 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn50_configs/rn50_56_epochs.yaml'>Link</a> | 0.780 | 0.937 |         56 |       49.4 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn50_configs/rn50_40_epochs.yaml'>Link</a> | 0.772 | 0.932 |         40 |       35.6 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn50_configs/rn50_32_epochs.yaml'>Link</a> | 0.766 | 0.927 |         32 |       28.7 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn50_configs/rn50_24_epochs.yaml'>Link</a> | 0.756 | 0.921 |         24 |       21.7  | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn50_configs/rn50_16_epochs.yaml'>Link</a> | 0.738 | 0.908 |         16 |       14.9 | ResNet-50      | 8 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn18_configs/rn18_88_epochs.yaml'>Link</a> | 0.724 | 0.903   |         88 |      187.3  | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn18_configs/rn18_56_epochs.yaml'>Link</a> | 0.713  | 0.899 |         56 |      119.4   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn18_configs/rn18_40_epochs.yaml'>Link</a> | 0.706 | 0.894 |         40 |       85.5 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn18_configs/rn18_32_epochs.yaml'>Link</a> | 0.700 | 0.889 |         32 |       68.9   | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn18_configs/rn18_24_epochs.yaml'>Link</a> | 0.688  | 0.881 |         24 |       51.6 | ResNet-18      | 1 x A100 |
+| <a href='https://github.com/libffcv/ffcv-imagenet/tree/main/rn18_configs/rn18_16_epochs.yaml'>Link</a> | 0.669 | 0.868 |         16 |       35.0 | ResNet-18      | 1 x A100 |
 
-**Train your own ImageNet models!** You can <a href="https://github.com/libffcv/ffcv/tree/main/examples/imagenet">use our training script and premade configurations</a> to train any model seen on the above graphs.
+**Train your own ImageNet models!** You can <a href="https://github.com/libffcv/imagenet-example/tree/main">use our training script and premade configurations</a> to train any model seen on the above graphs.
 
 ### CIFAR-10
 We also include premade code for efficient training on CIFAR-10 in the `examples/`
@@ -164,7 +164,7 @@ performance bottlenecks.
     - FFCV can be introduced into any existing training code in just a few
       lines of code (e.g., just swapping out the data loader and optionally the
       augmentation pipeline);
-    - you don't have to change the model itself to make it faster (e.g., feel
+    - You don't have to change the model itself to make it faster (e.g., feel
       free to analyze models *without* CutMix, Dropout, momentum scheduling, etc.);
     - FFCV can speed up a lot more beyond just neural network training---in
       fact, the more data-bottlenecked the application (e.g., linear regression,
@@ -184,7 +184,7 @@ performance bottlenecks.
   users can
   take advantage of FFCV's compilation and pipelining abilities, which will
   automatically fuse and compile simple Python augmentations to machine code
-  using [Numba](https://numba.org), and schedule them asynchronously to avoid
+  using [Numba](https://numba.pydata.org), and schedule them asynchronously to avoid
   loading delays.
 - **Load data fast from RAM, SSD, or networked disk**: FFCV exposes
   user-friendly options that can be adjusted based on the resources
