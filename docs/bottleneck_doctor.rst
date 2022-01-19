@@ -37,7 +37,7 @@ CPU bottlenecks
 All CPUs at 100% and you're still not hitting maximal GPU usage? Consider the
 following:
 
-- Use premade, **JIT-compiled augmentations** from :mod:`ffcv.transforms`: these
+- Use pre-made, **JIT-compiled augmentations** from :mod:`ffcv.transforms`: these
   augmentations use pre-allocated pinned memory, and are fused together and
   compiled to machine code at runtime, making them a much faster alternative to
   standard data augmentation functions.
@@ -71,7 +71,7 @@ accelerate your system:
 
 .. note:: 
 
-    This list is limited to what ffcv offers in data loading; check out
+    This list is limited to what FFCV offers in data loading; check out
     guides like `the PyTorch performance guide
     <https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html>`_ for more
     model-based ways to speed up training. 
