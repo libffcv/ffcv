@@ -52,6 +52,7 @@ If you use FFCV, please cite it as:
     note = {commit xxxxxxx}
 }
 ```
+(Make sure to replace xxxxxxx above with the hash of the commit used!)
 
 ## Quickstart
 Accelerate <a href="#features">*any*</a> learning system with `ffcv`.
