@@ -39,6 +39,7 @@ conda create -y -n ffcv python=3.9 cupy pkg-config compilers libjpeg-turbo openc
 conda activate ffcv
 pip install ffcv
 ```
+Troubleshooting note: if the above commands result in a package conflict error, try running ``conda config --env --set channel_priority flexible`` in the environment and rerunning the installation command.
 
 ## Citation
 If you use FFCV, please cite it as:
