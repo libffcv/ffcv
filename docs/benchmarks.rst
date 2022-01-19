@@ -81,7 +81,7 @@ Data loading
 
 Next, we measured the data loading performance of FFCV on some of the generated datasets from above when loaded from:
 
-- RAM, simulating the case where the dataset is smaller than the amount of RAM available for caching).
+- RAM, simulating the case where the dataset is smaller than the amount of RAM available for caching.
 - EBS (network attached drives on AWS), simulating the worst case scenario one would encounter on large datasets that are too big to be cached and even be stored on local storage.
 
 We compare our results against existing data loading platforms:
@@ -89,7 +89,7 @@ We compare our results against existing data loading platforms:
 - `Pytorch DataLoader <https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader>`_: This is the default option that comes with the Pytorch library and uses individual JPEG files as the source.
 - `Webdataset <https://github.com/webdataset/webdataset>`_: This loader requires pre-processed files aggregated in multiple big `.tar` archives.
 - `DALI <https://docs.nvidia.com/deeplearning/dali/user-guide/docs/>`_: Data loading pipeline developed by Nvidia. In this experiment we used the default file format which is the same as that of the Pytorch DataLoader.
-The specific instantiation of DALI that we apply is the PyTorch ImageNet example DALI code found in the `NVIDIA DeepLearningExamples repository <https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/Classification/ConvNets/resnet50v1.5>`.
+The specific instantiation of DALI that we apply is the PyTorch ImageNet example DALI code found in the `NVIDIA DeepLearningExamples repository <https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/Classification/ConvNets/resnet50v1.5>`_.
 We use the DGX-1 configuration and remove all the model optimization, benchmarking only the dataloader.
 
 
