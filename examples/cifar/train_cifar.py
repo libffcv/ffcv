@@ -94,10 +94,13 @@ def make_dataloaders(train_dataset=None, val_dataset=None, batch_size=None, num_
             Convert(ch.float16),
             torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
         ])
+        
+        ordering = OrderOption.RANDOM if name == 'train' else OrderOption.SEQUENTIAL
 
         loaders[name] = Loader(paths[name], batch_size=batch_size, num_workers=num_workers,
-                               order=OrderOption.RANDOM, drop_last=(name == 'train'),
+                               order=ordering, drop_last=(name == 'train'),
                                pipelines={'image': image_pipeline, 'label': label_pipeline})
+
     return loaders, start_time
 
 # Model (from KakaoBrain: https://github.com/wbaek/torchskeleton)
