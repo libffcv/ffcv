@@ -42,7 +42,7 @@ returns an input vector and its corresponding label:
         def __getitem__(self, idx):
             return (self.X[idx], self.Y[idx])
 
-        def __len(self):
+        def __len__(self):
             return len(self.X)
 
     N, d = (100, 6)
