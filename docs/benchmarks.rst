@@ -164,7 +164,7 @@ We tested two distinct benchmarks:
 - ImageNet (Resnet-50 8xA100): Train a ResNet-50 on ImageNet with 8 A100s using data parallelism.
 - ImageNet (Resnet-18 1xA100): Train a ResNet-18 on ImageNet with 1 A100. 
 
-To make the benchmark realistic, we mimick standard cluster conditions by training 8 models at once, each on a separate GPU. Such training parallelism situations are also highly relevant for tasks like grid searching or finding confidence intervals for training results.
+To make the benchmark realistic, we mimic standard cluster conditions by training 8 models at once, each on a separate GPU. Such training parallelism situations are also highly relevant for tasks like grid searching or finding confidence intervals for training results.
 
 We detail the tested systems below:
 
@@ -173,7 +173,7 @@ We detail the tested systems below:
   `the PyTorch repository <https://github.com/pytorch/examples/blob/master/imagenet/main.py>`_.
   we measured the time to complete an epoch of training (after warmup) and then
   used that to extrapolate how long the implemented schedule would take. We took
-  accurcies from
+  accuracies from
   `PyTorch model hub <https://pytorch.org/hub/pytorch_vision_resnet/>`_,
   assuming a 90 epoch schedule (a lower bound; the original ResNet paper used 120).
   We modified the PyTorch example to add half precision training (via PyTorch nativeAMP).

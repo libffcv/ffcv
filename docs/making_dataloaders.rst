@@ -82,13 +82,13 @@ any additional training overhead.
   In fact, declaring field pipelines is optional: for any field that exists
   in the dataset file without a corresponding pipeline specified in the
   ``pipelines`` dictionary,  the :class:`~ffcv.loader.Loader` will default to
-  the barebones pipeline above, i.e., first a decoder
+  the bare-bones pipeline above, i.e., first a decoder
   then a conversion to PyTorch tensor. (You can force FFCV to explicitly *not*
   load a field by adding a corresponding ``None`` entry to the ``pipelines``
   dictionary.)
 
   If the entire ``pipelines`` argument is
-  unspecified, this barebones pipeline will be applied to all fields.
+  unspecified, this bare-bones pipeline will be applied to all fields.
 
 Transforms
 """""""""""
