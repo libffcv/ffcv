@@ -18,15 +18,15 @@ PyTorch datasets and `WebDatasets <https://github.com/webdataset/webdataset>`_):
     # Pass a type for each data field
     writer = DatasetWriter(write_path, {
         # Tune options to optimize dataset size, throughput at train-time
-        'image': RGBImageField({
+        'image': RGBImageField(dict(
             max_resolution=256,
             jpeg_quality=jpeg_quality
-        }),
+        )),
         'label': IntField()
     })
 
     # Write dataset
-    writer.from_indexed_dataset(ds)
+    writer.from_indexed_dataset(my_dataset)
 
 Then replace your old loader with the `ffcv` loader at train time (in PyTorch,
 no other changes required!):
