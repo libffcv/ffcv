@@ -40,7 +40,7 @@ returns an input vector and its corresponding label:
             self.Y = np.randn(N)
 
         def __getitem__(self, idx):
-            return (self.X[idx], self.Y[idx])
+            return (self.X[idx].astype('float32'), self.Y[idx])
 
         def __len__(self):
             return len(self.X)
