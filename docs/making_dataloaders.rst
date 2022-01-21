@@ -172,12 +172,12 @@ Other options
 
 You can also specify the following additional options when constructing an :class:`ffcv.loader.Loader`:
 
-- ``os_cache``: If True, the OS automatically determines whether the dataset is helo in memory or not depending on available RAM. If False, FFCV manages the caching, and the amount of RAM needed depends on ``order`` option.
+- ``os_cache``: If ``True``, the OS automatically determines whether the dataset is held in memory or not, depending on available RAM. If ``False``, FFCV manages the caching, and the amount of RAM needed depends on ``order`` option.
 - ``distributed``: For training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>`
 - ``seed``: Specify the random seed for batch ordering
 - ``indices``: Provide indices to load a subset of the dataset
 - ``custom_fields``: For specifying decoders for fields with custom encoders
-- ``drop_last``: If True, drops the last non-full batch from each iteration
+- ``drop_last``: If ``True``, drops the last non-full batch from each iteration
 - ``batches_ahead``: Set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.
 - ``recompile``: Recompile every iteration. Useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But if they just change their memory usage, e.g., the resolution changes, it's not necessary.)
 
