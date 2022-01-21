@@ -22,7 +22,7 @@ Scenario: Large scale datasets
 If your dataset is too large to be cached on the machine we recommend:
 
 - Use ``os_cache=False``. Since the data can't be cached, FFCV will have to read it over and over. Having FFCV take over the operating system for caching is beneficial as it knows in advance the which samples will be needed in the future and can load them ahead of time.
-- For ``order``, we recommend using the ``QUASI_RANDOM`` traversal order if you need randomness but perfect uniform sampling isn't mission critical. This will optimize the order to minimize the reads on the underlying storage while maintaining very good randomness properties. If you have experience with the ``shuffle()`` function of ``webdataset`` and the quality of the randomness wasn't sufficient, we still suggest you give ``QUASI_RANDOM`` a try as it should be significantly better.
+- For ``order``, we recommend using the ``QUASI_RANDOM`` traversal order if you need randomness but perfect uniform sampling isn't mission critical. This will optimize the order to minimize the reads on the underlying storage while maintaining very good randomness properties. If you have experience with the ``shuffle()`` function of ``webdataset`` and the quality of the randomness wasn't sufficient, we still suggest you give ``QUASI_RANDOM`` a try as it should be significantly better. Using ``RANDOM`` is unfeasible because it needs to load the entire dataset in RAM, causing an out-of-memory exception.
 
 
 Scenario: Multi-GPU training (1 model, multiple GPUs)
