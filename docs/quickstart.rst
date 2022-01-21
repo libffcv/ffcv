@@ -18,10 +18,10 @@ PyTorch datasets and `WebDatasets <https://github.com/webdataset/webdataset>`_):
     # Pass a type for each data field
     writer = DatasetWriter(write_path, {
         # Tune options to optimize dataset size, throughput at train-time
-        'image': RGBImageField(dict(
+        'image': RGBImageField(
             max_resolution=256,
             jpeg_quality=jpeg_quality
-        )),
+        ),
         'label': IntField()
     })
 
