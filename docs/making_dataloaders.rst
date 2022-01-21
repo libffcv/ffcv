@@ -49,6 +49,13 @@ takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
   # Memory-efficient but not truly random loading
   # Speeds up loading over RANDOM when the whole dataset does not fit in RAM!
   ORDERING = OrderOption.QUASI_RANDOM
+  
+.. note::
+    ``order`` options require different amount of RAM, thus should be used considering how much RAM available in a case-by-case basis.
+    
+    - ``RANDOM`` requires largest RAM since it will have to cache the entire dataset to sample perfectly at random. If the available RAM is not enough, it will throw an exception.
+    - ``QUASI_RANDOM`` requires much less RAM than ``RANDOM``, but more than ``SEQUENTIAL``, in order to cache some entries. It is used when the entire dataset can not fit RAM. 
+    - ``SEQUENTIAL`` requires least RAM. It only keeps several batches of samples loaded.
 
 Pipelines
 '''''''''
@@ -165,7 +172,7 @@ Other options
 
 You can also specify the following additional options when constructing an :class:`ffcv.loader.Loader`:
 
-- ``os_cache``: If True, the entire dataset is cached
+- ``os_cache``: If True, the OS automatically determines whether the dataset is helo in memory or not depending on available RAM. If False, FFCV manages the caching, and the amount of RAM needed depends on ``order`` option.
 - ``distributed``: For training on :ref:`multiple GPUs<Scenario: Multi-GPU training (1 model, multiple GPUs)>`
 - ``seed``: Specify the random seed for batch ordering
 - ``indices``: Provide indices to load a subset of the dataset
