@@ -54,8 +54,8 @@ takes an ``enum`` provided by :class:`ffcv.loader.OrderOption`:
     ``order`` options require different amounts of RAM, thus should be used considering how much RAM available in a case-by-case basis.
     
     - ``RANDOM`` requires RAM the most since it will have to cache the entire dataset to sample perfectly at random. If the available RAM is not enough, it will throw an exception.
-    - ``QUASI_RANDOM`` requires much less RAM than ``RANDOM``, but a bit more than ``SEQUENTIAL``, in order to cache some entries. It is used when the entire dataset can not fit RAM. 
-    - ``SEQUENTIAL`` requires least RAM. It only keeps several batches of samples loaded.
+    - ``QUASI_RANDOM`` requires much less RAM than ``RANDOM``, but a bit more than ``SEQUENTIAL``, in order to cache a part of samples. It is used when the entire dataset can not fit RAM. 
+    - ``SEQUENTIAL`` requires least RAM. It only keeps several samples loaded ahead of time used in incoming training iterations.
 
 Pipelines
 '''''''''
