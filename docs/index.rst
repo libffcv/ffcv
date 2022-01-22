@@ -16,6 +16,8 @@ Install ``ffcv``:
    conda activate ffcv
    pip install ffcv
 
+We also provide a `Dockerfile <https://github.com/libffcv/ffcv/blob/main/docker/Dockerfile>`_ that installs ``ffcv`` in few steps.
+
 
 Introduction
 ------------
