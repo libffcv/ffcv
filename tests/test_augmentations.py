@@ -54,12 +54,12 @@ def run_test(length, pipeline, compile=False):
         unaugmented_loader = Loader(name, batch_size=7, num_workers=2, pipelines={
             'image': UNAUGMENTED_PIPELINE,
             'label': [IntDecoder(), ToTensor(), Squeeze()]
-        },
-        drop_last=False)
+        }, drop_last=False)
 
         tot_indices = 0
         tot_images = 0
         for (images, labels), (original_images, original_labels) in zip(loader, unaugmented_loader):
+            print(images.shape, original_images.shape)
             tot_indices += labels.shape[0]
             tot_images += images.shape[0]
             
@@ -198,7 +198,7 @@ def test_torchvision_color_jitter():
 
 if __name__ == '__main__':
     # test_cutout()
-    # test_flip()
+    test_flip()
     # test_module_wrapper()
     # test_mixup()
     # test_poison()
@@ -210,4 +210,4 @@ if __name__ == '__main__':
     # test_torchvision_centercrop_pad()
     # test_torchvision_random_affine()
     # test_torchvision_random_crop()
-    test_torchvision_color_jitter()
+    # test_torchvision_color_jitter()
