@@ -104,7 +104,7 @@ class Loader:
                  ):
 
         if seed is None:
-            tinfo = np.iinfo(np.int)
+            tinfo = np.iinfo(int)
             seed = np.random.randint(tinfo.min, tinfo.max)
 
         # We store the original user arguments to be able to pass it to the
