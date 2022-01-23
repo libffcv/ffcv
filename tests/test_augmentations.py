@@ -13,7 +13,7 @@ from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
 from ffcv.loader import Loader
 from ffcv.pipeline.compiler import Compiler
-from ffcv.transforms import Squeeze, Cutout, ToTensor, ToDevice, Poison
+from ffcv.transforms import Squeeze, Cutout, ToTensor, Poison, RandomHorizontalFlip
 
 def run_test(length, pipeline, compile):
     my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
@@ -42,6 +42,13 @@ def run_test(length, pipeline, compile):
             tot_images += images.shape[0]
         assert_that(tot_indices).is_equal_to(len(my_dataset))
         assert_that(tot_images).is_equal_to(len(my_dataset))
+
+def test_flip():
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        RandomHorizontalFlip(1.0),
+        ToTensor()
+    ], True)
 
 def test_cutout():
     run_test(100, [
