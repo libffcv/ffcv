@@ -3,6 +3,7 @@ import uuid
 import numpy as np
 import torch as ch
 from torch.utils.data import Dataset
+from torchvision import transforms as tvt
 from assertpy import assert_that
 from tempfile import NamedTemporaryFile
 from torchvision.datasets import CIFAR10
@@ -29,7 +30,7 @@ UNAUGMENTED_PIPELINE=[
     ToTorchImage()
 ]
 
-def run_test(length, pipeline, compile):
+def run_test(length, pipeline, compile=False):
     my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
 
     with NamedTemporaryFile() as handle:
@@ -94,11 +95,21 @@ def test_flip():
         ], comp)
 
 
+def test_module_wrapper():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            ToTensor(),
+            ToTorchImage(),
+            ModuleWrapper(tvt.Grayscale(3)),
+        ], comp)
+
+
 def test_mixup():
     for comp in [True, False]:
         run_test(100, [
             SimpleRGBImageDecoder(),
-            ImageMixup(1, True),
+            ImageMixup(.5, False),
             ToTensor(),
             ToTorchImage()
         ], comp)
@@ -113,14 +124,90 @@ def test_poison():
     for comp in [True, False]:
         run_test(100, [
             SimpleRGBImageDecoder(),
-            Poison(mask, alpha, [0, 1, 2]),
+            Poison(mask, alpha, list(range(100))),
             ToTensor(),
             ToTorchImage()
         ], comp)
 
 
+def test_random_resized_crop():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomResizedCrop(scale=(0.08, 1.0), 
+                            ratio=(0.75, 4/3),
+                            size=32),
+            ToTensor(),
+            ToTorchImage()
+        ], comp)
+
+
+def test_translate():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomTranslate(padding=10),
+            ToTensor(),
+            ToTorchImage()
+        ], comp)
+
+
+## Torchvision Transforms
+def test_torchvision_greyscale():
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        ToTensor(),
+        ToTorchImage(),
+        tvt.Grayscale(3),
+        ])
+
+def test_torchvision_centercrop_pad():
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        ToTensor(),
+        ToTorchImage(),
+        tvt.CenterCrop(10),
+        tvt.Pad(11)
+        ])
+
+def test_torchvision_random_affine():
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        ToTensor(),
+        ToTorchImage(),
+        tvt.RandomAffine(25),
+        ])
+
+def test_torchvision_random_crop():
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        ToTensor(),
+        ToTorchImage(),
+        tvt.Pad(10),
+        tvt.RandomCrop(size=32),
+        ])       
+
+def test_torchvision_color_jitter():
+    run_test(100, [
+        SimpleRGBImageDecoder(),
+        ToTensor(),
+        ToTorchImage(),
+        tvt.ColorJitter(.5, .5, .5, .5),
+        ])       
+
+
 if __name__ == '__main__':
     # test_cutout()
-    test_flip()
+    # test_flip()
+    # test_module_wrapper()
     # test_mixup()
     # test_poison()
+    # test_random_resized_crop()
+    # test_translate()
+
+    ## Torchvision Transforms
+    # test_torchvision_greyscale()
+    # test_torchvision_centercrop_pad()
+    # test_torchvision_random_affine()
+    # test_torchvision_random_crop()
+    test_torchvision_color_jitter()
