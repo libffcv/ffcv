@@ -103,9 +103,13 @@ class Loader:
                  recompile: bool = False,  # Recompile at every epoch
                  ):
 
-        if seed is None:
-            tinfo = np.iinfo(int)
-            seed = np.random.randint(tinfo.min, tinfo.max)
+        if distributed and order == OrderOption.RANDOM and (seed is None):
+            print('Warning: no ordering seed was specified with distributed=True. '
+                  'Setting seed to 0 to match PyTorch distributed sampler.')
+            seed = 0
+        elif seed is None:
+            tinfo = np.iinfo('int32')
+            seed = np.random.randint(0, tinfo.max)
 
         # We store the original user arguments to be able to pass it to the
         # filtered version of the datasets
