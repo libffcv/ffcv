@@ -93,7 +93,7 @@ class Loader:
                  os_cache: bool = DEFAULT_OS_CACHE,
                  order: ORDER_TYPE = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
-                 seed: int = 0,  # For ordering of samples
+                 seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
                  pipelines: Mapping[str,
                                     Sequence[Union[Operation, ch.nn.Module]]] = {},
@@ -102,6 +102,10 @@ class Loader:
                  batches_ahead: int = 3,
                  recompile: bool = False,  # Recompile at every epoch
                  ):
+
+        if seed is None:
+            tinfo = np.iinfo(np.int)
+            seed = np.random.randint(tinfo.min, tinfo.max)
 
         # We store the original user arguments to be able to pass it to the
         # filtered version of the datasets
