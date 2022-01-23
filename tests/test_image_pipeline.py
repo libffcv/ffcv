@@ -38,7 +38,6 @@ def create_and_validate(length, mode='raw', reversed=False):
 
     with NamedTemporaryFile() as handle:
         name = handle.name
-        print(name)
         
         fields = {
             'index': IntField(),
@@ -69,9 +68,7 @@ def create_and_validate(length, mode='raw', reversed=False):
                 if mode == 'raw':
                     assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
                 else:
-                    print('Here')
                     assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
-                    print('Here 2', ch.all((image == (i % 255)).reshape(-1)))
                 
 def make_and_read_cifar_subset(length):
     my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
@@ -93,14 +90,14 @@ def make_and_read_cifar_subset(length):
         for index, images in loader:
             pass
 
-# def test_cifar_subset():
-    # make_and_read_cifar_subset(200)
+def test_cifar_subset():
+    make_and_read_cifar_subset(200)
 
-# def test_simple_raw_image_pipeline():
-#     create_and_validate(500, 'raw', False)
+def test_simple_raw_image_pipeline():
+    create_and_validate(500, 'raw', False)
 
-# def test_simple_raw_image_pipeline_rev():
-    # create_and_validate(500, 'raw', True)
+def test_simple_raw_image_pipeline_rev():
+    create_and_validate(500, 'raw', True)
 
 def test_simple_jpg_image_pipeline():
     create_and_validate(500, 'jpg', False)
