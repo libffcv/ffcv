@@ -141,5 +141,3 @@ def test_traversal_random_distributed_with_indices():
 @pytest.mark.skip()
 def test_traversal_quasi_random_distributed_with_indices():
     prep_and_run_test(2, OrderOption.QUASI_RANDOM, True)
-
-if __name__ == '__main__':
