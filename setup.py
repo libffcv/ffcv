@@ -37,7 +37,7 @@ libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
 
 setup(name='ffcv',
-      version='0.0.2',
+      version='0.0.3rc1',
       description=' FFCV: Fast Forward Computer Vision ',
       author='MadryLab',
       author_email='leclerc@mit.edu',
