@@ -36,8 +36,8 @@ returns an input vector and its corresponding label:
 
     class LinearRegressionDataset:
         def __init__(self, N, d):
-            self.X = np.randn(N, d)
-            self.Y = np.randn(N)
+            self.X = np.random.randn(N, d)
+            self.Y = np.random.randn(N)
 
         def __getitem__(self, idx):
             return (self.X[idx].astype('float32'), self.Y[idx])
