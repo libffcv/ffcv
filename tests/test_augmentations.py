@@ -18,7 +18,6 @@ from ffcv.loader import Loader
 from ffcv.pipeline.compiler import Compiler
 from ffcv.transforms import *
 
-
 SAVE_IMAGES = True
 IMAGES_TMP_PATH = '/tmp/ffcv_augtest_output'
 if SAVE_IMAGES:
@@ -73,7 +72,6 @@ def run_test(length, pipeline, compile=False):
 
         assert_that(tot_indices).is_equal_to(len(my_dataset))
         assert_that(tot_images).is_equal_to(len(my_dataset))
-
 
 def test_cutout():
     for comp in [True, False]:

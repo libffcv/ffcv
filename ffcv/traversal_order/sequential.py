@@ -27,4 +27,4 @@ class Sequential(TraversalOrder):
         
         self.sampler.set_epoch(epoch)
         
-        return np.array(list(self.sampler))
+        return self.indices[np.array(list(self.sampler))]
