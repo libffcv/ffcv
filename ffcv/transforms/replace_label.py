@@ -1,13 +1,10 @@
 """
 Replace label
 """
-from collections.abc import Sequence
 from typing import Tuple
 
 import numpy as np
-from numpy import dtype
-from numpy.core.numeric import indices
-from numpy.random import rand
+from dataclasses import replace
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
@@ -50,6 +47,4 @@ class ReplaceLabel(Operation):
         return replace_label
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.jit_mode
-        # We do everything in place
-        return (previous_state, None)
+        return (replace(previous_state, jit_mode=True), None)

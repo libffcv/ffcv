@@ -2,9 +2,9 @@
 Random translate
 """
 import numpy as np
-from numpy import dtype
 from numpy.random import randint
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Callable, Optional, Tuple
+from dataclasses import replace
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
@@ -51,5 +51,6 @@ class RandomTranslate(Operation):
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         h, w, c = previous_state.shape
-        assert previous_state.jit_mode
-        return (previous_state, AllocationQuery((h + 2 * self.padding, w + 2 * self.padding, c), previous_state.dtype))
+        return (replace(previous_state, jit_mode=True), \
+                AllocationQuery((h + 2 * self.padding, w + 2 * self.padding, c), previous_state.dtype))
+

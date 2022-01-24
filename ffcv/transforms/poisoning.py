@@ -1,13 +1,10 @@
 """
 Poison images by adding a mask
 """
-from collections.abc import Sequence
 from typing import Tuple
+from dataclasses import replace
 
 import numpy as np
-from numpy import dtype
-from numpy.core.numeric import indices
-from numpy.random import rand
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
@@ -67,6 +64,6 @@ class Poison(Operation):
         return poison
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.jit_mode
         # We do everything in place
-        return (previous_state, AllocationQuery(shape=previous_state.shape, dtype=np.float32))
+        return (replace(previous_state, jit_mode=True), \
+                AllocationQuery(shape=previous_state.shape, dtype=np.dtype('float32')))
