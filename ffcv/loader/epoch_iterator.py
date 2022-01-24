@@ -4,6 +4,7 @@ from queue import Queue, Full
 from contextlib import nullcontext
 from typing import Sequence, TYPE_CHECKING
 
+import numpy as np
 import torch as ch
 
 from ..traversal_order.quasi_random import QuasiRandom
@@ -66,6 +67,7 @@ class EpochIterator(Thread):
         self.start()
 
     def run(self):
+        Compiler.compile(lambda seed: np.random.seed(seed))(self.loader.seed)
 
         events = [None for _ in self.cuda_streams]
 
