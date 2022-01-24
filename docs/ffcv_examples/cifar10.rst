@@ -106,8 +106,8 @@ For the model, we use a custom ResNet-9 architecture from `KakaoBrain <https://g
 
     class Mul(ch.nn.Module):
         def __init__(self, weight):
-        super(Mul, self).__init__()
-        self.weight = weight
+            super(Mul, self).__init__()
+            self.weight = weight
         def forward(self, x): return x * self.weight
 
     class Flatten(ch.nn.Module):
