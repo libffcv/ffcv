@@ -33,15 +33,11 @@ class RandomTranslate(Operation):
 
         def translate(images, dst):
             n, h, w, _ = images.shape
-            # y_coords = randint(low=0, high=2 * pad + 1, size=(n,))
-            # x_coords = randint(low=0, high=2 * pad + 1, size=(n,))
-            # dst = fill
-
-            dst[:, pad:pad+h, pad:pad+w] = images
             for i in my_range(n):
+                dst[i] = 0
+                dst[i, pad:pad+h, pad:pad+w] = images[i]
                 y_coord = randint(low=0, high=2 * pad + 1)
                 x_coord = randint(low=0, high=2 * pad + 1)
-                # images[i] = dst[i, y_coords[i]:y_coords[i]+h, x_coords[i]:x_coords[i]+w]
                 images[i] = dst[i, y_coord:y_coord+h, x_coord:x_coord+w]
 
             return images
