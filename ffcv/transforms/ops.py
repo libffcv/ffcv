@@ -46,13 +46,12 @@ class ToDevice(Operation):
 
     def generate_code(self) -> Callable:
         def to_device(inp, dst):
-            if len(inp.shape) == 4:
-                if inp.is_contiguous(memory_format=ch.channels_last):
-                    dst = dst.reshape(inp.shape[0], inp.shape[2], inp.shape[3], inp.shape[1])
-                    dst = dst.permute(0, 3, 1, 2)
-            dst = dst[:inp.shape[0]]
-            dst.copy_(inp, non_blocking=self.non_blocking)
-            return dst
+            B = inp.shape[0]
+            if len(inp.shape) == 4 and inp.is_contiguous(memory_format=ch.channels_last):
+                inp = inp.reshape(B, inp.shape[2], inp.shape[3], inp.shape[1])
+                inp = inp.permute(0, 3, 1, 2)
+            inp = inp[:B].to(self.device)
+            return inp
 
         return to_device
 
