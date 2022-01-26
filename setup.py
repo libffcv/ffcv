@@ -4,7 +4,6 @@ from difflib import get_close_matches
 from glob import glob
 import os
 import platform
-from importlib.metadata import PackageNotFoundError
 
 from distutils.core import setup, Extension
 
@@ -25,8 +24,8 @@ def find_pkg_dirs(package):
             dll_dir = close_match
             break
     if dll_dir is None:
-        raise PackageNotFoundError(
-            f"{package} not found. "
+        raise Exception(
+            f"Could not find required package: {package}. "
             "Add directory containing .dll files to system environment path."
         )
     dll_dir_split = dll_dir.replace('\\', '/').split('/')
@@ -60,7 +59,7 @@ def pkgconfig_windows(package, kw):
                          for library in glob(os.path.join(library_dir, '*.lib'))]
             break
     if not include_dir or not library_dir:
-        raise PackageNotFoundError('{} not found.'.format(package))
+        raise Exception(f"Could not find required package: {package}.")
     kw.setdefault('include_dirs', []).append(include_dir)
     kw.setdefault('library_dirs', []).append(library_dir)
     kw.setdefault('libraries', []).extend(libraries)
@@ -72,7 +71,7 @@ def pkgconfig(package, kw):
     output = subprocess.getoutput(
         'pkg-config --cflags --libs {}'.format(package))
     if 'not found' in output:
-        raise PackageNotFoundError('{} not found.'.format(package))
+        raise Exception(f"Could not find required package: {package}.")
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     return kw
