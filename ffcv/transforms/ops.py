@@ -50,7 +50,7 @@ class ToDevice(Operation):
             if len(inp.shape) == 4 and inp.is_contiguous(memory_format=ch.channels_last):
                 inp = inp.reshape(B, inp.shape[2], inp.shape[3], inp.shape[1])
                 inp = inp.permute(0, 3, 1, 2)
-            inp = inp[:B].to(self.device)
+            inp = inp[:B].to(self.device, non_blocking=self.non_blocking)
             return inp
 
         return to_device
