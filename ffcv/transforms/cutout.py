@@ -3,6 +3,7 @@ Cutout augmentation (https://arxiv.org/abs/1708.04552)
 """
 import numpy as np
 from typing import Callable, Optional, Tuple
+from dataclasses import replace
 
 from ffcv.pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
@@ -48,5 +49,4 @@ class Cutout(Operation):
         return cutout_square
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.jit_mode
-        return previous_state, None
+        return replace(previous_state, jit_mode=True), None

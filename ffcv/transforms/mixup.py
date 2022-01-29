@@ -53,8 +53,6 @@ class ImageMixup(Operation):
         return mixer
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        # assert previous_state.jit_mode
-        # We do everything in place
         return (previous_state, AllocationQuery(shape=previous_state.shape,
                                                 dtype=previous_state.dtype))
 
@@ -92,8 +90,6 @@ class LabelMixup(Operation):
         return mixer
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        # assert previous_state.jit_mode
-        # We do everything in place
         return (replace(previous_state, shape=(3,), dtype=np.float32),
                 AllocationQuery((3,), dtype=np.float32))
 
@@ -115,6 +111,7 @@ class MixupToOneHot(Operation):
         return one_hotter
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
+        # Should already be converted to tensor
         assert not previous_state.jit_mode
         return (replace(previous_state, shape=(self.num_classes,)), \
                 AllocationQuery((self.num_classes,), dtype=previous_state.dtype, device=previous_state.device))

@@ -46,9 +46,8 @@ class EpochIterator(Thread):
 
         self.memory_bank_per_stage = defaultdict(list)
 
-        if IS_CUDA:
-            self.cuda_streams = [ch.cuda.Stream()
-                                 for _ in range(self.loader.batches_ahead + 2)]
+        self.cuda_streams = [(ch.cuda.Stream() if IS_CUDA else None)
+                             for _ in range(self.loader.batches_ahead + 2)]
 
         # Allocate all the memory
         memory_allocations = {}
@@ -136,7 +135,7 @@ class EpochIterator(Thread):
                 if first_stage:
                     first_stage = False
                     self.memory_context.end_batch(b_ix)
-        return tuple(args)
+        return tuple(x[:len(batch_indices)] for x in args)
 
     def __next__(self):
         result = self.output_queue.get()

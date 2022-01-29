@@ -1,7 +1,7 @@
 """
 Random horizontal flip
 """
-from numpy import dtype
+from dataclasses import replace
 from numpy.random import rand
 from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
@@ -42,5 +42,5 @@ class RandomHorizontalFlip(Operation):
         return flip
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.jit_mode
-        return (previous_state, AllocationQuery(previous_state.shape, previous_state.dtype))
+        return (replace(previous_state, jit_mode=True), 
+                AllocationQuery(previous_state.shape, previous_state.dtype))
