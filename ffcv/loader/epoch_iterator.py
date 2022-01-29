@@ -33,6 +33,10 @@ class EpochIterator(Thread):
         self.terminate_event = Event()
         self.memory_context = self.loader.memory_manager.schedule_epoch(
             batches)
+
+        if IS_CUDA:
+            self.current_stream = ch.cuda.current_stream()
+
         try:
             self.memory_context.__enter__()
         except MemoryError as e:
@@ -96,7 +100,7 @@ class EpochIterator(Thread):
                     # and make sure no one overwrite the data until they are done
                     just_finished_slot = (slot - self.loader.batches_ahead) % (self.loader.batches_ahead + 2)
                     event = ch.cuda.Event()
-                    event.record(ch.cuda.default_stream())
+                    event.record(self.current_stream)
                     events[just_finished_slot] = event
                     b_ix += 1
 
@@ -146,7 +150,7 @@ class EpochIterator(Thread):
         if IS_CUDA:
             stream = self.cuda_streams[slot]
             # We wait for the copy to be done
-            ch.cuda.current_stream().wait_stream(stream)
+            self.current_stream.wait_stream(stream)
         return result
 
     def __iter__(self):
