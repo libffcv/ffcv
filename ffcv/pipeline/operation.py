@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Operation(ABC):
 
     def __init__(self):
-        self.matadata: np.ndarray = None
+        self.metadata: np.ndarray = None
         self.memory_read: Callable[[np.uint64], np.ndarray] = None
         pass
     
