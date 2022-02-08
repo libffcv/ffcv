@@ -164,6 +164,8 @@ class Loader:
         self.pipelines = {}
         self.pipeline_specs = {}
         self.field_name_to_f_ix = {}
+        
+        custom_pipeline_specs = {}
 
         # Creating PipelineSpec objects from the pipeline dict passed
         # by the user
@@ -178,16 +180,25 @@ class Loader:
                 msg  = f"The pipeline for {output_name} has to be "
                 msg += f"either a PipelineSpec or a sequence of operations"
                 raise ValueError(msg)
-            self.pipeline_specs[output_name] = spec
+            custom_pipeline_specs[output_name] = spec
 
         # Adding the default pipelines
         for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
             self.field_name_to_f_ix[field_name] = f_ix
 
-            if field_name not in self.pipeline_specs:
+            if field_name not in custom_pipeline_specs:
                 # We add the default pipeline
-                if field_name in pipelines and pipelines[field_name] is not None:
+                if field_name not in pipelines:
                     self.pipeline_specs[field_name] = PipelineSpec(field_name)
+            else:
+                self.pipeline_specs[field_name] = custom_pipeline_specs[field_name]
+
+        # We add the custom fields after the default ones
+        # This is to preserve backwards compatibility and make sure the order
+        # is intuitive
+        for field_name, spec in custom_pipeline_specs.items():
+            if field_name not in self.pipeline_specs:
+                self.pipeline_specs[field_name] = custom_pipeline_specs
 
         self.graph = Graph(self.pipeline_specs, self.reader.handlers,
                            self.field_name_to_f_ix, self.reader.metadata,
