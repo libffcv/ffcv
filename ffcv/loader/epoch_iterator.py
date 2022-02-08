@@ -48,23 +48,13 @@ class EpochIterator(Thread):
 
         self.storage_state = self.memory_context.state
 
-        self.memory_bank_per_stage = defaultdict(list)
-
         self.cuda_streams = [(ch.cuda.Stream() if IS_CUDA else None)
                              for _ in range(self.loader.batches_ahead + 2)]
 
-        # Allocate all the memory
-        memory_allocations = {}
-        for (p_id, p) in self.loader.pipelines.items():
-            memory_allocations[p_id] = p.allocate_memory(self.loader.batch_size,
-                                                         self.loader.batches_ahead + 2)
-
-        # Assign each memory bank to the pipeline stage it belongs to
-        for s_ix, banks in self.loader.memory_bank_keys_per_stage.items():
-            for (pipeline_name, op_id) in banks:
-                self.memory_bank_per_stage[s_ix].append(
-                    memory_allocations[pipeline_name][op_id]
-                )
+        self.memory_allocations = self.loader.graph.allocate_memory(
+            self.loader.batch_size,
+            self.loader.batches_ahead + 2
+        )
 
         self.start()
 
@@ -118,28 +108,34 @@ class EpochIterator(Thread):
             ctx = nullcontext()
         first_stage = False
 
+        code, outputs = self.loader.code
+        
         with ctx:
             if IS_CUDA:
                 if cuda_event:
                     cuda_event.wait()
-            for stage, banks in self.memory_bank_per_stage.items():
-                args.insert(0, batch_indices)
-                for bank in banks:
-                    if bank is not None:
-                        if isinstance(bank, tuple):
-                            bank = tuple(x[batch_slot] for x in bank)
-                        else:
-                            bank = bank[batch_slot]
-                    args.append(bank)
-                args.append(self.metadata)
-                args.append(self.storage_state)
-                code = self.loader.code_per_stage[stage]
-                result = code(*args)
-                args = list(result)
-                if first_stage:
-                    first_stage = False
-                    self.memory_context.end_batch(b_ix)
-        return tuple(x[:len(batch_indices)] for x in args)
+
+            args = {
+                'batch_indices': batch_indices,
+                'storage_state': self.storage_state,
+                'metadata': self.metadata,
+                **{
+                    f'memory_{k}': None if v is None else v[b_ix][:len(batch_indices)]
+                    for (k, v) in self.memory_allocations['operation'].items()
+                },
+                **{
+                    f'shared_memory_{k}': None if v is None else v[b_ix] for (k, v) in self.memory_allocations['shared'].items()
+                }
+            }
+
+            for stage_code, define_outputs in code:
+                results = stage_code(**args)
+                for node_id, result in zip(define_outputs, results):
+                    args[f'result_{node_id}'] = result
+                pass
+
+            result = tuple(args[f'result_{x}'] for x in outputs)
+            return result
 
     def __next__(self):
         result = self.output_queue.get()
