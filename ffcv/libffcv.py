@@ -47,5 +47,5 @@ ctypes_memcopy = lib.my_memcpy
 ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
-    return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size)
+    return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size*source.itemsize)
 
