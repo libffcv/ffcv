@@ -23,7 +23,6 @@ from ..traversal_order import Random, Sequential, QuasiRandom
 from ..pipeline import Pipeline, PipelineSpec, Compiler
 from ..pipeline.operation import Operation
 from ..pipeline.graph import Graph
-from ..transforms.ops import ToTensor
 from ..transforms.module import ModuleWrapper
 from ..memory_managers import (
     ProcessCacheManager, OSCacheManager, MemoryManager
@@ -198,7 +197,7 @@ class Loader:
         # is intuitive
         for field_name, spec in custom_pipeline_specs.items():
             if field_name not in self.pipeline_specs:
-                self.pipeline_specs[field_name] = custom_pipeline_specs
+                self.pipeline_specs[field_name] = spec
 
         self.graph = Graph(self.pipeline_specs, self.reader.handlers,
                            self.field_name_to_f_ix, self.reader.metadata,

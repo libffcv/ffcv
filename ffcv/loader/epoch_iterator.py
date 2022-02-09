@@ -98,7 +98,6 @@ class EpochIterator(Thread):
             self.output_queue.put(None)
 
     def run_pipeline(self, b_ix, batch_indices, batch_slot, cuda_event):
-        # print(b_ix, batch_indices)
         self.memory_context.start_batch(b_ix)
         args = []
         if IS_CUDA:
@@ -108,8 +107,8 @@ class EpochIterator(Thread):
             ctx = nullcontext()
         first_stage = False
 
+
         code, outputs = self.loader.code
-        
         with ctx:
             if IS_CUDA:
                 if cuda_event:
@@ -120,11 +119,11 @@ class EpochIterator(Thread):
                 'storage_state': self.storage_state,
                 'metadata': self.metadata,
                 **{
-                    f'memory_{k}': None if v is None else v[b_ix][:len(batch_indices)]
+                    f'memory_{k}': None if v is None else v[batch_slot][:len(batch_indices)]
                     for (k, v) in self.memory_allocations['operation'].items()
                 },
                 **{
-                    f'shared_memory_{k}': None if v is None else v[b_ix] for (k, v) in self.memory_allocations['shared'].items()
+                    f'shared_memory_{k}': None if v is None else v[batch_slot] for (k, v) in self.memory_allocations['shared'].items()
                 }
             }
 
