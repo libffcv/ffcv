@@ -25,11 +25,16 @@ extern "C" {
 
     void resize(int64_t cresizer, int64_t source_p, int64_t sx, int64_t sy,
                 int64_t start_row, int64_t end_row, int64_t start_col, int64_t end_col,
-                int64_t dest_p, int64_t tx, int64_t ty) {
-        // TODO use proper arguments type
+                int64_t dest_p, int64_t tx, int64_t ty, bool is_rgb){
+        int dtype;
+        if (is_rgb) {
+            dtype = CV_8UC3;
+        } else {
+            dtype = CV_8UC1;
+        }
 
-        cv::Mat source_matrix(sx, sy, CV_8UC3, (uint8_t*) source_p);
-        cv::Mat dest_matrix(tx, ty, CV_8UC3, (uint8_t*) dest_p);
+        cv::Mat source_matrix(sx, sy, dtype, (uint8_t*) source_p);
+        cv::Mat dest_matrix(tx, ty, dtype, (uint8_t*) dest_p);
         cv::resize(source_matrix.colRange(start_col, end_col).rowRange(start_row, end_row),
                    dest_matrix, dest_matrix.size(), 0, 0, cv::INTER_AREA);
     }
@@ -51,7 +56,8 @@ extern "C" {
                       __uint32_t offset_x, __uint32_t offset_y,
                       __uint32_t scale_num, __uint32_t scale_denom,
                       bool enable_crop,
-                      bool hflip)
+                      bool hflip,
+                      bool is_rgb)
     {
         pthread_once(&key_once, make_keys);
 
@@ -94,13 +100,23 @@ extern "C" {
             dstBuf = input_buffer;
             dstSize = input_size;
         }
+
+        TJPF pixel_format;
+
+        if (is_rgb) {
+            pixel_format = TJPF_RGB;
+        } else {
+            pixel_format = TJPF_GRAY;
+        }
+
         int result =  tjDecompress2(tj_decompressor, dstBuf, dstSize, output_buffer,
                 TJSCALED(crop_width, scaling), 0, TJSCALED(crop_height, scaling),
-                TJPF_RGB, TJFLAG_FASTDCT | TJFLAG_NOREALLOC);
+                pixel_format, TJFLAG_FASTDCT | TJFLAG_NOREALLOC);
 
         if (do_transform) {
              tjFree(dstBuf);
         }
+
         return result;
     }
 
