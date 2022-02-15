@@ -28,6 +28,7 @@ def encode_jpeg(numpy_image, quality, is_rgb):
     if is_rgb:
         numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
 
+    # TODO this def assumes rgb lol
     success, result = cv2.imencode('.jpg', numpy_image,
                                    [int(cv2.IMWRITE_JPEG_QUALITY), quality])
 
@@ -145,6 +146,9 @@ instead."""
         decode.is_parallel = True
         return decode
 
+class SimpleGrayscaleImageDecoder(SimpleRGBImageDecoder):
+    def __init__(self):
+        super().__init__(is_rgb=False)
 
 class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     """Abstract decoder for :class:`~ffcv.fields.RGBImageField` that performs a crop and and a resize operation.
@@ -240,8 +244,9 @@ class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
     ratio : Tuple[float]
         The range of potential aspect ratios that can be randomly sampled
     """
-    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
-        super().__init__(output_size)
+    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3),
+                 is_rgb=True):
+        super().__init__(output_size, is_rgb=is_rgb)
         self.scale = scale
         self.ratio = ratio
         self.output_size = output_size
@@ -264,8 +269,8 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
         ratio of (crop size) / (min side length)
     """
     # output size: resize crop size -> output size
-    def __init__(self, output_size, ratio):
-        super().__init__(output_size)
+    def __init__(self, output_size, ratio, is_rgb=True):
+        super().__init__(output_size, is_rgb=is_rgb)
         self.scale = None
         self.ratio = ratio
 
@@ -318,7 +323,10 @@ class RGBImageField(Field):
         ])
 
     def get_decoder_class(self) -> Type[Operation]:
-        return partial(SimpleRGBImageDecoder, is_rgb=self.is_rgb)
+        if self.is_rgb:
+            return SimpleRGBImageDecoder # TODO
+        else:
+            return SimpleGrayscaleImageDecoder # TODO
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:
@@ -337,8 +345,9 @@ class RGBImageField(Field):
         if image.dtype != np.uint8:
             raise ValueError("Image type has to be uint8")
 
-        is_ok_rgb = image.shape[2] == 3 and self.is_rgb
-        is_ok_grayscale = image.shape[2] == 1 and not self.is_rgb
+        shape = image.shape
+        is_ok_grayscale = len(shape) == 2 and not self.is_rgb
+        is_ok_rgb = len(shape) == 3 and shape[2] == 3 and self.is_rgb
         if not (is_ok_rgb or is_ok_grayscale):
             raise ValueError(f"Invalid shape for rgb image: {image.shape}")
 

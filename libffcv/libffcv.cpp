@@ -49,15 +49,14 @@ extern "C" {
     }
 
     int imdecode(unsigned char *input_buffer, __uint64_t input_size,
-                      __uint32_t source_height, __uint32_t source_width,
-
-                      unsigned char *output_buffer,
-                      __uint32_t crop_height, __uint32_t crop_width,
-                      __uint32_t offset_x, __uint32_t offset_y,
-                      __uint32_t scale_num, __uint32_t scale_denom,
-                      bool enable_crop,
-                      bool hflip,
-                      bool is_rgb)
+                 __uint32_t source_height, __uint32_t source_width,
+                 unsigned char *output_buffer,
+                 __uint32_t crop_height, __uint32_t crop_width,
+                 __uint32_t offset_x, __uint32_t offset_y,
+                 __uint32_t scale_num, __uint32_t scale_denom,
+                 bool enable_crop,
+                 bool hflip,
+                 bool is_rgb)
     {
         pthread_once(&key_once, make_keys);
 
