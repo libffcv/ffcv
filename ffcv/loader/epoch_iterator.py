@@ -19,6 +19,17 @@ QUASIRANDOM_ERROR_MSG = '''Not enough memory; try setting quasi-random ordering
 (`OrderOption.QUASI_RANDOM`) in the dataloader constructor's `order` argument.
 '''
 
+def select_buffer(buffer, batch_slot, count):
+    """Util function to select the relevent subpart of a buffer for a given
+    batch_slot and batch size"""
+    if buffer is None:
+        return None
+    if isinstance(buffer, tuple):
+        return tuple(select_buffer(x, batch_slot, count) for x in buffer)
+
+    return buffer[batch_slot][:count]
+
+
 class EpochIterator(Thread):
     def __init__(self, loader: 'Loader', order: Sequence[int]):
         super().__init__(daemon=True)
@@ -119,11 +130,12 @@ class EpochIterator(Thread):
                 'storage_state': self.storage_state,
                 'metadata': self.metadata,
                 **{
-                    f'memory_{k}': None if v is None else v[batch_slot][:len(batch_indices)]
+                    f'memory_{k}':select_buffer(v, batch_slot, len(batch_indices))
                     for (k, v) in self.memory_allocations['operation'].items()
                 },
                 **{
-                    f'shared_memory_{k}': None if v is None else v[batch_slot] for (k, v) in self.memory_allocations['shared'].items()
+                    f'shared_memory_{k}': select_buffer(v, batch_slot, len(batch_indices))
+                    for (k, v) in self.memory_allocations['shared'].items()
                 }
             }
 

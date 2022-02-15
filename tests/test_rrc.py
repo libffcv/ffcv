@@ -62,49 +62,53 @@ def create_and_validate(length, decoder, size, mode='raw', compile=False):
                 if mode == 'raw':
                     assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
                 else:
-                    assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
+                    assert_that(ch.all(ch.abs(image - (i % 255)) < 2)).is_true
                 
 
 def test_simple_image_decoder_fails_with_variable_images():
     decoder = SimpleRGBImageDecoder()
     assert_that(create_and_validate).raises(TypeError).when_called_with(500, decoder, 32, 'raw')
 
-# def test_rrc_decoder_raw():
-#     size = (160, 160)
-#     decoder = RandomResizedCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'raw')
-# 
-# def test_rrc_decoder_jpg():
-#     size = (160, 160)
-#     decoder = RandomResizedCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'jpg')
-# 
-# def test_rrc_decoder_raw_compiled():
-#     size = (160, 160)
-#     decoder = RandomResizedCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'raw', True)
-# 
-# def test_rrc_decoder_jpg_compiled():
-#     size = (160, 160)
-#     decoder = RandomResizedCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'jpg', True)
-# 
-# def test_cc_decoder_raw_nc():
-#     size = (160, 160)
-#     decoder = CenterCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'raw')
-# 
-# def test_cc_decoder_jpg_nc():
-#     size = (160, 160)
-#     decoder = CenterCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'jpg')
-# 
-# def test_cc_decoder_raw_compiled():
-#     size = (160, 160)
-#     decoder = CenterCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'raw', True)
-# 
-# def test_cc_decoder_jpg_compiled():
-#     size = (160, 160)
-#     decoder = CenterCropRGBImageDecoder(size)
-#     create_and_validate(500, decoder, size, 'jpg', True)
+def test_rrc_decoder_raw():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'raw')
+
+def test_rrc_decoder_jpg():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'jpg')
+
+def test_rrc_decoder_raw_compiled():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'raw', True)
+
+def test_rrc_decoder_jpg_compiled():
+    size = (160, 160)
+    decoder = RandomResizedCropRGBImageDecoder(size)
+    create_and_validate(500, decoder, size, 'jpg', True)
+
+def test_cc_decoder_raw_nc():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size, 224/256)
+    create_and_validate(500, decoder, size, 'raw')
+
+def test_cc_decoder_jpg_nc():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size, 224/256)
+    create_and_validate(500, decoder, size, 'jpg')
+
+def test_cc_decoder_raw_compiled():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size, 224/256)
+    create_and_validate(500, decoder, size, 'raw', True)
+
+def test_cc_decoder_jpg_compiled():
+    size = (160, 160)
+    decoder = CenterCropRGBImageDecoder(size, 224/256)
+    create_and_validate(500, decoder, size, 'jpg', True)
+
+
+if __name__ == '__main__':
+    test_rrc_decoder_jpg()
