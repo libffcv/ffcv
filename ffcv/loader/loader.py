@@ -64,8 +64,8 @@ class Loader:
         Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-threading.
     os_cache : bool
         Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine training using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
-    order : OrderOption
-        Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM
+    order : Union[OrderOption, TraversalOrder]
+        Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM, or a custom TraversalOrder
 
         QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distributed mode.
     distributed : bool
@@ -92,7 +92,7 @@ class Loader:
                  batch_size: int,
                  num_workers: int = -1,
                  os_cache: bool = DEFAULT_OS_CACHE,
-                 order: ORDER_TYPE = OrderOption.SEQUENTIAL,
+                 order: Union[ORDER_TYPE, TraversalOrder] = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
@@ -155,7 +155,12 @@ class Loader:
             self.memory_manager: MemoryManager = ProcessCacheManager(
                 self.reader)
 
-        self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
+        if order in ORDER_MAP:
+            self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
+        elif isinstance(order, TraversalOrder):
+            self.traversal_order: TraversalOrder = order(self)
+        else:
+            raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
 
         memory_read = self.memory_manager.compile_reader()
         self.next_epoch: int = 0
