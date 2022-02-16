@@ -3,6 +3,29 @@ from numba import njit, prange
 import numpy as np
 from ...libffcv import ctypes_resize, ctypes_rotate, ctypes_shear, ctypes_add_weighted, ctypes_equalize
 
+"""
+Requires a float32 scratch array
+"""
+@njit(parallel=True, fastmath=True, inline='always')
+def autocontrast(source, scratchf, destination):
+    # numba: no kwargs in min? as a consequence, I might as well have written
+    # this in C++
+    # TODO assuming 3 channels
+    minimum = [source[..., 0].min(), source[..., 1].min(), source[..., 2].min()]
+    maximum = [source[..., 0].max(), source[..., 1].max(), source[..., 2].max()]
+    scale = [0.0, 0.0, 0.0]
+    for i in prange(source.shape[-1]):
+        if minimum[i] == maximum[i]:
+            scale[i] = 1
+            minimum[i] = 0
+        else:
+            scale[i] = 255. / (maximum[i] - minimum[i])
+    for i in prange(source.shape[-1]): 
+        scratchf[..., i] = source[..., i] - minimum[i]
+        scratchf[..., i] = scratchf[..., i] * scale[i]
+    np.clip(scratchf, 0, 255, out=scratchf)
+    destination[:] = scratchf
+
 
 """
 Custom equalize -- equivalent to torchvision.transforms.functional.equalize,
@@ -11,6 +34,7 @@ but probably slow -- scratch is a (channels, 256) uint16 array.
 @njit(parallel=True, fastmath=True, inline='always')
 def equalize(source, scratch, destination):
     for i in prange(source.shape[-1]):
+        # TODO memory less than ideal for bincount() and hist()
         scratch[i] = np.bincount(source[..., i].flatten(), minlength=256)
         nonzero_hist = scratch[i][scratch[i] != 0]
         step = nonzero_hist[:-1].sum() // 255
