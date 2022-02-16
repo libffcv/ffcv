@@ -13,7 +13,7 @@ from dataclasses import replace
 from typing import Callable, Optional, Tuple
 from ffcv.pipeline.state import State
 from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
-    adjust_contrast, posterize, invert, solarize
+    adjust_contrast, posterize, invert, solarize, equalize, fast_equalize
 import torchvision.transforms as tv
 import cv2
 import pytest
@@ -27,7 +27,7 @@ class RandAugment(Operation):
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
         def randaug(im, mem):
-            dst, scratch = mem
+            dst, scratch, lut = mem
             for i in my_range(im.shape[0]):
                 
                 ## TODO actual randaug logic
@@ -42,6 +42,8 @@ class RandAugment(Operation):
                 ## adjust contrast
                 adjust_contrast(im[i], scratch[i][0], 0.5, dst[i])
                 
+                ## equalize
+                equalize(im[i], lut[i], dst[i])
             return dst
 
         randaug.is_parallel = True
@@ -51,7 +53,8 @@ class RandAugment(Operation):
         assert previous_state.jit_mode
         return replace(previous_state, shape=(self.size, self.size, 3)), [
             AllocationQuery((self.size, self.size, 3), dtype=np.dtype('uint8')), 
-            AllocationQuery((1, self.size, self.size, 3), dtype=np.dtype('uint8'))
+            AllocationQuery((1, self.size, self.size, 3), dtype=np.dtype('uint8')),
+            AllocationQuery((3, 256), dtype=np.dtype('int16'))
         ]
 
     
@@ -191,14 +194,40 @@ def test_solarize(threshold):
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
 
 
+def test_equalize():
+    Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
+    #Xnp = cv2.imread('example_imgs/0249.png')
+    Xnp[5:9,5:9,:] = 0
+    Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
+    #Snp_chw = np.zeros((3, 32, 32), dtype=np.uint8)
+    Snp = np.zeros((3, 256), dtype=np.int16)
+    Xch = torch.tensor(Xnp).permute(2, 0, 1)
+    Ych = tv.functional.equalize(Xch).permute(1, 2, 0).numpy()
+    #fast_equalize(Xnp, Snp_chw, Ynp)
+    equalize(Xnp, Snp, Ynp)
+
+    plt.subplot(2, 2, 1)
+    plt.imshow(Xnp)
+    plt.subplot(2, 2, 2)
+    plt.imshow(Ynp)
+    plt.subplot(2, 2, 3)
+    plt.imshow(Xch.permute(1, 2, 0).numpy())
+    plt.subplot(2, 2, 4)
+    plt.imshow(Ych)
+    plt.savefig('example_imgs/equalize.png')
+    
+    assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
+
+
 if __name__ == '__main__':
-    test_rotate(45)
-    test_shear(0.31)
-    test_brightness(0.5)
-    test_adjust_contrast(0.5)
-    test_posterize(2)
-    test_invert()
-    test_solarize(9)
+#     test_rotate(45)
+#     test_shear(0.31)
+#     test_brightness(0.5)
+#     test_adjust_contrast(0.5)
+#     test_posterize(2)
+#     test_invert()
+#     test_solarize(9)
+#     test_equalize()
     
     BATCH_SIZE = 512
     image_pipelines = {

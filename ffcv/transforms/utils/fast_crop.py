@@ -1,7 +1,58 @@
 import ctypes
-from numba import njit
+from numba import njit, prange
 import numpy as np
-from ...libffcv import ctypes_resize, ctypes_rotate, ctypes_shear, ctypes_add_weighted
+from ...libffcv import ctypes_resize, ctypes_rotate, ctypes_shear, ctypes_add_weighted, ctypes_equalize
+
+
+"""
+Custom equalize -- equivalent to torchvision.transforms.functional.equalize,
+but probably slow -- scratch is a (channels, 256) uint16 array.
+"""
+@njit(parallel=True, fastmath=True, inline='always')
+def equalize(source, scratch, destination):
+    for i in prange(source.shape[-1]):
+        scratch[i] = np.bincount(source[..., i].flatten(), minlength=256)
+        nonzero_hist = scratch[i][scratch[i] != 0]
+        step = nonzero_hist[:-1].sum() // 255
+    
+        if step == 0:
+            continue
+        
+        scratch[i][1:] = scratch[i].cumsum()[:-1]
+        scratch[i] = (scratch[i] + step // 2) // step
+        scratch[i][0] = 0
+        np.clip(scratch[i], 0, 255, out=scratch[i])
+        
+        # numba doesn't like 2d advanced indexing
+        for row in prange(source.shape[0]):
+            destination[row, :, i] = scratch[i][source[row, :, i]]
+
+"""
+Equalize using OpenCV -- not equivalent to
+torchvision.transforms.functional.equalize for so-far-unknown reasons.
+"""
+@njit(parallel=False, fastmath=True, inline='always')
+def fast_equalize(source, chw_scratch, destination):
+    # this seems kind of hacky
+    # also, assuming ctypes_equalize allocates a minimal amount of memory
+    # which may be incorrect -- so maybe we should do this from scratch.
+    # TODO may be a better way to do this in pure OpenCV
+    c, h, w = chw_scratch.shape
+    chw_scratch[0] = source[..., 0]
+    ctypes_equalize(chw_scratch.ctypes.data,
+                    chw_scratch.ctypes.data,
+                    h, w)
+    chw_scratch[1] = source[..., 1]
+    ctypes_equalize(chw_scratch.ctypes.data + h*w,
+                    chw_scratch.ctypes.data + h*w,
+                    h, w)
+    chw_scratch[2] = source[..., 2]
+    ctypes_equalize(chw_scratch.ctypes.data + 2*h*w,
+                    chw_scratch.ctypes.data + 2*h*w,
+                    h, w)
+    destination[..., 0] = chw_scratch[0]
+    destination[..., 1] = chw_scratch[1]
+    destination[..., 2] = chw_scratch[2]
 
 
 @njit(parallel=False, fastmath=True, inline='always')

@@ -25,6 +25,9 @@ ctypes_shear.argtypes = [c_float, c_float, c_int64, c_int64, c_int64, c_int64]
 ctypes_add_weighted = lib.add_weighted
 ctypes_add_weighted.argtypes = [c_int64, c_float, c_int64, c_float, c_int64, c_int64, c_int64]
 
+ctypes_equalize = lib.equalize
+ctypes_equalize.argtypes = [c_int64, c_int64, c_int64, c_int64]
+
 
 def resize_crop(source, start_row, end_row, start_col, end_col, destination):
     ctypes_resize(0,

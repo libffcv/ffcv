@@ -74,6 +74,13 @@ extern "C" {
                    0, dest_matrix);
     }
     
+    void equalize(int64_t source_p, int64_t dest_p, int64_t sx, int64_t sy) {
+        cv::Mat source_matrix(sx, sy, CV_8U, (uint8_t*) source_p);
+        cv::Mat dest_matrix(sx, sy, CV_8U, (uint8_t*) dest_p);
+        cv::equalizeHist(source_matrix.colRange(0, sy).rowRange(0, sx),
+                        dest_matrix);
+    }
+    
     void my_memcpy(void *source, void* dst, uint64_t size) {
         memcpy(dst, source, size);
     }
