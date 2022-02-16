@@ -5,6 +5,11 @@ from ...libffcv import ctypes_resize, ctypes_rotate, ctypes_shear, ctypes_add_we
 
 
 @njit(parallel=False, fastmath=True, inline='always')
+def invert(source, destination):
+    destination[:] = 255 - source
+
+
+@njit(parallel=False, fastmath=True, inline='always')
 def posterize(source, bits, destination):
     mask = ~(2 ** (8 - bits) - 1)
     destination[:] = source & mask
