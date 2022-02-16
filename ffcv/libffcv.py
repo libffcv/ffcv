@@ -1,7 +1,7 @@
 import ctypes
 from numba import njit
 import numpy as np
-from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll
+from ctypes import CDLL, c_int64, c_uint8, c_uint64, c_float, POINTER, c_void_p, c_uint32, c_bool, cdll
 import ffcv._libffcv
 
 lib = CDLL(ffcv._libffcv.__file__)
@@ -13,9 +13,18 @@ read_c.argtypes = [c_uint32, c_void_p, c_uint64, c_uint64]
 def read(fileno:int, destination:np.ndarray, offset:int):
     return read_c(fileno, destination.ctypes.data, destination.size, offset)
 
-
 ctypes_resize = lib.resize
 ctypes_resize.argtypes = 11 * [c_int64]
+
+ctypes_rotate = lib.rotate
+ctypes_rotate.argtypes = [c_float, c_int64, c_int64, c_int64, c_int64]
+
+ctypes_shear = lib.shear
+ctypes_shear.argtypes = [c_float, c_float, c_int64, c_int64, c_int64, c_int64]
+
+ctypes_add_weighted = lib.add_weighted
+ctypes_add_weighted.argtypes = [c_int64, c_float, c_int64, c_float, c_int64, c_int64, c_int64]
+
 
 def resize_crop(source, start_row, end_row, start_col, end_col, destination):
     ctypes_resize(0,
@@ -48,4 +57,3 @@ ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
     return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size)
-

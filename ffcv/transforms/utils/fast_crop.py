@@ -1,7 +1,42 @@
 import ctypes
 from numba import njit
 import numpy as np
-from ...libffcv import ctypes_resize
+from ...libffcv import ctypes_resize, ctypes_rotate, ctypes_shear, ctypes_add_weighted
+
+
+@njit(inline='always')
+def blend(source1, source2, ratio, destination):
+    ctypes_add_weighted(source1.ctypes.data, ratio,
+                        source2.ctypes.data, 1 - ratio,
+                        destination.ctypes.data,
+                        source1.shape[0], source1.shape[1])
+
+
+@njit(parallel=False, fastmath=True, inline='always')
+def adjust_contrast(source, scratch, factor, destination):
+    # TODO assuming 3 channels
+    scratch[:,:,:] = np.mean(0.299 * source[..., 0] +
+                             0.587 * source[..., 1] + 
+                             0.114 * source[..., 2])
+    
+    blend(source, scratch, factor, destination)
+
+
+@njit(inline='always')
+def rotate(source, destination, angle):
+    ctypes_rotate(angle, 
+                  source.ctypes.data, 
+                  destination.ctypes.data, 
+                  source.shape[0], source.shape[1])
+
+
+@njit(inline='always')
+def shear(source, destination, shear_x, shear_y):
+    ctypes_shear(shear_x, shear_y, 
+                 source.ctypes.data, 
+                 destination.ctypes.data, 
+                 source.shape[0], source.shape[1])
+
 
 @njit(inline='always')
 def resize_crop(source, start_row, end_row, start_col, end_col, destination):
