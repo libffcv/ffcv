@@ -10,6 +10,12 @@ def invert(source, destination):
 
 
 @njit(parallel=False, fastmath=True, inline='always')
+def solarize(source, threshold, destination):
+    invert(source, destination)
+    destination[:] = np.where(source >= threshold, destination, source)
+
+
+@njit(parallel=False, fastmath=True, inline='always')
 def posterize(source, bits, destination):
     mask = ~(2 ** (8 - bits) - 1)
     destination[:] = source & mask
