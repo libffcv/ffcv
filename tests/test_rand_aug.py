@@ -12,7 +12,8 @@ from ffcv.writer import DatasetWriter
 from dataclasses import replace
 from typing import Callable, Optional, Tuple
 from ffcv.pipeline.state import State
-from ffcv.transforms.utils.fast_crop import rotate, shear, blend, adjust_contrast
+from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
+    adjust_contrast, posterize
 import torchvision.transforms as tv
 import cv2
 import pytest
@@ -135,6 +136,22 @@ def test_adjust_contrast(amt):
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
     #print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
 
+@pytest.mark.parametrize('bits', [2])
+def test_posterize(bits):
+    Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
+    Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Xch = torch.tensor(Xnp).permute(2, 0, 1)
+    Ych = tv.functional.posterize(Xch, bits).permute(1, 2, 0).numpy()
+    posterize(Xnp, bits, Ynp)
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(Ynp)
+    plt.subplot(1, 2, 2)
+    plt.imshow(Ych)
+    plt.savefig('example_imgs/posterize-%d.png' % bits)
+
+    print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
+    assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
 
 
 if __name__ == '__main__':
@@ -142,7 +159,7 @@ if __name__ == '__main__':
     test_shear(0.31)
     test_brightness(0.5)
     test_adjust_contrast(0.5)
-    
+    test_posterize(2)
     BATCH_SIZE = 512
     image_pipelines = {
         'with': [SimpleRGBImageDecoder(), RandAugment(32), ToTensor()],
