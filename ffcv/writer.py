@@ -153,7 +153,6 @@ class DatasetWriter():
             raise ValueError(f"page_size can't be bigger(or =) than{MAX_PAGE_SIZE}")
 
         self.page_size = page_size
-        import ipdb; ipdb.set_trace()
 
     def prepare(self):
 
