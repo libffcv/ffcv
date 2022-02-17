@@ -13,7 +13,7 @@ from dataclasses import replace
 from typing import Callable, Optional, Tuple
 from ffcv.pipeline.state import State
 from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
-    adjust_contrast, posterize, invert, solarize, equalize, fast_equalize, autocontrast
+    adjust_contrast, posterize, invert, solarize, equalize, fast_equalize, autocontrast, sharpen
 import torchvision.transforms as tv
 import cv2
 import pytest
@@ -251,6 +251,25 @@ def test_autocontrast():
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
 
 
+@pytest.mark.parametrize('amt', [2.0])
+def test_sharpen(amt):
+    Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
+    #Xnp = cv2.imread('example_imgs/0249.png')
+    Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Snp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Xch = torch.tensor(Xnp).permute(2, 0, 1)
+    Ych = tv.functional.adjust_sharpness(Xch, amt).permute(1, 2, 0).numpy()
+    sharpen(Xnp, Ynp, amt)
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(Ynp)
+    plt.subplot(1, 2, 2)
+    plt.imshow(Ych)
+    plt.savefig('example_imgs/sharpen-%.2f.png' % amt)
+
+    assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
+
+    
 if __name__ == '__main__':
 #     test_rotate(45)
 #     test_shear(0.31)
@@ -261,6 +280,7 @@ if __name__ == '__main__':
 #     test_solarize(9)
 #     test_equalize()
 #     test_autocontrast()
+#     test_sharpen(2.0)
     
     BATCH_SIZE = 512
     image_pipelines = {

@@ -81,6 +81,23 @@ extern "C" {
                         dest_matrix);
     }
     
+    void unsharp_mask(int64_t source_p, int64_t dest_p, int64_t sx, int64_t sy) {
+        cv::Mat source_matrix(sx, sy, CV_8UC3, (uint8_t*) source_p);
+        cv::Mat dest_matrix(sx, sy, CV_8UC3, (uint8_t*) dest_p);
+        
+        cv::Point anchor(-1, -1);
+        
+        // 3x3 kernel, all 1s with 5 in center / sum of kernel
+        float _kernel[9] = { 0.0769, 0.0769, 0.0769, 0.0769, 0.3846,
+                             0.0769, 0.0769, 0.0769, 0.0769 };
+        cv::Mat kernel = cv::Mat(3, 3, CV_32F, _kernel);
+
+        cv::filter2D(source_matrix.colRange(0, sy).rowRange(0, sx),
+                        dest_matrix, -1, kernel, anchor, 0, cv::BORDER_ISOLATED);
+
+        //add_weighted(source_p, amount, dest_p, 1 - amount, dest_p, sx, sy);
+    }
+    
     void my_memcpy(void *source, void* dst, uint64_t size) {
         memcpy(dst, source, size);
     }

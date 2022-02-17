@@ -13,6 +13,7 @@ read_c.argtypes = [c_uint32, c_void_p, c_uint64, c_uint64]
 def read(fileno:int, destination:np.ndarray, offset:int):
     return read_c(fileno, destination.ctypes.data, destination.size, offset)
 
+
 ctypes_resize = lib.resize
 ctypes_resize.argtypes = 11 * [c_int64]
 
@@ -26,7 +27,10 @@ ctypes_add_weighted = lib.add_weighted
 ctypes_add_weighted.argtypes = [c_int64, c_float, c_int64, c_float, c_int64, c_int64, c_int64]
 
 ctypes_equalize = lib.equalize
-ctypes_equalize.argtypes = [c_int64, c_int64, c_int64, c_int64]
+ctypes_equalize.argtypes = 4 * [c_int64]
+
+ctypes_unsharp_mask = lib.unsharp_mask
+ctypes_unsharp_mask.argtypes = 4 * [c_int64]
 
 
 def resize_crop(source, start_row, end_row, start_col, end_col, destination):
