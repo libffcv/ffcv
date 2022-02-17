@@ -105,6 +105,12 @@ def blend(source1, source2, ratio, destination):
                         source1.shape[0], source1.shape[1])
 
     
+@njit(inline='always')
+def adjust_brightness(source, scratch, factor, destination):
+    scratch[:] = 0
+    blend(source, scratch, factor, destination)
+    
+    
 @njit(parallel=False, fastmath=True, inline='always')
 def adjust_saturation(source, scratch, factor, destination):
     # TODO numpy autocasting probably allocates memory here,

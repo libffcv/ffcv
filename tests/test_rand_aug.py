@@ -14,7 +14,7 @@ from typing import Callable, Optional, Tuple
 from ffcv.pipeline.state import State
 from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
     adjust_contrast, posterize, invert, solarize, equalize, fast_equalize, \
-    autocontrast, sharpen, adjust_saturation, translate
+    autocontrast, sharpen, adjust_saturation, translate, adjust_brightness
 import torchvision.transforms as tv
 import cv2
 import pytest
@@ -61,7 +61,12 @@ class RandAugment(Operation):
         def randaug(im, mem):
             dst, scratch, lut, scratchf = mem
             for i in my_range(im.shape[0]):
-                for _ in range(num_ops):
+                for n in range(num_ops):
+                    if n == 0:
+                        src = im
+                    else:
+                        src = dst
+                        
                     idx = np.random.randint(low=0, high=13+1)
                     mag = magnitudes[idx]
                     if np.random.random() < 0.5:
@@ -69,44 +74,47 @@ class RandAugment(Operation):
 
                     # Not worth fighting numba at the moment.
                     # TODO
+                    if idx == 0:
+                        dst[i][:] = src[i]
+                    
                     if idx == 1: # ShearX (0.004)
-                        shear(im[i], dst[i], mag, 0)
+                        shear(src[i], dst[i], mag, 0)
 
                     if idx == 2: # ShearY
-                        shear(im[i], dst[i], 0, mag)
+                        shear(src[i], dst[i], 0, mag)
 
                     if idx == 3: # TranslateX
-                        translate(im[i], dst[i], int(mag), 0)
+                        translate(src[i], dst[i], int(mag), 0)
 
                     if idx == 4: # TranslateY
-                        translate(im[i], dst[i], 0, int(mag))
+                        translate(src[i], dst[i], 0, int(mag))
 
                     if idx == 5: # Rotate
-                        rotate(im[i], dst[i], mag)
+                        rotate(src[i], dst[i], mag)
 
                     if idx == 6: # Brightness
-                        blend(im[i], scratch[i][0], 1.0 + mag, dst[i])
+                        adjust_brightness(src[i], scratch[i][0], 1.0 + mag, dst[i])
 
                     if idx == 7: # Color
-                        adjust_saturation(im[i], scratch[i][0], 1.0 + mag, dst[i])
+                        adjust_saturation(src[i], scratch[i][0], 1.0 + mag, dst[i])
 
                     if idx == 8: # Contrast
-                        adjust_contrast(im[i], scratch[i][0], 1.0 + mag, dst[i])
+                        adjust_contrast(src[i], scratch[i][0], 1.0 + mag, dst[i])
 
                     if idx == 9: # Sharpness
-                        sharpen(im[i], dst[i], 1.0 + mag)
+                        sharpen(src[i], dst[i], 1.0 + mag)
 
                     if idx == 10: # Posterize
-                        posterize(im[i], int(mag), dst[i])
+                        posterize(src[i], int(mag), dst[i])
 
                     if idx == 11: # Solarize
-                        solarize(im[i], mag, dst[i])
+                        solarize(src[i], mag, dst[i])
 
                     if idx == 12: # AutoContrast (TODO: takes 0.04s -> 0.052s) (+0.01s)
-                        autocontrast(im[i], scratchf[i][0], dst[i])
+                        autocontrast(src[i], scratchf[i][0], dst[i])
                     
                     if idx == 13: # Equalize (TODO: +0.008s)
-                        equalize(im[i], lut[i], dst[i])
+                        equalize(src[i], lut[i], dst[i])
                 
             return dst
 
@@ -174,7 +182,7 @@ def test_brightness(amt):
     Snp = np.zeros(Xnp.shape, dtype=np.uint8)
     Xch = torch.tensor(Xnp.astype(np.float32)/255.).permute(2, 0, 1)
     Ych = (255*tv.functional.adjust_brightness(Xch, amt).permute(1, 2, 0).numpy()).astype(np.uint8)
-    blend(Xnp, Snp, amt, Ynp)
+    adjust_brightness(Xnp, Snp, amt, Ynp)
 
     plt.subplot(1, 2, 1)
     plt.imshow(Ynp)
@@ -402,7 +410,16 @@ if __name__ == '__main__':
                         drop_last=True, pipelines={'image': pipeline})
 
         import matplotlib.pyplot as plt
+        idx = 0
         for ims, labs in loader: pass
+#             print('a')
+#             if name == 'with':
+#                 for i in range(5):
+#                     for j in range(5):
+#                         plt.subplot(5, 5, i * 5 + j + 1)
+#                         plt.imshow(ims[i * 5 + j].numpy())
+#                 plt.savefig('scratch/%d.png'%idx)
+#                 idx+=1
         start_time = time.time()
         for _ in range(5): #(100):
             for ims, labs in loader: pass
