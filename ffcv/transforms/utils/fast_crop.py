@@ -104,6 +104,20 @@ def blend(source1, source2, ratio, destination):
                         destination.ctypes.data,
                         source1.shape[0], source1.shape[1])
 
+    
+@njit(parallel=False, fastmath=True, inline='always')
+def adjust_saturation(source, scratch, factor, destination):
+    # TODO numpy autocasting probably allocates memory here,
+    # should be more careful.
+    # TODO do we really need scratch for this? could use destination
+    scratch[...,0] = 0.299 * source[..., 0] + \
+                     0.587 * source[..., 1] + \
+                     0.114 * source[..., 2]
+    scratch[...,1] = scratch[...,0]
+    scratch[...,2] = scratch[...,1]
+    
+    blend(source, scratch, factor, destination)
+
 
 @njit(parallel=False, fastmath=True, inline='always')
 def adjust_contrast(source, scratch, factor, destination):

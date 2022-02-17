@@ -13,7 +13,8 @@ from dataclasses import replace
 from typing import Callable, Optional, Tuple
 from ffcv.pipeline.state import State
 from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
-    adjust_contrast, posterize, invert, solarize, equalize, fast_equalize, autocontrast, sharpen
+    adjust_contrast, posterize, invert, solarize, equalize, fast_equalize, \
+    autocontrast, sharpen, adjust_saturation
 import torchvision.transforms as tv
 import cv2
 import pytest
@@ -94,12 +95,12 @@ def test_shear(amt):
                 angle=0.0,
                 translate=[0, 0],
                 scale=1.0,
-                shear=[0, math.degrees(math.atan(0.31))],
+                shear=[0, math.degrees(math.atan(amt))],
                 interpolation=tv.functional.InterpolationMode.NEAREST,
                 fill=0,
                 #center=[0, 0],
             ).permute(1, 2, 0).numpy().astype(np.uint8)
-    shear(Xnp, Ynp, 0, -0.31)
+    shear(Xnp, Ynp, 0, -amt)
 
     plt.subplot(1, 2, 1)
     plt.imshow(Ynp)
@@ -136,8 +137,8 @@ def test_adjust_contrast(amt):
     Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
     Snp = np.zeros(Xnp.shape, dtype=np.uint8)
     Xch = torch.tensor(Xnp.astype(np.float32)/255.).permute(2, 0, 1)
-    Ych = (255*tv.functional.adjust_contrast(Xch, 0.5).permute(1, 2, 0).numpy()).astype(np.uint8)
-    adjust_contrast(Xnp, Snp, 0.5, Ynp)
+    Ych = (255*tv.functional.adjust_contrast(Xch, amt).permute(1, 2, 0).numpy()).astype(np.uint8)
+    adjust_contrast(Xnp, Snp, amt, Ynp)
 
     plt.subplot(1, 2, 1)
     plt.imshow(Ynp)
@@ -269,7 +270,29 @@ def test_sharpen(amt):
 
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
 
-    
+@pytest.mark.parametrize('amt', [0.5, 1.5])
+def test_adjust_saturation(amt):
+    Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
+    #Xnp = cv2.imread('example_imgs/0249.png')
+    Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Snp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Xch = torch.tensor(Xnp.astype(np.float32)/255.).permute(2, 0, 1)
+    Ych = (255*tv.functional.adjust_saturation(Xch, amt).permute(1, 2, 0).numpy()).astype(np.uint8)
+    adjust_saturation(Xnp, Snp, amt, Ynp)
+
+    plt.subplot(2, 2, 1)
+    plt.imshow(Xnp)
+    plt.subplot(2, 2, 2)
+    plt.imshow(Ynp)
+    plt.subplot(2, 2, 3)
+    plt.imshow(Xch.permute(1, 2, 0).numpy())
+    plt.subplot(2, 2, 4)
+    plt.imshow(Ych)
+    plt.savefig('example_imgs/adjust_saturation-%.2f.png' % amt)
+
+    assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
+    #print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
+
 if __name__ == '__main__':
 #     test_rotate(45)
 #     test_shear(0.31)
@@ -281,6 +304,7 @@ if __name__ == '__main__':
 #     test_equalize()
 #     test_autocontrast()
 #     test_sharpen(2.0)
+#     test_adjust_saturation(0.5)
     
     BATCH_SIZE = 512
     image_pipelines = {
