@@ -145,6 +145,21 @@ def sharpen(source, destination, amount):
     blend(source, destination, amount, destination)
 
 
+"""
+Translation, x and y
+Assuming this is faster than warpAffine;
+also assuming tx and ty are ints
+"""
+@njit(inline='always')
+def translate(source, destination, tx, ty):
+    if tx > 0:
+        destination[:, tx:] = source[:, :-tx]
+        destination[:, :tx] = 0
+    if ty > 0:
+        destination[ty:, :] = source[:-ty, :]
+        destination[:ty, :] = 0
+
+
 @njit(inline='always')
 def rotate(source, destination, angle):
     ctypes_rotate(angle, 

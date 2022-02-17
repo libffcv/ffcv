@@ -14,7 +14,7 @@ from typing import Callable, Optional, Tuple
 from ffcv.pipeline.state import State
 from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
     adjust_contrast, posterize, invert, solarize, equalize, fast_equalize, \
-    autocontrast, sharpen, adjust_saturation
+    autocontrast, sharpen, adjust_saturation, translate
 import torchvision.transforms as tv
 import cv2
 import pytest
@@ -270,6 +270,7 @@ def test_sharpen(amt):
 
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
 
+
 @pytest.mark.parametrize('amt', [0.5, 1.5])
 def test_adjust_saturation(amt):
     Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
@@ -293,6 +294,32 @@ def test_adjust_saturation(amt):
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
     #print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
 
+
+@pytest.mark.parametrize('amt', [(4, 0), (0, 4)])
+def test_translate(amt):
+    Xnp = np.random.uniform(0, 255, size=(32, 32, 3)).astype(np.uint8)
+    Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Xch = torch.tensor(Xnp.astype(np.float32)).permute(2, 0, 1)
+    Ych = tv.functional.affine(Xch,
+                angle=0.0,
+                translate=[amt[0], amt[1]],
+                scale=1.0,
+                shear=[0, 0],
+                interpolation=tv.functional.InterpolationMode.NEAREST,
+                fill=0,
+                #center=[0, 0],
+            ).permute(1, 2, 0).numpy().astype(np.uint8)
+    translate(Xnp, Ynp, amt[0], amt[1])
+
+    plt.subplot(1, 2, 1)
+    plt.imshow(Ynp)
+    plt.subplot(1, 2, 2)
+    plt.imshow(Ych)
+    plt.savefig('example_imgs/translate-%d-%d.png' % amt)
+
+    assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
+    
+
 if __name__ == '__main__':
 #     test_rotate(45)
 #     test_shear(0.31)
@@ -305,6 +332,7 @@ if __name__ == '__main__':
 #     test_autocontrast()
 #     test_sharpen(2.0)
 #     test_adjust_saturation(0.5)
+#     test_translate((4, 0))
     
     BATCH_SIZE = 512
     image_pipelines = {
