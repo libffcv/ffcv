@@ -1,3 +1,5 @@
+from distutils.log import warn
+import warnings
 import ast
 
 import astor
@@ -10,6 +12,7 @@ from ffcv.pipeline.pipeline_spec import PipelineSpec
 from ffcv.pipeline.compiler import Compiler
 from ffcv.pipeline.allocation_query import allocate_query
 from .operation import Operation
+from ..transforms import ModuleWrapper
 from .state import State
 
 import torch as ch
@@ -321,6 +324,14 @@ class Graph:
 
                 next_state, allocation = operation.declare_state_and_memory(state)
                 state_allocation = operation.declare_shared_memory(state)
+
+                if next_state.device.type != 'cuda' and isinstance(operation,
+                    ModuleWrapper):
+                    msg = ("Using a pytorch transform on the CPU is extremely"
+                        "detrimental to the performance, consider moving the augmentation"
+                        "on the GPU or using an FFCV native transform")
+                    warnings.warn(msg, ResourceWarning)
+
 
                 if isinstance(current_node, TransformNode):
                     current_node.jitted = next_state.jit_mode

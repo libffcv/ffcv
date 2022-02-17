@@ -23,7 +23,6 @@ from ..traversal_order import Random, Sequential, QuasiRandom
 from ..pipeline import Pipeline, PipelineSpec, Compiler
 from ..pipeline.operation import Operation
 from ..pipeline.graph import Graph
-from ..transforms.module import ModuleWrapper
 from ..memory_managers import (
     ProcessCacheManager, OSCacheManager, MemoryManager
 )
