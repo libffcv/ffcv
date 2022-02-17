@@ -196,11 +196,11 @@ def test_torchvision_color_jitter():
 
 if __name__ == '__main__':
     # test_cutout()
-    test_flip()
+    # test_flip()
     # test_module_wrapper()
     # test_mixup()
     # test_poison()
-    # test_random_resized_crop()
+    test_random_resized_crop()
     # test_translate()
 
     ## Torchvision Transforms
