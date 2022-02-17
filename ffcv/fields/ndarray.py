@@ -1,6 +1,8 @@
 from typing import Callable, TYPE_CHECKING, Tuple, Type
+import warnings
 import json
 from dataclasses import replace
+from kornia import warnings
 
 import numpy as np
 import torch as ch
@@ -56,6 +58,10 @@ class NDArrayField(Field):
         self.dtype = dtype
         self.shape = shape
         self.element_size = dtype.itemsize * np.prod(shape)
+        if dtype == np.uint16:
+            warnings.warn("Pytorch currently doesn't support uint16"
+            "we recommend storing as int16 and reinterpret your data later"
+            "in your pipeline")
 
     @property
     def metadata_type(self) -> np.dtype:
