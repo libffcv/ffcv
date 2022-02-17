@@ -334,8 +334,8 @@ class DatasetWriter():
             # Retrieve all the allocations from the workers
             # Turn them into a numpy array
             try:
-                allocation_table = np.concatenate([
-                    np.array(x).view(ALLOC_TABLE_TYPE) for x in allocations if len(x)
+                allocation_table = np.array([
+                    np.array(x, dtype=ALLOC_TABLE_TYPE) for x in allocations if len(x)
                 ])
             except:
                 allocation_table = np.array([]).view(ALLOC_TABLE_TYPE)
