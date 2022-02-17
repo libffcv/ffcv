@@ -3,6 +3,7 @@ import json
 from dataclasses import replace
 
 import numpy as np
+import torch as ch
 
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
@@ -94,3 +95,20 @@ class NDArrayField(Field):
 
     def get_decoder_class(self) -> Type[Operation]:
         return NDArrayDecoder
+
+
+class TorchTensorField(NDArrayField):
+    """A subclass of :class:`~ffcv.fields.Field` supporting
+    multi-dimensional fixed size matrices of any torch type.
+    """
+    def __init__(self, dtype:ch.dtype, shape:Tuple[int, ...]):
+        self.dtype = dtype
+        self.shape = shape
+        dtype = ch.zeros(0, dtype=dtype).numpy().dtype
+
+        super().__init__(dtype, shape)
+
+
+    def encode(self, destination, field, malloc):
+        field = field.numpy()
+        return super().encode(destination, field, malloc)

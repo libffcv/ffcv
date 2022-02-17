@@ -15,7 +15,7 @@ def pkgconfig(package, kw):
     output = subprocess.getoutput(
         'pkg-config --cflags --libs {}'.format(package))
     if 'not found' in output:
-        raise Exception()
+        raise Exception(f"Could not find required package: {package}.")
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     return kw
