@@ -68,7 +68,7 @@ class RandAugment(Operation):
         ]
 
     
-@pytest.mark.parametrize('angle', [45])
+@pytest.mark.parametrize('angle', [45, -30])
 def test_rotate(angle):
     Xnp = np.random.uniform(0, 255, size=(32, 32, 3)).astype(np.uint8)
     Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
@@ -86,7 +86,7 @@ def test_rotate(angle):
     #print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
 
 
-@pytest.mark.parametrize('amt', [0.31])
+@pytest.mark.parametrize('amt', [0.31, -0.31])
 def test_shear(amt):
     Xnp = np.random.uniform(0, 255, size=(32, 32, 3)).astype(np.uint8)
     Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
