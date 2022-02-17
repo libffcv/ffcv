@@ -34,18 +34,16 @@ class RandomBrightness(Operation):
         p = self.p
         magnitude = self.magnitude
 
-        def brightness(images, dst):
+        def brightness(images, *_):
             def blend(img1, img2, ratio): return (ratio*img1 + (1-ratio)*img2).clip(0, 255).astype(img1.dtype)
 
             apply_bright = np.random.rand(images.shape[0]) < p
             magnitudes = np.random.uniform(max(0, 1-magnitude), 1+magnitude, images.shape[0])
             for i in my_range(images.shape[0]):
                 if apply_bright[i]:
-                    dst[i] = blend(images[i], 0, magnitudes[i])
-                else:
-                    dst[i] = images[i]
+                    images[i] = blend(images[i], 0, magnitudes[i])
 
-            return dst
+            return images
 
         brightness.is_parallel = True
         return brightness
@@ -76,7 +74,7 @@ class RandomContrast(Operation):
         p = self.p
         magnitude = self.magnitude
 
-        def contrast(images, dst):
+        def contrast(images, *_):
             def blend(img1, img2, ratio): return (ratio*img1 + (1-ratio)*img2).clip(0, 255).astype(img1.dtype)
 
             apply_contrast = np.random.rand(images.shape[0]) < p
@@ -85,10 +83,9 @@ class RandomContrast(Operation):
                 if apply_contrast[i]:
                     r, g, b = images[i,:,:,0], images[i,:,:,1], images[i,:,:,2]
                     l_img = (0.2989 * r + 0.587 * g + 0.114 * b).astype(images[i].dtype)
-                    dst[i] = blend(images[i], l_img.mean(), magnitudes[i])
-                else:
-                    dst[i] = images[i]
-            return dst
+                    images[i] = blend(images[i], l_img.mean(), magnitudes[i])
+
+            return images
 
         contrast.is_parallel = True
         return contrast
@@ -119,7 +116,7 @@ class RandomSaturation(Operation):
         p = self.p
         magnitude = self.magnitude
 
-        def saturation(images, dst):
+        def saturation(images, *_):
             def blend(img1, img2, ratio): return (ratio*img1 + (1-ratio)*img2).clip(0, 255).astype(img1.dtype)
 
             apply_saturation = np.random.rand(images.shape[0]) < p
@@ -131,11 +128,9 @@ class RandomSaturation(Operation):
                     l_img3 = np.zeros_like(images[i])
                     for j in my_range(images[i].shape[-1]):
                         l_img3[:,:,j] = l_img
-                    dst[i] = blend(images[i], l_img3, magnitudes[i])
-                else:
-                    dst[i] = images[i]
+                    images[i] = blend(images[i], l_img3, magnitudes[i])
 
-            return dst
+            return images
 
         saturation.is_parallel = True
         return saturation
