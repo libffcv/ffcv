@@ -295,7 +295,7 @@ def test_adjust_saturation(amt):
     #print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
 
 
-@pytest.mark.parametrize('amt', [(4, 0), (0, 4)])
+@pytest.mark.parametrize('amt', [(4, 0), (0, 4), (-4, 0), (0, -4)])
 def test_translate(amt):
     Xnp = np.random.uniform(0, 255, size=(32, 32, 3)).astype(np.uint8)
     Ynp = np.zeros(Xnp.shape, dtype=np.uint8)

@@ -155,9 +155,15 @@ def translate(source, destination, tx, ty):
     if tx > 0:
         destination[:, tx:] = source[:, :-tx]
         destination[:, :tx] = 0
+    if tx < 0:
+        destination[:, :tx] = source[:, -tx:]
+        destination[:, tx:] = 0
     if ty > 0:
         destination[ty:, :] = source[:-ty, :]
         destination[:ty, :] = 0
+    if ty < 0:
+        destination[:ty, :] = source[-ty:, :]
+        destination[ty:, :] = 0
 
 
 @njit(inline='always')
