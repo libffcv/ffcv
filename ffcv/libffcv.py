@@ -1,6 +1,7 @@
 import ctypes
 from numba import njit
 import numpy as np
+import platform
 from ctypes import CDLL, c_int64, c_uint8, c_uint64, c_float, POINTER, c_void_p, c_uint32, c_bool, cdll
 import ffcv._libffcv
 

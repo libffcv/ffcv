@@ -105,12 +105,6 @@ extern "C" {
 
         //add_weighted(source_p, amount, dest_p, 1 - amount, dest_p, sx, sy);
     }
-    
-    void my_memcpy(void *source, void* dst, uint64_t size) {
-        memcpy(dst, source, size);
-    }
-    
-    void my_fread(int64_t fp, int64_t offset, void *destination, int64_t size) {
 
     EXPORT void my_memcpy(void *source, void* dst, uint64_t size) {
         memcpy(dst, source, size);
