@@ -90,13 +90,13 @@ class RandAugment(Operation):
                         adjust_contrast(src[i], scratch[i][0], 1.0 + mag, dst[i])
 
                     if idx == 9: # Sharpness
-                        sharpen(src[i], dst[i], 1.0 + mag)
+                        sharpen(src[i], scratch[i][0], 1.0 + mag, dst[i])
 
                     if idx == 10: # Posterize
                         posterize(src[i], int(mag), dst[i])
 
                     if idx == 11: # Solarize
-                        solarize(src[i], mag, dst[i])
+                        solarize(src[i], scratch[i][0], mag, dst[i])
 
                     if idx == 12: # AutoContrast (TODO: takes 0.04s -> 0.052s) (+0.01s)
                         autocontrast(src[i], scratchf[i][0], dst[i])

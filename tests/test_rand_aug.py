@@ -100,7 +100,7 @@ def test_adjust_contrast(amt):
     #print(Ynp.min(), Ynp.max(), Ych.min(), Ych.max())
 
 
-@pytest.mark.parametrize('bits', [2])
+@pytest.mark.parametrize('bits', [2, 3, 4, 5, 6, 7])
 def test_posterize(bits):
     Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
     Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
@@ -141,9 +141,10 @@ def test_solarize(threshold):
     Xnp[10:15,10:15,:] = 8
     Xnp[27:31,27:31,:] = 9
     Ynp = np.zeros(Xnp.shape, dtype=np.uint8)
+    Snp = np.zeros(Xnp.shape, dtype=np.uint8)
     Xch = torch.tensor(Xnp).permute(2, 0, 1)
     Ych = tv.functional.solarize(Xch, threshold).permute(1, 2, 0).numpy()
-    solarize(Xnp, threshold, Ynp)
+    solarize(Xnp, Snp, threshold, Ynp)
 
     plt.subplot(1, 2, 1)
     plt.imshow(Ynp)
@@ -202,7 +203,7 @@ def test_autocontrast():
     assert np.linalg.norm(Ynp.astype(np.float32) - Ych.astype(np.float32)) < 100
 
 
-@pytest.mark.parametrize('amt', [2.0])
+@pytest.mark.parametrize('amt', [0.5, 0.75, 1.0, 2.0])
 def test_sharpen(amt):
     Xnp = np.random.uniform(0, 256, size=(32, 32, 3)).astype(np.uint8)
     #Xnp = cv2.imread('example_imgs/0249.png')
@@ -210,7 +211,7 @@ def test_sharpen(amt):
     Snp = np.zeros(Xnp.shape, dtype=np.uint8)
     Xch = torch.tensor(Xnp).permute(2, 0, 1)
     Ych = tv.functional.adjust_sharpness(Xch, amt).permute(1, 2, 0).numpy()
-    sharpen(Xnp, Ynp, amt)
+    sharpen(Xnp, Snp, amt, Ynp)
 
     plt.subplot(1, 2, 1)
     plt.imshow(Ynp)

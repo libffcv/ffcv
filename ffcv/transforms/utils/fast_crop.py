@@ -86,9 +86,9 @@ def invert(source, destination):
 
 
 @njit(parallel=False, fastmath=True, inline='always')
-def solarize(source, threshold, destination):
-    invert(source, destination)
-    destination[:] = np.where(source >= threshold, destination, source)
+def solarize(source, scratch, threshold, destination):
+    invert(source, scratch)
+    destination[:] = np.where(source >= threshold, scratch, source)
 
 
 @njit(parallel=False, fastmath=True, inline='always')
@@ -136,19 +136,19 @@ def adjust_contrast(source, scratch, factor, destination):
 
 
 @njit(fastmath=True, inline='always')
-def sharpen(source, destination, amount):
+def sharpen(source, scratch, amount, destination):
     ctypes_unsharp_mask(source.ctypes.data, 
-                  destination.ctypes.data, 
+                  scratch.ctypes.data, 
                   source.shape[0], source.shape[1])
     
     # in PyTorch's implementation,
     # the border is unaffected
-    destination[0,:] = source[0,:]
-    destination[1:,0] = source[1:,0]
-    destination[-1,:] = source[-1,:]
-    destination[1:-1,-1] = source[1:-1,-1]
+    scratch[0,:] = source[0,:]
+    scratch[1:,0] = source[1:,0]
+    scratch[-1,:] = source[-1,:]
+    scratch[1:-1,-1] = source[1:-1,-1]
     
-    blend(source, destination, amount, destination)
+    blend(source, scratch, amount, destination)
 
 
 """
