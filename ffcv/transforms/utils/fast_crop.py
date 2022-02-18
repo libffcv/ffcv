@@ -158,6 +158,9 @@ also assuming tx and ty are ints
 """
 @njit(inline='always')
 def translate(source, destination, tx, ty):
+    if tx == 0 and ty == 0:
+        destination[:] = source
+        return
     if tx > 0:
         destination[:, tx:] = source[:, :-tx]
         destination[:, :tx] = 0
