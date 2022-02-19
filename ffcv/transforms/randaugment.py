@@ -10,12 +10,10 @@ from ffcv.transforms.utils.fast_crop import rotate, shear, blend, \
 
 class RandAugment(Operation):
     def __init__(self, 
-                 size: int = 32, 
                  num_ops: int = 2, 
                  magnitude: int = 9, 
                  num_magnitude_bins: int = 31):
         super().__init__()
-        self.size = size
         self.num_ops = num_ops
         self.magnitude = magnitude
         num_bins = num_magnitude_bins
@@ -25,14 +23,14 @@ class RandAugment(Operation):
             (0, "Identity", np.array(0.0), 1),
             (1, "ShearX", np.linspace(0.0, 0.3, num_bins), -1),
             (2, "ShearY", np.linspace(0.0, 0.3, num_bins), -1),
-            (3, "TranslateX", np.linspace(0.0, 150.0 / 331.0 * size, num_bins), -1),
-            (4, "TranslateY", np.linspace(0.0, 150.0 / 331.0 * size, num_bins), -1),
+            (3, "TranslateX", np.linspace(0.0, 150.0 / 331.0, num_bins), -1),
+            (4, "TranslateY", np.linspace(0.0, 150.0 / 331.0, num_bins), -1),
             (5, "Rotate", np.linspace(0.0, 30.0, num_bins), -1),
             (6, "Brightness", np.linspace(0.0, 0.9, num_bins), -1),
             (7, "Color", np.linspace(0.0, 0.9, num_bins), -1),
             (8, "Contrast", np.linspace(0.0, 0.9, num_bins), -1),
             (9, "Sharpness", np.linspace(0.0, 0.9, num_bins), -1),
-            (10, "Posterize", 8 - (np.arange(num_bins) / ((num_bins - 1) / 4)).round().astype('uint8'), 1),
+            (10, "Posterize", 8 - (np.arange(num_bins) / ((num_bins - 1) / 4)).round(), 1),
             (11, "Solarize", np.linspace(255.0, 0.0, num_bins), 1),
             (12, "AutoContrast", np.array(0.0), 1),
             (13, "Equalize", np.array(0.0), 1),
@@ -72,10 +70,10 @@ class RandAugment(Operation):
                         shear(src[i], dst[i], 0, mag)
 
                     if idx == 3: # TranslateX
-                        translate(src[i], dst[i], int(mag), 0)
+                        translate(src[i], dst[i], int(src[i].shape[1] * mag), 0)
 
                     if idx == 4: # TranslateY
-                        translate(src[i], dst[i], 0, int(mag))
+                        translate(src[i], dst[i], 0, int(src[i].shape[2] * mag))
 
                     if idx == 5: # Rotate
                         rotate(src[i], dst[i], mag)
@@ -111,9 +109,10 @@ class RandAugment(Operation):
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
         assert previous_state.jit_mode
-        return replace(previous_state, shape=(self.size, self.size, 3)), [
-            AllocationQuery((self.size, self.size, 3), dtype=np.dtype('uint8')), 
-            AllocationQuery((1, self.size, self.size, 3), dtype=np.dtype('uint8')),
-            AllocationQuery((3, 256), dtype=np.dtype('int16')),
-            AllocationQuery((1, self.size, self.size, 3), dtype=np.dtype('float32')),
+        h, w, c = previous_state.shape
+        return replace(previous_state, shape=previous_state.shape), [
+            AllocationQuery(previous_state.shape, dtype=np.dtype('uint8')), 
+            AllocationQuery((1, h, w, c), dtype=np.dtype('uint8')),
+            AllocationQuery((c, 256), dtype=np.dtype('int16')),
+            AllocationQuery((1, h, w, c), dtype=np.dtype('float32')),
         ]

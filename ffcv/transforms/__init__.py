@@ -15,6 +15,7 @@ __all__ = ['ToTensor', 'ToDevice',
            'ToTorchImage', 'NormalizeImage',
            'Convert',  'Squeeze', 'View',
            'RandomResizedCrop', 'RandomHorizontalFlip', 'RandomTranslate',
+           'RandAugment',
            'Cutout', 'ImageMixup', 'LabelMixup', 'MixupToOneHot',
            'Poison', 'ReplaceLabel',
            'ModuleWrapper']
