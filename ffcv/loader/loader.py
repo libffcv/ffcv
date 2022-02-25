@@ -208,6 +208,7 @@ class Loader:
                            memory_read)
         
         self.generate_code()
+        self.first_traversal_order = self.next_traversal_order()
 
     def next_traversal_order(self):
         return self.traversal_order.sample_order(self.next_epoch)
@@ -262,7 +263,7 @@ class Loader:
 
 
     def __len__(self):
-        next_order = self.next_traversal_order()
+        next_order = self.first_traversal_order()
         if self.drop_last:
             return len(next_order) // self.batch_size
         else:
