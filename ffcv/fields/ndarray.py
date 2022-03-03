@@ -2,7 +2,6 @@ from typing import Callable, TYPE_CHECKING, Tuple, Type
 import warnings
 import json
 from dataclasses import replace
-from kornia import warnings
 
 import numpy as np
 import torch as ch

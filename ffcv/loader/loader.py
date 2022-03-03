@@ -263,7 +263,7 @@ class Loader:
 
 
     def __len__(self):
-        next_order = self.first_traversal_order()
+        next_order = self.first_traversal_order
         if self.drop_last:
             return len(next_order) // self.batch_size
         else:
@@ -274,3 +274,5 @@ class Loader:
     def generate_code(self):
         queries, code = self.graph.collect_requirements()
         self.code = self.graph.codegen_all(code)
+        
+
