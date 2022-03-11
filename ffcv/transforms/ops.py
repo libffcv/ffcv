@@ -42,7 +42,7 @@ class ToDevice(Operation):
     def __init__(self, device, non_blocking=True):
         super().__init__()
         self.device = device
-        assert not isinstance(device, ch.device), \
+        assert isinstance(device, ch.device), \
             f'Make sure device is a ch.device (not a {type(device)})'
         self.non_blocking = non_blocking
 
