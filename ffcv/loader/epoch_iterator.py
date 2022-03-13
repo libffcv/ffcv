@@ -48,6 +48,10 @@ class EpochIterator(Thread):
 
         self.cuda_streams = [(ch.cuda.Stream() if IS_CUDA else None)
                              for _ in range(self.loader.batches_ahead + 2)]
+        if IS_CUDA:
+            self.gpu_idx = ch.cuda.current_device()
+        else:
+            self.gpu_idx = None
 
         # Allocate all the memory
         memory_allocations = {}
@@ -67,6 +71,13 @@ class EpochIterator(Thread):
     def run(self):
 
         events = [None for _ in self.cuda_streams]
+        if IS_CUDA:
+            # set_device is a thread local call (and
+            # the child doesn't inheret that state from its
+            # parent), it needs to be called again in the loader thread.
+            # Otherwise pin_memory() will allocate a
+            # CUDA context on GPU 0 for every process
+            ch.cuda.set_device(self.gpu_idx)
 
         try:
             b_ix = 0
