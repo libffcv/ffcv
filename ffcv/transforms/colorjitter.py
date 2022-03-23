@@ -16,7 +16,6 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 import numbers
 import numba as nb
-from math import sqrt,cos,sin,radians
 
 class ColorJitter(Operation):
     """Add ColorJitter with probability jitter_prob.
