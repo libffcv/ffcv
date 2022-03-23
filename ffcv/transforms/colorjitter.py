@@ -90,14 +90,12 @@ class ColorJitter(Operation):
                     img = images[i]
                     # Brightness
                     if apply_brightness:
-                        # ratio_brightness = np.random.uniform(max(0, 1 - brightness), 1 + brightness)
                         ratio_brightness = np.random.uniform(brightness_min, brightness_max)
                         img = ratio_brightness * img + (1.0 - ratio_brightness) * img * 0
                         img = np.clip(img, 0, 255)
                     
                     # Contrast
                     if apply_contrast:
-                        # ratio_contrast = np.random.uniform(max(0, 1 - contrast), 1 + contrast)
                         ratio_contrast = np.random.uniform(contrast_min, contrast_max)
                         gray = 0.2989 * img[:,:,0:1] + 0.5870 * img[:,:,1:2] + 0.1140 * img[:,:,2:3]
                         img = ratio_contrast * img + (1.0 - ratio_contrast) * gray.mean()
