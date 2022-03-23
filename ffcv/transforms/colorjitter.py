@@ -16,6 +16,7 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 import numbers
 import numba as nb
+from math import sqrt,cos,sin,radians
 
 class ColorJitter(Operation):
     """Add ColorJitter with probability jitter_prob.
@@ -111,8 +112,8 @@ class ColorJitter(Operation):
 
                     # Hue
                     if apply_hue:
-                        img = img / 255.
-                        hue_factor = np.random.uniform(hue_min, hue_max).item()
+                        img = img / 255.0
+                        hue_factor = np.random.uniform(hue_min, hue_max)
                         hue_factor_radians = hue_factor * 2.0 * np.pi
                         cosA = np.cos(hue_factor_radians)
                         sinA = np.sin(hue_factor_radians)
@@ -123,10 +124,11 @@ class ColorJitter(Operation):
                         hue_rotation_matrix = np.array(hue_rotation_matrix, dtype=img.dtype)
                         for row in nb.prange(img.shape[0]):
                             for col in nb.prange(img.shape[1]):
-                                img[row, col, 0] = img[row, col, 0] * hue_rotation_matrix[0, 0] + img[row, col, 1] * hue_rotation_matrix[0, 1] + img[row, col, 2] * hue_rotation_matrix[0, 2]
-                                img[row, col, 1] = img[row, col, 0] * hue_rotation_matrix[1, 0] + img[row, col, 1] * hue_rotation_matrix[1, 1] + img[row, col, 2] * hue_rotation_matrix[1, 2]
-                                img[row, col, 2] = img[row, col, 0] * hue_rotation_matrix[2, 0] + img[row, col, 1] * hue_rotation_matrix[2, 1] + img[row, col, 2] * hue_rotation_matrix[2, 2]
-                        img = np.asarray(np.clip(img, 0, 1)*255.,dtype=np.uint8)
+                                r, g, b = img[row, col, :]
+                                img[row, col, 0] = r * hue_rotation_matrix[0, 0] + g * hue_rotation_matrix[0, 1] + b * hue_rotation_matrix[0, 2]
+                                img[row, col, 1] = r * hue_rotation_matrix[1, 0] + g * hue_rotation_matrix[1, 1] + b * hue_rotation_matrix[1, 2]
+                                img[row, col, 2] = r * hue_rotation_matrix[2, 0] + g * hue_rotation_matrix[2, 1] + b * hue_rotation_matrix[2, 2]
+                        img = np.asarray(np.clip(img * 255., 0, 255), dtype=np.uint8)
                     dst[i] = img
                 else:
                     dst[i] = images[i]
