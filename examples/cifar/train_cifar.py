@@ -185,7 +185,7 @@ def evaluate(model, loaders, lr_tta=False):
                 with autocast():
                     out = model(ims)
                     if lr_tta:
-                        out += model(ch.fliplr(ims))
+                        out += model(ims.flip(-1))
                     total_correct += out.argmax(1).eq(labs).sum().cpu().item()
                     total_num += ims.shape[0]
             print(f'{name} accuracy: {total_correct / total_num * 100:.1f}%')
