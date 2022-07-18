@@ -37,7 +37,7 @@ class MemoryAllocator():
         # print(f"Allocating {size} bytes")
         if size > self.page_size:
             raise ValueError(f"Tried allocating {size} but" +
-                             " page size is {self.page_size}")
+                             f" page size is {self.page_size}")
 
         if size > self.space_left_in_page:
             self.flush_page()
