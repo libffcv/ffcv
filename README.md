@@ -76,7 +76,7 @@ writer = DatasetWriter(write_path, {
 })
 
 # Write dataset
-writer.from_indexed_dataset(ds)
+writer.from_indexed_dataset(my_dataset)
 ```
 Then replace your old loader with the `ffcv` loader at train time (in PyTorch,
 no other changes required!):
