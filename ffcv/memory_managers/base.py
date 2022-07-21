@@ -44,6 +44,7 @@ class MemoryManager(ABC):
         self.ptrs = self.ptrs[order]
         self.sizes =  self.sizes[order]
 
+        print('initi memory manager', len(self.ptrs), len(self.sizes))
         self.ptr_to_size = dict(zip(self.ptrs, self.sizes))
 
         # We extract the page number by shifting the address corresponding

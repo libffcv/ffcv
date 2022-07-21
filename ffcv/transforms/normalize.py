@@ -3,6 +3,7 @@ Image normalization
 """
 from collections.abc import Sequence
 from typing import Tuple
+from xmlrpc.client import boolean
 
 import numpy as np
 import torch as ch
@@ -37,13 +38,16 @@ class NormalizeImage(Operation):
     """
 
     def __init__(self, mean: np.ndarray, std: np.ndarray,
-                 type: np.dtype):
+                 type: np.dtype, is_rgb=True):
         super().__init__()
+        self.is_rgb = is_rgb
+
         table = (np.arange(256)[:, None] - mean[None, :]) / std[None, :]
         self.original_dtype = type
         table = table.astype(type)
         if type == np.float16:
             type = np.int16
+
         self.dtype = type
         table = table.view(type)
         self.lookup_table = table
@@ -56,13 +60,16 @@ class NormalizeImage(Operation):
         return self.generate_code_gpu()
 
     def generate_code_gpu(self) -> Callable:
-
         # We only import cupy if it's truly needed
         import cupy as cp
         import pytorch_pfn_extras as ppe
 
         tn = np.zeros((), dtype=self.dtype).dtype.name
-        kernel = cp.ElementwiseKernel(f'uint8 input, raw {tn} table', f'{tn} output', 'output = table[input * 3 + i % 3];')
+        if self.is_rgb:
+            kernel = cp.ElementwiseKernel(f'uint8 input, raw {tn} table', f'{tn} output', 'output = table[input * 3 + i % 3];')
+        else:
+            kernel = cp.ElementwiseKernel(f'uint8 input, raw {tn} table', f'{tn} output', 'output = table[input];')
+
         final_type = ch_dtype_from_numpy(self.original_dtype)
         s = self
         def normalize_convert(images, result):
@@ -91,18 +98,30 @@ class NormalizeImage(Operation):
         table = self.lookup_table.view(dtype=self.dtype)
         my_range = Compiler.get_iterator()
 
-        def normalize_convert(images, result, indices):
-            result_flat = result.reshape(result.shape[0], -1, 3)
-            num_pixels = result_flat.shape[1]
-            for i in my_range(len(indices)):
-                image = images[i].reshape(num_pixels, 3)
-                for px in range(num_pixels):
-                    # Just in case llvm forgets to unroll this one
-                    result_flat[i, px, 0] = table[image[px, 0], 0]
-                    result_flat[i, px, 1] = table[image[px, 1], 1]
-                    result_flat[i, px, 2] = table[image[px, 2], 2]
+        if self.is_rgb:
+            def normalize_convert(images, result, indices):
+                result_flat = result.reshape(result.shape[0], -1, 3)
+                num_pixels = result_flat.shape[1]
+                for i in my_range(len(indices)):
+                    image = images[i].reshape(num_pixels, 3)
+                    for px in range(num_pixels):
+                        # Just in case llvm forgets to unroll this one
+                        result_flat[i, px, 0] = table[image[px, 0], 0]
+                        result_flat[i, px, 1] = table[image[px, 1], 1]
+                        result_flat[i, px, 2] = table[image[px, 2], 2]
 
-            return result
+                return result
+        else:
+            def normalize_convert(images, result, indices):
+                result_flat = result.reshape(result.shape[0], -1, 1)
+                num_pixels = result_flat.shape[1]
+                for i in my_range(len(indices)):
+                    image = images[i].reshape(num_pixels, 1)
+                    for px in range(num_pixels):
+                        # Just in case llvm forgets to unroll this one
+                        result_flat[i, px, 0] = table[image[px, 0], 0]
+
+                return result
 
         normalize_convert.is_parallel = True
         normalize_convert.with_indices = True
