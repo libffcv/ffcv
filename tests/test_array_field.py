@@ -3,19 +3,21 @@ from tempfile import NamedTemporaryFile
 from collections import defaultdict
 from assertpy.assertpy import assert_that
 
+import torch as ch
 from assertpy import assert_that
 import numpy as np
 from torch.utils.data import Dataset
 from ffcv import DatasetWriter
-from ffcv.fields import IntField, NDArrayField
+from ffcv.fields import IntField, NDArrayField, TorchTensorField
 from ffcv import Loader
 
 class DummyActivationsDataset(Dataset):
 
-    def __init__(self, n_samples, shape):
+    def __init__(self, n_samples, shape, is_ch=False):
         self.n_samples = n_samples
         self.shape = shape
-        
+        self.is_ch = is_ch
+
     def __len__(self):
         return self.n_samples
 
@@ -23,7 +25,11 @@ class DummyActivationsDataset(Dataset):
         if index >= self.n_samples:
             raise IndexError()
         np.random.seed(index)
-        return index, np.random.randn(*self.shape).astype('<f4')
+        to_return = np.random.randn(*self.shape).astype('<f4')
+        if self.is_ch:
+            to_return = ch.from_numpy(to_return)
+
+        return index, to_return
 
 class TripleDummyActivationsDataset(Dataset):
 
@@ -43,13 +49,19 @@ class TripleDummyActivationsDataset(Dataset):
         d3 = np.random.randn(*self.shape).astype('<f4')
         return index, d1, d2, d3
 
-def run_test(n_samples, shape):
+def run_test(n_samples, shape, is_ch=False):
     with NamedTemporaryFile() as handle:
         name = handle.name
-        dataset = DummyActivationsDataset(n_samples, shape)
+        dataset = DummyActivationsDataset(n_samples, shape, is_ch)
+
+        if is_ch:
+            field = TorchTensorField(ch.float32, shape)
+        else:
+            field = NDArrayField(np.dtype('<f4'), shape)
+
         writer = DatasetWriter(name, {
             'index': IntField(),
-            'activations': NDArrayField(np.dtype('<f4'), shape)
+            'activations': field
         }, num_workers=3)
 
         writer.from_indexed_dataset(dataset)
@@ -57,11 +69,17 @@ def run_test(n_samples, shape):
         loader = Loader(name, batch_size=3, num_workers=5)
         for ixes, activations in loader:
             for ix, activation in zip(ixes, activations):
-                assert_that(np.all(dataset[ix][1] == activation.numpy())).is_true()
+                d = dataset[ix][1]
+                if is_ch:
+                    d = d.numpy()
+                assert_that(np.all(d == activation.numpy())).is_true()
 
 
 def test_simple_activations():
     run_test(4096, (2048,))
+
+def test_simple_activations_ch():
+    run_test(4096, (2048,), True)
 
 def test_multi_fields():
     n_samples = 4096

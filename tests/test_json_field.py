@@ -52,7 +52,7 @@ def run_test(n_samples):
 
         loader = Loader(name, batch_size=3, num_workers=5,
                         pipelines={
-                            'activation': [BytesDecoder()],
+                            'activations': [BytesDecoder()],
                             'index': [IntDecoder()]
                         }
         )
@@ -67,3 +67,6 @@ def run_test(n_samples):
 
 def test_simple_dict():
     run_test(32)
+
+if __name__ == '__main__':
+    test_simple_dict()

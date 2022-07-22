@@ -6,7 +6,8 @@ import numpy as np
 from .fields.base import Field
 from .fields import (
     FloatField, IntField, RGBImageField,
-    BytesField, NDArrayField, JSONField
+    BytesField, NDArrayField, JSONField,
+    TorchTensorField
 )
 
 CURRENT_VERSION = 2
@@ -49,7 +50,8 @@ TYPE_ID_HANDLER = {
     2   : RGBImageField,
     3   : BytesField,
     4   : NDArrayField,
-    5   : JSONField
+    5   : JSONField,
+    6   : TorchTensorField
 }
 
 # Parse the fields descriptors from the header of the dataset

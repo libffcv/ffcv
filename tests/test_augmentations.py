@@ -195,17 +195,17 @@ def test_torchvision_color_jitter():
 
 
 if __name__ == '__main__':
-    # test_cutout()
+    test_cutout()
     test_flip()
-    # test_module_wrapper()
-    # test_mixup()
-    # test_poison()
-    # test_random_resized_crop()
-    # test_translate()
+    test_module_wrapper()
+    test_mixup()
+    test_poison()
+    test_random_resized_crop()
+    test_translate()
 
     ## Torchvision Transforms
-    # test_torchvision_greyscale()
-    # test_torchvision_centercrop_pad()
-    # test_torchvision_random_affine()
-    # test_torchvision_random_crop()
-    # test_torchvision_color_jitter()
+    test_torchvision_greyscale()
+    test_torchvision_centercrop_pad()
+    test_torchvision_random_affine()
+    test_torchvision_random_crop()
+    test_torchvision_color_jitter()

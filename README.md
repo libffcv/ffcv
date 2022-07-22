@@ -34,12 +34,28 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 <img src="docs/_static/perf_scatterplot.svg" width='830px'/>
 
 ## Installation
+### Linux
 ```
 conda create -y -n ffcv python=3.9 cupy pkg-config compilers libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 conda activate ffcv
 pip install ffcv
 ```
 Troubleshooting note: if the above commands result in a package conflict error, try running ``conda config --env --set channel_priority flexible`` in the environment and rerunning the installation command.
+
+### Windows
+* Install <a href="https://opencv.org/releases/">opencv4</a>
+  * Add `..../opencv/build/x64/vc15/bin` to PATH environment variable
+* Install <a href="https://sourceforge.net/projects/libjpeg-turbo/files/">libjpeg-turbo</a>, download libjpeg-turbo-x.x.x-vc64.exe, not gcc64
+  * Add `..../libjpeg-turbo64/bin` to PATH environment variable
+* Install <a href="https://www.sourceware.org/pthreads-win32/">pthread</a>, download last release.zip
+  * After unzip, rename Pre-build.2 folder to pthread
+  * Open `pthread/include/pthread.h`, and add the code below to the top of the file.  
+  ```cpp
+  #define HAVE_STRUCT_TIMESPEC
+  ```
+  * Add `..../pthread/dll` to PATH environment variable
+* Install <a href="https://docs.cupy.dev/en/stable/install.html#installing-cupy">cupy</a> depending on your CUDA Toolkit version.
+* `pip install ffcv`
 
 ## Citation
 If you use FFCV, please cite it as:

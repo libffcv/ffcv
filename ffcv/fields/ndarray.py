@@ -1,8 +1,10 @@
 from typing import Callable, TYPE_CHECKING, Tuple, Type
+import warnings
 import json
 from dataclasses import replace
 
 import numpy as np
+import torch as ch
 
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
@@ -55,6 +57,10 @@ class NDArrayField(Field):
         self.dtype = dtype
         self.shape = shape
         self.element_size = dtype.itemsize * np.prod(shape)
+        if dtype == np.uint16:
+            warnings.warn("Pytorch currently doesn't support uint16"
+            "we recommend storing as int16 and reinterpret your data later"
+            "in your pipeline")
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -94,3 +100,20 @@ class NDArrayField(Field):
 
     def get_decoder_class(self) -> Type[Operation]:
         return NDArrayDecoder
+
+
+class TorchTensorField(NDArrayField):
+    """A subclass of :class:`~ffcv.fields.Field` supporting
+    multi-dimensional fixed size matrices of any torch type.
+    """
+    def __init__(self, dtype:ch.dtype, shape:Tuple[int, ...]):
+        self.dtype = dtype
+        self.shape = shape
+        dtype = ch.zeros(0, dtype=dtype).numpy().dtype
+
+        super().__init__(dtype, shape)
+
+
+    def encode(self, destination, field, malloc):
+        field = field.numpy()
+        return super().encode(destination, field, malloc)
