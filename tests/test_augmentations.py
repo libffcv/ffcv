@@ -29,7 +29,7 @@ UNAUGMENTED_PIPELINE=[
     ToTorchImage()
 ]
 
-def run_test(length, pipeline, compile=False):
+def run_test(length, pipeline, should_compile=False, aug_name=''):
     my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
 
     with NamedTemporaryFile() as handle:
@@ -42,7 +42,7 @@ def run_test(length, pipeline, compile=False):
 
         writer.from_indexed_dataset(my_dataset, chunksize=10)
 
-        Compiler.set_enabled(compile)
+        Compiler.set_enabled(should_compile)
 
         loader = Loader(name, batch_size=7, num_workers=2, pipelines={
             'image': pipeline,
@@ -57,18 +57,16 @@ def run_test(length, pipeline, compile=False):
 
         tot_indices = 0
         tot_images = 0
-        for (images, labels), (original_images, original_labels) in zip(loader, unaugmented_loader):
-            print(images.shape, original_images.shape)
+        for it_num, ((images, labels), (original_images, original_labels)) in enumerate(zip(loader, unaugmented_loader)):
             tot_indices += labels.shape[0]
             tot_images += images.shape[0]
             
             for label, original_label in zip(labels, original_labels):
                 assert_that(label).is_equal_to(original_label)
             
-            if SAVE_IMAGES:
+            if SAVE_IMAGES and it_num == 0:
                 save_image(make_grid(ch.concat([images, original_images])/255., images.shape[0]), 
-                        os.path.join(IMAGES_TMP_PATH, str(uuid.uuid4()) + '.jpeg')
-                        )
+                        os.path.join(IMAGES_TMP_PATH, aug_name + '-' + str(uuid.uuid4()) + '.jpeg'))
 
         assert_that(tot_indices).is_equal_to(len(my_dataset))
         assert_that(tot_images).is_equal_to(len(my_dataset))
@@ -80,7 +78,7 @@ def test_cutout():
             Cutout(8),
             ToTensor(),
             ToTorchImage()
-        ], comp)
+        ], comp, 'cutout')
 
 
 def test_flip():
@@ -90,7 +88,7 @@ def test_flip():
             RandomHorizontalFlip(1.0),
             ToTensor(),
             ToTorchImage()
-        ], comp)
+        ], comp, 'flip')
 
 
 def test_module_wrapper():
@@ -100,7 +98,7 @@ def test_module_wrapper():
             ToTensor(),
             ToTorchImage(),
             ModuleWrapper(tvt.Grayscale(3)),
-        ], comp)
+        ], comp, 'module')
 
 
 def test_mixup():
@@ -110,7 +108,7 @@ def test_mixup():
             ImageMixup(.5, False),
             ToTensor(),
             ToTorchImage()
-        ], comp)
+        ], comp, 'mixup')
 
 
 def test_poison():
@@ -125,8 +123,7 @@ def test_poison():
             Poison(mask, alpha, list(range(100))),
             ToTensor(),
             ToTorchImage()
-        ], comp)
-
+        ], comp, 'poison')
 
 def test_random_resized_crop():
     for comp in [True, False]:
@@ -137,7 +134,7 @@ def test_random_resized_crop():
                             size=32),
             ToTensor(),
             ToTorchImage()
-        ], comp)
+        ], comp, 'rrc')
 
 
 def test_translate():
@@ -147,7 +144,7 @@ def test_translate():
             RandomTranslate(padding=10),
             ToTensor(),
             ToTorchImage()
-        ], comp)
+        ], comp, 'translate')
 
 
 ## Torchvision Transforms
@@ -157,7 +154,7 @@ def test_torchvision_greyscale():
         ToTensor(),
         ToTorchImage(),
         tvt.Grayscale(3),
-        ])
+        ], aug_name='tv_grey')
 
 def test_torchvision_centercrop_pad():
     run_test(100, [
@@ -166,7 +163,7 @@ def test_torchvision_centercrop_pad():
         ToTorchImage(),
         tvt.CenterCrop(10),
         tvt.Pad(11)
-        ])
+        ], aug_name='tv_crop_pad')
 
 def test_torchvision_random_affine():
     run_test(100, [
@@ -174,7 +171,7 @@ def test_torchvision_random_affine():
         ToTensor(),
         ToTorchImage(),
         tvt.RandomAffine(25),
-        ])
+        ], aug_name='tv_random_affine')
 
 def test_torchvision_random_crop():
     run_test(100, [
@@ -183,7 +180,7 @@ def test_torchvision_random_crop():
         ToTorchImage(),
         tvt.Pad(10),
         tvt.RandomCrop(size=32),
-        ])       
+        ], aug_name='tv_randcrop')
 
 def test_torchvision_color_jitter():
     run_test(100, [
@@ -191,21 +188,4 @@ def test_torchvision_color_jitter():
         ToTensor(),
         ToTorchImage(),
         tvt.ColorJitter(.5, .5, .5, .5),
-        ])       
-
-
-if __name__ == '__main__':
-    # test_cutout()
-    test_flip()
-    # test_module_wrapper()
-    # test_mixup()
-    # test_poison()
-    # test_random_resized_crop()
-    # test_translate()
-
-    ## Torchvision Transforms
-    # test_torchvision_greyscale()
-    # test_torchvision_centercrop_pad()
-    # test_torchvision_random_affine()
-    # test_torchvision_random_crop()
-    # test_torchvision_color_jitter()
+        ], aug_name='tv_colorjitter')
