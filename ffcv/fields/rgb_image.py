@@ -97,7 +97,7 @@ class SimpleRGBImageDecoder(Operation):
         min_height = heights.min()
         min_width = widths.min()
         if min_width != max_width or max_height != min_height:
-            msg = """SimpleRGBImageDecoder ony supports constant image,
+            msg = """SimpleRGBImageDecoder only supports constant image,
 consider RandomResizedCropRGBImageDecoder or CenterCropRGBImageDecoder
 instead."""
             raise TypeError(msg)
