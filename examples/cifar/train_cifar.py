@@ -94,7 +94,7 @@ def make_dataloaders(train_dataset=None, val_dataset=None, batch_size=None, num_
             Convert(ch.float16),
             torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
         ])
-        
+
         ordering = OrderOption.RANDOM if name == 'train' else OrderOption.SEQUENTIAL
 
         loaders[name] = Loader(paths[name], batch_size=batch_size, num_workers=num_workers,
@@ -144,6 +144,7 @@ def construct_model():
     )
     model = model.to(memory_format=ch.channels_last).cuda()
     return model
+
 
 @param('training.lr')
 @param('training.epochs')
