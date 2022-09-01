@@ -98,7 +98,7 @@ class EpochIterator(Thread):
                     event = ch.cuda.Event()
                     event.record(ch.cuda.default_stream())
                     events[just_finished_slot] = event
-                    b_ix += 1
+                b_ix += 1
 
         except StopIteration:
             self.output_queue.put(None)
