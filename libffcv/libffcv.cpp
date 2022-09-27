@@ -8,6 +8,13 @@
 #include <stdbool.h>
 #include <turbojpeg.h>
 #include <pthread.h>
+#ifdef _WIN32
+    typedef unsigned __int32 __uint32_t;
+    typedef unsigned __int64 __uint64_t;
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT
+#endif
 
 extern "C" {
     // a key use to point to the tjtransform instance
@@ -23,7 +30,7 @@ extern "C" {
         pthread_key_create(&key_tj_transformer, NULL);
     }
 
-    void resize(int64_t cresizer, int64_t source_p, int64_t sx, int64_t sy,
+    EXPORT void resize(int64_t cresizer, int64_t source_p, int64_t sx, int64_t sy,
                 int64_t start_row, int64_t end_row, int64_t start_col, int64_t end_col,
                 int64_t dest_p, int64_t tx, int64_t ty) {
         // TODO use proper arguments type
@@ -34,16 +41,16 @@ extern "C" {
                    dest_matrix, dest_matrix.size(), 0, 0, cv::INTER_AREA);
     }
 
-    void my_memcpy(void *source, void* dst, uint64_t size) {
+    EXPORT void my_memcpy(void *source, void* dst, uint64_t size) {
         memcpy(dst, source, size);
     }
 
-    void my_fread(int64_t fp, int64_t offset, void *destination, int64_t size) {
+    EXPORT void my_fread(int64_t fp, int64_t offset, void *destination, int64_t size) {
         fseek((FILE *) fp, offset, SEEK_SET);
         fread(destination, 1, size, (FILE *) fp);
     }
 
-    int imdecode(unsigned char *input_buffer, __uint64_t input_size,
+    EXPORT int imdecode(unsigned char *input_buffer, __uint64_t input_size,
                       __uint32_t source_height, __uint32_t source_width,
 
                       unsigned char *output_buffer,

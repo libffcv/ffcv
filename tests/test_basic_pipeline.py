@@ -108,9 +108,9 @@ def test_multiple_epoch_doesnt_recompile():
                         })
 
         it = iter(loader)
-        code = loader.code_per_stage
+        code = loader.code
         it = iter(loader)
-        new_code = loader.code_per_stage
+        new_code = loader.code
         assert_that(code).is_equal_to(new_code)
 
 def test_multiple_epoch_does_recompile():
@@ -135,7 +135,7 @@ def test_multiple_epoch_does_recompile():
                         })
 
         it = iter(loader)
-        code = loader.code_per_stage
+        code = loader.code
         it = iter(loader)
-        new_code = loader.code_per_stage
+        new_code = loader.code
         assert_that(code).is_not_equal_to(new_code)
