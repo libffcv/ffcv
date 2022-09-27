@@ -82,6 +82,7 @@ class EpochIterator(Thread):
                 self.current_batch_slot = (
                     slot + 1) % (self.loader.batches_ahead + 2)
                 result = self.run_pipeline(b_ix, ixes, slot, events[slot])
+                # print("RES", b_ix, "ready")
                 to_output = (slot, result)
                 while True:
                     try:
@@ -93,13 +94,15 @@ class EpochIterator(Thread):
                     if self.terminate_event.is_set():
                         return
                 if IS_CUDA:
+                    # print("SUB", b_ix)
                     # We were able to submit this batch
                     # Therefore it means that the user must have entered the for loop for
                     # (batch_slot - batch_ahead + 1) % (batches ahead + 2)
                     # Therefore batch_slot - batch_ahead must have all it's work submitted
                     # We will record an event of all the work submitted on the main stream
                     # and make sure no one overwrite the data until they are done
-                    just_finished_slot = (slot - self.loader.batches_ahead) % (self.loader.batches_ahead + 2)
+                    just_finished_slot = (slot - self.loader.batches_ahead - 1) % (self.loader.batches_ahead + 2)
+                    # print("JFS", just_finished_slot)
                     event = ch.cuda.Event()
                     event.record(self.current_stream)
                     events[just_finished_slot] = event
