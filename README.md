@@ -47,7 +47,7 @@ If you use FFCV, please cite it as:
 ```
 @misc{leclerc2022ffcv,
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
-    title = {ffcv},
+    title = {{FFCV}: Accelerating Training by Removing Data Bottlenecks},
     year = {2022},
     howpublished = {\url{https://github.com/libffcv/ffcv/}},
     note = {commit xxxxxxx}
