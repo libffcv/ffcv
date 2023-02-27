@@ -170,6 +170,7 @@ class Loader:
                 # We check if the user disabled this field
                 if operations is None:
                     continue
+
                 if not isinstance(operations[0], DecoderClass):
                     msg = "The first operation of the pipeline for "
                     msg += f"'{field_name}' has to be a subclass of "

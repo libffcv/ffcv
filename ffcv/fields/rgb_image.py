@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+from functools import partial
 from dataclasses import replace
 from typing import Optional, Callable, TYPE_CHECKING, Tuple, Type
 
@@ -23,8 +24,11 @@ IMAGE_MODES['jpg'] = 0
 IMAGE_MODES['raw'] = 1
 
 
-def encode_jpeg(numpy_image, quality):
-    numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+def encode_jpeg(numpy_image, quality, is_rgb):
+    if is_rgb:
+        numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+
+    # TODO this def assumes rgb lol
     success, result = cv2.imencode('.jpg', numpy_image,
                                    [int(cv2.IMWRITE_JPEG_QUALITY), quality])
 
@@ -86,7 +90,9 @@ class SimpleRGBImageDecoder(Operation):
 
     It only supports dataset with constant image resolution and will simply read (potentially decompress) and pass the images as is.
     """
-    def __init__(self):
+    def __init__(self, is_rgb):
+        self.is_rgb = is_rgb
+        self.channels = 3 if is_rgb else 1
         super().__init__()
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
@@ -102,7 +108,7 @@ consider RandomResizedCropRGBImageDecoder or CenterCropRGBImageDecoder
 instead."""
             raise TypeError(msg)
 
-        biggest_shape = (max_height, max_width, 3)
+        biggest_shape = (max_height, max_width, self.channels)
         my_dtype = np.dtype('<u1')
 
         return (
@@ -119,6 +125,7 @@ instead."""
         raw = IMAGE_MODES['raw']
         my_range = Compiler.get_iterator()
         my_memcpy = Compiler.compile(memcpy)
+        is_rgb = self.is_rgb
 
         def decode(batch_indices, destination, metadata, storage_state):
             for dst_ix in my_range(len(batch_indices)):
@@ -128,8 +135,9 @@ instead."""
                 height, width = field['height'], field['width']
 
                 if field['mode'] == jpg:
-                    imdecode_c(image_data, destination[dst_ix],
-                               height, width, height, width, 0, 0, 1, 1, False, False)
+                    imdecode_c(image_data, destination[dst_ix], height, width,
+                               height, width, 0, 0, 1, 1, False, False,
+                               is_rgb)
                 else:
                     my_memcpy(image_data, destination[dst_ix])
 
@@ -138,14 +146,17 @@ instead."""
         decode.is_parallel = True
         return decode
 
+class SimpleGrayscaleImageDecoder(SimpleRGBImageDecoder):
+    def __init__(self):
+        super().__init__(is_rgb=False)
 
 class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     """Abstract decoder for :class:`~ffcv.fields.RGBImageField` that performs a crop and and a resize operation.
 
     It supports both variable and constant resolution datasets.
     """
-    def __init__(self, output_size):
-        super().__init__()
+    def __init__(self, output_size, is_rgb):
+        super().__init__(is_rgb)
         self.output_size = output_size
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
@@ -154,19 +165,19 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         # We convert to uint64 to avoid overflows
         self.max_width = np.uint64(widths.max())
         self.max_height = np.uint64(heights.max())
-        output_shape = (self.output_size[0], self.output_size[1], 3)
+        output_shape = (self.output_size[0], self.output_size[1], self.channels)
         my_dtype = np.dtype('<u1')
 
+        channels = np.uint64(self.channels)
         return (
             replace(previous_state, jit_mode=True,
                     shape=output_shape, dtype=my_dtype),
             (AllocationQuery(output_shape, my_dtype),
-            AllocationQuery((self.max_height * self.max_width * np.uint64(3),), my_dtype),
+            AllocationQuery((self.max_height * self.max_width * channels,), my_dtype),
             )
         )
 
     def generate_code(self) -> Callable:
-
         jpg = IMAGE_MODES['jpg']
 
         mem_read = self.memory_read
@@ -177,6 +188,8 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
         scale = self.scale
         ratio = self.ratio
+        is_rgb = self.is_rgb
+        channels = self.channels
         if isinstance(scale, tuple):
             scale = np.array(scale)
         if isinstance(ratio, tuple):
@@ -193,21 +206,21 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
                 if field['mode'] == jpg:
                     temp_buffer = temp_storage[dst_ix]
-                    imdecode_c(image_data, temp_buffer,
-                               height, width, height, width, 0, 0, 1, 1, False, False)
-                    selected_size = 3 * height * width
+                    imdecode_c(image_data, temp_buffer, height, width, height,
+                               width, 0, 0, 1, 1, False, False, is_rgb)
+                    selected_size = channels * height * width
                     temp_buffer = temp_buffer.reshape(-1)[:selected_size]
-                    temp_buffer = temp_buffer.reshape(height, width, 3)
-
+                    temp_buffer = temp_buffer.reshape(height, width, channels)
                 else:
-                    temp_buffer = image_data.reshape(height, width, 3)
+                    temp_buffer = image_data.reshape(height, width, channels)
 
                 i, j, h, w = get_crop_c(height, width, scale, ratio)
 
                 resize_crop_c(temp_buffer, i, i + h, j, j + w,
-                              destination[dst_ix])
+                              destination[dst_ix], is_rgb)
 
             return destination[:len(batch_indices)]
+
         decode.is_parallel = True
         return decode
 
@@ -231,8 +244,9 @@ class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
     ratio : Tuple[float]
         The range of potential aspect ratios that can be randomly sampled
     """
-    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
-        super().__init__(output_size)
+    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3),
+                 is_rgb=True):
+        super().__init__(output_size, is_rgb=is_rgb)
         self.scale = scale
         self.ratio = ratio
         self.output_size = output_size
@@ -255,8 +269,8 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
         ratio of (crop size) / (min side length)
     """
     # output size: resize crop size -> output size
-    def __init__(self, output_size, ratio):
-        super().__init__(output_size)
+    def __init__(self, output_size, ratio, is_rgb=True):
+        super().__init__(output_size, is_rgb=is_rgb)
         self.scale = None
         self.ratio = ratio
 
@@ -291,12 +305,13 @@ class RGBImageField(Field):
     """
     def __init__(self, write_mode='raw', max_resolution: int = None,
                  smart_threshold: int = None, jpeg_quality: int = 90,
-                 compress_probability: float = 0.5) -> None:
+                 compress_probability: float = 0.5, is_rgb: bool = True) -> None:
         self.write_mode = write_mode
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
         self.jpeg_quality = int(jpeg_quality)
         self.proportion = compress_probability
+        self.is_rgb = is_rgb
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -308,7 +323,10 @@ class RGBImageField(Field):
         ])
 
     def get_decoder_class(self) -> Type[Operation]:
-        return SimpleRGBImageDecoder
+        if self.is_rgb:
+            return SimpleRGBImageDecoder # TODO
+        else:
+            return SimpleGrayscaleImageDecoder # TODO
 
     @staticmethod
     def from_binary(binary: ARG_TYPE) -> Field:
@@ -327,7 +345,10 @@ class RGBImageField(Field):
         if image.dtype != np.uint8:
             raise ValueError("Image type has to be uint8")
 
-        if image.shape[2] != 3:
+        shape = image.shape
+        is_ok_grayscale = len(shape) == 2 and not self.is_rgb
+        is_ok_rgb = len(shape) == 3 and shape[2] == 3 and self.is_rgb
+        if not (is_ok_rgb or is_ok_grayscale):
             raise ValueError(f"Invalid shape for rgb image: {image.shape}")
 
         assert image.dtype == np.uint8
