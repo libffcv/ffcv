@@ -71,7 +71,7 @@ def pkgconfig(package, kw):
     output = subprocess.getoutput(
         'pkg-config --cflags --libs {}'.format(package))
     if 'not found' in output:
-        raise Exception(f"Could not find required package: {package}.")
+        raise RuntimeError(f"Could not find required package: {package}.")
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     return kw
@@ -89,7 +89,11 @@ if platform.system() == 'Windows':
 
     extension_kwargs = pkgconfig_windows('pthread', extension_kwargs)
 else:
-    extension_kwargs = pkgconfig('opencv4', extension_kwargs)
+    try:
+        extension_kwargs = pkgconfig('opencv4', extension_kwargs)
+    except RuntimeError:
+        pass # Fallback to opencv package
+    extension_kwargs = pkgconfig('opencv', extension_kwargs)
     extension_kwargs = pkgconfig('libturbojpeg', extension_kwargs)
 
     extension_kwargs['libraries'].append('pthread')
@@ -113,9 +117,10 @@ setup(name='ffcv',
           'terminaltables',
           'pytorch_pfn_extras',
           'fastargs',
-          'cv2',
+          'opencv-python',
           'assertpy',
           'tqdm',
           'psutil',
+          'numba',
       ]
       )
