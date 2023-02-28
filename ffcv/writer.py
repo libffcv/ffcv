@@ -17,6 +17,7 @@ from .types import (TYPE_ID_HANDLER, get_metadata_type, HeaderType,
 
 
 MIN_PAGE_SIZE = 1 << 21  # 2MiB, which is the most common HugePage size
+MAX_PAGE_SIZE = 1 << 32  # Biggest page size that will not overflow uint32
 
 def from_shard(shard, pipeline):
     # We import webdataset here so that it desn't crash if it's not required
@@ -148,6 +149,8 @@ class DatasetWriter():
             raise ValueError(f'page_size isnt a power of 2')
         if page_size < MIN_PAGE_SIZE:
             raise ValueError(f"page_size can't be lower than{MIN_PAGE_SIZE}")
+        if page_size >= MAX_PAGE_SIZE:
+            raise ValueError(f"page_size can't be bigger(or =) than{MAX_PAGE_SIZE}")
 
         self.page_size = page_size
 
@@ -330,8 +333,8 @@ class DatasetWriter():
             # Retrieve all the allocations from the workers
             # Turn them into a numpy array
             try:
-                allocation_table = np.concatenate([
-                    np.array(x).view(ALLOC_TABLE_TYPE) for x in allocations if len(x)
+                allocation_table = np.array([
+                    np.array(x, dtype=ALLOC_TABLE_TYPE) for x in allocations if len(x)
                 ])
             except:
                 allocation_table = np.array([]).view(ALLOC_TABLE_TYPE)

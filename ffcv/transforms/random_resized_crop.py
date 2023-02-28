@@ -27,11 +27,15 @@ class RandomResizedCrop(Operation):
         self.scale = scale
         self.ratio = ratio
         self.size = size
+        
 
     def generate_code(self) -> Callable:
         scale, ratio = self.scale, self.ratio
+        if isinstance(scale, tuple):
+            scale = np.array(scale)
+        if isinstance(ratio, tuple):
+            ratio = np.array(ratio)
         my_range = Compiler.get_iterator()
-        scale, ratio = self.scale, self.ratio
         def random_resized_crop(images, dst):
             for idx in my_range(images.shape[0]):
                 i, j, h, w = fast_crop.get_random_crop(images[idx].shape[0],
