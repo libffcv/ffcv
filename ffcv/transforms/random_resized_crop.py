@@ -8,6 +8,7 @@ from typing import Callable, Optional, Tuple
 from ..pipeline.allocation_query import AllocationQuery
 from ..pipeline.operation import Operation
 from ..pipeline.state import State
+from ..pipeline.compiler import Compiler
 
 class RandomResizedCrop(Operation):
     """Crop a random portion of image with random aspect ratio and resize it to a given size.
@@ -34,14 +35,17 @@ class RandomResizedCrop(Operation):
             scale = np.array(scale)
         if isinstance(ratio, tuple):
             ratio = np.array(ratio)
-        def random_resized_crop(im, dst):
-            i, j, h, w = fast_crop.get_random_crop(im.shape[0],
-                                                im.shape[1],
-                                                scale,
-                                                ratio)
-            fast_crop.resize_crop(im, i, i + h, j, j + w, dst)
+        my_range = Compiler.get_iterator()
+        def random_resized_crop(images, dst):
+            for idx in my_range(images.shape[0]):
+                i, j, h, w = fast_crop.get_random_crop(images[idx].shape[0],
+                                                    images[idx].shape[1],
+                                                    scale,
+                                                    ratio)
+                fast_crop.resize_crop(images[idx], i, i + h, j, j + w, dst[idx])
             return dst
 
+        random_resized_crop.is_parallel = True
         return random_resized_crop
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
