@@ -92,8 +92,7 @@ else:
     try:
         extension_kwargs = pkgconfig('opencv4', extension_kwargs)
     except RuntimeError:
-        pass # Fallback to opencv package
-    extension_kwargs = pkgconfig('opencv', extension_kwargs)
+        extension_kwargs = pkgconfig('opencv', extension_kwargs)
     extension_kwargs = pkgconfig('libturbojpeg', extension_kwargs)
 
     extension_kwargs['libraries'].append('pthread')
@@ -103,10 +102,10 @@ libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
 
 setup(name='ffcv',
-      version='0.0.3rc1',
+      version='1.0.0',
       description=' FFCV: Fast Forward Computer Vision ',
       author='MadryLab',
-      author_email='leclerc@mit.edu',
+      author_email='ffcv@mit.edu',
       url='https://github.com/libffcv/ffcv',
       license_files = ('LICENSE.txt',),
       packages=find_packages(),
