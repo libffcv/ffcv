@@ -16,7 +16,7 @@ def resize_crop(source, start_row, end_row, start_col, end_col, destination):
 @njit(parallel=False, fastmath=True, inline='always')
 def get_random_crop(height, width, scale, ratio):
     area = height * width
-    log_ratio = np.log(ratio)
+    log_ratio = np.log(np.array(ratio))
     for _ in range(10):
         target_area = area * np.random.uniform(scale[0], scale[1])
         aspect_ratio = np.exp(np.random.uniform(log_ratio[0], log_ratio[1]))
