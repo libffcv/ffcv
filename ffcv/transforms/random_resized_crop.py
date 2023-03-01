@@ -11,7 +11,10 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 
 class RandomResizedCrop(Operation):
-    """Crop a random portion of image with random aspect ratio and resize it to a given size.
+    """Crop a random portion of image with random aspect ratio and resize it to
+    a given size. Chances are you do not want to use this augmentation and
+    instead want to include RRC as part of the decoder, by using the 
+    :cla:`~ffcv.fields.rgb_image.ResizedCropRGBImageDecoder` class.
 
     Parameters
     ----------
@@ -49,7 +52,7 @@ class RandomResizedCrop(Operation):
         return random_resized_crop
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        assert previous_state.jit_mode
-        return replace(previous_state, shape=(self.size, self.size, 3)), AllocationQuery((self.size, self.size, 3), dtype=np.dtype('uint8'))
+        return replace(previous_state, jit_mode=True, shape=(self.size, self.size, 3)), \
+               AllocationQuery((self.size, self.size, 3), dtype=previous_state.dtype)
 
 
