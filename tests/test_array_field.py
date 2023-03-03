@@ -2,6 +2,7 @@ from ctypes import pointer
 from tempfile import NamedTemporaryFile
 from collections import defaultdict
 from assertpy.assertpy import assert_that
+from multiprocessing import cpu_count
 
 from assertpy import assert_that
 import numpy as np
@@ -15,7 +16,7 @@ class DummyActivationsDataset(Dataset):
     def __init__(self, n_samples, shape):
         self.n_samples = n_samples
         self.shape = shape
-        
+
     def __len__(self):
         return self.n_samples
 
@@ -50,11 +51,11 @@ def run_test(n_samples, shape):
         writer = DatasetWriter(name, {
             'index': IntField(),
             'activations': NDArrayField(np.dtype('<f4'), shape)
-        }, num_workers=3)
+        }, num_workers=min(3, cpu_count()))
 
         writer.from_indexed_dataset(dataset)
 
-        loader = Loader(name, batch_size=3, num_workers=5)
+        loader = Loader(name, batch_size=3, num_workers=min(5, cpu_count()))
         for ixes, activations in loader:
             for ix, activation in zip(ixes, activations):
                 assert_that(np.all(dataset[ix][1] == activation.numpy())).is_true()
@@ -80,7 +81,7 @@ def test_multi_fields():
 
         writer.from_indexed_dataset(dataset)
 
-        loader = Loader(name, batch_size=3, num_workers=5)
+        loader = Loader(name, batch_size=3, num_workers=min(5, cpu_count()))
         page_size_l2 = int(np.log2(loader.reader.page_size))
         sample_ids = loader.reader.alloc_table['sample_id']
         pointers = loader.reader.alloc_table['ptr']

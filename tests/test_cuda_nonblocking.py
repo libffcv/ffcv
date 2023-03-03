@@ -2,6 +2,7 @@ from tempfile import NamedTemporaryFile
 import torch as ch
 from tqdm import tqdm
 import time
+from multiprocessing import cpu_count
 
 from assertpy import assert_that
 import numpy as np
@@ -15,11 +16,15 @@ from ffcv.loader.loader import OrderOption
 from ffcv.transforms import ToDevice, ToTensor, Squeeze
 import time
 
+BATCH = 256
+SIZE = 25_000
+WORKERS = min(10, cpu_count())
+
 class DummyArrayDataset(Dataset):
     def __init__(self, n_samples, shape):
         self.n_samples = n_samples
         self.shape = shape
-        
+
     def __len__(self):
         return self.n_samples
 
@@ -27,11 +32,11 @@ class DummyArrayDataset(Dataset):
         if index >= self.n_samples:
             raise IndexError()
         np.random.seed(index)
-        return (np.random.rand(50000) > 0.5).astype('bool'), np.random.rand(50000).astype('float32'), index
+        return (np.random.rand(SIZE) > 0.5).astype('bool'), np.random.rand(SIZE).astype('float32'), index
 
 def run_experiment_cuda(weight, loader, sync=False):
     total = 0.
-    X = ch.empty(2048, 50_000, device=weight.device)
+    X = ch.empty(BATCH, SIZE, device=weight.device)
     for X_bool, _, __ in tqdm(loader):
         if sync: ch.cuda.synchronize()
         X.copy_(X_bool)
@@ -42,13 +47,13 @@ def run_experiment_cuda(weight, loader, sync=False):
     return total.sum(0)
 
 def run_cuda(weight, sync):
-    n_samples, shape = (2048 * 10, (50000,))
+    n_samples, shape = (BATCH * WORKERS, (SIZE,))
     with NamedTemporaryFile() as handle:
         name = handle.name
         dataset = DummyArrayDataset(n_samples, shape)
         writer = DatasetWriter(name, {
-            'mask': NDArrayField(dtype=np.dtype('bool'), shape=(50_000,)),
-            'targets': NDArrayField(dtype=np.dtype('float32'), shape=(50_000,)),
+            'mask': NDArrayField(dtype=np.dtype('bool'), shape=(SIZE,)),
+            'targets': NDArrayField(dtype=np.dtype('float32'), shape=(SIZE,)),
             'idx': IntField()
         })
 
@@ -56,8 +61,8 @@ def run_cuda(weight, sync):
 
         loader = Loader(
                 name,
-                batch_size=2048,
-                num_workers=10,
+                batch_size=BATCH,
+                num_workers=WORKERS,
                 order=OrderOption.QUASI_RANDOM,
                 indices=np.arange(n_samples),
                 drop_last=False,
@@ -67,11 +72,11 @@ def run_cuda(weight, sync):
                     'targets': [NDArrayDecoder(), ToTensor(), ToDevice(ch.device('cuda:0'), non_blocking=False)],
                     'idx': [IntDecoder(), ToTensor(), Squeeze(), ToDevice(ch.device('cuda:0'), non_blocking=False)]
                 })
-        
+
         return run_experiment_cuda(weight, loader, sync)
 
 def test_cuda():
-    weight = ch.randn(50_000, 50_000).cuda()
+    weight = ch.randn(SIZE, SIZE).cuda()
     async_1 = run_cuda(weight, False)
     sync_1 = run_cuda(weight, True)
     sync_2 = run_cuda(weight, True)
@@ -80,7 +85,7 @@ def test_cuda():
     print(sync_2)
     print(ch.abs(sync_1 - sync_2).max())
     print(ch.abs(sync_1 - async_1).max())
-    assert ch.abs(sync_1 - sync_2).max().cpu().item() < 10., 'Sync-sync mismatch'
-    assert ch.abs(async_1 - sync_1).max().cpu().item() < 10., 'Async-sync mismatch'
+    assert ch.abs(sync_1 - sync_2).max().cpu().item() < float(WORKERS), 'Sync-sync mismatch'
+    assert ch.abs(async_1 - sync_1).max().cpu().item() < float(WORKERS), 'Async-sync mismatch'
 
 # test_cuda()

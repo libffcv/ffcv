@@ -12,6 +12,7 @@ from assertpy import assert_that
 from tempfile import NamedTemporaryFile
 from ffcv.pipeline.operation import Operation
 from ffcv.transforms.ops import ToTensor
+from multiprocessing import cpu_count
 
 from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
@@ -52,7 +53,7 @@ def run_test(bs, exp_length, drop_last=True):
 
         Compiler.set_enabled(True)
 
-        loader = Loader(file_name, batch_size, num_workers=5, seed=17,
+        loader = Loader(file_name, batch_size, num_workers=min(5, cpu_count()), seed=17,
                 drop_last=drop_last,
                         pipelines={
                             'value': [FloatDecoder(), Doubler(), ToTensor()]
@@ -77,5 +78,3 @@ def test_not_partial_multiple():
 
 def test_partial_multiple():
     run_test(60, 10, True)
-
-        

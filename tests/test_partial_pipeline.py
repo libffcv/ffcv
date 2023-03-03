@@ -12,6 +12,7 @@ from assertpy import assert_that
 from tempfile import NamedTemporaryFile
 from ffcv.pipeline.operation import Operation
 from ffcv.transforms.ops import ToTensor
+from multiprocessing import cpu_count
 
 from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
@@ -52,7 +53,7 @@ def test_basic_simple():
 
         Compiler.set_enabled(True)
 
-        loader = Loader(file_name, batch_size, num_workers=5, seed=17,
+        loader = Loader(file_name, batch_size, num_workers=min(5, cpu_count()), seed=17,
                         pipelines={
                             'value': [FloatDecoder(), Doubler(), ToTensor()],
                             'index': None
@@ -65,4 +66,3 @@ def test_basic_simple():
         values = result[0]
         assert_that(np.allclose(2 * np.sin(np.arange(batch_size)),
                                 values.squeeze().numpy())).is_true()
-        
