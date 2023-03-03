@@ -5,7 +5,12 @@ from typing import Optional, Callable, TYPE_CHECKING, Tuple, Type
 import cv2
 import numpy as np
 from numba.typed import Dict
-from PIL.Image import Image
+from PIL import Image
+
+try:
+    LANCZOS = Image.Resampling.LANCZOS
+except AttributeError:
+    from PIL.Image import LANCZOS
 
 from .base import Field, ARG_TYPE
 from ..pipeline.operation import Operation
@@ -13,6 +18,7 @@ from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
 from ..libffcv import imdecode, memcpy, resize_crop
+from ..utils import pil_to_numpy
 
 if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
@@ -34,15 +40,33 @@ def encode_jpeg(numpy_image, quality):
     return result.reshape(-1)
 
 
-def resizer(image, target_resolution):
-    if target_resolution is None:
-        return image
-    original_size = np.array([image.shape[1], image.shape[0]])
-    ratio = target_resolution / original_size.max()
+def resizer(image, max_resolution, min_resolution, interpolation=(cv2.INTER_AREA, LANCZOS)):
+    pillow_resize = isinstance(image, Image.Image)
+    if max_resolution is None and min_resolution is None:
+        return pil_to_numpy(image) if pillow_resize else image
+
+    if pillow_resize:
+        original_size = np.array([image.size[0], image.size[1]])
+    else:
+        original_size = np.array([image.shape[1], image.shape[0]])
+
+    if max_resolution is not None:
+        ratio = max_resolution / original_size.max()
+    elif min_resolution is not None:
+        ratio = min_resolution / original_size.min()
+    else:
+        ratio = 1
+
     if ratio < 1:
         new_size = (ratio * original_size).astype(int)
-        image = cv2.resize(image, tuple(new_size), interpolation=cv2.INTER_AREA)
-    return image
+        if pillow_resize:
+            image = image.resize(new_size, resample=interpolation[1])
+        else:
+            image = cv2.resize(image, tuple(new_size), interpolation=interpolation[0])
+    if pillow_resize:
+        return pil_to_numpy(image)
+    else:
+        return image
 
 
 def get_random_crop(height, width, scale, ratio):
@@ -280,23 +304,41 @@ class RGBImageField(Field):
     max_resolution : int, optional
         If specified, will resize images to have maximum side length equal to
         this value before saving, by default None
+    min_resolution : int, optional
+        If specified, will resize images to have minimum side length equal to
+        this value before saving, by default None
     smart_threshold : int, optional
-        When `write_mode='smart`, will compress an image if it would take more than `smart_threshold` times to use RAW instead of jpeg.
+        When `write_mode='smart`, will compress an image if RAW byte size is
+        larger than `smart_threshold`.
     jpeg_quality : int, optional
         The quality parameter for JPEG encoding (ignored for
         ``write_mode='raw'``), by default 90
     compress_probability : float, optional
         Ignored unless ``write_mode='proportion'``; in the latter case it is the
         probability with which image is JPEG-compressed, by default 0.5.
+    interpolation : optional
+        OpenCV interpolation flag for resizing images with OpenCV, by default INTER_AREA.
+    resample : optional
+        Pillow resampling filter for resizing images with Pillow, by default LANCZOS.
+    pillow_resize : bool, optional
+        Use Pillow to resize images instead of OpenCV, by default False (OpenCV).
     """
     def __init__(self, write_mode='raw', max_resolution: int = None,
-                 smart_threshold: int = None, jpeg_quality: int = 90,
-                 compress_probability: float = 0.5) -> None:
+                 min_resolution: int = None, smart_threshold: int = None,
+                 jpeg_quality: int = 90, compress_probability: float = 0.5,
+                 interpolation = cv2.INTER_AREA, resample = LANCZOS,
+                 pillow_resize:bool = False) -> None:
         self.write_mode = write_mode
         self.smart_threshold = smart_threshold
         self.max_resolution = max_resolution
+        self.min_resolution = min_resolution
         self.jpeg_quality = int(jpeg_quality)
         self.proportion = compress_probability
+        self.interpolation = interpolation
+        self.resample = resample
+        self.pillow_resize = pillow_resize
+        if max_resolution is not None and min_resolution is not None:
+            raise ValueError(f'Can only set one of {max_resolution=} or {min_resolution=}')
 
     @property
     def metadata_type(self) -> np.dtype:
@@ -318,21 +360,24 @@ class RGBImageField(Field):
         return np.zeros(1, dtype=ARG_TYPE)[0]
 
     def encode(self, destination, image, malloc):
-        if isinstance(image, Image):
-            image = np.array(image)
-
-        if not isinstance(image, np.ndarray):
+        if not isinstance(image, np.ndarray) and not isinstance(image, Image.Image):
             raise TypeError(f"Unsupported image type {type(image)}")
+
+        if self.pillow_resize:
+            if isinstance(image, np.ndarray):
+                image = Image.fromarray(image)
+        else:
+            if isinstance(image, Image.Image):
+                image = pil_to_numpy(image)
+
+        image = resizer(image, self.max_resolution, self.min_resolution,
+                        (self.interpolation, self.resample))
+
+        if len(image.shape) > 2 and image.shape[2] != 3:
+            raise ValueError(f"Invalid shape for rgb image: {image.shape}")
 
         if image.dtype != np.uint8:
             raise ValueError("Image type has to be uint8")
-
-        if image.shape[2] != 3:
-            raise ValueError(f"Invalid shape for rgb image: {image.shape}")
-
-        assert image.dtype == np.uint8
-
-        image = resizer(image, self.max_resolution)
 
         write_mode = self.write_mode
         as_jpg = None
