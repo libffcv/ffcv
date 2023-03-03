@@ -30,12 +30,14 @@ class RandomTranslate(Operation):
     def generate_code(self) -> Callable:
         my_range = Compiler.get_iterator()
         pad = self.padding
+        fill = self.fill
 
         def translate(images, dst):
             n, h, w, _ = images.shape
+            dst[:] = fill
+            dst[:, pad:pad+h, pad:pad+w] = images
             for i in my_range(n):
                 dst[i] = 0
-                dst[i, pad:pad+h, pad:pad+w] = images[i]
                 y_coord = randint(low=0, high=2 * pad + 1)
                 x_coord = randint(low=0, high=2 * pad + 1)
                 images[i] = dst[i, y_coord:y_coord+h, x_coord:x_coord+w]

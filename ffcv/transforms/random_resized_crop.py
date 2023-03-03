@@ -30,17 +30,24 @@ class RandomResizedCrop(Operation):
         self.scale = scale
         self.ratio = ratio
         self.size = size
+        
 
     def generate_code(self) -> Callable:
-        scale, ratio = np.array(self.scale), np.array(self.ratio)
+        scale, ratio = self.scale, self.ratio
+        if isinstance(scale, tuple):
+            scale = np.array(scale)
+        if isinstance(ratio, tuple):
+            ratio = np.array(ratio)
         my_range = Compiler.get_iterator()
-        def random_resized_crop(im, dst):
-            n, h, w, _ = im.shape
-            for ind in my_range(n):
-                i, j, c_h, c_w = fast_crop.get_random_crop(h, w, scale, ratio)
-                fast_crop.resize_crop(im[ind], i, i + c_h, j, j + c_w, dst[ind])
+        def random_resized_crop(images, dst):
+            for idx in my_range(images.shape[0]):
+                i, j, h, w = fast_crop.get_random_crop(images[idx].shape[0],
+                                                    images[idx].shape[1],
+                                                    scale,
+                                                    ratio)
+                fast_crop.resize_crop(images[idx], i, i + h, j, j + w, dst[idx])
             return dst
-        
+
         random_resized_crop.is_parallel = True
         return random_resized_crop
 

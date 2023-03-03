@@ -8,7 +8,9 @@ from multiprocessing import cpu_count
 from re import sub
 from typing import Any, Callable, Mapping, Sequence, Type, Union, Literal
 from collections import defaultdict
+from collections.abc import Collection
 from enum import Enum, unique, auto
+
 from ffcv.fields.base import Field
 
 import torch as ch
@@ -18,11 +20,9 @@ from .epoch_iterator import EpochIterator
 from ..reader import Reader
 from ..traversal_order.base import TraversalOrder
 from ..traversal_order import Random, Sequential, QuasiRandom
-from ..pipeline import Pipeline
-from ..pipeline.compiler import Compiler
+from ..pipeline import Pipeline, PipelineSpec, Compiler
 from ..pipeline.operation import Operation
-from ..transforms.ops import ToTensor
-from ..transforms.module import ModuleWrapper
+from ..pipeline.graph import Graph
 from ..memory_managers import (
     ProcessCacheManager, OSCacheManager, MemoryManager
 )
@@ -63,8 +63,8 @@ class Loader:
         Number of workers used for data loading. Consider using the actual number of cores instead of the number of threads if you only use JITed augmentations as they usually don't benefit from hyper-threading.
     os_cache : bool
         Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine training using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
-    order : OrderOption
-        Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM
+    order : Union[OrderOption, TraversalOrder]
+        Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM, or a custom TraversalOrder
 
         QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distributed mode.
     distributed : bool
@@ -91,7 +91,7 @@ class Loader:
                  batch_size: int,
                  num_workers: int = -1,
                  os_cache: bool = DEFAULT_OS_CACHE,
-                 order: ORDER_TYPE = OrderOption.SEQUENTIAL,
+                 order: Union[ORDER_TYPE, TraversalOrder] = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = None,  # For ordering of samples
                  indices: Sequence[int] = None,  # For subset selection
@@ -135,7 +135,7 @@ class Loader:
         self.num_workers: int = num_workers
         self.drop_last: bool = drop_last
         self.distributed: bool = distributed
-        self.code_per_stage = None
+        self.code = None
         self.recompile = recompile
 
         if self.num_workers < 1:
@@ -154,49 +154,61 @@ class Loader:
             self.memory_manager: MemoryManager = ProcessCacheManager(
                 self.reader)
 
-        self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
+        if order in ORDER_MAP:
+            self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
+        elif isinstance(order, TraversalOrder):
+            self.traversal_order: TraversalOrder = order(self)
+        else:
+            raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
 
         memory_read = self.memory_manager.compile_reader()
         self.next_epoch: int = 0
 
         self.pipelines = {}
+        self.pipeline_specs = {}
         self.field_name_to_f_ix = {}
+        
+        custom_pipeline_specs = {}
 
+        # Creating PipelineSpec objects from the pipeline dict passed
+        # by the user
+        for output_name, spec in pipelines.items():
+            if isinstance(spec, PipelineSpec):
+                pass
+            elif isinstance(spec, Sequence):
+                spec = PipelineSpec(output_name, decoder=None, transforms=spec)
+            elif spec is None:
+                continue  # This is a disabled field
+            else:
+                msg  = f"The pipeline for {output_name} has to be "
+                msg += f"either a PipelineSpec or a sequence of operations"
+                raise ValueError(msg)
+            custom_pipeline_specs[output_name] = spec
+
+        # Adding the default pipelines
         for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
             self.field_name_to_f_ix[field_name] = f_ix
-            DecoderClass = field.get_decoder_class()
-            try:
-                operations = pipelines[field_name]
-                # We check if the user disabled this field
-                if operations is None:
-                    continue
-                if not isinstance(operations[0], DecoderClass):
-                    msg = "The first operation of the pipeline for "
-                    msg += f"'{field_name}' has to be a subclass of "
-                    msg += f"{DecoderClass}"
-                    raise ValueError(msg)
-            except KeyError:
-                try:
-                    operations = [
-                        DecoderClass(),
-                        ToTensor()
-                    ]
-                except Exception:
-                    msg = f"Impossible to create a default pipeline"
-                    msg += f"{field_name}, please define one manually"
-                    raise ValueError(msg)
 
-            for i, op in enumerate(operations):
-                assert isinstance(op, (ch.nn.Module, Operation)), op
-                if isinstance(op, ch.nn.Module):
-                    operations[i] = ModuleWrapper(op)
+            if field_name not in custom_pipeline_specs:
+                # We add the default pipeline
+                if field_name not in pipelines:
+                    self.pipeline_specs[field_name] = PipelineSpec(field_name)
+            else:
+                self.pipeline_specs[field_name] = custom_pipeline_specs[field_name]
 
-            for op in operations:
-                op.accept_field(field)
-                op.accept_globals(self.reader.metadata[f'f{f_ix}'],
-                                  memory_read)
+        # We add the custom fields after the default ones
+        # This is to preserve backwards compatibility and make sure the order
+        # is intuitive
+        for field_name, spec in custom_pipeline_specs.items():
+            if field_name not in self.pipeline_specs:
+                self.pipeline_specs[field_name] = spec
 
-            self.pipelines[field_name] = Pipeline(operations)
+        self.graph = Graph(self.pipeline_specs, self.reader.handlers,
+                           self.field_name_to_f_ix, self.reader.metadata,
+                           memory_read)
+        
+        self.generate_code()
+        self.first_traversal_order = self.next_traversal_order()
 
     def next_traversal_order(self):
         return self.traversal_order.sample_order(self.next_epoch)
@@ -208,7 +220,7 @@ class Loader:
         self.next_epoch += 1
 
         # Compile at the first epoch
-        if self.code_per_stage is None or self.recompile:
+        if self.code is None or self.recompile:
             self.generate_code()
 
         return EpochIterator(self, selected_order)
@@ -251,123 +263,16 @@ class Loader:
 
 
     def __len__(self):
-        next_order = self.next_traversal_order()
+        next_order = self.first_traversal_order
         if self.drop_last:
             return len(next_order) // self.batch_size
         else:
             return int(np.ceil(len(next_order) / self.batch_size))
 
-    def generate_function_call(self, pipeline_name, op_id, needs_indices):
-        p_ix = self.field_name_to_f_ix[pipeline_name]
-        pipeline_identifier = f'code_{pipeline_name}_{op_id}'
-        memory_identifier = f'memory_{pipeline_name}_{op_id}'
-        result_identifier = f'result_{pipeline_name}'
 
-        arg_id = result_identifier
-        # This is the decoder so we pass the indices instead of the previous
-        # result
-        if op_id == 0:
-            arg_id = 'batch_indices'
-
-        tree = ast.parse(f"""
-{result_identifier} = {pipeline_identifier}({arg_id}, {memory_identifier})
-        """).body[0]
-
-        # This is the first call of the pipeline, we pass the metadata and
-        # storage state
-        if op_id == 0:
-            tree.value.args.extend([
-                ast.Subscript(value=ast.Name(id='metadata', ctx=ast.Load()),
-                              slice=ast.Index(value=ast.Constant(value=f'f{p_ix}', kind=None)), ctx=ast.Load()),
-                ast.Name(id='storage_state', ctx=ast.Load()),
-            ])
-        if needs_indices:
-            tree.value.args.extend([
-                ast.Name(id='batch_indices', ctx=ast.Load()),
-            ])
-        return tree
-
-    def generate_stage_code(self, stage, stage_ix, functions):
-        fun_name = f'stage_{stage_ix}'
-        base_code = ast.parse(f"""
-def {fun_name}():
-    pass
-        """).body[0]
-
-        function_calls = []
-        memory_banks = []
-        memory_banks_id = []
-        for p_ix, pipeline_name, op_id, needs_indices in stage:
-            function_calls.append(self.generate_function_call(pipeline_name,
-                                                              op_id, needs_indices))
-            arg = ast.arg(arg=f'memory_{pipeline_name}_{op_id}')
-            memory_banks.append(arg)
-            memory_banks_id.append((pipeline_name, op_id))
-
-        base_code.body.pop()
-        base_code.body.extend(function_calls)
-
-        return_tuple = ast.Return(value=ast.Tuple(elts=[], ctx=ast.Load()))
-
-        base_code.args.args.append(ast.arg(arg='batch_indices'))
-
-        for p_id in self.pipelines.keys():
-            r = f'result_{p_id}'
-            if stage_ix != 0:
-                base_code.args.args.append(ast.arg(arg=r))
-            return_tuple.value.elts.append(ast.Name(id=r, ctx=ast.Load()))
-
-
-        base_code.body.append(return_tuple)
-        base_code.args.args.extend(memory_banks)
-        base_code.args.args.append(ast.arg(arg='metadata'))
-        base_code.args.args.append(ast.arg(arg='storage_state'))
-
-        module = ast.fix_missing_locations(
-            ast.Module(body=[base_code],
-                       type_ignores=[])
-        )
-        namespace = {
-            **functions,
-        }
-
-        exec(compile(module, '', 'exec'), namespace)
-        final_code = namespace[fun_name]
-        if stage_ix % 2 == 0:
-            final_code = Compiler.compile(final_code)
-
-        return final_code, memory_banks_id
 
     def generate_code(self):
-        schedule = defaultdict(lambda: [])
-        compiled_functions = {}
-        for p_ix, (p_id, p) in enumerate(self.pipelines.items()):
-            stage = 0
-            for jitted_block, block_content in p.operation_blocks:
-                # Even stages are jitted Odds are not
-                # If this doesn't match for this pipeline we
-                # shift the operations
-                if 1 - jitted_block % 2 != stage % 2:
-                    stage += 1
-                for op in block_content:
-                    ops_code = p.compiled_ops[op]
+        queries, code = self.graph.collect_requirements()
+        self.code = self.graph.codegen_all(code)
+        
 
-                    needs_indices = False
-                    if hasattr(ops_code, 'with_indices'):
-                        needs_indices = ops_code.with_indices
-
-                    if stage % 2 == 0:
-                        ops_code = Compiler.compile(ops_code)
-                    compiled_functions[f'code_{p_id}_{op}'] = ops_code
-                    schedule[stage].append((p_ix, p_id, op, needs_indices))
-                stage += 1
-
-        memory_bank_keys_per_stage = {}
-        self.code_per_stage = {}
-        for stage_ix, stage in schedule.items():
-            code_for_stage, mem_banks_ids = self.generate_stage_code(stage, stage_ix,
-                                                                     compiled_functions)
-            self.code_per_stage[stage_ix] = code_for_stage
-            memory_bank_keys_per_stage[stage_ix] = mem_banks_ids
-
-        self.memory_bank_keys_per_stage = memory_bank_keys_per_stage

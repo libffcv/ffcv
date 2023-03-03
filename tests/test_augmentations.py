@@ -187,5 +187,5 @@ def test_torchvision_color_jitter():
         SimpleRGBImageDecoder(),
         ToTensor(),
         ToTorchImage(),
-        tvt.ColorJitter(.5, .5, .5, .5),
-        ], aug_name='tv_colorjitter')
+        tvt.ColorJitter(.5, .5, .5, .5)
+    ], aug_name='tv_colorjitter')
