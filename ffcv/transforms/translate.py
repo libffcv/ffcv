@@ -37,7 +37,6 @@ class RandomTranslate(Operation):
             dst[:] = fill
             dst[:, pad:pad+h, pad:pad+w] = images
             for i in my_range(n):
-                dst[i] = 0
                 y_coord = randint(low=0, high=2 * pad + 1)
                 x_coord = randint(low=0, high=2 * pad + 1)
                 images[i] = dst[i, y_coord:y_coord+h, x_coord:x_coord+w]
