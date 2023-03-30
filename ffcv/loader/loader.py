@@ -40,7 +40,7 @@ ORDER_TYPE = Union[
 
 ]
 
-ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
+ORDER_MAP: Mapping[ORDER_TYPE, Type[TraversalOrder]] = {
     OrderOption.RANDOM: Random,
     OrderOption.SEQUENTIAL: Sequential,
     OrderOption.QUASI_RANDOM: QuasiRandom
