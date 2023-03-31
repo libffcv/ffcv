@@ -7,8 +7,6 @@ import warnings
 
 
 class Compiler:
-    is_enabled: bool = True
-    num_threads: int = 1
 
     @classmethod
     def set_enabled(cls, b):
@@ -32,7 +30,7 @@ class Compiler:
         
         if cls.is_enabled:
             return jit(signature, fastmath=True, nogil=nopython, error_model='numpy',
-                        parallel=parallel, nopython=nopython)(code)
+                        parallel=parallel, nopython=nopython, forceobj=not nopython)(code)
         return code
 
     @classmethod
@@ -42,5 +40,5 @@ class Compiler:
         else:
             return range
 
-# Compiler.set_enabled(True)
-# Compiler.set_num_threads(1)
+Compiler.set_enabled(True)
+Compiler.set_num_threads(1)
