@@ -302,26 +302,27 @@ class RGBImageField(Field):
         size), and 'proportion' (JPEG compress a random subset of the data with
         size specified by the ``compress_probability`` argument). By default: 'raw'.
     max_resolution : int, optional
-        If specified, will resize images to have maximum side length equal to
-        this value before saving, by default None
+        If specified, resize images to have maximum side length equal to this
+        value if maximum side length is larger. By default: None
     min_resolution : int, optional
-        If specified, will resize images to have minimum side length equal to
-        this value before saving, by default None
+        If specified, resize images to have minimum side length equal to this
+        value if minimum side length is larger. By default: None
     smart_threshold : int, optional
         When `write_mode='smart`, will compress an image if RAW byte size is
         larger than `smart_threshold`.
     jpeg_quality : int, optional
-        The quality parameter for JPEG encoding (ignored for
-        ``write_mode='raw'``), by default 90
+        The quality parameter for JPEG encoding (ignored for ``write_mode='raw'``).
+        By default 90
     compress_probability : float, optional
         Ignored unless ``write_mode='proportion'``; in the latter case it is the
-        probability with which image is JPEG-compressed, by default 0.5.
+        probability with which image is JPEG-compressed. By default 0.5.
     interpolation : optional
-        OpenCV interpolation flag for resizing images with OpenCV, by default INTER_AREA.
+        The OpenCV interpolation flag for resizing images with OpenCV.
+        By default INTER_AREA.
     resample : optional
-        Pillow resampling filter for resizing images with Pillow, by default LANCZOS.
+        The Pillow resampling filter for resizing images with Pillow. By default LANCZOS.
     pillow_resize : bool, optional
-        Use Pillow to resize images instead of OpenCV, by default False (OpenCV).
+        Use Pillow to resize images instead of OpenCV. By default False (OpenCV).
     """
     def __init__(self, write_mode='raw', max_resolution: int = None,
                  min_resolution: int = None, smart_threshold: int = None,
