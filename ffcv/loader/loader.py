@@ -16,7 +16,7 @@ from ffcv.fields.base import Field
 import torch as ch
 import numpy as np
 
-from .epoch_iterator import EpochIterator
+from .epoch_iterator import EpochIterator, IS_CUDA, ADDITIONAL_BATCHES_AHEAD
 from ..reader import Reader
 from ..traversal_order.base import TraversalOrder
 from ..traversal_order import Random, Sequential, QuasiRandom
@@ -137,6 +137,7 @@ class Loader:
         self.distributed: bool = distributed
         self.code = None
         self.recompile = recompile
+        self.cuda_streams = None
 
         if self.num_workers < 1:
             self.num_workers = cpu_count()
@@ -167,7 +168,7 @@ class Loader:
         self.pipelines = {}
         self.pipeline_specs = {}
         self.field_name_to_f_ix = {}
-        
+
         custom_pipeline_specs = {}
 
         # Creating PipelineSpec objects from the pipeline dict passed
@@ -206,7 +207,7 @@ class Loader:
         self.graph = Graph(self.pipeline_specs, self.reader.handlers,
                            self.field_name_to_f_ix, self.reader.metadata,
                            memory_read)
-        
+
         self.generate_code()
         self.first_traversal_order = self.next_traversal_order()
 
@@ -222,6 +223,10 @@ class Loader:
         # Compile at the first epoch
         if self.code is None or self.recompile:
             self.generate_code()
+
+        if self.cuda_streams is None:
+            self.cuda_streams = [(ch.cuda.Stream() if IS_CUDA else None)
+                                 for _ in range(self.batches_ahead + ADDITIONAL_BATCHES_AHEAD)]
 
         return EpochIterator(self, selected_order)
 
@@ -274,5 +279,5 @@ class Loader:
     def generate_code(self):
         queries, code = self.graph.collect_requirements()
         self.code = self.graph.codegen_all(code)
-        
+
 
