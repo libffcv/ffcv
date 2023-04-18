@@ -44,6 +44,8 @@ Troubleshooting note 1: if the above commands result in a package conflict error
 
 Troubleshooting note 2: on some systems (but rarely), you'll need to add the ``compilers`` package to the first command above.
 
+Troubleshooting note 3: courtesy of @kschuerholt, here is a [Dockerfile](https://github.com/kschuerholt/pytorch_cuda_opencv_ffcv_docker) that may help with conda-free installation: 
+
 ### Windows
 * Install <a href="https://opencv.org/releases/">opencv4</a>
   * Add `..../opencv/build/x64/vc15/bin` to PATH environment variable
@@ -225,8 +227,8 @@ performance bottlenecks.
 
 # Contributors
 
-- Guillaume Leclerc
-- Logan Engstrom
-- Andrew Ilyas
-- Sam Park
-- Hadi Salman
+- [Guillaume Leclerc](https://github.com/GuillaumeLeclerc)
+- [Logan Engstrom](http://loganengstrom.com/)
+- [Andrew Ilyas](http://andrewilyas.com/)
+- [Sam Park](http://sungminpark.com/)
+- [Hadi Salman](http://hadisalman.com/)
