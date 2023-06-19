@@ -9,6 +9,7 @@ from .normalize import NormalizeImage
 from .translate import RandomTranslate
 from .mixup import ImageMixup, LabelMixup, MixupToOneHot
 from .module import ModuleWrapper
+from .solarization import Solarization
 from .color_jitter import RandomBrightness, RandomContrast, RandomSaturation
 from .erasing import RandomErasing
 
@@ -19,5 +20,6 @@ __all__ = ['ToTensor', 'ToDevice',
            'Cutout', 'RandomCutout', 'RandomErasing',
            'ImageMixup', 'LabelMixup', 'MixupToOneHot',
            'Poison', 'ReplaceLabel',
-           'ModuleWrapper',
+           'ModuleWrapper', 
+           'Solarization',
            'RandomBrightness', 'RandomContrast', 'RandomSaturation']
