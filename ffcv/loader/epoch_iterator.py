@@ -19,6 +19,17 @@ QUASIRANDOM_ERROR_MSG = '''Not enough memory; try setting quasi-random ordering
 (`OrderOption.QUASI_RANDOM`) in the dataloader constructor's `order` argument.
 '''
 
+def select_buffer(buffer, batch_slot, count):
+    """Util function to select the relevent subpart of a buffer for a given
+    batch_slot and batch size"""
+    if buffer is None:
+        return None
+    if isinstance(buffer, tuple):
+        return tuple(select_buffer(x, batch_slot, count) for x in buffer)
+
+    return buffer[batch_slot][:count]
+
+
 class EpochIterator(Thread):
     def __init__(self, loader: 'Loader', order: Sequence[int]):
         super().__init__(daemon=True)
@@ -33,6 +44,10 @@ class EpochIterator(Thread):
         self.terminate_event = Event()
         self.memory_context = self.loader.memory_manager.schedule_epoch(
             batches)
+
+        if IS_CUDA:
+            self.current_stream = ch.cuda.current_stream()
+
         try:
             self.memory_context.__enter__()
         except MemoryError as e:
@@ -44,23 +59,13 @@ class EpochIterator(Thread):
 
         self.storage_state = self.memory_context.state
 
-        self.memory_bank_per_stage = defaultdict(list)
-
         self.cuda_streams = [(ch.cuda.Stream() if IS_CUDA else None)
                              for _ in range(self.loader.batches_ahead + 2)]
 
-        # Allocate all the memory
-        memory_allocations = {}
-        for (p_id, p) in self.loader.pipelines.items():
-            memory_allocations[p_id] = p.allocate_memory(self.loader.batch_size,
-                                                         self.loader.batches_ahead + 2)
-
-        # Assign each memory bank to the pipeline stage it belongs to
-        for s_ix, banks in self.loader.memory_bank_keys_per_stage.items():
-            for (pipeline_name, op_id) in banks:
-                self.memory_bank_per_stage[s_ix].append(
-                    memory_allocations[pipeline_name][op_id]
-                )
+        self.memory_allocations = self.loader.graph.allocate_memory(
+            self.loader.batch_size,
+            self.loader.batches_ahead + 2
+        )
 
         self.start()
 
@@ -77,6 +82,7 @@ class EpochIterator(Thread):
                 self.current_batch_slot = (
                     slot + 1) % (self.loader.batches_ahead + 2)
                 result = self.run_pipeline(b_ix, ixes, slot, events[slot])
+                # print("RES", b_ix, "ready")
                 to_output = (slot, result)
                 while True:
                     try:
@@ -88,23 +94,24 @@ class EpochIterator(Thread):
                     if self.terminate_event.is_set():
                         return
                 if IS_CUDA:
+                    # print("SUB", b_ix)
                     # We were able to submit this batch
                     # Therefore it means that the user must have entered the for loop for
                     # (batch_slot - batch_ahead + 1) % (batches ahead + 2)
                     # Therefore batch_slot - batch_ahead must have all it's work submitted
                     # We will record an event of all the work submitted on the main stream
                     # and make sure no one overwrite the data until they are done
-                    just_finished_slot = (slot - self.loader.batches_ahead) % (self.loader.batches_ahead + 2)
+                    just_finished_slot = (slot - self.loader.batches_ahead - 1) % (self.loader.batches_ahead + 2)
+                    # print("JFS", just_finished_slot)
                     event = ch.cuda.Event()
-                    event.record(ch.cuda.default_stream())
+                    event.record(self.current_stream)
                     events[just_finished_slot] = event
-                    b_ix += 1
+                b_ix += 1
 
         except StopIteration:
             self.output_queue.put(None)
 
     def run_pipeline(self, b_ix, batch_indices, batch_slot, cuda_event):
-        # print(b_ix, batch_indices)
         self.memory_context.start_batch(b_ix)
         args = []
         if IS_CUDA:
@@ -114,28 +121,35 @@ class EpochIterator(Thread):
             ctx = nullcontext()
         first_stage = False
 
+
+        code, outputs = self.loader.code
         with ctx:
             if IS_CUDA:
                 if cuda_event:
                     cuda_event.wait()
-            for stage, banks in self.memory_bank_per_stage.items():
-                args.insert(0, batch_indices)
-                for bank in banks:
-                    if bank is not None:
-                        if isinstance(bank, tuple):
-                            bank = tuple(x[batch_slot] for x in bank)
-                        else:
-                            bank = bank[batch_slot]
-                    args.append(bank)
-                args.append(self.metadata)
-                args.append(self.storage_state)
-                code = self.loader.code_per_stage[stage]
-                result = code(*args)
-                args = list(result)
-                if first_stage:
-                    first_stage = False
-                    self.memory_context.end_batch(b_ix)
-        return tuple(x[:len(batch_indices)] for x in args)
+
+            args = {
+                'batch_indices': batch_indices,
+                'storage_state': self.storage_state,
+                'metadata': self.metadata,
+                **{
+                    f'memory_{k}':select_buffer(v, batch_slot, len(batch_indices))
+                    for (k, v) in self.memory_allocations['operation'].items()
+                },
+                **{
+                    f'shared_memory_{k}': select_buffer(v, batch_slot, len(batch_indices))
+                    for (k, v) in self.memory_allocations['shared'].items()
+                }
+            }
+
+            for stage_code, define_outputs in code:
+                results = stage_code(**args)
+                for node_id, result in zip(define_outputs, results):
+                    args[f'result_{node_id}'] = result
+                pass
+
+            result = tuple(args[f'result_{x}'] for x in outputs)
+            return result
 
     def __next__(self):
         result = self.output_queue.get()
@@ -146,7 +160,7 @@ class EpochIterator(Thread):
         if IS_CUDA:
             stream = self.cuda_streams[slot]
             # We wait for the copy to be done
-            ch.cuda.current_stream().wait_stream(stream)
+            self.current_stream.wait_stream(stream)
         return result
 
     def __iter__(self):

@@ -6,6 +6,7 @@ import logging
 import os
 from assertpy import assert_that
 from tempfile import NamedTemporaryFile
+from multiprocessing import cpu_count
 
 from ffcv.writer import DatasetWriter
 from ffcv.reader import Reader
@@ -91,7 +92,7 @@ def test_multiple_workers():
         writer = DatasetWriter(name, {
             'index': IntField(),
             'value': FloatField()
-        }, num_workers=30)
+        }, num_workers=min(30, cpu_count()))
 
         writer.from_indexed_dataset(dataset, chunksize=10000)
 
@@ -106,7 +107,7 @@ def test_super_long():
         writer = DatasetWriter(name, {
             'index': IntField(),
             'value': FloatField()
-        }, num_workers=30)
+        }, num_workers=min(30, cpu_count()))
 
         writer.from_indexed_dataset(dataset, chunksize=10000)
 
@@ -120,6 +121,6 @@ def test_small_chunks_multiple_workers():
         writer = DatasetWriter(name, {
             'index': IntField(),
             'value': BytesField()
-        }, num_workers=30)
+        }, num_workers=min(30, cpu_count()))
 
         writer.from_indexed_dataset(dataset, chunksize=1)

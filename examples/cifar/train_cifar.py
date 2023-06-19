@@ -79,7 +79,7 @@ def make_dataloaders(train_dataset=None, val_dataset=None, batch_size=None, num_
     loaders = {}
 
     for name in ['train', 'test']:
-        label_pipeline: List[Operation] = [IntDecoder(), ToTensor(), ToDevice('cuda:0'), Squeeze()]
+        label_pipeline: List[Operation] = [IntDecoder(), ToTensor(), ToDevice(ch.device('cuda:0')), Squeeze()]
         image_pipeline: List[Operation] = [SimpleRGBImageDecoder()]
         if name == 'train':
             image_pipeline.extend([
@@ -89,7 +89,7 @@ def make_dataloaders(train_dataset=None, val_dataset=None, batch_size=None, num_
             ])
         image_pipeline.extend([
             ToTensor(),
-            ToDevice('cuda:0', non_blocking=True),
+            ToDevice(ch.device('cuda:0'), non_blocking=True),
             ToTorchImage(),
             Convert(ch.float16),
             torchvision.transforms.Normalize(CIFAR_MEAN, CIFAR_STD),
@@ -185,7 +185,7 @@ def evaluate(model, loaders, lr_tta=False):
                 with autocast():
                     out = model(ims)
                     if lr_tta:
-                        out += model(ch.fliplr(ims))
+                        out += model(ims.flip(-1))
                     total_correct += out.argmax(1).eq(labs).sum().cpu().item()
                     total_num += ims.shape[0]
             print(f'{name} accuracy: {total_correct / total_num * 100:.1f}%')

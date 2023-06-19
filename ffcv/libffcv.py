@@ -1,13 +1,18 @@
 import ctypes
 from numba import njit
 import numpy as np
+import platform
 from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll
 import ffcv._libffcv
 
 lib = CDLL(ffcv._libffcv.__file__)
-libc = cdll.LoadLibrary('libc.so.6')
+if platform.system() == "Windows":
+    libc = cdll.msvcrt
+    read_c = libc._read
+else:
+    libc = cdll.LoadLibrary('libc.so.6')
+    read_c = libc.pread
 
-read_c = libc.pread
 read_c.argtypes = [c_uint32, c_void_p, c_uint64, c_uint64]
 
 def read(fileno:int, destination:np.ndarray, offset:int):
@@ -47,5 +52,5 @@ ctypes_memcopy = lib.my_memcpy
 ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
-    return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size)
+    return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size*source.itemsize)
 

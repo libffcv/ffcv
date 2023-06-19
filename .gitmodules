@@ -1,3 +1,3 @@
 [submodule "examples/imagenet-example"]
 	path = examples/imagenet-example
-	url = git@github.com:libffcv/ffcv-imagenet.git
+	url = https://github.com/libffcv/ffcv-imagenet.git
