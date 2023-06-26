@@ -44,7 +44,7 @@ Troubleshooting note 1: if the above commands result in a package conflict error
 
 Troubleshooting note 2: on some systems (but rarely), you'll need to add the ``compilers`` package to the first command above.
 
-Troubleshooting note 3: courtesy of @kschuerholt, here is a [Dockerfile](https://github.com/kschuerholt/pytorch_cuda_opencv_ffcv_docker) that may help with conda-free installation: 
+Troubleshooting note 3: courtesy of @kschuerholt, here is a [Dockerfile](https://github.com/kschuerholt/pytorch_cuda_opencv_ffcv_docker) that may help with conda-free installation
 
 ### Windows
 * Install <a href="https://opencv.org/releases/">opencv4</a>
@@ -65,12 +65,12 @@ Troubleshooting note 3: courtesy of @kschuerholt, here is a [Dockerfile](https:/
 If you use FFCV, please cite it as:
 
 ```
-@misc{leclerc2022ffcv,
+@inproceedings{leclerc2023ffcv,
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
     title = {{FFCV}: Accelerating Training by Removing Data Bottlenecks},
-    year = {2022},
-    howpublished = {\url{https://github.com/libffcv/ffcv/}},
-    note = {commit xxxxxxx}
+    year = {2023},
+    booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+    note = {\url{https://github.com/libffcv/ffcv/}. commit xxxxxxx}
 }
 ```
 (Make sure to replace xxxxxxx above with the hash of the commit used!)
