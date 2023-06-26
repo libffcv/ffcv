@@ -10,6 +10,7 @@
 [<a href="https://docs.ffcv.io">docs</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
 [<a href="https://ffcv.io">homepage</a>]
+[<a href="https://arxiv.org/abs/2306.12517">paper</a>]
 <br>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
