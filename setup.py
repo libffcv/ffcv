@@ -71,7 +71,7 @@ def pkgconfig(package, kw):
     output = subprocess.getoutput(
         'pkg-config --cflags --libs {}'.format(package))
     if 'not found' in output:
-        raise Exception(f"Could not find required package: {package}.")
+        raise RuntimeError(f"Could not find required package: {package}.")
     for token in output.strip().split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     return kw
@@ -89,7 +89,10 @@ if platform.system() == 'Windows':
 
     extension_kwargs = pkgconfig_windows('pthread', extension_kwargs)
 else:
-    extension_kwargs = pkgconfig('opencv4', extension_kwargs)
+    try:
+        extension_kwargs = pkgconfig('opencv4', extension_kwargs)
+    except RuntimeError:
+        extension_kwargs = pkgconfig('opencv', extension_kwargs)
     extension_kwargs = pkgconfig('libturbojpeg', extension_kwargs)
 
     extension_kwargs['libraries'].append('pthread')
@@ -99,10 +102,10 @@ libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
 
 setup(name='ffcv',
-      version='0.0.3rc1',
+      version='1.0.1',
       description=' FFCV: Fast Forward Computer Vision ',
       author='MadryLab',
-      author_email='leclerc@mit.edu',
+      author_email='ffcv@mit.edu',
       url='https://github.com/libffcv/ffcv',
       license_files = ('LICENSE.txt',),
       packages=find_packages(),
@@ -111,15 +114,11 @@ setup(name='ffcv',
       ext_modules=[libffcv],
       install_requires=[
           'terminaltables',
-            'pytorch_pfn_extras',
-            'fastargs',
-            'matplotlib',
-            'sklearn',
-            'imgcat',
-            'pandas',
-            'assertpy',
-            'tqdm',
-            'psutil',
-            'webdataset',
-      ]
-      )
+          'pytorch_pfn_extras',
+          'fastargs',
+          'opencv-python',
+          'assertpy',
+          'tqdm',
+          'psutil',
+          'numba',
+      ])

@@ -40,7 +40,7 @@ ORDER_TYPE = Union[
 
 ]
 
-ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
+ORDER_MAP: Mapping[ORDER_TYPE, Type[TraversalOrder]] = {
     OrderOption.RANDOM: Random,
     OrderOption.SEQUENTIAL: Sequential,
     OrderOption.QUASI_RANDOM: QuasiRandom
@@ -156,7 +156,7 @@ class Loader:
 
         if order in ORDER_MAP:
             self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
-        elif isinstance(order, TraversalOrder):
+        elif issubclass(order, TraversalOrder):
             self.traversal_order: TraversalOrder = order(self)
         else:
             raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
@@ -208,6 +208,7 @@ class Loader:
                            memory_read)
         
         self.generate_code()
+        self.first_traversal_order = self.next_traversal_order()
 
     def next_traversal_order(self):
         return self.traversal_order.sample_order(self.next_epoch)
@@ -262,7 +263,7 @@ class Loader:
 
 
     def __len__(self):
-        next_order = self.next_traversal_order()
+        next_order = self.first_traversal_order
         if self.drop_last:
             return len(next_order) // self.batch_size
         else:
@@ -273,3 +274,5 @@ class Loader:
     def generate_code(self):
         queries, code = self.graph.collect_requirements()
         self.code = self.graph.codegen_all(code)
+        
+

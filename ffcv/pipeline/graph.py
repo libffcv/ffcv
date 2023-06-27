@@ -2,6 +2,13 @@ from distutils.log import warn
 import warnings
 import ast
 
+
+try:
+    # Useful for debugging
+    import astor
+except ImportError:
+    pass
+
 from collections import defaultdict
 from typing import Callable, Dict, List, Optional, Sequence, Set
 from abc import ABC, abstractmethod

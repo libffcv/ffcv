@@ -2,6 +2,7 @@ from ctypes import pointer
 from tempfile import NamedTemporaryFile
 from collections import defaultdict
 from assertpy.assertpy import assert_that
+from multiprocessing import cpu_count
 
 import torch as ch
 from assertpy import assert_that
@@ -66,7 +67,7 @@ def run_test(n_samples, shape, is_ch=False):
 
         writer.from_indexed_dataset(dataset)
 
-        loader = Loader(name, batch_size=3, num_workers=5)
+        loader = Loader(name, batch_size=3, num_workers=min(5, cpu_count()))
         for ixes, activations in loader:
             for ix, activation in zip(ixes, activations):
                 d = dataset[ix][1]
@@ -98,7 +99,7 @@ def test_multi_fields():
 
         writer.from_indexed_dataset(dataset)
 
-        loader = Loader(name, batch_size=3, num_workers=5)
+        loader = Loader(name, batch_size=3, num_workers=min(5, cpu_count()))
         page_size_l2 = int(np.log2(loader.reader.page_size))
         sample_ids = loader.reader.alloc_table['sample_id']
         pointers = loader.reader.alloc_table['ptr']
