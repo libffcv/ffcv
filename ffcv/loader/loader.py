@@ -40,7 +40,7 @@ ORDER_TYPE = Union[
 
 ]
 
-ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
+ORDER_MAP: Mapping[ORDER_TYPE, Type[TraversalOrder]] = {
     OrderOption.RANDOM: Random,
     OrderOption.SEQUENTIAL: Sequential,
     OrderOption.QUASI_RANDOM: QuasiRandom
@@ -156,7 +156,7 @@ class Loader:
 
         if order in ORDER_MAP:
             self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
-        elif isinstance(order, TraversalOrder):
+        elif issubclass(order, TraversalOrder):
             self.traversal_order: TraversalOrder = order(self)
         else:
             raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
