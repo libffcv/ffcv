@@ -9,6 +9,7 @@ from re import sub
 from typing import Any, Callable, Mapping, Sequence, Type, Union, Literal
 from collections import defaultdict
 from collections.abc import Collection
+from copy import deepcopy
 from enum import Enum, unique, auto
 
 from ffcv.fields.base import Field
@@ -121,8 +122,8 @@ class Loader:
             'order': order,
             'distributed': distributed,
             'seed': seed,
-            'indices': indices,
-            'pipelines': pipelines,
+            'indices': deepcopy(indices),
+            'pipelines': deepcopy(pipelines),
             'drop_last': drop_last,
             'batches_ahead': batches_ahead,
             'recompile': recompile
