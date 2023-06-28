@@ -110,14 +110,24 @@ def test_random_erasing_slow():
         ], comp, 'random_erasing_slow')
 
 
-def test_flip():
+def test_horizontal_flip():
     for comp in [True, False]:
         run_test(100, [
             SimpleRGBImageDecoder(),
             RandomHorizontalFlip(1.0),
             ToTensor(),
             ToTorchImage()
-        ], comp, 'flip')
+        ], comp, 'hflip')
+
+
+def test_vertical_flip():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomVerticalFlip(1.0),
+            ToTensor(),
+            ToTorchImage()
+        ], comp, 'vflip')
 
 
 def test_module_wrapper():

@@ -1,5 +1,5 @@
+from .flip import RandomHorizontalFlip, RandomVerticalFlip
 from .cutout import Cutout, RandomCutout
-from .flip import RandomHorizontalFlip
 from .ops import ToTensor, ToDevice, ToTorchImage, Convert, View
 from .common import Squeeze
 from .random_resized_crop import RandomResizedCrop
@@ -22,4 +22,5 @@ __all__ = ['ToTensor', 'ToDevice',
            'Poison', 'ReplaceLabel',
            'ModuleWrapper', 
            'Solarization',
+           'RandomVerticalFlip',
            'RandomBrightness', 'RandomContrast', 'RandomSaturation']

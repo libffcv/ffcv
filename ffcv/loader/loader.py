@@ -64,7 +64,7 @@ class Loader:
     os_cache : bool
         Leverages the operating for caching purposes. This is beneficial when there is enough memory to cache the dataset and/or when multiple processes on the same machine training using the same dataset. See https://docs.ffcv.io/performance_guide.html for more information.
     order : Union[OrderOption, TraversalOrder]
-        Traversal order, one of: SEQEUNTIAL, RANDOM, QUASI_RANDOM, or a custom TraversalOrder
+        Traversal order, one of: SEQUENTIAL, RANDOM, QUASI_RANDOM, or a custom TraversalOrder
 
         QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distributed mode.
     distributed : bool

@@ -10,6 +10,7 @@
 [<a href="https://docs.ffcv.io">docs</a>]
 [<a href="https://join.slack.com/t/ffcv-workspace/shared_invite/zt-11olgvyfl-dfFerPxlm6WtmlgdMuw_2A">support slack</a>]
 [<a href="https://ffcv.io">homepage</a>]
+[<a href="https://arxiv.org/abs/2306.12517">paper</a>]
 <br>
 Maintainers:
 <a href="https://twitter.com/gpoleclerc">Guillaume Leclerc</a>,
@@ -44,6 +45,8 @@ Troubleshooting note 1: if the above commands result in a package conflict error
 
 Troubleshooting note 2: on some systems (but rarely), you'll need to add the ``compilers`` package to the first command above.
 
+Troubleshooting note 3: courtesy of @kschuerholt, here is a [Dockerfile](https://github.com/kschuerholt/pytorch_cuda_opencv_ffcv_docker) that may help with conda-free installation
+
 ### Windows
 * Install <a href="https://opencv.org/releases/">opencv4</a>
   * Add `..../opencv/build/x64/vc15/bin` to PATH environment variable
@@ -63,12 +66,12 @@ Troubleshooting note 2: on some systems (but rarely), you'll need to add the ``c
 If you use FFCV, please cite it as:
 
 ```
-@misc{leclerc2022ffcv,
+@inproceedings{leclerc2023ffcv,
     author = {Guillaume Leclerc and Andrew Ilyas and Logan Engstrom and Sung Min Park and Hadi Salman and Aleksander Madry},
     title = {{FFCV}: Accelerating Training by Removing Data Bottlenecks},
-    year = {2022},
-    howpublished = {\url{https://github.com/libffcv/ffcv/}},
-    note = {commit xxxxxxx}
+    year = {2023},
+    booktitle = {Computer Vision and Pattern Recognition (CVPR)},
+    note = {\url{https://github.com/libffcv/ffcv/}. commit xxxxxxx}
 }
 ```
 (Make sure to replace xxxxxxx above with the hash of the commit used!)
@@ -225,8 +228,8 @@ performance bottlenecks.
 
 # Contributors
 
-- Guillaume Leclerc
-- Logan Engstrom
-- Andrew Ilyas
-- Sam Park
-- Hadi Salman
+- [Guillaume Leclerc](https://github.com/GuillaumeLeclerc)
+- [Logan Engstrom](http://loganengstrom.com/)
+- [Andrew Ilyas](http://andrewilyas.com/)
+- [Sam Park](http://sungminpark.com/)
+- [Hadi Salman](http://hadisalman.com/)
