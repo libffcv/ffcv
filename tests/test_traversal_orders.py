@@ -120,15 +120,12 @@ def test_traversal_random_4():
 def test_traversal_quasirandom_1():
     prep_and_run_test(1, OrderOption.QUASI_RANDOM)
 
-@pytest.mark.skip()
 def test_traversal_quasirandom_2():
     prep_and_run_test(2, OrderOption.QUASI_RANDOM)
 
-@pytest.mark.skip()
 def test_traversal_quasirandom_3():
     prep_and_run_test(3, OrderOption.QUASI_RANDOM)
 
-@pytest.mark.skip()
 def test_traversal_quasirandom_4():
     prep_and_run_test(4, OrderOption.QUASI_RANDOM)
 
@@ -138,6 +135,5 @@ def test_traversal_sequential_distributed_with_indices():
 def test_traversal_random_distributed_with_indices():
     prep_and_run_test(2, OrderOption.RANDOM, True)
 
-@pytest.mark.skip()
 def test_traversal_quasi_random_distributed_with_indices():
     prep_and_run_test(2, OrderOption.QUASI_RANDOM, True)
