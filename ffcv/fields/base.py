@@ -25,21 +25,21 @@ class Field(ABC):
     @property
     @abstractmethod
     def metadata_type(self) -> np.dtype:
-        raise NotImplemented
+        raise NotImplementedError()
 
     @staticmethod
     @abstractmethod
     def from_binary(binary: ARG_TYPE) -> Field:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def to_binary(self) -> ARG_TYPE:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def encode(field, metadata_destination, malloc):
-        raise NotImplementedError
+        raise NotImplementedError()
 
     @abstractmethod
     def get_decoder_class(self) -> Type[Operation]:
-        raise NotImplementedError
+        raise NotImplementedError()

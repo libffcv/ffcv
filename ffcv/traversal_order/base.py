@@ -17,4 +17,4 @@ class TraversalOrder(ABC):
 
     @abstractmethod
     def sample_order(self, epoch:int) -> Sequence[int]:
-        raise NotImplemented()
+        raise NotImplementedError()
