@@ -8,4 +8,4 @@ class Benchmark(AbstractContextManager, metaclass=ABCMeta):
 
     @abstractmethod
     def run(self):
-        raise NotImplemented()
+        raise NotImplementedError()
