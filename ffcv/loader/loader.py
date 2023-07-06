@@ -4,6 +4,7 @@ FFCV loader
 import enum
 from os import environ
 import ast
+import logging
 from multiprocessing import cpu_count
 from re import sub
 from typing import Any, Callable, Mapping, Sequence, Type, Union, Literal
@@ -104,9 +105,9 @@ class Loader:
                  recompile: bool = False,  # Recompile at every epoch
                  ):
 
-        if distributed and order == OrderOption.RANDOM and (seed is None):
-            print('Warning: no ordering seed was specified with distributed=True. '
-                  'Setting seed to 0 to match PyTorch distributed sampler.')
+        if distributed and order != OrderOption.SEQUENTIAL and (seed is None):
+            logging.warn('No ordering seed was specified with distributed=True. '
+                         'Setting seed to 0 to match PyTorch distributed sampler.')
             seed = 0
         elif seed is None:
             tinfo = np.iinfo('int32')
