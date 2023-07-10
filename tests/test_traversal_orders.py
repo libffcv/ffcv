@@ -1,4 +1,3 @@
-from collections import defaultdict
 from tempfile import TemporaryDirectory
 from os import path
 from typing import Counter
@@ -6,8 +5,8 @@ from typing import Counter
 import pytest
 from assertpy import assert_that
 import numpy as np
-from torch.utils.data import Dataset, distributed
-from torch.multiprocessing import spawn, Queue
+from torch.utils.data import Dataset
+from torch.multiprocessing import spawn
 from torch.distributed import init_process_group
 
 from ffcv.loader.loader import ORDER_TYPE, OrderOption
@@ -120,15 +119,12 @@ def test_traversal_random_4():
 def test_traversal_quasirandom_1():
     prep_and_run_test(1, OrderOption.QUASI_RANDOM)
 
-@pytest.mark.skip()
 def test_traversal_quasirandom_2():
     prep_and_run_test(2, OrderOption.QUASI_RANDOM)
 
-@pytest.mark.skip()
 def test_traversal_quasirandom_3():
     prep_and_run_test(3, OrderOption.QUASI_RANDOM)
 
-@pytest.mark.skip()
 def test_traversal_quasirandom_4():
     prep_and_run_test(4, OrderOption.QUASI_RANDOM)
 
@@ -138,6 +134,5 @@ def test_traversal_sequential_distributed_with_indices():
 def test_traversal_random_distributed_with_indices():
     prep_and_run_test(2, OrderOption.RANDOM, True)
 
-@pytest.mark.skip()
 def test_traversal_quasi_random_distributed_with_indices():
     prep_and_run_test(2, OrderOption.QUASI_RANDOM, True)
