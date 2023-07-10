@@ -74,8 +74,8 @@ def make_dataloaders(train_dataset=None, val_dataset=None, batch_size=None, num_
     }
 
     start_time = time.time()
-    CIFAR_MEAN = [125.307, 122.961, 113.8575]
-    CIFAR_STD = [51.5865, 50.847, 51.255]
+    CIFAR_MEAN = [125.307, 122.950, 113.865]
+    CIFAR_STD = [62.993, 62.089, 66.705]
     loaders = {}
 
     for name in ['train', 'test']:
