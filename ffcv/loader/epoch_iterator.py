@@ -3,6 +3,7 @@ from threading import Thread, Event
 from queue import Queue, Full
 from contextlib import nullcontext
 from typing import Sequence, TYPE_CHECKING
+from os import environ
 
 import torch as ch
 
@@ -12,12 +13,14 @@ from ..pipeline.compiler import Compiler
 
 if TYPE_CHECKING:
     from .loader import Loader
-    
+
 IS_CUDA = ch.cuda.is_available()
 
 QUASIRANDOM_ERROR_MSG = '''Not enough memory; try setting quasi-random ordering
 (`OrderOption.QUASI_RANDOM`) in the dataloader constructor's `order` argument.
 '''
+
+ADDITIONAL_BATCHES_AHEAD = int(environ.get('FFCV_ADDITIONAL_BATCHES_AHEAD', "2"))
 
 def select_buffer(buffer, batch_slot, count):
     """Util function to select the relevent subpart of a buffer for a given
@@ -59,12 +62,11 @@ class EpochIterator(Thread):
 
         self.storage_state = self.memory_context.state
 
-        self.cuda_streams = [(ch.cuda.Stream() if IS_CUDA else None)
-                             for _ in range(self.loader.batches_ahead + 2)]
+        self.cuda_streams = self.loader.cuda_streams
 
         self.memory_allocations = self.loader.graph.allocate_memory(
             self.loader.batch_size,
-            self.loader.batches_ahead + 2
+            self.loader.batches_ahead + ADDITIONAL_BATCHES_AHEAD
         )
 
         self.start()
@@ -80,7 +82,7 @@ class EpochIterator(Thread):
                 ixes = next(self.iter_ixes)
                 slot = self.current_batch_slot
                 self.current_batch_slot = (
-                    slot + 1) % (self.loader.batches_ahead + 2)
+                    slot + 1) % (self.loader.batches_ahead + ADDITIONAL_BATCHES_AHEAD)
                 result = self.run_pipeline(b_ix, ixes, slot, events[slot])
                 # print("RES", b_ix, "ready")
                 to_output = (slot, result)
@@ -101,7 +103,8 @@ class EpochIterator(Thread):
                     # Therefore batch_slot - batch_ahead must have all it's work submitted
                     # We will record an event of all the work submitted on the main stream
                     # and make sure no one overwrite the data until they are done
-                    just_finished_slot = (slot - self.loader.batches_ahead - 1) % (self.loader.batches_ahead + 2)
+                    just_finished_slot = ((slot - self.loader.batches_ahead - 1) %
+                                          (self.loader.batches_ahead + ADDITIONAL_BATCHES_AHEAD))
                     # print("JFS", just_finished_slot)
                     event = ch.cuda.Event()
                     event.record(self.current_stream)
@@ -173,4 +176,4 @@ class EpochIterator(Thread):
 
     def __del__(self):
         self.close()
-        
+
