@@ -3,7 +3,7 @@ from typing import Sequence, TYPE_CHECKING
 from numba import njit
 import numpy as np
 
-from torch.utils.data import DistributedSampler
+from torch.distributed import get_rank, get_world_size
 
 from .base import TraversalOrder
 
@@ -51,10 +51,6 @@ class QuasiRandom(TraversalOrder):
             raise ValueError(
                 "Dataset won't benefit from QuasiRandom order, use regular Random")
 
-        if self.distributed:
-            raise NotImplementedError(
-                "distributed Not implemented yet for QuasiRandom")
-
         self.prepare_data_structures()
 
 
@@ -83,4 +79,20 @@ class QuasiRandom(TraversalOrder):
                              result_order,
                              2*self.loader.batch_size)
 
+        if self.distributed:
+            world_size = get_world_size()
+            rank = get_rank()
+
+            split_size, remainder = divmod(len(self.indices), world_size)
+
+            start_idx = rank * split_size + min(rank, remainder)
+            if rank < remainder:
+                split_size += 1
+            end_idx = start_idx + split_size
+
+            # Duplicate some samples for last rank if needed
+            if remainder != 0 and rank == world_size - 1:
+                start_idx -= remainder
+
+            return result_order[start_idx:end_idx]
         return result_order

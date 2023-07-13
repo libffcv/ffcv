@@ -28,7 +28,7 @@ jobs:
         run: |
           mv docs docs_src
           cd docs_src
-          pip install -U sphinx karma-sphinx-theme
+          pip install -U sphinx==6.0.0 karma-sphinx-theme
           pip install -U numpy numba tqdm
           pip install --upgrade -U pygments
           make html

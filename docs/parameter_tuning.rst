@@ -34,12 +34,6 @@ FFCV should also work fine with PyTorch's ``DataParallel`` wrapper but we agree 
 
 The same recommendations above related to dataset size still apply here, but we emphasize that ``os_cache=True`` is particularly beneficial in this scenario. Indeed, as multiple processes will access the same dataset, having the caching at the OS level allows for data sharing between them, reducing overall memory consumption.
 
-.. note ::
-    `QUASI_RANDOM` isn't currently supported with ``distributed=True``. While
-    this is technically possible to implement, we haven't yet invested the
-    necessary time yet. It is on the medium-term roadmap, and we also welcome
-    pull requests!
-
 We encourage users to try different values for the ``num_workers`` parameters. As FFCV is usually very CPU resource efficient it is sometimes beneficial to use fewer workers to avoid scheduling and cache inefficiencies.
 
 Scenario: Grid search (1 model per GPU)

@@ -4,6 +4,7 @@ FFCV loader
 import enum
 from os import environ
 import ast
+import logging
 from multiprocessing import cpu_count
 from re import sub
 from typing import Any, Callable, Mapping, Sequence, Type, Union, Literal
@@ -67,7 +68,7 @@ class Loader:
     order : Union[OrderOption, TraversalOrder]
         Traversal order, one of: SEQUENTIAL, RANDOM, QUASI_RANDOM, or a custom TraversalOrder
 
-        QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`. Currently unavailable in distributed mode.
+        QUASI_RANDOM is a random order that tries to be as uniform as possible while minimizing the amount of data read from the disk. Note that it is mostly useful when `os_cache=False`.
     distributed : bool
         For distributed training (multiple GPUs). Emulates the behavior of DistributedSampler from PyTorch.
     seed : int
@@ -104,9 +105,9 @@ class Loader:
                  recompile: bool = False,  # Recompile at every epoch
                  ):
 
-        if distributed and order == OrderOption.RANDOM and (seed is None):
-            print('Warning: no ordering seed was specified with distributed=True. '
-                  'Setting seed to 0 to match PyTorch distributed sampler.')
+        if distributed and order != OrderOption.SEQUENTIAL and (seed is None):
+            logging.warn('No ordering seed was specified with distributed=True. '
+                         'Setting seed to 0 to match PyTorch distributed sampler.')
             seed = 0
         elif seed is None:
             tinfo = np.iinfo('int32')
