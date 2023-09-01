@@ -330,7 +330,7 @@ class Graph:
                 next_state, allocation = operation.declare_state_and_memory(state)
                 state_allocation = operation.declare_shared_memory(state)
 
-                if next_state.device.type != 'cuda' and isinstance(operation,
+                if next_state.device != 'cuda' and isinstance(operation,
                     ModuleWrapper):
                     msg = ("Using a pytorch transform on the CPU is extremely"
                         "detrimental to the performance, consider moving the augmentation"
