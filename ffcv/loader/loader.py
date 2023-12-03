@@ -2,7 +2,7 @@
 FFCV loader
 """
 import enum
-from os import environ
+from os import environ, sched_getaffinity
 import ast
 from multiprocessing import cpu_count
 from re import sub
@@ -139,7 +139,7 @@ class Loader:
         self.recompile = recompile
 
         if self.num_workers < 1:
-            self.num_workers = cpu_count()
+            self.num_workers = len(sched_getaffinity(0))
 
         Compiler.set_num_threads(self.num_workers)
 
