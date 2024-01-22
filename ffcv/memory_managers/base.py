@@ -72,7 +72,7 @@ class MemoryManager(ABC):
 
     @abstractmethod
     def compile_reader(self, address, size) -> Callable:
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @property
     @abstractmethod

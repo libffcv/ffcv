@@ -28,7 +28,7 @@ class Operation(ABC):
     # Return the code to run this operation
     @abstractmethod
     def generate_code(self) -> Callable:
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def declare_shared_memory(self, previous_state: State) -> Optional[AllocationQuery]:
         return None
@@ -38,4 +38,4 @@ class Operation(ABC):
 
     @abstractmethod
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-        raise NotImplementedError
+        raise NotImplementedError()

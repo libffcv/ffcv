@@ -1,6 +1,6 @@
-from distutils.log import warn
 import warnings
 import ast
+import sys
 
 try:
     # Useful for debugging
@@ -23,11 +23,18 @@ from .state import State
 import torch as ch
 import numpy as np
 
-# This is the starting state of the pipeline
-INITIAL_STATE = State(jit_mode=True,
-                       device=ch.device('cpu'),
-                       dtype=np.dtype('u1'),
-                       shape=None)
+if "sphinx" in sys.modules:
+    # Sphinx fails on jit+gpu assert due to improper initialization of device
+    INITIAL_STATE = State(jit_mode=False,
+                          device=ch.device('cpu'),
+                          dtype=np.dtype('u1'),
+                          shape=None)
+else:
+    # This is the starting state of the pipeline
+    INITIAL_STATE = State(jit_mode=True,
+                          device=ch.device('cpu'),
+                          dtype=np.dtype('u1'),
+                          shape=None)
 
 
 class Node(ABC):
@@ -40,34 +47,34 @@ class Node(ABC):
     @property
     @abstractmethod
     def is_jitted(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     @property
     @abstractmethod
     def parent(self):
-        raise NotImplemented()
+        raise NotImplementedError()
     
     @property
     @abstractmethod
     def arg_id(self):
-        raise NotImplemented()
+        raise NotImplementedError()
     
     @property
     @abstractmethod
     def result_id(self):
-        raise NotImplemented()
+        raise NotImplementedError()
     
     @property
     @abstractmethod
     def result_id(self):
-        raise NotImplemented()
+        raise NotImplementedError()
     
     def get_shared_code_ast(self, done_ops):
         return ast.Pass()
     
     @abstractmethod
     def generate_code(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def recompile(self):
         self._code = self.generate_code()

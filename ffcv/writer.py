@@ -1,20 +1,20 @@
-from functools import partial
-from typing import Callable, List, Mapping
-from os import SEEK_END, path
-import numpy as np
-from time import sleep
 import ctypes
-from multiprocessing import (shared_memory, cpu_count, Queue, Process, Value)
+import warnings
+from functools import partial
+from multiprocessing import Process, Queue, Value, cpu_count, shared_memory
+from os import SEEK_END, path
+from time import sleep
+from typing import Callable, List, Mapping
 
+import numpy as np
 from tqdm import tqdm
 from tqdm.contrib.concurrent import thread_map
 
-from .utils import chunks, is_power_of_2
 from .fields.base import Field
 from .memory_allocator import MemoryAllocator
-from .types import (TYPE_ID_HANDLER, get_metadata_type, HeaderType,
-                    FieldDescType, CURRENT_VERSION, ALLOC_TABLE_TYPE)
-
+from .types import (ALLOC_TABLE_TYPE, CURRENT_VERSION, TYPE_ID_HANDLER,
+                    FieldDescType, HeaderType, get_metadata_type)
+from .utils import chunks, is_power_of_2
 
 MIN_PAGE_SIZE = 1 << 21  # 2MiB, which is the most common HugePage size
 MAX_PAGE_SIZE = 1 << 32  # Biggest page size that will not overflow uint32
@@ -151,7 +151,9 @@ class DatasetWriter():
             raise ValueError(f"page_size can't be lower than{MIN_PAGE_SIZE}")
         if page_size >= MAX_PAGE_SIZE:
             raise ValueError(f"page_size can't be bigger(or =) than{MAX_PAGE_SIZE}")
-
+        for field_name in fields.keys():
+            if len(field_name) > 16:
+                warnings.warn(f"Field name {field_name} will be cropped to {field_name[:16]}")
         self.page_size = page_size
 
     def prepare(self):

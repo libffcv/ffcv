@@ -14,7 +14,7 @@ class RandomResizedCrop(Operation):
     """Crop a random portion of image with random aspect ratio and resize it to
     a given size. Chances are you do not want to use this augmentation and
     instead want to include RRC as part of the decoder, by using the 
-    :cla:`~ffcv.fields.rgb_image.ResizedCropRGBImageDecoder` class.
+    :class:`~ffcv.fields.rgb_image.ResizedCropRGBImageDecoder` class.
 
     Parameters
     ----------

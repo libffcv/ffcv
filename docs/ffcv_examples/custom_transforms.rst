@@ -31,11 +31,11 @@ Doing so requires providing implementation for two functions:
         # Return the code to run this operation
         @abstractmethod
         def generate_code(self) -> Callable:
-            raise NotImplementedError
+            raise NotImplementedError()
 
         @abstractmethod
         def declare_state_and_memory(self, previous_state: State) -> Tuple[State, Optional[AllocationQuery]]:
-            raise NotImplementedError
+            raise NotImplementedError()
 
 Advancing state and pre-allocating memory
 ------------------------------------------

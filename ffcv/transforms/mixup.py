@@ -58,7 +58,7 @@ class ImageMixup(Operation):
 
 class LabelMixup(Operation):
     """Mixup for labels. Should be initialized in exactly the same way as
-    :cla:`ffcv.transforms.ImageMixup`.
+    :class:`ffcv.transforms.ImageMixup`.
     """
     def __init__(self, alpha: float, same_lambda: bool):
         super().__init__()

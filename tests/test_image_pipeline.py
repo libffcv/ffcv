@@ -18,7 +18,7 @@ class DummyDataset(Dataset):
         self.height = height
         self.width = width
         self.reversed = reversed
-        
+
     def __len__(self):
         return self.length
 
@@ -32,18 +32,22 @@ class DummyDataset(Dataset):
             result = tuple(reversed(result))
         return result
 
-def create_and_validate(length, mode='raw', reversed=False):
+def create_and_validate(length, mode='raw', reversed=False, max_resolution=None,
+                        min_resolution=None, pillow_resize=False):
 
     dataset = DummyDataset(length, 500, 300, reversed=reversed)
 
     with NamedTemporaryFile() as handle:
         name = handle.name
-        
+
         fields = {
             'index': IntField(),
-            'value': RGBImageField(write_mode=mode, jpeg_quality=95)
+            'value': RGBImageField(write_mode=mode, jpeg_quality=95,
+                                   max_resolution=max_resolution,
+                                   min_resolution=min_resolution,
+                                   pillow_resize=pillow_resize)
         }
-        
+
         if reversed:
             fields = {
                 'value': RGBImageField(write_mode=mode, jpeg_quality=95),
@@ -51,13 +55,10 @@ def create_and_validate(length, mode='raw', reversed=False):
             }
 
         writer = DatasetWriter(name, fields, num_workers=2)
-
         writer.from_indexed_dataset(dataset, chunksize=5)
-            
         Compiler.set_enabled(False)
-        
         loader = Loader(name, batch_size=5, num_workers=2)
-        
+
         for res in loader:
             if not reversed:
                 index, images  = res
@@ -65,28 +66,27 @@ def create_and_validate(length, mode='raw', reversed=False):
                 images , index = res
 
             for i, image in zip(index, images):
-                if mode == 'raw':
-                    assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
-                else:
-                    assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
-                
+                assert_that(ch.all((image == (i % 255)).reshape(-1))).is_true()
+                if max_resolution is not None:
+                    assert_that(image.shape[0] == max_resolution).is_true()
+                if min_resolution is not None:
+                    assert_that(image.shape[1] == min_resolution).is_true()
+
 def make_and_read_cifar_subset(length):
     my_dataset = Subset(CIFAR10(root='/tmp', train=True, download=True), range(length))
 
     with NamedTemporaryFile() as handle:
         name = handle.name
         writer = DatasetWriter(name, {
-            'image': RGBImageField(write_mode='smart', 
-                                max_resolution=32),
+            'image': RGBImageField(write_mode='smart',
+                                   max_resolution=32),
             'label': IntField(),
         }, num_workers=2)
 
         writer.from_indexed_dataset(my_dataset, chunksize=10)
-
         Compiler.set_enabled(False)
-        
         loader = Loader(name, batch_size=5, num_workers=2)
-        
+
         for index, images in loader:
             pass
 
@@ -98,6 +98,12 @@ def test_simple_raw_image_pipeline():
 
 def test_simple_raw_image_pipeline_rev():
     create_and_validate(500, 'raw', True)
+
+def test_simple_raw_image_pipeline_max():
+    create_and_validate(500, 'raw', False, max_resolution=400)
+
+def test_simple_raw_image_pipeline_min():
+    create_and_validate(500, 'raw', False, min_resolution=200, pillow_resize=True)
 
 def test_simple_jpg_image_pipeline():
     create_and_validate(500, 'jpg', False)
