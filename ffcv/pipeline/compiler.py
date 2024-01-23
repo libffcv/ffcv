@@ -4,7 +4,7 @@ from numba.core.errors import NumbaPerformanceWarning
 from multiprocessing import cpu_count
 import torch as ch
 import warnings
-
+from os import sched_getaffinity
 
 class Compiler:
 
@@ -15,7 +15,7 @@ class Compiler:
     @classmethod
     def set_num_threads(cls, n):
         if n < 1 :
-            n = cpu_count()
+            n = len(sched_getaffinity(0))
         cls.num_threads = n
         set_num_threads(n)
         ch.set_num_threads(n)
