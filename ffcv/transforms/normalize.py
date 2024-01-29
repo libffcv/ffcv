@@ -49,6 +49,7 @@ class NormalizeImage(Operation):
         self.lookup_table = table
         self.previous_shape = None
         self.mode = 'cpu'
+        self.gpu_device_int = 0
 
     def generate_code(self) -> Callable:
         if self.mode == 'cpu':
@@ -62,27 +63,29 @@ class NormalizeImage(Operation):
         import pytorch_pfn_extras as ppe
 
         tn = np.zeros((), dtype=self.dtype).dtype.name
-        kernel = cp.ElementwiseKernel(f'uint8 input, raw {tn} table', f'{tn} output', 'output = table[input * 3 + i % 3];')
-        final_type = ch_dtype_from_numpy(self.original_dtype)
+        with cp.cuda.Device(self.gpu_device_int):
+            kernel = cp.ElementwiseKernel(f'uint8 input, raw {tn} table', f'{tn} output', 'output = table[input * 3 + i % 3];')
+            final_type = ch_dtype_from_numpy(self.original_dtype)
         s = self
         def normalize_convert(images, result):
-            B, C, H, W = images.shape
-            table = self.lookup_table.view(-1)
-            assert images.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
-            result = result[:B]
-            result_c = result.view(-1)
-            images = images.permute(0, 2, 3, 1).view(-1)
+            with cp.cuda.Device(self.gpu_device_int):
+                B, C, H, W = images.shape
+                table = self.lookup_table.view(-1)
+                assert images.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
+                result = result[:B]
+                result_c = result.view(-1)
+                images = images.permute(0, 2, 3, 1).view(-1)
 
-            current_stream = ch.cuda.current_stream()
-            with ppe.cuda.stream(current_stream):
-                kernel(images, table, result_c)
+                current_stream = ch.cuda.current_stream()
+                with ppe.cuda.stream(current_stream):
+                    kernel(images, table, result_c)
 
-            # Mark the result as channel last
-            final_result = result.reshape(B, H, W, C).permute(0, 3, 1, 2)
+                # Mark the result as channel last
+                final_result = result.reshape(B, H, W, C).permute(0, 3, 1, 2)
 
-            assert final_result.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
+                assert final_result.is_contiguous(memory_format=ch.channels_last), 'Images need to be in channel last'
 
-            return final_result.view(final_type)
+                return final_result.view(final_type)
 
         return normalize_convert
 
@@ -123,8 +126,7 @@ class NormalizeImage(Operation):
             new_state = replace(previous_state, dtype=self.dtype)
 
             gpu_type = ch_dtype_from_numpy(self.dtype)
-
-
+            self.gpu_device_int = previous_state.device.index
             # Copy the lookup table into the proper device
             try:
                 self.lookup_table = ch.from_numpy(self.lookup_table)
