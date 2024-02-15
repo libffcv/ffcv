@@ -161,7 +161,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
             replace(previous_state, jit_mode=True,
                     shape=output_shape, dtype=my_dtype),
             (AllocationQuery(output_shape, my_dtype),
-            AllocationQuery((self.max_height * self.max_width * np.uint64(3),), my_dtype),
+            AllocationQuery(((np.uint64(widths)*np.uint64(heights)*3).max(),), my_dtype),
             )
         )
 
