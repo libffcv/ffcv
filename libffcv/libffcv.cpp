@@ -306,8 +306,8 @@ extern "C" {
         int dy = offset_y-y_boundaries.first;
 
         cv::resize((source_matrix
-            .colRange(dx,crop_width)
-            .rowRange(dy,crop_height)
+            // .colRange(dx,crop_width)
+            // .rowRange(dy,crop_height)
             ),
                    dest_matrix, dest_matrix.size(), 0, 0, interpolation);
         return result;
