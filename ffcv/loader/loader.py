@@ -47,7 +47,7 @@ ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
 }
 
 DEFAULT_PROCESS_CACHE = int(environ.get('FFCV_DEFAULT_CACHE_PROCESS', "0"))
-DEFAULT_OS_CACHE = not DEFAULT_PROCESS_CACHE
+
 
 class Loader:
     """FFCV loader class that can be used as a drop-in replacement
@@ -90,7 +90,7 @@ class Loader:
                  fname: str,
                  batch_size: int,
                  num_workers: int = -1,
-                 os_cache: bool = DEFAULT_OS_CACHE,
+                 cache_type: int = DEFAULT_PROCESS_CACHE,
                  order: Union[ORDER_TYPE, TraversalOrder] = OrderOption.SEQUENTIAL,
                  distributed: bool = False,
                  seed: int = None,  # For ordering of samples
@@ -117,7 +117,7 @@ class Loader:
             'fname': fname,
             'batch_size': batch_size,
             'num_workers': num_workers,
-            'os_cache': os_cache,
+            'os_cache': cache_type,
             'order': order,
             'distributed': distributed,
             'seed': seed,
@@ -148,11 +148,13 @@ class Loader:
         else:
             self.indices = np.array(indices)
 
-        if os_cache:
-            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
-        else:
+        if cache_type == 0:
             self.memory_manager: MemoryManager = ProcessCacheManager(
                 self.reader)
+        elif cache_type == 1:
+            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
+        else:
+            raise ValueError("Unknown cache type. Use 0 for process cache, 1 for os cache, or 2 for no cache.")
 
         if order in ORDER_MAP:
             self.traversal_order: TraversalOrder = ORDER_MAP[order](self)

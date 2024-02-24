@@ -12,7 +12,7 @@ from ..pipeline.operation import Operation
 from ..pipeline.state import State
 from ..pipeline.compiler import Compiler
 from ..pipeline.allocation_query import AllocationQuery
-from ..libffcv import imdecode, memcpy, resize_crop
+from ..libffcv import *
 
 if TYPE_CHECKING:
     from ..memory_managers.base import MemoryManager
@@ -101,14 +101,14 @@ class SimpleRGBImageDecoder(Operation):
 consider RandomResizedCropRGBImageDecoder or CenterCropRGBImageDecoder
 instead."""
             raise TypeError(msg)
-
-        biggest_shape = (max_height, max_width, 3)
+        
+        max_shape = ((np.uint64(widths)*np.uint64(heights)*3).max(),)
         my_dtype = np.dtype('<u1')
 
         return (
             replace(previous_state, jit_mode=True,
-                    shape=biggest_shape, dtype=my_dtype),
-            AllocationQuery(biggest_shape, my_dtype)
+                    shape=max_shape, dtype=my_dtype),
+            AllocationQuery(max_shape, my_dtype)
         )
 
     def generate_code(self) -> Callable:
@@ -156,12 +156,12 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         self.max_height = np.uint64(heights.max())
         output_shape = (self.output_size[0], self.output_size[1], 3)
         my_dtype = np.dtype('<u1')
-
+        max_shape = ((np.uint64(widths)*np.uint64(heights)*3).max(),)
         return (
             replace(previous_state, jit_mode=True,
                     shape=output_shape, dtype=my_dtype),
             (AllocationQuery(output_shape, my_dtype),
-            AllocationQuery(((np.uint64(widths)*np.uint64(heights)*3).max(),), my_dtype),
+            AllocationQuery(max_shape, my_dtype),
             )
         )
 
@@ -173,10 +173,12 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
         resize_crop_c = Compiler.compile(resize_crop)
+        imcropresizedecode_c = Compiler.compile(imcropresizedecode)
         get_crop_c = Compiler.compile(self.get_crop_generator)
 
         scale = self.scale
         ratio = self.ratio
+        tx,ty = self.output_size
         if isinstance(scale, tuple):
             scale = np.array(scale)
         if isinstance(ratio, tuple):
@@ -191,22 +193,37 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 height = np.uint32(field['height'])
                 width = np.uint32(field['width'])
 
+                i, j, h, w = get_crop_c(height, width, scale, ratio)
+                # i, j = 10, 30
+                # s = min(h, w)
+                # i, j = min(i,j), min(i,j)
+                # h, w = min(h,w), min(h,w)
+                # h, w = s - i, s - i
                 if field['mode'] == jpg:
                     temp_buffer = temp_storage[dst_ix]
-                    imdecode_c(image_data, temp_buffer,
-                               height, width, height, width, 0, 0, 1, 1, False, False)
-                    selected_size = 3 * height * width
-                    temp_buffer = temp_buffer.reshape(-1)[:selected_size]
-                    temp_buffer = temp_buffer.reshape(height, width, 3)
-
+                    imcropresizedecode_c(image_data,  temp_buffer, destination[dst_ix],                               
+                                h,w, 
+                                i, j, )
+                    # imdecode_c(image_data, temp_buffer,
+                    #             height, width, height, width, 0, 0, 1, 1, False, False)
+                    # selected_size = 3 * height * width
+                    # temp_buffer = temp_buffer.reshape(-1)[:selected_size]
+                    # temp_buffer = temp_buffer.reshape(height, width, 3)
+                    
+                    # resize_crop_c(temp_buffer, i, i + h, j, j + w,
+                    #             destination[dst_ix])
+                    
+                    # selected_size = 3 * w * h
+                    # temp_buffer = temp_buffer.reshape(-1)[:selected_size]
+                    # temp_buffer = temp_buffer.reshape(h, w, 3)
+                    # resize_crop_c(temp_buffer, 0, h, 0, w,
+                    #               destination[dst_ix],cv2.INTER_LINEAR)
+                                  
                 else:
                     temp_buffer = image_data.reshape(height, width, 3)
-
-                i, j, h, w = get_crop_c(height, width, scale, ratio)
-
-                resize_crop_c(temp_buffer, i, i + h, j, j + w,
-                              destination[dst_ix])
-
+                    resize_crop_c(temp_buffer, i, i + h, j, j + w,
+                                destination[dst_ix])
+                
             return destination[:len(batch_indices)]
         decode.is_parallel = True
         return decode
@@ -311,10 +328,10 @@ class RGBImageField(Field):
         return SimpleRGBImageDecoder
 
     @staticmethod
-    def from_binary(binary: ARG_TYPE) -> Field:
+    def from_binary(binary: ARG_TYPE) -> Field: # type: ignore
         return RGBImageField()
 
-    def to_binary(self) -> ARG_TYPE:
+    def to_binary(self) -> ARG_TYPE: # type: ignore
         return np.zeros(1, dtype=ARG_TYPE)[0]
 
     def encode(self, destination, image, malloc):

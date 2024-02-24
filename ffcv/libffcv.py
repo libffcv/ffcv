@@ -20,15 +20,15 @@ def read(fileno:int, destination:np.ndarray, offset:int):
 
 
 ctypes_resize = lib.resize
-ctypes_resize.argtypes = 11 * [c_int64]
+ctypes_resize.argtypes = 12 * [c_int64]
 
-def resize_crop(source, start_row, end_row, start_col, end_col, destination):
+def resize_crop(source, start_row, end_row, start_col, end_col, destination,interpolation=3):
     ctypes_resize(0,
                   source.ctypes.data,
                   source.shape[0], source.shape[1],
                   start_row, end_row, start_col, end_col,
                   destination.ctypes.data,
-                  destination.shape[0], destination.shape[1])
+                  destination.shape[0], destination.shape[1],interpolation)
 
 # Extract and define the interface of imdeocde
 ctypes_imdecode = lib.imdecode
@@ -48,9 +48,31 @@ def imdecode(source: np.ndarray, dst: np.ndarray,
                            enable_crop, do_flip)
 
 
+# Extract and define the interface of imdeocde
+ctypes_imcropresizedecode = lib.imcropresizedecode
+ctypes_imcropresizedecode.argtypes = [
+    c_void_p, c_uint64, 
+    c_void_p, c_void_p, 
+    c_uint32, c_uint32,
+    c_uint32, c_uint32,
+    c_uint32, c_uint32,
+    c_uint32,
+]
+
+def imcropresizedecode(source: np.ndarray,  tmp: np.ndarray, dst: np.ndarray,
+             crop_height: int, crop_width: int,
+             offset_y=0, offset_x=0,
+             interpolation=3):
+    return ctypes_imcropresizedecode(
+        source.ctypes.data, source.size, 
+                tmp.ctypes.data, dst.ctypes.data,     
+                dst.shape[0], dst.shape[1],           
+                crop_height, crop_width, 
+                offset_y, offset_x,
+                interpolation)
+
 ctypes_memcopy = lib.my_memcpy
 ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
     return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size*source.itemsize)
-
