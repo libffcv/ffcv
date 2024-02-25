@@ -37,7 +37,7 @@ Keep your training algorithm the same, just replace the data loader! Look at the
 ## Installation
 ### Linux
 ```
-conda create -y -n ffcv python=3.9 cupy pkg-config libjpeg-turbo opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
+conda create -y -n ffcv python>=3.9 cupy pkg-config libjpeg-turbo>=3.0.0 opencv pytorch torchvision cudatoolkit=11.3 numba -c pytorch -c conda-forge
 conda activate ffcv
 pip install ffcv
 ```

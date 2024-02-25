@@ -26,10 +26,9 @@
 #include <utility> // For std::pair
 
 
-std::pair<__uint32_t, __uint32_t> axis_to_image_boundaries(int a, int b, int img_boundary, int mcuBlock) {
+int axis_to_image_boundaries(int a, int img_boundary, int mcuBlock) {
     int img_b = img_boundary - (img_boundary % mcuBlock);
     int delta_a = a % mcuBlock;
-    int rb = a + b;
     // reduce the a to align the mcu block
     if (a > img_b) {
         a = img_b;
@@ -37,16 +36,7 @@ std::pair<__uint32_t, __uint32_t> axis_to_image_boundaries(int a, int b, int img
     } else {
         a -= delta_a;
     }
-
-    //  the b to align the mcu block
-    // b = rb + (mcuBlock - rb % mcuBlock) - a;
-    b += delta_a;
-
-    if ((a + b) > img_b) {
-        b = img_b - a;
-    }
-
-    return std::make_pair(a, b);
+    return a;
 }
 
 struct Boundaries {
@@ -179,14 +169,7 @@ extern "C" {
                       )
     {
         pthread_once(&key_once, make_keys);
-
-        tjhandle tj_transformer;
         tjhandle tj_decompressor;
-        if ((tj_transformer = pthread_getspecific(key_tj_transformer)) == NULL)
-        {
-            tj_transformer = tj3Init(TJINIT_TRANSFORM);
-            pthread_setspecific(key_tj_transformer, tj_transformer);
-        }
         if ((tj_decompressor = pthread_getspecific(key_tj_decompressor)) == NULL)
         {
             tj_decompressor = tj3Init(TJINIT_DECOMPRESS);
@@ -195,77 +178,29 @@ extern "C" {
         int result ;
 
         // get info about the cropped image
-        int width, height, subsamp, colorspace;
-        result = tjDecompressHeader3(tj_decompressor, input_buffer, input_size, &width, &height, &subsamp, &colorspace);
+        result =  tj3DecompressHeader(tj_decompressor, input_buffer, input_size);
+
+        int subsamp  = tj3Get(tj_decompressor, TJPARAM_SUBSAMP);
+        int height = tj3Get(tj_decompressor, TJPARAM_JPEGHEIGHT);
+        int width = tj3Get(tj_decompressor, TJPARAM_JPEGWIDTH);
+
+        int MCU_block = tjMCUWidth[subsamp];
+        int x_boundaries = axis_to_image_boundaries(offset_x, width, MCU_block);
+        int y_boundaries = axis_to_image_boundaries(offset_y, height, MCU_block);
+
+        crop_width = offset_x + crop_width - x_boundaries;
+        crop_height = offset_y + crop_height - y_boundaries;
+
+        tjregion region = {x_boundaries, y_boundaries, crop_width, crop_height};
+        // crop the input image
+        result = tj3SetCroppingRegion(tj_decompressor, region);
         if (result == -1) {
-            const char* error_message = tjGetErrorStr();
+            const char* error_message =  tj3GetErrorStr(tj_decompressor);
             // Handle the error
-            std::cerr << "Error in info: " << error_message << std::endl;
+            std::cerr << "Error in tj3SetCroppingRegion: " << error_message << std::endl;
             return -1;
         }
-        else {
-            DBOUT << "width: " << width << " height: " << height << " Subsamp: " << subsamp << " Colorspace: " << colorspace << std::endl;
-        }
-
-        // get the boundaries of the cropped image
-        std::pair<int, int> x_boundaries = axis_to_image_boundaries(offset_x, crop_width, width,  tjMCUWidth[subsamp]);
-        std::pair<int, int> y_boundaries = axis_to_image_boundaries(offset_y, crop_height, height, tjMCUWidth[subsamp]);
-
-        // reduce the crop size if it is out of the image boundaries
-        int lbound = x_boundaries.first + x_boundaries.second;
-        if(lbound<offset_x+crop_width){
-            crop_width = lbound-x_boundaries.first;
-        }
-        lbound = y_boundaries.first + y_boundaries.second;
-        if(lbound<offset_y+crop_height){
-            crop_height = lbound - y_boundaries.first;
-        }
-
-        DBOUT << "offset_x: " << offset_x << ", " << crop_width << "," << width << " -> ";
-        DBOUT << "x_boundaries: " << x_boundaries.first << ", " << x_boundaries.second << std::endl;
-        DBOUT << offset_x + crop_width << " <= " << x_boundaries.second+x_boundaries.first <<" <= " << width << std::endl;
-
-        DBOUT << "offset_y: " << offset_y << ", " << crop_height << ", " <<height <<" -> ";
-        DBOUT << "y_boundaries: " << y_boundaries.first << ", " << y_boundaries.second << std::endl;
-        DBOUT << offset_y + crop_height << " < " << y_boundaries.second+y_boundaries.first <<" <= " << height << std::endl;
-
-        
-        offset_x = x_boundaries.first;
-        offset_y = y_boundaries.first;
-        crop_width = x_boundaries.second;
-        crop_height = y_boundaries.second;
-
-        // if it is not possible to crop the image, return the original image
-        if (crop_width<8){
-            // std::cerr << "Invalid crop width " << crop_width <<std::endl;
-            offset_x = 0;
-            crop_width = width;
-        }
-        if (crop_height<8){
-            // std::cerr << "Invalid crop height " << crop_height <<std::endl;
-            offset_y = 0;
-            crop_height = height;
-        }
-
-        tjtransform xform;
-        tjscalingfactor scaling;
-        memset(&xform, 0, sizeof(tjtransform));
-
-        xform.r.x = offset_x;
-        xform.r.y = offset_y;
-        xform.r.w = crop_width;
-        xform.r.h = crop_height;
-        xform.op = TJXOP_NONE;
-        xform.options = TJXOPT_CROP;
-        scaling.num = 1;
-        scaling.denom = 1;
-
-        unsigned char *dstBuf = NULL;
-        unsigned long dstSize = 0;
-
-        // crop the input image
-        tj3SetCroppingRegion(tj_decompressor, xform.r);
-        
+        // decompress the cropped image
         result =  tj3Decompress8(tj_decompressor, input_buffer, input_size, tmp_buffer,
                  0,  TJPF_RGB);
         
@@ -279,13 +214,11 @@ extern "C" {
         // resize the cropped image
         cv::Mat source_matrix(crop_height, crop_width, CV_8UC3, (uint8_t*) tmp_buffer);
         cv::Mat dest_matrix(tar_height, tar_width, CV_8UC3, (uint8_t*) output_buffer);
-
-        // int dx = offset_x-x_boundaries.first;
-        // int dy = offset_y-y_boundaries.first;
-
+        int dx = offset_x-x_boundaries;
+        int dy = offset_y-y_boundaries;
         cv::resize((source_matrix
-            // .colRange(dx,crop_width)
-            // .rowRange(dy,crop_height)
+            .colRange(dx,crop_width)
+            .rowRange(dy,crop_height)
             ),
                    dest_matrix, dest_matrix.size(), 0, 0, interpolation);
         return result;

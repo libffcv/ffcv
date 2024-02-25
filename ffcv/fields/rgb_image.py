@@ -22,13 +22,10 @@ IMAGE_MODES = Dict()
 IMAGE_MODES['jpg'] = 0
 IMAGE_MODES['raw'] = 1
 
-from turbojpeg import TurboJPEG, TJCS_RGB
+from turbojpeg import TurboJPEG, TJCS_RGB, TJSAMP_444
 turbo_jpeg = TurboJPEG()
-def encode_jpeg(numpy_image, quality):
-    # numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
-    # success, result = cv2.imencode('.jpg', numpy_image,
-    #                                [int(cv2.IMWRITE_JPEG_QUALITY), quality])
-    result = turbo_jpeg.encode(numpy_image, quality=quality, pixel_format=TJCS_RGB,)
+def encode_jpeg(numpy_image, quality,jpeg_subsample=TJSAMP_444):
+    result = turbo_jpeg.encode(numpy_image, quality=quality, pixel_format=TJCS_RGB,jpeg_subsample=jpeg_subsample)
     result = np.frombuffer(result, np.uint8)
     return result.reshape(-1)
 
@@ -143,9 +140,10 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
     It supports both variable and constant resolution datasets.
     """
-    def __init__(self, output_size):
+    def __init__(self, output_size,interpolation):
         super().__init__()
         self.output_size = output_size
+        self.interpolation = interpolation
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
@@ -177,7 +175,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
         scale = self.scale
         ratio = self.ratio
-        tx,ty = self.output_size
+        interpolation = self.interpolation
         if isinstance(scale, tuple):
             scale = np.array(scale)
         if isinstance(ratio, tuple):
@@ -198,7 +196,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                     temp_buffer = temp_storage[dst_ix]
                     imcropresizedecode_c(image_data,  temp_buffer, destination[dst_ix],                               
                                 h,w, 
-                                i, j, cv2.INTER_CUBIC)
+                                i, j, interpolation)
                 else:
                     temp_buffer = image_data.reshape(height, width, 3)
                     resize_crop_c(temp_buffer, i, i + h, j, j + w,
@@ -228,8 +226,8 @@ class RandomResizedCropRGBImageDecoder(ResizedCropRGBImageDecoder):
     ratio : Tuple[float]
         The range of potential aspect ratios that can be randomly sampled
     """
-    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3)):
-        super().__init__(output_size)
+    def __init__(self, output_size, scale=(0.08, 1.0), ratio=(0.75, 4/3), interpolation=cv2.INTER_CUBIC):
+        super().__init__(output_size, interpolation=interpolation)
         self.scale = scale
         self.ratio = ratio
         self.output_size = output_size
@@ -252,8 +250,8 @@ class CenterCropRGBImageDecoder(ResizedCropRGBImageDecoder):
         ratio of (crop size) / (min side length)
     """
     # output size: resize crop size -> output size
-    def __init__(self, output_size, ratio):
-        super().__init__(output_size)
+    def __init__(self, output_size, ratio, interpolation=cv2.INTER_AREA):
+        super().__init__(output_size,interpolation=interpolation)
         self.scale = None
         self.ratio = ratio
 
