@@ -149,10 +149,10 @@ class Loader:
             self.indices = np.array(indices)
 
         if cache_type == 0:
+            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
+        elif cache_type == 1:
             self.memory_manager: MemoryManager = ProcessCacheManager(
                 self.reader)
-        elif cache_type == 1:
-            self.memory_manager: MemoryManager = OSCacheManager(self.reader)
         else:
             raise ValueError("Unknown cache type. Use 0 for process cache, 1 for os cache, or 2 for no cache.")
 

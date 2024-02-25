@@ -1,22 +1,27 @@
 #%%
+
 import time
-from PIL import Image # a trick to solve loading lib problem
-from ffcv import Loader
-from ffcv.transforms import *
-from ffcv.fields.decoders import RandomResizedCropRGBImageDecoder
+from PIL import Image# a trick to solve loading lib problem
+from ffcv.fields.rgb_image import * 
+from ffcv.transforms import  RandomHorizontalFlip, NormalizeImage,  ToTensor, ToTorchImage, ToDevice
 import numpy as np
+
+from ffcv import Loader
 import ffcv
 import argparse
 from tqdm.auto import tqdm,trange
 import torch.nn as nn
+import torch
+from psutil import Process, net_io_counters
 
-
+# from torchvi
 import json
 from os import getpid
-from psutil import Process, net_io_counters
-import memory_profiler
 
+from ffcv.transforms.ops import Convert
 
+IMAGENET_MEAN = np.array([0.485, 0.456, 0.406]) * 255
+IMAGENET_STD = np.array([0.229, 0.224, 0.225]) * 255
 
 class ramqdm(tqdm):
     """tqdm progress bar that reports RAM usage with each update"""
@@ -66,26 +71,30 @@ def load_one_epoch(args,loader):
         pass
     end = time.time()
     res = l.summary()
-    throughput=args.repeat*loader.reader.num_samples/(end-start)
+    throughput=loader.reader.num_samples/(end-start)
     res['throughput'] = throughput
+    x1,y = batch
+    print("Mean: ", x1.mean().item(), "Std: ", x1.std().item())
     return res
 
 
 
 def main(args):
     # pipe = ThreeAugmentPipeline()
-    from ffcv.pipeline import Pipeline, PipelineSpec, Compiler
     pipe = {
-        "image":[
-            RandomResizedCropRGBImageDecoder((args.img_size,args.img_size)),
+        'image': [CenterCropRGBImageDecoder((args.img_size,args.img_size), 0.875),
             RandomHorizontalFlip(),
-            # NormalizeImage([], np.float32),
-            ToTensor(),      
+            ToTensor(), 
+            ToDevice(torch.device('cuda')),
             ToTorchImage(),
+            Convert(torch.float16),
+            # NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16),            
         ]
     }
-    loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, os_cache=args.cache, pipelines=pipe,order=ffcv.loader.OrderOption.RANDOM, batches_ahead=0, distributed=False,seed=0,)
-    loader.pipeline_specs['image']
+    loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, 
+         pipelines=pipe,order=ffcv.loader.OrderOption.RANDOM, 
+        batches_ahead=10, distributed=False,seed=0,)
+    
     # warmup
     load_one_epoch(args,loader)
     
@@ -132,3 +141,5 @@ if __name__ == '__main__':
         df = pd.DataFrame(data)
         print(df)
 
+
+    exit(0)

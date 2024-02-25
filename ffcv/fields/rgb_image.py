@@ -22,15 +22,14 @@ IMAGE_MODES = Dict()
 IMAGE_MODES['jpg'] = 0
 IMAGE_MODES['raw'] = 1
 
-
+from turbojpeg import TurboJPEG, TJCS_RGB
+turbo_jpeg = TurboJPEG()
 def encode_jpeg(numpy_image, quality):
-    numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
-    success, result = cv2.imencode('.jpg', numpy_image,
-                                   [int(cv2.IMWRITE_JPEG_QUALITY), quality])
-
-    if not success:
-        raise ValueError("Impossible to encode image in jpeg")
-
+    # numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+    # success, result = cv2.imencode('.jpg', numpy_image,
+    #                                [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+    result = turbo_jpeg.encode(numpy_image, quality=quality, pixel_format=TJCS_RGB,)
+    result = np.frombuffer(result, np.uint8)
     return result.reshape(-1)
 
 
@@ -194,31 +193,12 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 width = np.uint32(field['width'])
 
                 i, j, h, w = get_crop_c(height, width, scale, ratio)
-                # i, j = 10, 30
-                # s = min(h, w)
-                # i, j = min(i,j), min(i,j)
-                # h, w = min(h,w), min(h,w)
-                # h, w = s - i, s - i
+                
                 if field['mode'] == jpg:
                     temp_buffer = temp_storage[dst_ix]
                     imcropresizedecode_c(image_data,  temp_buffer, destination[dst_ix],                               
                                 h,w, 
-                                i, j, )
-                    # imdecode_c(image_data, temp_buffer,
-                    #             height, width, height, width, 0, 0, 1, 1, False, False)
-                    # selected_size = 3 * height * width
-                    # temp_buffer = temp_buffer.reshape(-1)[:selected_size]
-                    # temp_buffer = temp_buffer.reshape(height, width, 3)
-                    
-                    # resize_crop_c(temp_buffer, i, i + h, j, j + w,
-                    #             destination[dst_ix])
-                    
-                    # selected_size = 3 * w * h
-                    # temp_buffer = temp_buffer.reshape(-1)[:selected_size]
-                    # temp_buffer = temp_buffer.reshape(h, w, 3)
-                    # resize_crop_c(temp_buffer, 0, h, 0, w,
-                    #               destination[dst_ix],cv2.INTER_LINEAR)
-                                  
+                                i, j, cv2.INTER_CUBIC)
                 else:
                     temp_buffer = image_data.reshape(height, width, 3)
                     resize_crop_c(temp_buffer, i, i + h, j, j + w,

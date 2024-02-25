@@ -184,19 +184,19 @@ extern "C" {
         tjhandle tj_decompressor;
         if ((tj_transformer = pthread_getspecific(key_tj_transformer)) == NULL)
         {
-            tj_transformer = tjInitTransform();
+            tj_transformer = tj3Init(TJINIT_TRANSFORM);
             pthread_setspecific(key_tj_transformer, tj_transformer);
         }
         if ((tj_decompressor = pthread_getspecific(key_tj_decompressor)) == NULL)
         {
-            tj_decompressor = tjInitDecompress();
+            tj_decompressor = tj3Init(TJINIT_DECOMPRESS);
             pthread_setspecific(key_tj_decompressor, tj_decompressor);
         }
-
+        int result ;
 
         // get info about the cropped image
         int width, height, subsamp, colorspace;
-        int result = tjDecompressHeader3(tj_decompressor, input_buffer, input_size, &width, &height, &subsamp, &colorspace);
+        result = tjDecompressHeader3(tj_decompressor, input_buffer, input_size, &width, &height, &subsamp, &colorspace);
         if (result == -1) {
             const char* error_message = tjGetErrorStr();
             // Handle the error
@@ -212,14 +212,14 @@ extern "C" {
         std::pair<int, int> y_boundaries = axis_to_image_boundaries(offset_y, crop_height, height, tjMCUWidth[subsamp]);
 
         // reduce the crop size if it is out of the image boundaries
-        // int lbound = x_boundaries.first + x_boundaries.second;
-        // if(lbound<offset_x+crop_width){
-        //     crop_width = lbound-x_boundaries.first;
-        // }
-        // lbound = y_boundaries.first + y_boundaries.second;
-        // if(lbound<offset_y+crop_height){
-        //     crop_height = lbound - y_boundaries.first;
-        // }
+        int lbound = x_boundaries.first + x_boundaries.second;
+        if(lbound<offset_x+crop_width){
+            crop_width = lbound-x_boundaries.first;
+        }
+        lbound = y_boundaries.first + y_boundaries.second;
+        if(lbound<offset_y+crop_height){
+            crop_height = lbound - y_boundaries.first;
+        }
 
         DBOUT << "offset_x: " << offset_x << ", " << crop_width << "," << width << " -> ";
         DBOUT << "x_boundaries: " << x_boundaries.first << ", " << x_boundaries.second << std::endl;
@@ -229,13 +229,7 @@ extern "C" {
         DBOUT << "y_boundaries: " << y_boundaries.first << ", " << y_boundaries.second << std::endl;
         DBOUT << offset_y + crop_height << " < " << y_boundaries.second+y_boundaries.first <<" <= " << height << std::endl;
 
-        // if (x_boundaries.first>offset_x || x_boundaries.second+x_boundaries.first<crop_width+ offset_x) {
-        //     std::cerr << "Invalid crop x offset" << std::endl;
-
-        // }
-        // if(y_boundaries.first>offset_y || y_boundaries.second+y_boundaries.first < crop_height+ offset_y){
-        //     std::cerr << "Invalid crop y offset" << std::endl;
-        // }
+        
         offset_x = x_boundaries.first;
         offset_y = y_boundaries.first;
         crop_width = x_boundaries.second;
@@ -270,40 +264,24 @@ extern "C" {
         unsigned long dstSize = 0;
 
         // crop the input image
-        result = tjTransform(tj_transformer, input_buffer, input_size, 
-            1, &dstBuf, &dstSize, &xform, 
-            TJFLAG_FASTDCT);
+        tj3SetCroppingRegion(tj_decompressor, xform.r);
+        
+        result =  tj3Decompress8(tj_decompressor, input_buffer, input_size, tmp_buffer,
+                 0,  TJPF_RGB);
         
         if (result == -1) {
-            const char* error_message = tjGetErrorStr();
+            const char* error_message =  tj3GetErrorStr(tj_decompressor);
             // Handle the error
-            std::cerr << "Error in tjTransform: " << error_message << std::endl;
-            dstBuf = input_buffer;
-            dstSize = input_size;
-        }
-        else{
-            DBOUT << "Cropped image size: " << dstSize << std::endl;
-        }
-        
-
-        result =  tjDecompress2(tj_decompressor, dstBuf, dstSize, tmp_buffer,
-                crop_width, 0, crop_height,
-                TJPF_RGB, TJFLAG_FASTDCT | TJFLAG_NOREALLOC);
-        
-        if (result == -1) {
-            const char* error_message = tjGetErrorStr();
-            // Handle the error
-            std::cerr << "Error in tjDecompress2: " << error_message << std::endl;
+            std::cerr << "Error in tj3Decompress8: " << error_message << std::endl;
             return -1;
         }
-        tjFree(dstBuf);
 
         // resize the cropped image
         cv::Mat source_matrix(crop_height, crop_width, CV_8UC3, (uint8_t*) tmp_buffer);
         cv::Mat dest_matrix(tar_height, tar_width, CV_8UC3, (uint8_t*) output_buffer);
 
-        int dx = offset_x-x_boundaries.first;
-        int dy = offset_y-y_boundaries.first;
+        // int dx = offset_x-x_boundaries.first;
+        // int dy = offset_y-y_boundaries.first;
 
         cv::resize((source_matrix
             // .colRange(dx,crop_width)

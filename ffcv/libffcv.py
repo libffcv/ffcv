@@ -4,6 +4,7 @@ import numpy as np
 import platform
 from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll
 import ffcv._libffcv
+import cv2
 
 lib = CDLL(ffcv._libffcv.__file__)
 if platform.system() == "Windows":
@@ -62,7 +63,7 @@ ctypes_imcropresizedecode.argtypes = [
 def imcropresizedecode(source: np.ndarray,  tmp: np.ndarray, dst: np.ndarray,
              crop_height: int, crop_width: int,
              offset_y=0, offset_x=0,
-             interpolation=3):
+             interpolation=cv2.INTER_CUBIC):
     return ctypes_imcropresizedecode(
         source.ctypes.data, source.size, 
                 tmp.ctypes.data, dst.ctypes.data,     

@@ -121,4 +121,5 @@ setup(name='ffcv',
           'tqdm',
           'psutil',
           'numba',
+          'PyTurboJPEG',
       ])
