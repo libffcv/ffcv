@@ -163,10 +163,15 @@ class Loader:
         else:
             raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
 
+        self.compile_pipeline(pipelines)
+        
         memory_read = self.memory_manager.compile_reader()
         self.next_epoch: int = 0
 
-        self.pipelines = {}
+        self.first_traversal_order = self.next_traversal_order()
+
+    def compile_pipeline(self,pipelines):
+        
         self.pipeline_specs = {}
         self.field_name_to_f_ix = {}
         
@@ -210,7 +215,6 @@ class Loader:
                            memory_read)
         
         self.generate_code()
-        self.first_traversal_order = self.next_traversal_order()
 
     def next_traversal_order(self):
         return self.traversal_order.sample_order(self.next_epoch)
