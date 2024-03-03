@@ -165,7 +165,7 @@ class Loader:
 
         self.compile_pipeline(pipelines)
         
-        memory_read = self.memory_manager.compile_reader()
+        
         self.next_epoch: int = 0
 
         self.first_traversal_order = self.next_traversal_order()
@@ -210,6 +210,7 @@ class Loader:
             if field_name not in self.pipeline_specs:
                 self.pipeline_specs[field_name] = spec
 
+        memory_read = self.memory_manager.compile_reader()
         self.graph = Graph(self.pipeline_specs, self.reader.handlers,
                            self.field_name_to_f_ix, self.reader.metadata,
                            memory_read)

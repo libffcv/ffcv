@@ -184,9 +184,9 @@ extern "C" {
         int height = tj3Get(tj_decompressor, TJPARAM_JPEGHEIGHT);
         int width = tj3Get(tj_decompressor, TJPARAM_JPEGWIDTH);
 
-        int MCU_block = tjMCUWidth[subsamp];
-        int x_boundaries = axis_to_image_boundaries(offset_x, width, MCU_block);
-        int y_boundaries = axis_to_image_boundaries(offset_y, height, MCU_block);
+        // int MCU_block = tjMCUWidth[subsamp];
+        int x_boundaries = axis_to_image_boundaries(offset_x, width, tjMCUWidth[subsamp]);
+        int y_boundaries = axis_to_image_boundaries(offset_y, height, tjMCUHeight[subsamp]);
 
         crop_width = offset_x + crop_width - x_boundaries;
         crop_height = offset_y + crop_height - y_boundaries;
