@@ -100,6 +100,9 @@ else:
 
 libffcv = Extension('ffcv._libffcv',
                         **extension_kwargs)
+test_module = Extension('ffcv.libbuffer',
+                   sources=['./libffcv/libbuffer.cpp'],
+                   extra_compile_args=['-std=c++11'])
 
 setup(name='ffcv',
       version='1.1.0',
@@ -111,7 +114,7 @@ setup(name='ffcv',
       packages=find_packages(),
       long_description=long_description,
       long_description_content_type='text/markdown',
-      ext_modules=[libffcv],
+      ext_modules=[libffcv,test_module],
       install_requires=[
           'terminaltables',
           'pytorch_pfn_extras',

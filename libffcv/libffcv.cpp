@@ -291,15 +291,4 @@ extern "C" {
 
         return offset;
     }
-
-    EXPORT int set_share_buffer(unsigned char *buffer){
-        pthread_once(&key_once, make_keys);
-        pthread_setspecific(key_share_buffer, buffer);
-        return 0;
-    }
-
-    EXPORT unsigned char* get_share_buffer(){
-        pthread_once(&key_once, make_keys);
-        return pthread_getspecific(key_share_buffer);
-    }
 }

@@ -3,6 +3,7 @@ import platform
 from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll, c_char_p, c_int32, create_string_buffer
 import ffcv._libffcv
 import cv2
+import ctypes
 
 lib = CDLL(ffcv._libffcv.__file__)
 if platform.system() == "Windows":
@@ -90,15 +91,3 @@ def get_slice(sockfd:int,start: int, end: int,buffer: np.ndarray):
     raise Exception("This function is not implemented. Because the multi-threading in numba will cause an error when reading the data. ")
     return ctypes_get_slice(sockfd, start, end, buffer.ctypes.data)    
     
-
-# ctypes_set_share_buffer = lib.set_share_buffer
-# ctypes_set_share_buffer.argtypes = [c_void_p]
-
-# def set_share_buffer(buffer: np.ndarray):
-#     return ctypes_set_share_buffer(buffer.ctypes.data)
-
-# ctypes_get_share_buffer = lib.get_share_buffer
-# ctypes_get_slice.restype = c_int
-
-# def get_share_buffer():    
-#     return np.frombuffer(ctypes_get_share_buffer(),dtype=np.uint8)
