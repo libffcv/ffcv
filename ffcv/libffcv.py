@@ -1,8 +1,6 @@
-import ctypes
-from numba import njit
 import numpy as np
 import platform
-from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll
+from ctypes import CDLL, c_int64, c_uint8, c_uint64, POINTER, c_void_p, c_uint32, c_bool, cdll, c_char_p, c_int32, create_string_buffer
 import ffcv._libffcv
 import cv2
 
@@ -77,3 +75,30 @@ ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
     return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size*source.itemsize)
+
+ctypes_init_client = lib.init_client
+ctypes_init_client.argtypes = [ c_char_p, c_int32]
+
+def init_client(url:str = b"localhost", port:int = 12345):
+    raise Exception("This function is not implemented. Because the multi-threading in numba will cause an error when reading the data. ")
+    return ctypes_init_client(url, port)
+
+ctypes_get_slice = lib.get_slice
+ctypes_get_slice.argtypes = [c_int32, c_uint64, c_uint64, c_void_p]
+
+def get_slice(sockfd:int,start: int, end: int,buffer: np.ndarray):
+    raise Exception("This function is not implemented. Because the multi-threading in numba will cause an error when reading the data. ")
+    return ctypes_get_slice(sockfd, start, end, buffer.ctypes.data)    
+    
+
+# ctypes_set_share_buffer = lib.set_share_buffer
+# ctypes_set_share_buffer.argtypes = [c_void_p]
+
+# def set_share_buffer(buffer: np.ndarray):
+#     return ctypes_set_share_buffer(buffer.ctypes.data)
+
+# ctypes_get_share_buffer = lib.get_share_buffer
+# ctypes_get_slice.restype = c_int
+
+# def get_share_buffer():    
+#     return np.frombuffer(ctypes_get_share_buffer(),dtype=np.uint8)

@@ -74,10 +74,9 @@ def load_one_epoch(args,loader):
     throughput=loader.reader.num_samples/(end-start)
     res['throughput'] = throughput
     x1,y = batch
+    x1 = x1.float()
     print("Mean: ", x1.mean().item(), "Std: ", x1.std().item())
     return res
-
-
 
 def main(args):
     # pipe = ThreeAugmentPipeline()
@@ -85,15 +84,15 @@ def main(args):
         'image': [CenterCropRGBImageDecoder((args.img_size,args.img_size), 0.875),
             RandomHorizontalFlip(),
             ToTensor(), 
-            ToDevice(torch.device('cuda')),
-            ToTorchImage(),
-            Convert(torch.float16),
+            # ToDevice(torch.device('cuda')),
+            # ToTorchImage(),
             # NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16),            
+            # Convert(torch.float16),
         ]
     }
     loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, 
          pipelines=pipe,order=ffcv.loader.OrderOption.RANDOM, 
-        batches_ahead=10, distributed=False,seed=0,)
+        batches_ahead=0, distributed=False,seed=0,)
     
     # warmup
     load_one_epoch(args,loader)
@@ -106,10 +105,9 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="FFCV Profiler")
     parser.add_argument("-r", "--repeat", type=int, default=5, help="number of samples to record one step for profile.")
-    parser.add_argument("-b", "--batch_size", type=int, default=128, help="batch size")
+    parser.add_argument("-b", "--batch_size", type=int, default=256, help="batch size")
     parser.add_argument("-p", "--data_path", type=str, help="data path", required=True)
-    parser.add_argument("--num_workers", type=int, default=10, help="number of workers")
-    parser.add_argument("--cache",default=False,action="store_true",help="cache data")
+    parser.add_argument("--num_workers", type=int, default=60, help="number of workers")
     parser.add_argument("--exp", default=False, action="store_true", help="run experiments")
     parser.add_argument("--img_size", type=int, default=224, help="image size")
     parser.add_argument("--write_path", type=str, help='path to write result',default=None)

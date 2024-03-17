@@ -153,6 +153,12 @@ class Loader:
         elif cache_type == 1:
             self.memory_manager: MemoryManager = ProcessCacheManager(
                 self.reader)
+        elif cache_type == 2:
+            from ffcv.memory_managers.net_cache import NetCacheManager
+            self.memory_manager: MemoryManager = NetCacheManager(self.reader)
+        elif cache_type == 3:
+            from ffcv.memory_managers.shared_cache import SharedMemoryManager
+            self.memory_manager: MemoryManager = SharedMemoryManager(self.reader)
         else:
             raise ValueError("Unknown cache type. Use 0 for process cache, 1 for os cache, or 2 for no cache.")
 

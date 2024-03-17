@@ -8,6 +8,13 @@
 #include <stdbool.h>
 #include <turbojpeg.h>
 #include <pthread.h>
+#include <iostream>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h> 
+
 #ifdef _WIN32
     typedef unsigned __int32 __uint32_t;
     typedef unsigned __int64 __uint64_t;
@@ -51,6 +58,7 @@ extern "C" {
     static pthread_key_t key_tj_transformer;
     // a key use to point to the tjdecompressor instance
     static pthread_key_t key_tj_decompressor;
+    static pthread_key_t key_share_buffer;
     static pthread_once_t key_once = PTHREAD_ONCE_INIT;
 
     // will make the keys to access the tj instances
@@ -58,6 +66,7 @@ extern "C" {
     {
         pthread_key_create(&key_tj_decompressor, NULL);
         pthread_key_create(&key_tj_transformer, NULL);
+        pthread_key_create(&key_share_buffer, NULL);
     }
 
     EXPORT void resize(int64_t cresizer, int64_t source_p, int64_t sx, int64_t sy,
@@ -222,5 +231,75 @@ extern "C" {
             ),
                    dest_matrix, dest_matrix.size(), 0, 0, interpolation);
         return result;
+    }
+
+
+    EXPORT int init_client(const char *url, int portno)
+    {
+        pthread_once(&key_once, make_keys);
+        
+        struct sockaddr_in serv_addr;
+        struct hostent *server;
+
+
+        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockfd < 0) 
+            std::cerr <<("ERROR opening socket");
+        server = gethostbyname(url);
+        if (server == NULL) {
+            fprintf(stderr,"ERROR, no such host\n");
+            exit(0);
+        }
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+        serv_addr.sin_family = AF_INET;
+        bcopy((char *)server->h_addr, 
+                (char *)&serv_addr.sin_addr.s_addr,
+                server->h_length);
+        serv_addr.sin_port = htons(portno);
+        if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
+            std::cerr <<("ERROR connecting");
+
+    
+        return sockfd;
+    }
+
+    EXPORT int get_slice(int sockfd, __uint64_t start, __uint64_t end, unsigned char *buffer)
+    {
+        pthread_once(&key_once, make_keys);
+        struct Message {
+            __uint64_t start;
+            __uint64_t end;
+            __uint64_t magic = 0xdeadbeef;
+        };
+        Message msg;
+        msg.start = start;
+        msg.end = end;
+        if (write(sockfd, &msg, sizeof(msg)) < 0) 
+        {
+            std::cerr <<("ERROR writing to socket");
+            return -1;
+        }
+        
+        int offset = 0;
+        
+        while (offset<end-start) {
+            int n = read(sockfd, buffer + offset,end- start - offset);
+            if (n < 0) 
+                std::cerr <<("ERROR reading from socket");
+            offset += n;
+        }
+
+        return offset;
+    }
+
+    EXPORT int set_share_buffer(unsigned char *buffer){
+        pthread_once(&key_once, make_keys);
+        pthread_setspecific(key_share_buffer, buffer);
+        return 0;
+    }
+
+    EXPORT unsigned char* get_share_buffer(){
+        pthread_once(&key_once, make_keys);
+        return pthread_getspecific(key_share_buffer);
     }
 }
