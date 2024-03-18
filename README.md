@@ -11,33 +11,13 @@
 This library is derived from [FFCV](https://github.com/libffcv/ffcv) to optimize the memory usage and accelerate data loading. 
 
 ## Installation
-### Linux
+### Running Environment
 ```
 conda create -y -n ffcv "python>=3.9" cupy pkg-config "libjpeg-turbo>=3.0.0" opencv numba -c conda-forge
 conda activate ffcv
 conda install pytorch-cuda=11.3 torchvision  -c pytorch -c nvidia
-pip install ffcv
+pip install .
 ```
-Troubleshooting note 1: if the above commands result in a package conflict error, try running ``conda config --env --set channel_priority flexible`` in the environment and rerunning the installation command.
-
-Troubleshooting note 2: on some systems (but rarely), you'll need to add the ``compilers`` package to the first command above.
-
-Troubleshooting note 3: courtesy of @kschuerholt, here is a [Dockerfile](https://github.com/kschuerholt/pytorch_cuda_opencv_ffcv_docker) that may help with conda-free installation
-
-### Windows
-* Install <a href="https://opencv.org/releases/">opencv4</a>
-  * Add `..../opencv/build/x64/vc15/bin` to PATH environment variable
-* Install <a href="https://sourceforge.net/projects/libjpeg-turbo/files/">libjpeg-turbo</a>, download libjpeg-turbo-x.x.x-vc64.exe, not gcc64
-  * Add `..../libjpeg-turbo64/bin` to PATH environment variable
-* Install <a href="https://www.sourceware.org/pthreads-win32/">pthread</a>, download last release.zip
-  * After unzip, rename Pre-build.2 folder to pthread
-  * Open `pthread/include/pthread.h`, and add the code below to the top of the file.  
-  ```cpp
-  #define HAVE_STRUCT_TIMESPEC
-  ```
-  * Add `..../pthread/dll` to PATH environment variable
-* Install <a href="https://docs.cupy.dev/en/stable/install.html#installing-cupy">cupy</a> depending on your CUDA Toolkit version.
-* `pip install ffcv`
 
 ## Prepackaged Computer Vision Benchmarks
 From gridding to benchmarking to fast research iteration, there are many reasons
@@ -86,4 +66,6 @@ Compared to the original FFCV, this library has the following new features:
 - **cache strategy**: There is a potential issue that the OS cache will be swapped out. We use `FFCV_DEFAULT_CACHE_PROCESS` to control the cache process. The choices for the cache process are:
   - `0`: os cache
   - `1`: process cache
+  - `2`: Shared Memory 
+  - `3`: redis: not implemented yet. May be used for large-scale datasets.
   

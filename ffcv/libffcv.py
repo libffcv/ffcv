@@ -76,18 +76,3 @@ ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
     return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size*source.itemsize)
-
-ctypes_init_client = lib.init_client
-ctypes_init_client.argtypes = [ c_char_p, c_int32]
-
-def init_client(url:str = b"localhost", port:int = 12345):
-    raise Exception("This function is not implemented. Because the multi-threading in numba will cause an error when reading the data. ")
-    return ctypes_init_client(url, port)
-
-ctypes_get_slice = lib.get_slice
-ctypes_get_slice.argtypes = [c_int32, c_uint64, c_uint64, c_void_p]
-
-def get_slice(sockfd:int,start: int, end: int,buffer: np.ndarray):
-    raise Exception("This function is not implemented. Because the multi-threading in numba will cause an error when reading the data. ")
-    return ctypes_get_slice(sockfd, start, end, buffer.ctypes.data)    
-    

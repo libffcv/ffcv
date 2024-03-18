@@ -13,35 +13,31 @@ from multiprocessing.shared_memory import SharedMemory
 import torch.distributed as dist
 
 class SharedMemoryContext(MemoryContext):
-    def __init__(self, manager:MemoryManager, type='shm'):
+    def __init__(self, manager:MemoryManager):
         self.manager = manager
         file_name = self.manager.reader.file_name
         name= file_name.split('/')[-1]
         print("loading", name)
         
-        if type=='shm':
-            self.mmap = np.memmap(file_name, 'uint8', mode='r')
-            size= len(self.mmap)
-            
-            if dist.is_initialized():
-                if dist.get_rank()==0:
-                    mem = SharedMemory(name=name, create=True, size=size)
-                else:
-                    mem = SharedMemory(name=name, create=False, size=size)            
-            else:
+
+        self.mmap = np.memmap(file_name, 'uint8', mode='r')
+        size= len(self.mmap)
+        
+        if dist.is_initialized():
+            if dist.get_rank()==0:
                 mem = SharedMemory(name=name, create=True, size=size)
-            self.mem = mem
-            self.mmap = np.frombuffer(mem.buf, dtype=np.uint8)
-            if dist.is_initialized():
-                if dist.get_rank()==0:
-                    self.mmap[:] = np.fromfile(file_name, 'uint8')
-                dist.barrier()
             else:
-                self.mmap[:] = np.fromfile(file_name, 'uint8')
+                mem = SharedMemory(name=name, create=False, size=size)            
         else:
-            from ffcv import libbuffer
-            buffer = libbuffer.load_buffer(file_name)
-            self.mmap =  np.frombuffer(buffer,np.uint8)
+            mem = SharedMemory(name=name, create=True, size=size)
+        self.mem = mem
+        self.mmap = np.frombuffer(mem.buf, dtype=np.uint8)
+        if dist.is_initialized():
+            if dist.get_rank()==0:
+                self.mmap[:] = np.fromfile(file_name, 'uint8')
+            dist.barrier()
+        else:
+            self.mmap[:] = np.fromfile(file_name, 'uint8')
 
     @property
     def state(self):
@@ -63,9 +59,9 @@ class SharedMemoryContext(MemoryContext):
 
 class SharedMemoryManager(MemoryManager):
 
-    def __init__(self, reader: 'Reader', type='shm'):
+    def __init__(self, reader: 'Reader'):
         super().__init__(reader)
-        self.context = SharedMemoryContext(self,type)
+        self.context = SharedMemoryContext(self)
 
     def schedule_epoch(self, schedule):
         return self.context
