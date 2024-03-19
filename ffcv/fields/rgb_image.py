@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 IMAGE_MODES = Dict()
 IMAGE_MODES['jpg'] = 0
 IMAGE_MODES['raw'] = 1
+IMAGE_MODES['png'] = 2
 
 from turbojpeg import TurboJPEG, TJCS_RGB, TJSAMP_444
 turbo_jpeg = TurboJPEG()
@@ -29,6 +30,11 @@ def encode_jpeg(numpy_image, quality,jpeg_subsample=TJSAMP_444):
     result = np.frombuffer(result, np.uint8)
     return result.reshape(-1)
 
+def encode_png(numpy_image):
+    x=cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+    result = cv2.imencode('.png', x)[1]
+    result = np.frombuffer(result, np.uint8)
+    return result.reshape(-1)
 
 def resizer(image, target_resolution):
     if target_resolution is None:
@@ -110,9 +116,11 @@ instead."""
     def generate_code(self) -> Callable:
         mem_read = self.memory_read
         imdecode_c = Compiler.compile(imdecode)
+        cv_imdecode_c = Compiler.compile(cv_imdecode)
 
         jpg = IMAGE_MODES['jpg']
         raw = IMAGE_MODES['raw']
+        png = IMAGE_MODES['png']
         my_range = Compiler.get_iterator()
         my_memcpy = Compiler.compile(memcpy)
 
@@ -126,8 +134,12 @@ instead."""
                 if field['mode'] == jpg:
                     imdecode_c(image_data, destination[dst_ix],
                                height, width, height, width, 0, 0, 1, 1, False, False)
-                else:
+                elif field['mode'] == raw:
                     my_memcpy(image_data, destination[dst_ix])
+                elif field['mode'] == png:
+                    cv_imdecode_c(image_data, destination[dst_ix])
+                else:
+                    raise ValueError(f"Unsupported mode {field['mode']}")
 
             return destination[:len(batch_indices)]
 
@@ -165,10 +177,13 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
     def generate_code(self) -> Callable:
 
         jpg = IMAGE_MODES['jpg']
+        raw = IMAGE_MODES['raw']
+        png = IMAGE_MODES['png']
 
         mem_read = self.memory_read
         my_range = Compiler.get_iterator()
         imdecode_c = Compiler.compile(imdecode)
+        cv_imdecode_c = Compiler.compile(cv_imdecode)
         resize_crop_c = Compiler.compile(resize_crop)
         imcropresizedecode_c = Compiler.compile(imcropresizedecode)
         get_crop_c = Compiler.compile(self.get_crop_generator)
@@ -191,16 +206,24 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 width = np.uint32(field['width'])
 
                 i, j, h, w = get_crop_c(height, width, scale, ratio)
-                
+                # return destination[:len(batch_indices)]
                 if field['mode'] == jpg:
                     temp_buffer = temp_storage[dst_ix]
-                    imcropresizedecode_c(image_data,  temp_buffer, destination[dst_ix],                               
+                    res = imcropresizedecode_c(image_data,  temp_buffer, destination[dst_ix],                               
                                 h,w, 
                                 i, j, interpolation)
-                else:
+                elif field['mode'] == raw:
                     temp_buffer = image_data.reshape(height, width, 3)
                     resize_crop_c(temp_buffer, i, i + h, j, j + w,
                                 destination[dst_ix])
+                elif field['mode'] == png:
+                    temp_buffer = temp_storage[dst_ix]
+                    cv_imdecode_c(image_data, temp_buffer)
+                    buffer = temp_buffer[:height*width*3].reshape(height,width,3)                    
+                    resize_crop_c(buffer, i, i + h, j, j + w,
+                                destination[dst_ix])
+                else:
+                    raise ValueError(f"Unsupported mode {field['mode']}")
                 
             return destination[:len(batch_indices)]
         decode.is_parallel = True
@@ -330,10 +353,10 @@ class RGBImageField(Field):
         image = resizer(image, self.max_resolution)
 
         write_mode = self.write_mode
-        as_jpg = None
+        ccode = None # compressed code
 
         if write_mode == 'smart':
-            as_jpg = encode_jpeg(image, self.jpeg_quality)
+            ccode = encode_jpeg(image, self.jpeg_quality)
             write_mode = 'raw'
             if self.smart_threshold is not None:
                 if image.nbytes > self.smart_threshold:
@@ -343,18 +366,23 @@ class RGBImageField(Field):
                 write_mode = 'jpg'
             else:
                 write_mode = 'raw'
+        elif write_mode == 'png':
+            ccode = encode_png(image)
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
 
         if write_mode == 'jpg':
-            if as_jpg is None:
-                as_jpg = encode_jpeg(image, self.jpeg_quality)
-            destination['data_ptr'], storage = malloc(as_jpg.nbytes)
-            storage[:] = as_jpg
+            if ccode is None:
+                ccode = encode_jpeg(image, self.jpeg_quality)
+            destination['data_ptr'], storage = malloc(ccode.nbytes)
+            storage[:] = ccode
         elif write_mode == 'raw':
             image_bytes = np.ascontiguousarray(image).view('<u1').reshape(-1)
             destination['data_ptr'], storage = malloc(image.nbytes)
             storage[:] = image_bytes
+        elif write_mode == 'png':
+            destination['data_ptr'], storage = malloc(ccode.nbytes)
+            storage[:] = ccode
         else:
             raise ValueError(f"Unsupported write mode {self.write_mode}")

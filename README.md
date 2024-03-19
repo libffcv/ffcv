@@ -69,3 +69,4 @@ Compared to the original FFCV, this library has the following new features:
   - `2`: Shared Memory 
   - `3`: redis: not implemented yet. May be used for large-scale datasets.
   
+- **lossless compression**: PNG is supported for lossless compression. We use `RGBImageField(mode='png')` to enable the lossless compression.

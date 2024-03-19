@@ -76,3 +76,9 @@ ctypes_memcopy.argtypes = [c_void_p, c_void_p, c_uint64]
 
 def memcpy(source: np.ndarray, dest: np.ndarray):
     return ctypes_memcopy(source.ctypes.data, dest.ctypes.data, source.size*source.itemsize)
+
+ctypes_cv_imdecode = lib.cv_imdecode
+ctypes_cv_imdecode.argtypes = [c_void_p, c_uint64, c_int64,c_void_p]
+
+def cv_imdecode(source: np.ndarray, dst: np.ndarray, flags=cv2.IMREAD_COLOR):
+    return ctypes_cv_imdecode(source.ctypes.data, source.size, flags,dst.ctypes.data)

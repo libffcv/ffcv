@@ -69,6 +69,27 @@ extern "C" {
         pthread_key_create(&key_share_buffer, NULL);
     }
 
+    EXPORT int cv_imdecode(uint8_t* buf, 
+                            uint64_t buf_size, 
+                            int64_t flag,
+                            uint8_t* output_buffer){
+        DBOUT << "imdecode called" << std::endl;
+        cv::Mat bufArray(1, buf_size, CV_8UC1, buf);
+        cv::Mat image;
+        image = cv::imdecode(bufArray, flag);
+        // Check for failure
+        if (image.empty()) {
+            std::cout << "Could not decode the image" << std::endl;
+            return -1;
+        }else{
+            DBOUT << "Image decoded" << image.rows<<","<<image.cols<<std::endl;
+            cv::Mat dest_matrix(image.rows, image.cols, CV_8UC3, output_buffer);
+            image.copyTo(dest_matrix);
+        }
+
+        return 0;
+    }
+
     EXPORT void resize(int64_t cresizer, int64_t source_p, int64_t sx, int64_t sy,
                 int64_t start_row, int64_t end_row, int64_t start_col, int64_t end_col,
                 int64_t dest_p, int64_t tx, int64_t ty, int64_t interpolation) {
