@@ -139,7 +139,7 @@ instead."""
                 elif field['mode'] == png:
                     cv_imdecode_c(image_data, destination[dst_ix])
                 else:
-                    raise ValueError(f"Unsupported mode {field['mode']}")
+                    pass
 
             return destination[:len(batch_indices)]
 
@@ -223,7 +223,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                     resize_crop_c(buffer, i, i + h, j, j + w,
                                 destination[dst_ix])
                 else:
-                    print("Unsupported mode")
+                    pass
                 
             return destination[:len(batch_indices)]
         decode.is_parallel = True
