@@ -223,7 +223,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                     resize_crop_c(buffer, i, i + h, j, j + w,
                                 destination[dst_ix])
                 else:
-                    raise ValueError(f"Unsupported mode {field['mode']}")
+                    print("Unsupported mode")
                 
             return destination[:len(batch_indices)]
         decode.is_parallel = True
