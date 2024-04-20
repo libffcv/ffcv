@@ -81,7 +81,7 @@ def load_one_epoch(args,loader):
 def main(args):
     # pipe = ThreeAugmentPipeline()
     pipe = {
-        'image': [CenterCropRGBImageDecoder((args.img_size,args.img_size), 0.875),
+        'image': [CenterCropRGBImageDecoder((args.img_size,args.img_size),224/256),
             RandomHorizontalFlip(),
             ToTensor(), 
             # ToDevice(torch.device('cuda')),

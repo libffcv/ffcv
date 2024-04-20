@@ -16,12 +16,13 @@ if __name__ == '__main__':
     parser.add_argument('--write_path', type=str, default='viz.png', help='Path to write result')
     args = parser.parse_args()
     
-    loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=10, cache_type=1, pipelines={
-        'image':[RandomResizedCropRGBImageDecoder((224, 224)), 
+    loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=10, cache_type=0, pipelines={
+        'image':[CenterCropRGBImageDecoder((224, 224),224/256), 
                  ToTensor(), 
                  ToTorchImage()]
     }, batches_ahead=0,)
     
+    print("num samples: ", loader.reader.num_samples, "fields: ", loader.reader.field_names)
     for x,_ in loader:
         x1 = x.float()
         print("Mean: ", x1.mean().item(), "Std: ", x1.std().item())

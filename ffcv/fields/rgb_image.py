@@ -31,8 +31,8 @@ def encode_jpeg(numpy_image, quality,jpeg_subsample=TJSAMP_444):
     return result.reshape(-1)
 
 def encode_png(numpy_image):
-    x=cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
-    result = cv2.imencode('.png', x)[1]
+    # x=cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+    result = cv2.imencode('.png', numpy_image)[1]
     result = np.frombuffer(result, np.uint8)
     return result.reshape(-1)
 
@@ -43,7 +43,7 @@ def resizer(image, target_resolution):
     ratio = target_resolution / original_size.max()
     if ratio < 1:
         new_size = (ratio * original_size).astype(int)
-        image = cv2.resize(image, tuple(new_size), interpolation=cv2.INTER_AREA)
+        image = cv2.resize(image, tuple(new_size), interpolation=cv2.INTER_CUBIC)
     return image
 
 
@@ -356,8 +356,7 @@ class RGBImageField(Field):
         ccode = None # compressed code
 
         if write_mode == 'smart':
-            ccode = encode_jpeg(image, self.jpeg_quality)
-            write_mode = 'raw'
+            write_mode = 'png'
             if self.smart_threshold is not None:
                 if image.nbytes > self.smart_threshold:
                     write_mode = 'jpg'
@@ -365,16 +364,13 @@ class RGBImageField(Field):
             if np.random.rand() < self.proportion:
                 write_mode = 'jpg'
             else:
-                write_mode = 'raw'
-        elif write_mode == 'png':
-            ccode = encode_png(image)
+                write_mode = 'png'
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]
 
         if write_mode == 'jpg':
-            if ccode is None:
-                ccode = encode_jpeg(image, self.jpeg_quality)
+            ccode = encode_jpeg(image, self.jpeg_quality)
             destination['data_ptr'], storage = malloc(ccode.nbytes)
             storage[:] = ccode
         elif write_mode == 'raw':
@@ -382,6 +378,7 @@ class RGBImageField(Field):
             destination['data_ptr'], storage = malloc(image.nbytes)
             storage[:] = image_bytes
         elif write_mode == 'png':
+            ccode = encode_png(image)
             destination['data_ptr'], storage = malloc(ccode.nbytes)
             storage[:] = ccode
         else:
