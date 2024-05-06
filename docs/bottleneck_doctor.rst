@@ -23,7 +23,6 @@ either way, try:
   data sampler**, enabled using the ``order=OrderOption.QUASI_RANDOM`` argument to
   the :class:`~ffcv.loader.Loader` constructor. Quasi-random sampling tries to
   imitate random sampling while minimizing the underlying number of disk reads.
-  (Again, note that ``QUASI_RANDOM`` is not yet supported for distributed training.)
 - Another option for computer vision datasets is **storing resized images**: many
   datasets have gigantic images that end up being resized and cropped anyways in
   the data augmentation pipeline. You can avoid paying the cost of loading these
