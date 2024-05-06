@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Working with Image Data in FFCV &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tuning Guide" href="parameter_tuning.html" />
+    <link rel="prev" title="Performance Guide" href="performance_guide.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+          <li><a href="performance_guide.html">Performance Guide</a></li>
+        
+      <li>Working with Image Data in FFCV</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/working_with_images.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="working-with-image-data-in-ffcv">
+<h1>Working with Image Data in FFCV<a class="headerlink" href="#working-with-image-data-in-ffcv" title="Permalink to this heading">¶</a></h1>
+<p>Images can often be responsible for the majority of resources (storage and/or
+compute) consumed by computer vision datasets.
+FFCV offers a wide range of options to control the storage and retrieval of
+images, allowing the user to cater to the specific needs of each project and
+hardware configuration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This page is specifically about the options and API for writing and reading
+image data with FFCV—for information about how to choose these options based
+on your task and systems specifications, <a class="reference internal" href="bottleneck_doctor.html#the-bottleneck-doctor"><span class="std std-ref">The Bottleneck Doctor</span></a>
+might be more useful.</p>
+</div>
+<section id="writing-image-datasets">
+<h2>Writing image datasets<a class="headerlink" href="#writing-image-datasets" title="Permalink to this heading">¶</a></h2>
+<p>In most machine learning datasets, images are compressed using <code class="docutils literal notranslate"><span class="pre">JPEG</span></code> then
+stored. While this scheme is very space-efficient, decoding <code class="docutils literal notranslate"><span class="pre">JPEG</span></code> images
+requires
+significant resources and is usually the bottleneck for loading speed.
+Given access to fast
+storage (RAM, SSD) in sufficient quantities, other alternatives might be
+preferable (see <a class="reference internal" href="bottleneck_doctor.html#the-bottleneck-doctor"><span class="std std-ref">The Bottleneck Doctor</span></a> for more details).</p>
+<p>For the rest of this guide, we’ll assume you’ve already read
+<a class="reference internal" href="writing_datasets.html#writing-a-dataset-to-ffcv-format"><span class="std std-ref">Writing a dataset to FFCV format</span></a>, so you’re familiar with the
+<a class="reference internal" href="api/fields.html#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.fields.Field</span></code></a> classes as well as
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.writer.DatasetWriter</span></code>.</p>
+<p>Images are supported in FFCV via the <a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField" title="ffcv.fields.RGBImageField"><code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.fields.RGBImageField</span></code></a> class.
+The first initialization parameter of the <a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField" title="ffcv.fields.RGBImageField"><code class="xref py py-class docutils literal notranslate"><span class="pre">RGBImageField</span></code></a> is
+the <code class="docutils literal notranslate"><span class="pre">write_mode</span></code> argument, which specifies the format with which to write the
+dataset, and can take the following values:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">jpg</span></code>: All the images in the dataset will be stored in JPEG (compressed)
+format.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>JPEG is a lossy file format. The images read from the data loader might
+be slightly different from the ones passed to the <code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetWriter</span></code></p>
+</div>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">raw</span></code>: All images are stored uncompressed. This dramatically reduces CPU
+usage at loading time but also requires more storage.
+Given enough <cite>RAM</cite> to cache the entirety
+of the dataset, this will usually yield the best performance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">proportion</span></code>: This will generate a hybrid dataset with a mix of <code class="docutils literal notranslate"><span class="pre">JPEG</span></code> and
+<code class="docutils literal notranslate"><span class="pre">raw</span></code> images. Each image will be compressed with probability
+<code class="docutils literal notranslate"><span class="pre">compress_probability</span></code>. This option is mostly useful for users who wish to
+achieve storage/speed trade-offs between <code class="docutils literal notranslate"><span class="pre">jpg</span></code> and <code class="docutils literal notranslate"><span class="pre">raw</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smart</span></code>: This is similar to <code class="docutils literal notranslate"><span class="pre">proportion</span></code> except that an image will be compressed
+if its <code class="docutils literal notranslate"><span class="pre">raw</span></code> representation has area (H x W) more than
+<code class="docutils literal notranslate"><span class="pre">smart_threshold</span></code>. This option is suited for datasets with
+large variation in image sizes, as it will ensure that a few large outliers do
+not significantly impact the total dataset size or loading speed.</p></li>
+</ul>
+<p>Next, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetWriter</span></code> supports a <code class="docutils literal notranslate"><span class="pre">jpeg_quality</span></code> argument which
+selects the image quality for images that are JPEG-compressed (this
+applies to all values <code class="docutils literal notranslate"><span class="pre">write_mode</span></code> other than <code class="docutils literal notranslate"><span class="pre">raw</span></code>). Reducing JPEG quality
+will both reduce the size of the file generated and make data loading faster.</p>
+<p>Datasets like <a class="reference external" href="http://image-net.org">ImageNet</a> contain images of various sizes.
+For many applications, storing full-sized images is unnecessary, and it may be
+beneficial to resize the largest images.
+The <code class="docutils literal notranslate"><span class="pre">max_resolution</span></code> argument in the initializer of
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetWriter</span></code> lets you pick an image side length threshold
+for which all larger images are resized (while preserving their aspect ratio).</p>
+<p>The following code block provides an example of a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetWriter</span></code> for image data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="s1">&#39;my_file.beton&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="c1"># Roughly 25% of the images will be stored in raw and the other in jpeg</span>
+        <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">RGBImageField</span><span class="p">(</span>
+            <span class="n">write_mode</span><span class="o">=</span><span class="s1">&#39;proportion&#39;</span><span class="p">,</span> <span class="c1"># Randomly compress</span>
+            <span class="n">compress_probability</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="c1"># Compress a random 1/4 of the dataset</span>
+            <span class="n">max_resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="c1"># Resize anything above 256 to 256</span>
+            <span class="n">jpeg_quality</span><span class="o">=</span><span class="mi">50</span>  <span class="c1"># Use 50% quality when compressing an image using JPG</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">IntField</span><span class="p">()</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<section id="decoding-options">
+<h3>Decoding options<a class="headerlink" href="#decoding-options" title="Permalink to this heading">¶</a></h3>
+<p>Other fields offer a single <code class="xref py py-class docutils literal notranslate"><span class="pre">Decoder</span></code> suited to read data from the dataset file. For images
+we currently offer the following options:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.SimpleRGBImageDecoder" title="ffcv.fields.decoders.SimpleRGBImageDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimpleRGBImageDecoder</span></code></a>: This is the default decoder used when no
+pipeline is passed to the <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code>. It simply produces the entire image
+and forwards it to the next operations in the pipeline. Note that as a result,
+for this decoder to work all images in a dataset need to have the same
+resolution as they have to fit in the same batch.</p></li>
+<li><p><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.RandomResizedCropRGBImageDecoder" title="ffcv.fields.decoders.RandomResizedCropRGBImageDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomResizedCropRGBImageDecoder</span></code></a>. This decoder will first take a
+random section of the image and resize it before populating the batch with
+the image. This decoder is intended to mimic the behavior of <code class="docutils literal notranslate"><span class="pre">torchvision.transforms.RandomResizedCrop</span></code>.</p></li>
+<li><p><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.CenterCropRGBImageDecoder" title="ffcv.fields.decoders.CenterCropRGBImageDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">CenterCropRGBImageDecoder</span></code></a>. Similar to
+<a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.RandomResizedCropRGBImageDecoder" title="ffcv.fields.decoders.RandomResizedCropRGBImageDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomResizedCropRGBImageDecoder</span></code></a> except that it mimics <code class="docutils literal notranslate"><span class="pre">torchvision.transforms.CenterCrop</span></code>.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">writer</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="s1">&#39;my_file.beton&#39;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">10</span>
+    <span class="n">pipelines</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">RandomResizedCropRGBImageDecoder</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))]</span>
+        <span class="s1">&#39;other_image_field&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">CenterCropRGBImageDecoder</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span> <span class="mi">224</span><span class="o">/</span><span class="mi">256</span><span class="p">)]</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

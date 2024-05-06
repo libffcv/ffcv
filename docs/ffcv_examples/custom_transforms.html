@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Fast custom image transforms &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Custom transforms with indices" href="transform_with_inds.html" />
+    <link rel="prev" title="Large-Scale Linear Regression" href="linear_regression.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a></li>
+        
+          <li><a href="../examples.html">Examples</a></li>
+        
+      <li>Fast custom image transforms</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ffcv_examples/custom_transforms.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="fast-custom-image-transforms">
+<h1>Fast custom image transforms<a class="headerlink" href="#fast-custom-image-transforms" title="Permalink to this heading">¶</a></h1>
+<p>In this document, we’ll outline how to construct custom FFCV <em>transforms</em>.
+Transforms are the building blocks that together form pipelines, which specify
+how data should be read and preprocessed (this is outlined in the <a class="reference internal" href="../making_dataloaders.html#making-an-ffcv-dataloader"><span class="std std-ref">Making an FFCV dataloader</span></a> guide, which we strongly recommend reading first).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In general, any <code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> can be placed in a pipeline and used as
+a transform without using anything from this guide. This document only
+concerns making custom <em>FFCV-specific</em> transforms, which may be faster since
+they can be put on CPU and pre-compiled with <a class="reference external" href="https://numba.org">Numba</a></p>
+</div>
+<p>In this guide, we will implement a transform that computes a (made-up)
+<code class="docutils literal notranslate"><span class="pre">PickACorner</span></code> data augmentation. This augmentation will operate on image
+data, and will, for each image, return either the top-left or bottom-right
+quadrant of the image (deciding randomly).</p>
+<p>FFCV transforms are implemented by subclassing the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.pipeline.operation.Operation</span></code> class.
+Doing so requires providing implementation for two functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.pipeline.operation</span> <span class="kn">import</span> <span class="n">Operation</span>
+
+<span class="k">class</span> <span class="nc">PickACorner</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+
+    <span class="c1"># Return the code to run this operation</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+</pre></div>
+</div>
+<section id="advancing-state-and-pre-allocating-memory">
+<h2>Advancing state and pre-allocating memory<a class="headerlink" href="#advancing-state-and-pre-allocating-memory" title="Permalink to this heading">¶</a></h2>
+<p>As mentioned earlier, transforms are chained together in FFCV to form data
+<em>pipelines</em>.
+In order to get maximum data processing performance, FFCV:</p>
+<ul class="simple">
+<li><p>keeps track of the <em>state</em> of the data being read at each stage in the
+pipeline (for now, think of state as storing the shape and data type,
+and some additional info useful to the compiler), and</p></li>
+<li><p>pre-allocates a <em>single</em> block of memory for the output of each transform in
+the pipeline; transforms thus (over-)write to the same block of memory for
+each batch, saving allocation time.</p></li>
+</ul>
+<p>To help FFCV accomplish both of these tasks, every transform should implement a
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">declare_state_and_memory()</span></code> method which
+specifies (a) how the given transform will change the state of the data, and (b)
+what memory to allocate such that the transform itself does not need to allocate
+any additional memory for the rest of the program.</p>
+<p>For our <code class="docutils literal notranslate"><span class="pre">PickACorner</span></code> transform, a good <code class="docutils literal notranslate"><span class="pre">declare_state_and_memory</span></code>
+implementation looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.pipeline.allocation_query</span> <span class="kn">import</span> <span class="n">AllocationQuery</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">replace</span>
+
+<span class="c1"># Inside the MaybeBrighten class:</span>
+<span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">previous_state</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">new_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">h</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+
+    <span class="c1"># Everything in the state stays the same other than the shape</span>
+    <span class="c1"># States are immutable, so we have to edit them using the</span>
+    <span class="c1"># dataclasses.replace function</span>
+    <span class="n">new_state</span> <span class="o">=</span> <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">new_shape</span><span class="p">)</span>
+
+    <span class="c1"># We need to allocate memory for the new images</span>
+    <span class="c1"># so below, we ask for a memory allocation whose width and height is</span>
+    <span class="c1"># half the original image, with the same type</span>
+    <span class="c1"># (shape=(,)) of the same type as the image data</span>
+    <span class="n">mem_allocation</span> <span class="o">=</span> <span class="n">AllocationQuery</span><span class="p">(</span><span class="n">new_shape</span><span class="p">,</span> <span class="n">previous_state</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">mem_allocation</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since we can’t implement the augmentation in-place, we needed to allocate new
+memory in which to store the output. We also tell downstream augmentations that
+the state images will change at this stage in the pipeline.</p>
+</section>
+<section id="implementing-the-transform-function">
+<h2>Implementing the transform function<a class="headerlink" href="#implementing-the-transform-function" title="Permalink to this heading">¶</a></h2>
+<p>Now it is time to implement the transform itself: we do this using the
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_code()</span></code> function, which is actually a
+factory function. That is, <code class="xref py py-meth docutils literal notranslate"><span class="pre">generate_code()</span></code>
+should return a <em>function</em>: this function takes as arguments (a) the output of
+the previous operation in the pipeline (as a batch), and (b) a pointer to the
+space in memory corresponding to this transformation’s allocation query.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>See below for how to <em>augment</em> the transformation function with a third
+argument containing the index of datapoint within the dataset!</p>
+</div>
+<p>Let’s take a first pass at writing the transformation function for
+<code class="docutils literal notranslate"><span class="pre">PickACorner</span></code>, not really worrying about performance for now:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">pick_a_corner</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+        <span class="n">which_corner</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">which_corner</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">,:</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="o">-</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:,</span>
+                <span class="o">-</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">dst</span>
+    <span class="k">return</span> <span class="n">pick_a_corner</span>
+</pre></div>
+</div>
+<p>Note that if we did not care about performance, we would be done! We can put
+together a little test script to check that our augmentation runs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span><span class="s1">&#39;/tmp&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="s1">&#39;/tmp/cifar.beton&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">RGBImageField</span><span class="p">(),</span>
+                                            <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">IntField</span><span class="p">()})</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">from_indexed_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
+<span class="n">image_pipelines</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;with&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">SimpleRGBImageDecoder</span><span class="p">(),</span> <span class="n">PickACorner</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">()],</span>
+    <span class="s1">&#39;without&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">SimpleRGBImageDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">()]</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">pipeline</span> <span class="ow">in</span> <span class="n">image_pipelines</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/tmp/cifar.beton&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+                    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">OrderOption</span><span class="o">.</span><span class="n">RANDOM</span><span class="p">,</span>
+                    <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pipelines</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">pipeline</span><span class="p">})</span>
+
+    <span class="c1"># First epoch includes compilation time</span>
+    <span class="k">for</span> <span class="n">ims</span><span class="p">,</span> <span class="n">labs</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span> <span class="k">pass</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">ims</span><span class="p">,</span> <span class="n">labs</span> <span class="ow">in</span> <span class="n">loader</span><span class="p">:</span> <span class="k">pass</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Method: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> | Shape: </span><span class="si">{</span><span class="n">ims</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s1"> | Time per epoch: </span><span class="si">{</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output of this script is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Method</span><span class="p">:</span> <span class="k">with</span> <span class="o">|</span> <span class="n">Shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">512</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">|</span> <span class="n">Time</span> <span class="n">per</span> <span class="n">epoch</span><span class="p">:</span> <span class="mf">0.06596</span><span class="n">s</span>
+<span class="n">Method</span><span class="p">:</span> <span class="n">without</span> <span class="o">|</span> <span class="n">Shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">512</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">|</span> <span class="n">Time</span> <span class="n">per</span> <span class="n">epoch</span><span class="p">:</span> <span class="mf">0.02828</span><span class="n">s</span>
+</pre></div>
+</div>
+<p>Ok! It looks like the augmentation worked, but it also added 0.04s to the
+per-epoch time, making our pipeline around 2.5x
+slower. Thankfully, our implementation above is suboptimal in a number of
+obvious ways. We’ll start with the most obvious: we have a <code class="docutils literal notranslate"><span class="pre">for</span></code> loop running
+in serial inside our augmentation! However, we can use FFCV to compile this for
+loop to <em>parallel</em> machine code, as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ffcv.pipeline.compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
+
+<span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+    <span class="n">parallel_range</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">get_iterable</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">pick_a_corner</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+        <span class="n">which_corner</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">parallel_range</span><span class="p">(</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">which_corner</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">,:</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="p">:</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dst</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">images</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="o">-</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:,</span>
+                <span class="o">-</span><span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">//</span><span class="mi">2</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">dst</span>
+
+    <span class="n">pick_a_corner</span><span class="o">.</span><span class="n">is_parallel</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">pick_a_corner</span>
+</pre></div>
+</div>
+<p>Dissecting the changes above: we replaced <code class="docutils literal notranslate"><span class="pre">range</span></code> with a parallelized compiled
+counterpart given by <code class="xref py py-meth docutils literal notranslate"><span class="pre">ffcv.pipeline.compiler.Compiler.get_iterator()</span></code>: then
+we assigned the <code class="docutils literal notranslate"><span class="pre">is_parallel</span></code> property of the transformation function to flag
+to FFCV that the for loop should be compiled to parallel machine code. With just
+these two changes, our new output is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Method</span><span class="p">:</span> <span class="k">with</span> <span class="o">|</span> <span class="n">Shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">512</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">|</span> <span class="n">Time</span> <span class="n">per</span> <span class="n">epoch</span><span class="p">:</span> <span class="mf">0.03404</span><span class="n">s</span>
+<span class="n">Method</span><span class="p">:</span> <span class="n">without</span> <span class="o">|</span> <span class="n">Shape</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">([</span><span class="mi">512</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span> <span class="o">|</span> <span class="n">Time</span> <span class="n">per</span> <span class="n">epoch</span><span class="p">:</span> <span class="mf">0.02703</span><span class="n">s</span>
+</pre></div>
+</div>
+<p>Great! We’ve cut the overhead from abound 0.04s to just 0.007s, a 6x
+improvement!</p>
+</section>
+<section id="advanced-usage-more-information-about-state">
+<h2>Advanced usage: more information about state<a class="headerlink" href="#advanced-usage-more-information-about-state" title="Permalink to this heading">¶</a></h2>
+<p>In the above example, we only needed to update the shape in the pipeline state.
+We now briefly provide some more information about the state object that may be
+useful for other custom transforms:</p>
+<p>At each stage in the pipeline, the data is stored as either a Numpy
+array or a PyTorch tensor: transforms that act on NumPy arrays run on CPU and
+can be compiled with Numba, while transforms acting on PyTorch tensors can run
+on CPU or GPU (but cannot be pre-compiled).</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>, <code class="docutils literal notranslate"><span class="pre">dtype</span></code>: these two rather familiar attributes keep track of the
+shape and datatype of the data at any given point in the pipeline. The <code class="docutils literal notranslate"><span class="pre">shape</span></code>
+attribute should always be a Python <code class="docutils literal notranslate"><span class="pre">tuple</span></code>; meanwhile <code class="docutils literal notranslate"><span class="pre">dtype</span></code> can be either
+a Numpy dtype or a PyTorch dtype depending on how the data is stored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">device</span></code>: if the data is in NumPy format, this property is irrelevant;
+otherwise, <code class="docutils literal notranslate"><span class="pre">device</span></code> should be a <code class="docutils literal notranslate"><span class="pre">torch.device</span></code> instance that specifies where
+the data is being stored.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jit_mode</span></code>: this is a boolean flag for whether the data is in a
+<em>compileable</em> state (i.e., whether it is on-CPU and in NumPy format).</p></li>
+</ul>
+<p>See <a class="reference external" href="https://github.com/libffcv/ffcv/blob/main/examples/docs_examples/custom_transform.py">here</a>
+for the code corresponding to this post.</p>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>The Bottleneck Doctor &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" />
+    <link rel="prev" title="Tuning Guide" href="parameter_tuning.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+          <li><a href="performance_guide.html">Performance Guide</a></li>
+        
+      <li>The Bottleneck Doctor</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/bottleneck_doctor.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="the-bottleneck-doctor">
+<h1>The Bottleneck Doctor<a class="headerlink" href="#the-bottleneck-doctor" title="Permalink to this heading">¶</a></h1>
+<a class="reference internal image-reference" href="_images/clippy-transparent-2.png"><img alt="_images/clippy-transparent-2.png" src="_images/clippy-transparent-2.png" style="width: 100%;" /></a>
+<p>To summarize the scenarios from the <a class="reference internal" href="parameter_tuning.html#tuning-guide"><span class="std std-ref">Tuning Guide</span></a>, we provide a map from a
+type of <em>system bottleneck</em> to the FFCV options that will help get the most
+performance out of your system:</p>
+<section id="disk-read-bottlenecks">
+<h2>Disk-read bottlenecks<a class="headerlink" href="#disk-read-bottlenecks" title="Permalink to this heading">¶</a></h2>
+<p>What if your GPUs sit idle from low disk or throughput?
+Maybe you’re reading from a networked drive, maybe you have too many GPUs;
+either way, try:</p>
+<ul class="simple">
+<li><p>If your dataset fits in memory, use <strong>OS-level page caching</strong> (enabled by
+default in FFCV) to ensure that concurrent training executions properly
+exploit caching.</p></li>
+<li><p>If your dataset does not fit in memory, use <strong>process-level page caching</strong>,
+(enabled by setting <code class="docutils literal notranslate"><span class="pre">os_cache=False</span></code> when constructing the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.loader.Loader</span></code>) to avoid caching the entire dataset at once.</p></li>
+<li><p>Especially when using process-level caching, consider using the <strong>quasi-random
+data sampler</strong>, enabled using the <code class="docutils literal notranslate"><span class="pre">order=OrderOption.QUASI_RANDOM</span></code> argument to
+the <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> constructor. Quasi-random sampling tries to
+imitate random sampling while minimizing the underlying number of disk reads.
+(Again, note that <code class="docutils literal notranslate"><span class="pre">QUASI_RANDOM</span></code> is not yet supported for distributed training.)</p></li>
+<li><p>Another option for computer vision datasets is <strong>storing resized images</strong>: many
+datasets have gigantic images that end up being resized and cropped anyways in
+the data augmentation pipeline. You can avoid paying the cost of loading these
+giant images by writing them to an appropriate side length in the first place
+with <code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.writer.DatasetWriter</span></code> (see the <a class="reference internal" href="working_with_images.html#working-with-image-data-in-ffcv"><span class="std std-ref">Working with Image Data in FFCV</span></a> guide)</p></li>
+<li><p>Similarly, you can <strong>store images in JPEG format</strong> to save both disk space and
+reading time, and lower serialized JPEG quality to decrease storage sizes.</p></li>
+</ul>
+</section>
+<section id="cpu-bottlenecks">
+<h2>CPU bottlenecks<a class="headerlink" href="#cpu-bottlenecks" title="Permalink to this heading">¶</a></h2>
+<p>All CPUs at 100% and you’re still not hitting maximal GPU usage? Consider the
+following:</p>
+<ul class="simple">
+<li><p>Use pre-made, <strong>JIT-compiled augmentations</strong> from <a class="reference internal" href="api/transforms.html#module-ffcv.transforms" title="ffcv.transforms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ffcv.transforms</span></code></a>: these
+augmentations use pre-allocated pinned memory, and are fused together and
+compiled to machine code at runtime, making them a much faster alternative to
+standard data augmentation functions.</p></li>
+<li><p><strong>Make your own</strong> JIT-compiled augmentations: If you don’t see your desired
+augmentation among the pre-implemented ones, implementing your own efficient
+augmentation is simple and only requires implementing a single Python
+function. See any of the existing augmentations for an example, or read the
+<a class="reference external" href="#">Customization guide</a> (coming soon!) for a tutorial.</p></li>
+<li><p><em>Store (some) raw pixel data</em>: FFCV allows you to smoothly
+trade off I/O workload and compute workload (raw pixels require no JPEG decoding) by
+randomly storing a specified fraction of the dataset as raw pixel data instead
+of JPEG.</p></li>
+</ul>
+</section>
+<section id="gpu-bottlenecks">
+<h2>GPU bottlenecks<a class="headerlink" href="#gpu-bottlenecks" title="Permalink to this heading">¶</a></h2>
+<p>Even if you’re not bottlenecked by data loading, FFCV can still help you
+accelerate your system:</p>
+<ul class="simple">
+<li><p><strong>Asynchronous CPU-GPU data transfer</strong>: we always asynchronously transfer
+data, and also include tools for ensuring unblocked GPU execution.</p></li>
+<li><p><strong>Train multiple models on the same GPU</strong>: Fully
+asynchronous thread-based data loading means that unlike for other data loading
+systems, different training processes using FFCV running on the same GPU won’t
+block each other.</p></li>
+<li><p><strong>Offload compute to the CPU</strong>: because FFCV offer extremely fast JIT-compiled
+data transformations, it’s often helpful to move parts of the data pipeline (e.g.,
+input normalization or image augmentation) to CPU; FFCV will handle compilation
+and parallelization of these functions so that the CPU-induced slowdown isn’t too
+much, and the freed-up GPU time can be used for more GPU-intensive tasks (e.g.,
+matrix multiplication).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This list is limited to what FFCV offers in data loading; check out
+guides like <a class="reference external" href="https://pytorch.org/tutorials/recipes/recipes/tuning_guide.html">the PyTorch performance guide</a> for more
+model-based ways to speed up training.</p>
+</div>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

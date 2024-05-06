@@ -1,0 +1,401 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Reference &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ffcv.writer module" href="api/writer.html" />
+    <link rel="prev" title="ImageNet Benchmarks" href="benchmarks.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+      <li>API Reference</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/api_reference.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToTensor"><code class="docutils literal notranslate"><span class="pre">ToTensor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToTensor.generate_code"><code class="docutils literal notranslate"><span class="pre">ToTensor.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToTensor.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">ToTensor.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToDevice"><code class="docutils literal notranslate"><span class="pre">ToDevice</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToDevice.generate_code"><code class="docutils literal notranslate"><span class="pre">ToDevice.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToDevice.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">ToDevice.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToTorchImage"><code class="docutils literal notranslate"><span class="pre">ToTorchImage</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToTorchImage.generate_code"><code class="docutils literal notranslate"><span class="pre">ToTorchImage.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ToTorchImage.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">ToTorchImage.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.NormalizeImage"><code class="docutils literal notranslate"><span class="pre">NormalizeImage</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.NormalizeImage.generate_code"><code class="docutils literal notranslate"><span class="pre">NormalizeImage.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.NormalizeImage.generate_code_gpu"><code class="docutils literal notranslate"><span class="pre">NormalizeImage.generate_code_gpu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.NormalizeImage.generate_code_cpu"><code class="docutils literal notranslate"><span class="pre">NormalizeImage.generate_code_cpu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.NormalizeImage.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">NormalizeImage.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Convert"><code class="docutils literal notranslate"><span class="pre">Convert</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Convert.generate_code"><code class="docutils literal notranslate"><span class="pre">Convert.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Convert.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">Convert.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Squeeze"><code class="docutils literal notranslate"><span class="pre">Squeeze</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Squeeze.generate_code"><code class="docutils literal notranslate"><span class="pre">Squeeze.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Squeeze.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">Squeeze.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.View"><code class="docutils literal notranslate"><span class="pre">View</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.View.generate_code"><code class="docutils literal notranslate"><span class="pre">View.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.View.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">View.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomResizedCrop"><code class="docutils literal notranslate"><span class="pre">RandomResizedCrop</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomResizedCrop.generate_code"><code class="docutils literal notranslate"><span class="pre">RandomResizedCrop.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomResizedCrop.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">RandomResizedCrop.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomHorizontalFlip"><code class="docutils literal notranslate"><span class="pre">RandomHorizontalFlip</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomHorizontalFlip.generate_code"><code class="docutils literal notranslate"><span class="pre">RandomHorizontalFlip.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomHorizontalFlip.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">RandomHorizontalFlip.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomTranslate"><code class="docutils literal notranslate"><span class="pre">RandomTranslate</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomTranslate.generate_code"><code class="docutils literal notranslate"><span class="pre">RandomTranslate.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomTranslate.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">RandomTranslate.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Cutout"><code class="docutils literal notranslate"><span class="pre">Cutout</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Cutout.generate_code"><code class="docutils literal notranslate"><span class="pre">Cutout.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Cutout.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">Cutout.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ImageMixup"><code class="docutils literal notranslate"><span class="pre">ImageMixup</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ImageMixup.generate_code"><code class="docutils literal notranslate"><span class="pre">ImageMixup.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ImageMixup.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">ImageMixup.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.LabelMixup"><code class="docutils literal notranslate"><span class="pre">LabelMixup</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.LabelMixup.generate_code"><code class="docutils literal notranslate"><span class="pre">LabelMixup.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.LabelMixup.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">LabelMixup.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.MixupToOneHot"><code class="docutils literal notranslate"><span class="pre">MixupToOneHot</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.MixupToOneHot.generate_code"><code class="docutils literal notranslate"><span class="pre">MixupToOneHot.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.MixupToOneHot.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">MixupToOneHot.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Poison"><code class="docutils literal notranslate"><span class="pre">Poison</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Poison.generate_code"><code class="docutils literal notranslate"><span class="pre">Poison.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.Poison.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">Poison.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ReplaceLabel"><code class="docutils literal notranslate"><span class="pre">ReplaceLabel</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ReplaceLabel.generate_code"><code class="docutils literal notranslate"><span class="pre">ReplaceLabel.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ReplaceLabel.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">ReplaceLabel.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ModuleWrapper"><code class="docutils literal notranslate"><span class="pre">ModuleWrapper</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ModuleWrapper.generate_code"><code class="docutils literal notranslate"><span class="pre">ModuleWrapper.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.ModuleWrapper.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">ModuleWrapper.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomBrightness"><code class="docutils literal notranslate"><span class="pre">RandomBrightness</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomBrightness.generate_code"><code class="docutils literal notranslate"><span class="pre">RandomBrightness.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomBrightness.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">RandomBrightness.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomContrast"><code class="docutils literal notranslate"><span class="pre">RandomContrast</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomContrast.generate_code"><code class="docutils literal notranslate"><span class="pre">RandomContrast.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomContrast.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">RandomContrast.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomSaturation"><code class="docutils literal notranslate"><span class="pre">RandomSaturation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomSaturation.generate_code"><code class="docutils literal notranslate"><span class="pre">RandomSaturation.generate_code()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomSaturation.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">RandomSaturation.declare_state_and_memory()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/fields.html">ffcv.fields module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.Field"><code class="docutils literal notranslate"><span class="pre">Field</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.Field.metadata_type"><code class="docutils literal notranslate"><span class="pre">Field.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.Field.from_binary"><code class="docutils literal notranslate"><span class="pre">Field.from_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.Field.to_binary"><code class="docutils literal notranslate"><span class="pre">Field.to_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.Field.encode"><code class="docutils literal notranslate"><span class="pre">Field.encode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.Field.get_decoder_class"><code class="docutils literal notranslate"><span class="pre">Field.get_decoder_class()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField"><code class="docutils literal notranslate"><span class="pre">BytesField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField.metadata_type"><code class="docutils literal notranslate"><span class="pre">BytesField.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField.from_binary"><code class="docutils literal notranslate"><span class="pre">BytesField.from_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField.to_binary"><code class="docutils literal notranslate"><span class="pre">BytesField.to_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField.encode"><code class="docutils literal notranslate"><span class="pre">BytesField.encode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField.get_decoder_class"><code class="docutils literal notranslate"><span class="pre">BytesField.get_decoder_class()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.IntField"><code class="docutils literal notranslate"><span class="pre">IntField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.IntField.metadata_type"><code class="docutils literal notranslate"><span class="pre">IntField.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.IntField.from_binary"><code class="docutils literal notranslate"><span class="pre">IntField.from_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.IntField.to_binary"><code class="docutils literal notranslate"><span class="pre">IntField.to_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.IntField.encode"><code class="docutils literal notranslate"><span class="pre">IntField.encode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.IntField.get_decoder_class"><code class="docutils literal notranslate"><span class="pre">IntField.get_decoder_class()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.FloatField"><code class="docutils literal notranslate"><span class="pre">FloatField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.FloatField.metadata_type"><code class="docutils literal notranslate"><span class="pre">FloatField.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.FloatField.from_binary"><code class="docutils literal notranslate"><span class="pre">FloatField.from_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.FloatField.to_binary"><code class="docutils literal notranslate"><span class="pre">FloatField.to_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.FloatField.encode"><code class="docutils literal notranslate"><span class="pre">FloatField.encode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.FloatField.get_decoder_class"><code class="docutils literal notranslate"><span class="pre">FloatField.get_decoder_class()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField"><code class="docutils literal notranslate"><span class="pre">RGBImageField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField.metadata_type"><code class="docutils literal notranslate"><span class="pre">RGBImageField.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField.get_decoder_class"><code class="docutils literal notranslate"><span class="pre">RGBImageField.get_decoder_class()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField.from_binary"><code class="docutils literal notranslate"><span class="pre">RGBImageField.from_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField.to_binary"><code class="docutils literal notranslate"><span class="pre">RGBImageField.to_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField.encode"><code class="docutils literal notranslate"><span class="pre">RGBImageField.encode()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.NDArrayField"><code class="docutils literal notranslate"><span class="pre">NDArrayField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.NDArrayField.metadata_type"><code class="docutils literal notranslate"><span class="pre">NDArrayField.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.NDArrayField.from_binary"><code class="docutils literal notranslate"><span class="pre">NDArrayField.from_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.NDArrayField.to_binary"><code class="docutils literal notranslate"><span class="pre">NDArrayField.to_binary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.NDArrayField.encode"><code class="docutils literal notranslate"><span class="pre">NDArrayField.encode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.NDArrayField.get_decoder_class"><code class="docutils literal notranslate"><span class="pre">NDArrayField.get_decoder_class()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.JSONField"><code class="docutils literal notranslate"><span class="pre">JSONField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.JSONField.metadata_type"><code class="docutils literal notranslate"><span class="pre">JSONField.metadata_type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.JSONField.encode"><code class="docutils literal notranslate"><span class="pre">JSONField.encode()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.JSONField.unpack"><code class="docutils literal notranslate"><span class="pre">JSONField.unpack()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html#ffcv.fields.TorchTensorField"><code class="docutils literal notranslate"><span class="pre">TorchTensorField</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/fields.html#ffcv.fields.TorchTensorField.encode"><code class="docutils literal notranslate"><span class="pre">TorchTensorField.encode()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.FloatDecoder"><code class="docutils literal notranslate"><span class="pre">FloatDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.FloatDecoder.dtype"><code class="docutils literal notranslate"><span class="pre">FloatDecoder.dtype</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.IntDecoder"><code class="docutils literal notranslate"><span class="pre">IntDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.IntDecoder.dtype"><code class="docutils literal notranslate"><span class="pre">IntDecoder.dtype</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.NDArrayDecoder"><code class="docutils literal notranslate"><span class="pre">NDArrayDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.NDArrayDecoder.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">NDArrayDecoder.declare_state_and_memory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.NDArrayDecoder.generate_code"><code class="docutils literal notranslate"><span class="pre">NDArrayDecoder.generate_code()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.RandomResizedCropRGBImageDecoder"><code class="docutils literal notranslate"><span class="pre">RandomResizedCropRGBImageDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.RandomResizedCropRGBImageDecoder.get_crop_generator"><code class="docutils literal notranslate"><span class="pre">RandomResizedCropRGBImageDecoder.get_crop_generator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.CenterCropRGBImageDecoder"><code class="docutils literal notranslate"><span class="pre">CenterCropRGBImageDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.CenterCropRGBImageDecoder.get_crop_generator"><code class="docutils literal notranslate"><span class="pre">CenterCropRGBImageDecoder.get_crop_generator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.SimpleRGBImageDecoder"><code class="docutils literal notranslate"><span class="pre">SimpleRGBImageDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.SimpleRGBImageDecoder.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">SimpleRGBImageDecoder.declare_state_and_memory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.SimpleRGBImageDecoder.generate_code"><code class="docutils literal notranslate"><span class="pre">SimpleRGBImageDecoder.generate_code()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.BytesDecoder"><code class="docutils literal notranslate"><span class="pre">BytesDecoder</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.BytesDecoder.declare_state_and_memory"><code class="docutils literal notranslate"><span class="pre">BytesDecoder.declare_state_and_memory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.BytesDecoder.generate_code"><code class="docutils literal notranslate"><span class="pre">BytesDecoder.generate_code()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

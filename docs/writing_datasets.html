@@ -1,0 +1,326 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Writing a dataset to FFCV format &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Making an FFCV dataloader" href="making_dataloaders.html" />
+    <link rel="prev" title="Getting started" href="basics.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+          <li><a href="basics.html">Getting started</a></li>
+        
+      <li>Writing a dataset to FFCV format</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/writing_datasets.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="basics.html">Getting started</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="writing-a-dataset-to-ffcv-format">
+<h1>Writing a dataset to FFCV format<a class="headerlink" href="#writing-a-dataset-to-ffcv-format" title="Permalink to this heading">¶</a></h1>
+<p>Datasets in FFCV are stored in a custom <code class="docutils literal notranslate"><span class="pre">.beton</span></code> format that allows for fast
+reading (see the <a class="reference internal" href="making_dataloaders.html#making-an-ffcv-dataloader"><span class="std std-ref">Making an FFCV dataloader</span></a> section).</p>
+<p>Such files can be generated using the class <code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.writer.DatasetWriter</span></code> from two potential sources:</p>
+<ul class="simple">
+<li><p><strong>Indexable objects</strong>:
+They need to implement <code class="docutils literal notranslate"><span class="pre">__len__</span></code> and a <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> function
+returning the data associated to a sample as a tuple/list (of any length).
+Examples of this kind of dataset include but are not limited to:
+<code class="docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy.ndarray</span></code>, or even Python lists.</p></li>
+<li><p><strong>Webdataset</strong> (<a class="reference external" href="https://github.com/webdataset/webdataset">Github</a>):
+This allows users to integrate large scale and/or remote datasets into FFCV easily.</p></li>
+</ul>
+<p>In this tutorial, we will show how to handle datasets from these two categories.
+Additionally, in the folder <code class="docutils literal notranslate"><span class="pre">/examples</span></code> of our <a class="reference external" href="https://github.com/libffcv/ffcv">repository</a> we also include a
+conversion script illustrating the conversion of <a class="reference external" href="https://www.cs.toronto.edu/~kriz/cifar.html">CIFAR-10</a> and <a class="reference external" href="https://www.image-net.org">ImageNet</a> from their PyTorch counterparts.</p>
+<p>The first step is to include the following class into your script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.writer</span> <span class="kn">import</span> <span class="n">DatasetWriter</span>
+</pre></div>
+</div>
+<section id="indexable-dataset">
+<h2>Indexable Dataset<a class="headerlink" href="#indexable-dataset" title="Permalink to this heading">¶</a></h2>
+<p>For this example, we’ll construct a simple linear regression dataset that
+returns an input vector and its corresponding label:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">class</span> <span class="nc">LinearRegressionDataset</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">)</span>
+
+<span class="n">N</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">LinearRegressionDataset</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The class <code class="docutils literal notranslate"><span class="pre">LinearRegressionDataset</span></code> implements the interface required to be a
+<code class="docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code> so one could use any PyTorch Dataset instead of our
+toy example here.</p>
+</div>
+<p>The class responsible for converting datasets to FFCV format is the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.writer.DatasetWriter</span></code>. The writer takes in:</p>
+<ul class="simple">
+<li><p>A path, where the <code class="docutils literal notranslate"><span class="pre">.beton</span></code> will be written</p></li>
+<li><p>A dictionary mapping keys to <em>fields</em> (<a class="reference internal" href="api/fields.html#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a>).</p></li>
+</ul>
+<p>Each field corresponds to an element of the data tuple returned by our
+dataset, and specifies how the element should be written to (and later, read
+from) the FFCV dataset file.  In our case, the dataset has two fields, one
+for the (vector) input and the other for the corresponding (scalar) label.
+Both of these fields already have default implementations in FFCV, which we use
+below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.fields</span> <span class="kn">import</span> <span class="n">NDArrayField</span><span class="p">,</span> <span class="n">FloatField</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;covariate&#39;</span><span class="p">:</span> <span class="n">NDArrayField</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">d</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)),</span>
+    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">FloatField</span><span class="p">(),</span>
+
+<span class="p">},</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Starting in Python 3.6, dictionary keys are ordered, and <code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetWriter</span></code> uses
+this order to match the given fields to the elements returned by the
+<code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> function of the dataset. Make sure to provide
+the fields in the right order to avoid errors.</p>
+</div>
+<p>After constructing the writer, the only remaining step is to write the dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">writer</span><span class="o">.</span><span class="n">from_indexed_dataset</span><span class="p">(</span><span class="n">my_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="webdataset">
+<h2>Webdataset<a class="headerlink" href="#webdataset" title="Permalink to this heading">¶</a></h2>
+<p>For this second example we will assume that you have access to a
+<code class="docutils literal notranslate"><span class="pre">webdataset</span></code> version of ImageNet (or similar) dataset, and that all the
+shards are in a folder called <code class="docutils literal notranslate"><span class="pre">FOLDER</span></code>.</p>
+<p>In order to perform the conversion to a <code class="docutils literal notranslate"><span class="pre">.beton</span></code> file, we first need to
+collect the list of shards. This can be simply done with <code class="docutils literal notranslate"><span class="pre">glob</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+
+<span class="n">my_shards</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">FOLDER</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Internally, FFCV will split the shards between the available workers.
+However, each worker still needs to know how to decode a given shard. This is done
+by defining a pipeline (very similar to how one would use a <code class="docutils literal notranslate"><span class="pre">webdataset</span></code> for training):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">pipeline</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;rgb8&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">to_tuple</span><span class="p">(</span><span class="s1">&#39;jpg:png;jpeg cls&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Since FFCV expects images in the numpy <code class="docutils literal notranslate"><span class="pre">uint8</span></code> format, we use the parameter <code class="docutils literal notranslate"><span class="pre">'rgb8'</span></code>
+of <code class="docutils literal notranslate"><span class="pre">webdataset</span></code> to decode the images. We then convert the dictionary to a tuple
+that FFCV will be able to process.</p>
+<p>We now just have to glue everything together:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.fields</span> <span class="kn">import</span> <span class="n">RGBImageField</span><span class="p">,</span> <span class="n">IntField</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">RGBImageField</span><span class="p">()</span>
+    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">IntField</span><span class="p">(),</span>
+
+<span class="p">},</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+
+<span class="n">writer</span><span class="o">.</span><span class="n">from_webdataset</span><span class="p">(</span><span class="n">my_shards</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this heading">¶</a></h2>
+<p>Beyond the examples used above, FFCV supports a variety of built-in fields that make it easy to directly convert most datasets. We review them below:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField" title="ffcv.fields.RGBImageField"><code class="xref py py-class docutils literal notranslate"><span class="pre">RGBImageField</span></code></a>: Handles images including (optional) compression
+and resizing. Pass in a PyTorch Tensor.</p></li>
+<li><p><a class="reference internal" href="api/fields.html#ffcv.fields.IntField" title="ffcv.fields.IntField"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntField</span></code></a> and <a class="reference internal" href="api/fields.html#ffcv.fields.FloatField" title="ffcv.fields.FloatField"><code class="xref py py-class docutils literal notranslate"><span class="pre">FloatField</span></code></a>: Handle simple scalar fields.
+Pass in <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>.</p></li>
+<li><p><a class="reference internal" href="api/fields.html#ffcv.fields.BytesField" title="ffcv.fields.BytesField"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesField</span></code></a>: Stores byte arrays of variable length. Pass in <code class="docutils literal notranslate"><span class="pre">numpy</span></code> byte array.</p></li>
+<li><p><a class="reference internal" href="api/fields.html#ffcv.fields.JSONField" title="ffcv.fields.JSONField"><code class="xref py py-class docutils literal notranslate"><span class="pre">JSONField</span></code></a>: Encodes a JSON document. Pass in <code class="docutils literal notranslate"><span class="pre">dict</span></code> that can be JSON-encoded.</p></li>
+</ul>
+<p>That’s it! You are now ready to <a class="reference internal" href="making_dataloaders.html#making-an-ffcv-dataloader"><span class="std std-ref">construct loaders</span></a> for this dataset
+and start loading the data.</p>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

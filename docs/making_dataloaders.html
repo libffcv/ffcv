@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Making an FFCV dataloader &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Performance Guide" href="performance_guide.html" />
+    <link rel="prev" title="Writing a dataset to FFCV format" href="writing_datasets.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+          <li><a href="basics.html">Getting started</a></li>
+        
+      <li>Making an FFCV dataloader</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/making_dataloaders.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="basics.html">Getting started</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="making-an-ffcv-dataloader">
+<h1>Making an FFCV dataloader<a class="headerlink" href="#making-an-ffcv-dataloader" title="Permalink to this heading">¶</a></h1>
+<p>After <a class="reference internal" href="writing_datasets.html#writing-a-dataset-to-ffcv-format"><span class="std std-ref">writing an FFCV dataset</span></a>, we are
+ready to start loading data (and training models)! We’ll continue using the same
+regression dataset as the previous guide, and we’ll assume that the dataset has
+been written to <code class="docutils literal notranslate"><span class="pre">/path/to/dataset.beton</span></code>.</p>
+<p>In order to load the dataset that we’ve written, we’ll need the
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.loader.Loader</span></code> class (which will do most of the heavy lifting), and
+a set of <em>decoders</em> corresponding to the fields present in the dataset (so in
+our case, we will use the <a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.FloatDecoder" title="ffcv.fields.decoders.FloatDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">FloatDecoder</span></code></a> and
+<a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.NDArrayDecoder" title="ffcv.fields.decoders.NDArrayDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">NDArrayDecoder</span></code></a> classes):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.loader</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">OrderOption</span>
+<span class="kn">from</span> <span class="nn">ffcv.fields.decoders</span> <span class="kn">import</span> <span class="n">NDArrayDecoder</span><span class="p">,</span> <span class="n">FloatDecoder</span>
+</pre></div>
+</div>
+<p>Our first step is instantiating the <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loader</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="s1">&#39;/path/to/dataset.beton&#39;</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+                <span class="n">num_workers</span><span class="o">=</span><span class="n">NUM_WORKERS</span><span class="p">,</span>
+                <span class="n">order</span><span class="o">=</span><span class="n">ORDERING</span><span class="p">,</span>
+                <span class="n">pipelines</span><span class="o">=</span><span class="n">PIPELINES</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In order to create a loader, we need to specify a path to the FFCV dataset,
+batch size, number of workers, as well as two less standard arguments, <code class="docutils literal notranslate"><span class="pre">order</span></code>
+and <code class="docutils literal notranslate"><span class="pre">pipelines</span></code>, which we discuss below:</p>
+<section id="dataset-ordering">
+<h2>Dataset ordering<a class="headerlink" href="#dataset-ordering" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">order</span></code> option in the loader initialization is similar to <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader">PyTorch DataLoader</a>’s <code class="docutils literal notranslate"><span class="pre">shuffle</span></code> option, with some additional options. This argument
+takes an <code class="docutils literal notranslate"><span class="pre">enum</span></code> provided by <code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.loader.OrderOption</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.loader</span> <span class="kn">import</span> <span class="n">OrderOption</span>
+
+<span class="c1"># Truly random shuffling (shuffle=True in PyTorch)</span>
+<span class="n">ORDERING</span> <span class="o">=</span> <span class="n">OrderOption</span><span class="o">.</span><span class="n">RANDOM</span>
+
+<span class="c1"># Unshuffled (i.e., served in the order the dataset was written)</span>
+<span class="n">ORDERING</span> <span class="o">=</span> <span class="n">OrderOption</span><span class="o">.</span><span class="n">SEQUENTIAL</span>
+
+<span class="c1"># Memory-efficient but not truly random loading</span>
+<span class="c1"># Speeds up loading over RANDOM when the whole dataset does not fit in RAM!</span>
+<span class="n">ORDERING</span> <span class="o">=</span> <span class="n">OrderOption</span><span class="o">.</span><span class="n">QUASI_RANDOM</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">order</span></code> options require different amounts of RAM, thus should be used considering how much RAM available in a case-by-case basis.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RANDOM</span></code> requires RAM the most since it will have to cache the entire dataset to sample perfectly at random. If the available RAM is not enough, it will throw an exception.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">QUASI_RANDOM</span></code> requires much less RAM than <code class="docutils literal notranslate"><span class="pre">RANDOM</span></code>, but a bit more than <code class="docutils literal notranslate"><span class="pre">SEQUENTIAL</span></code>, in order to cache a part of samples. It is used when the entire dataset can not fit RAM.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SEQUENTIAL</span></code> requires least RAM. It only keeps several samples loaded ahead of time used in incoming training iterations.</p></li>
+</ul>
+</div>
+</section>
+<section id="pipelines">
+<h2>Pipelines<a class="headerlink" href="#pipelines" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pipeline</span></code> option in <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> specifies the dataset and
+tells the loader what fields to read, how to read them, and what operations to
+apply on top. Specifically, a pipeline is a key-value dictionary where the key
+matches the one used in <a class="reference internal" href="writing_datasets.html#writing-a-dataset-to-ffcv-format"><span class="std std-ref">writing the dataset</span></a>, and the value is a
+sequence of operations to perform. The operations must start with a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.fields.decoders.Decoder</span></code> object corresponding to that field followed by a
+sequence of <em>transforms</em>.
+For example, the following pipeline reads the fields and then converts each one
+to a PyTorch tensor:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.transforms</span> <span class="kn">import</span> <span class="n">ToTensor</span>
+
+<span class="n">PIPELINES</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;covariate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">NDArrayDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">()],</span>
+  <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">FloatDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">()]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is already enough to start loading data, but pipelines are also our
+opportunity to apply fast pre-processing to the data through a series of
+transformations—transforms are automatically compiled to machine code at runtime
+and, for GPU-intensive applications like training neural networks, can reduce
+any additional training overhead.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In fact, declaring field pipelines is optional: for any field that exists
+in the dataset file without a corresponding pipeline specified in the
+<code class="docutils literal notranslate"><span class="pre">pipelines</span></code> dictionary,  the <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> will default to
+the bare-bones pipeline above, i.e., first a decoder
+then a conversion to PyTorch tensor. (You can force FFCV to explicitly <em>not</em>
+load a field by adding a corresponding <code class="docutils literal notranslate"><span class="pre">None</span></code> entry to the <code class="docutils literal notranslate"><span class="pre">pipelines</span></code>
+dictionary.)</p>
+<p>If the entire <code class="docutils literal notranslate"><span class="pre">pipelines</span></code> argument is
+unspecified, this bare-bones pipeline will be applied to all fields.</p>
+</div>
+<section id="transforms">
+<h3>Transforms<a class="headerlink" href="#transforms" title="Permalink to this heading">¶</a></h3>
+<p>There are three easy ways to specify transformations in a pipeline:</p>
+<ul class="simple">
+<li><p>A set of standard transformations in the
+<a class="reference internal" href="api/transforms.html#module-ffcv.transforms" title="ffcv.transforms"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ffcv.transforms</span></code></a> module. These include standard image data augmentations such as <a class="reference internal" href="api/transforms.html#ffcv.transforms.RandomHorizontalFlip" title="ffcv.transforms.RandomHorizontalFlip"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomHorizontalFlip</span></code></a> and <a class="reference internal" href="api/transforms.html#ffcv.transforms.Cutout" title="ffcv.transforms.Cutout"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cutout</span></code></a>.</p></li>
+<li><p>Any subclass of <code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>: FFCV automatically converts them into an operation.</p></li>
+<li><p>Custom transformations: you can implement your own by subclassing
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.transforms.Operation</span></code>, as discussed in the
+<a class="reference internal" href="ffcv_examples/custom_transforms.html#fast-custom-image-transforms"><span class="std std-ref">Making custom transforms</span></a> guide.</p></li>
+</ul>
+<p>The following shows an example of a full pipeline for a vector field starts with the field decoder,
+<a class="reference internal" href="api/decoders.html#ffcv.fields.decoders.NDArrayDecoder" title="ffcv.fields.decoders.NDArrayDecoder"><code class="xref py py-class docutils literal notranslate"><span class="pre">NDArrayDecoder</span></code></a>, followed by conversion to <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code>, and a custom transform implemented as a <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.Module</span></code> that adds Gaussian noise to each vector:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">AddGaussianNoise</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AddGaussianNoise</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">ch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span>
+
+<span class="n">pipeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">NDArrayDecoder</span><span class="p">(),</span>
+    <span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">AddGaussianNoise</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>For an example of a different field, this could be a pipeline for an <a class="reference internal" href="api/fields.html#ffcv.fields.RGBImageField" title="ffcv.fields.RGBImageField"><code class="xref py py-class docutils literal notranslate"><span class="pre">RGBImageField</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">image_pipeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">SimpleRGBImageDecoder</span><span class="p">(),</span>
+    <span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+    <span class="n">torchvision</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">ColorJitter</span><span class="p">(</span><span class="mf">.4</span><span class="p">,</span><span class="mf">.4</span><span class="p">,</span><span class="mf">.4</span><span class="p">),</span>
+    <span class="n">RandomTranslate</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">ToTensor</span><span class="p">(),</span>
+    <span class="n">ToDevice</span><span class="p">(</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">,</span> <span class="n">non_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">ToTorchImage</span><span class="p">(),</span>
+    <span class="n">Convert</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">float16</span><span class="p">),</span>
+    <span class="n">torchvision</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">MEAN</span><span class="p">,</span> <span class="n">STD</span><span class="p">),</span> <span class="c1"># Normalize using image statistics</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="putting-together">
+<h2>Putting together<a class="headerlink" href="#putting-together" title="Permalink to this heading">¶</a></h2>
+<p>Back to our running linear regression dataset example, in summary the final loader can be constructed as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loader</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="s1">&#39;/path/to/dataset.beton&#39;</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+                <span class="n">num_workers</span><span class="o">=</span><span class="n">NUM_WORKERS</span><span class="p">,</span>
+                <span class="n">order</span><span class="o">=</span><span class="n">OrderOption</span><span class="o">.</span><span class="n">RANDOM</span><span class="p">,</span>
+                <span class="n">pipelines</span><span class="o">=</span><span class="p">{</span>
+                  <span class="s1">&#39;covariate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">NDArrayDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">(),</span> <span class="n">AddGaussianNoise</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)],</span>
+                  <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">FloatDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">()]</span>
+                <span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="other-options">
+<h2>Other options<a class="headerlink" href="#other-options" title="Permalink to this heading">¶</a></h2>
+<p>You can also specify the following additional options when constructing an <code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.loader.Loader</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">os_cache</span></code>: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the OS automatically determines whether the dataset is held in memory or not, depending on available RAM. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, FFCV manages the caching, and the amount of RAM needed depends on <code class="docutils literal notranslate"><span class="pre">order</span></code> option.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">distributed</span></code>: For training on <a class="reference internal" href="parameter_tuning.html#scenario-multi-gpu-training-1-model-multiple-gpus"><span class="std std-ref">multiple GPUs</span></a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seed</span></code>: Specify the random seed for batch ordering</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">indices</span></code>: Provide indices to load a subset of the dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">custom_fields</span></code>: For specifying decoders for fields with custom encoders</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">drop_last</span></code>: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, drops the last non-full batch from each iteration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batches_ahead</span></code>: Set the number of batches prepared in advance. Increasing it absorbs variation in processing time to make sure the training loop does not stall for too long to process batches. Decreasing it reduces RAM usage.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recompile</span></code>: Recompile every iteration. Useful if you have transforms that change their behavior from epoch to epoch, for instance code that uses the shape as a compile time param. (But if they just change their memory usage, e.g., the resolution changes, it’s not necessary.)</p></li>
+</ul>
+</section>
+<section id="more-information">
+<h2>More information<a class="headerlink" href="#more-information" title="Permalink to this heading">¶</a></h2>
+<p>For information on available transforms and the <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> class, see our <a class="reference internal" href="index.html#api-reference"><span class="std std-ref">API Reference</span></a>.</p>
+<p>For examples of constructing loaders and using them, see the tutorials <a class="reference internal" href="ffcv_examples/cifar10.html#training-cifar-10-in-36-seconds-on-a-single-a100"><span class="std std-ref">Training CIFAR-10 in 36 seconds on a single A100</span></a>
+and <a class="reference internal" href="ffcv_examples/linear_regression.html#large-scale-linear-regression"><span class="std std-ref">Large-Scale Linear Regression</span></a>.</p>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

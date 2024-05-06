@@ -1,0 +1,248 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quickstart &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting started" href="basics.html" />
+    <link rel="prev" title="Welcome to FFCV’s documentation!" href="index.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+      <li>Quickstart</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/quickstart.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="quickstart">
+<h1>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this heading">¶</a></h1>
+<p>Accelerate <em>any</em> learning system with <cite>ffcv</cite>: getting started takes just a few
+lines of code!
+First, convert your dataset into <cite>ffcv</cite> format (<cite>ffcv</cite> converts both indexed
+PyTorch datasets and <a class="reference external" href="https://github.com/webdataset/webdataset">WebDatasets</a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.writer</span> <span class="kn">import</span> <span class="n">DatasetWriter</span>
+<span class="kn">from</span> <span class="nn">ffcv.fields</span> <span class="kn">import</span> <span class="n">RGBImageField</span><span class="p">,</span> <span class="n">IntField</span>
+
+<span class="c1"># Your dataset (`torch.utils.data.Dataset`) of (image, label) pairs</span>
+<span class="n">my_dataset</span> <span class="o">=</span> <span class="n">make_my_dataset</span><span class="p">()</span>
+<span class="n">write_path</span> <span class="o">=</span> <span class="s1">&#39;/output/path/for/converted/ds.beton&#39;</span>
+
+<span class="c1"># Pass a type for each data field</span>
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="p">{</span>
+    <span class="c1"># Tune options to optimize dataset size, throughput at train-time</span>
+    <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">RGBImageField</span><span class="p">(</span>
+        <span class="n">max_resolution</span><span class="o">=</span><span class="mi">256</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">IntField</span><span class="p">()</span>
+<span class="p">})</span>
+
+<span class="c1"># Write dataset</span>
+<span class="n">writer</span><span class="o">.</span><span class="n">from_indexed_dataset</span><span class="p">(</span><span class="n">my_dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then replace your old loader with the <cite>ffcv</cite> loader at train time (in PyTorch,
+no other changes required!):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.loader</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">OrderOption</span>
+<span class="kn">from</span> <span class="nn">ffcv.transforms</span> <span class="kn">import</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">ToDevice</span><span class="p">,</span> <span class="n">ToTorchImage</span><span class="p">,</span> <span class="n">Cutout</span>
+<span class="kn">from</span> <span class="nn">ffcv.fields.decoders</span> <span class="kn">import</span> <span class="n">IntDecoder</span><span class="p">,</span> <span class="n">RandomResizedCropRGBImageDecoder</span>
+
+<span class="c1"># Random resized crop</span>
+<span class="n">decoder</span> <span class="o">=</span> <span class="n">RandomResizedCropRGBImageDecoder</span><span class="p">((</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))</span>
+
+<span class="c1"># Data decoding and augmentation</span>
+<span class="n">image_pipeline</span> <span class="o">=</span> <span class="p">[</span><span class="n">decoder</span><span class="p">,</span> <span class="n">Cutout</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">(),</span> <span class="n">ToTorchImage</span><span class="p">(),</span> <span class="n">ToDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+<span class="n">label_pipeline</span> <span class="o">=</span> <span class="p">[</span><span class="n">IntDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">(),</span> <span class="n">ToDevice</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+
+<span class="c1"># Pipeline for each data field</span>
+<span class="n">pipelines</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">image_pipeline</span><span class="p">,</span>
+    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label_pipeline</span>
+<span class="p">}</span>
+
+<span class="c1"># Replaces PyTorch data loader (`torch.utils.data.Dataloader`)</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="n">write_path</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">bs</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+                <span class="n">order</span><span class="o">=</span><span class="n">OrderOption</span><span class="o">.</span><span class="n">RANDOM</span><span class="p">,</span> <span class="n">pipelines</span><span class="o">=</span><span class="n">pipelines</span><span class="p">)</span>
+
+<span class="c1"># rest of training / validation proceeds identically</span>
+<span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epochs</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="basics.html#getting-started"><span class="std std-ref">here</span></a> for a more detailed guide to deploying <cite>ffcv</cite> for your dataset.</p>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

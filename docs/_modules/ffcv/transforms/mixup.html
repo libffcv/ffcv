@@ -1,0 +1,305 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ffcv.transforms.mixup &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../../../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a></li>
+        
+          <li><a href="../../index.html">Module code</a></li>
+        
+      <li>ffcv.transforms.mixup</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../../../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <h1>Source code for ffcv.transforms.mixup</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Mixup augmentation for images and labels (https://arxiv.org/abs/1710.09412)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">objmode</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span> <span class="k">as</span> <span class="nn">ch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">replace</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">..pipeline.allocation_query</span> <span class="kn">import</span> <span class="n">AllocationQuery</span>
+<span class="kn">from</span> <span class="nn">..pipeline.operation</span> <span class="kn">import</span> <span class="n">Operation</span>
+<span class="kn">from</span> <span class="nn">..pipeline.state</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">..pipeline.compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
+
+<div class="viewcode-block" id="ImageMixup"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ImageMixup">[docs]</a><span class="k">class</span> <span class="nc">ImageMixup</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixup for images. Operates on raw arrays (not tensors).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    alpha : float</span>
+<span class="sd">        Mixup parameter alpha</span>
+<span class="sd">    same_lambda : bool</span>
+<span class="sd">        Whether to use the same value of lambda across the whole batch, or an</span>
+<span class="sd">        individually sampled lambda per image in the batch</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">same_lambda</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">same_lambda</span> <span class="o">=</span> <span class="n">same_lambda</span>
+
+<div class="viewcode-block" id="ImageMixup.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ImageMixup.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span>
+        <span class="n">same_lam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">same_lambda</span>
+        <span class="n">my_range</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">get_iterator</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">mixer</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">num_images</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span> <span class="k">if</span> <span class="n">same_lam</span> <span class="k">else</span> \
+                  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">num_images</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="n">my_range</span><span class="p">(</span><span class="n">num_images</span><span class="p">):</span>
+                <span class="n">l</span> <span class="o">=</span> <span class="n">lam</span> <span class="k">if</span> <span class="n">same_lam</span> <span class="k">else</span> <span class="n">lam</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+                <span class="n">dst</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">l</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">l</span><span class="p">)</span> <span class="o">*</span> <span class="n">images</span><span class="p">[</span><span class="n">ix</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">dst</span>
+
+        <span class="n">mixer</span><span class="o">.</span><span class="n">is_parallel</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mixer</span><span class="o">.</span><span class="n">with_indices</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">mixer</span></div>
+
+<div class="viewcode-block" id="ImageMixup.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ImageMixup.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">AllocationQuery</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">previous_state</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                                                <span class="n">dtype</span><span class="o">=</span><span class="n">previous_state</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span></div></div>
+
+<div class="viewcode-block" id="LabelMixup"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.LabelMixup">[docs]</a><span class="k">class</span> <span class="nc">LabelMixup</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixup for labels. Should be initialized in exactly the same way as</span>
+<span class="sd">    :cla:`ffcv.transforms.ImageMixup`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">same_lambda</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">same_lambda</span> <span class="o">=</span> <span class="n">same_lambda</span>
+
+<div class="viewcode-block" id="LabelMixup.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.LabelMixup.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span>
+        <span class="n">same_lam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">same_lambda</span>
+        <span class="n">my_range</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">get_iterator</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">mixer</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">temp_array</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+            <span class="n">num_labels</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># permutation = np.random.permutation(num_labels)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="n">indices</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span> <span class="k">if</span> <span class="n">same_lam</span> <span class="k">else</span> \
+                  <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">num_labels</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="n">my_range</span><span class="p">(</span><span class="n">num_labels</span><span class="p">):</span>
+                <span class="n">temp_array</span><span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">ix</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">temp_array</span><span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">ix</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">temp_array</span><span class="p">[</span><span class="n">ix</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">lam</span> <span class="k">if</span> <span class="n">same_lam</span> <span class="k">else</span> <span class="n">lam</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+
+            <span class="k">return</span> <span class="n">temp_array</span>
+
+        <span class="n">mixer</span><span class="o">.</span><span class="n">is_parallel</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">mixer</span><span class="o">.</span><span class="n">with_indices</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">mixer</span></div>
+
+<div class="viewcode-block" id="LabelMixup.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.LabelMixup.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+                <span class="n">AllocationQuery</span><span class="p">((</span><span class="mi">3</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span></div></div>
+
+<div class="viewcode-block" id="MixupToOneHot"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.MixupToOneHot">[docs]</a><span class="k">class</span> <span class="nc">MixupToOneHot</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span> <span class="o">=</span> <span class="n">num_classes</span>
+
+<div class="viewcode-block" id="MixupToOneHot.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.MixupToOneHot.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">one_hotter</span><span class="p">(</span><span class="n">mixedup_labels</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">zero_</span><span class="p">()</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="n">mixedup_labels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">dst</span><span class="p">[</span><span class="n">ch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="n">mixedup_labels</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()]</span> <span class="o">=</span> <span class="n">mixedup_labels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="n">mixedup_labels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">mixedup_labels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">dst</span><span class="p">[</span><span class="n">ch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">N</span><span class="p">),</span> <span class="n">mixedup_labels</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()]</span> <span class="o">=</span> <span class="n">mixedup_labels</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">dst</span>
+
+        <span class="k">return</span> <span class="n">one_hotter</span></div>
+
+<div class="viewcode-block" id="MixupToOneHot.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.MixupToOneHot.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="c1"># Should already be converted to tensor</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">previous_state</span><span class="o">.</span><span class="n">jit_mode</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,)),</span> \
+                <span class="n">AllocationQuery</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">num_classes</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">previous_state</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">previous_state</span><span class="o">.</span><span class="n">device</span><span class="p">))</span></div></div>
+</pre></div>
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

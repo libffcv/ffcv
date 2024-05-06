@@ -1,0 +1,348 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ffcv.transforms.ops &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../../../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a></li>
+        
+          <li><a href="../../index.html">Module code</a></li>
+        
+      <li>ffcv.transforms.ops</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../../../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <h1>Source code for ffcv.transforms.ops</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">General operations:</span>
+
+<span class="sd">- Collation</span>
+<span class="sd">- Conversion to PyTorch Tensor</span>
+<span class="sd">- Change device of Tensor</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">torch</span> <span class="k">as</span> <span class="nn">ch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">..pipeline.allocation_query</span> <span class="kn">import</span> <span class="n">AllocationQuery</span>
+<span class="kn">from</span> <span class="nn">..pipeline.operation</span> <span class="kn">import</span> <span class="n">Operation</span>
+<span class="kn">from</span> <span class="nn">..pipeline.state</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">replace</span>
+
+
+<div class="viewcode-block" id="ToTensor"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToTensor">[docs]</a><span class="k">class</span> <span class="nc">ToTensor</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert from Numpy array to PyTorch Tensor.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ToTensor.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToTensor.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">to_tensor</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">ch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">to_tensor</span></div>
+
+<div class="viewcode-block" id="ToTensor.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToTensor.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="n">new_dtype</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">previous_state</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">jit_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">new_dtype</span><span class="p">),</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="ToDevice"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToDevice">[docs]</a><span class="k">class</span> <span class="nc">ToDevice</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Move tensor to device.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    device: torch.device</span>
+<span class="sd">        Device to move to.</span>
+<span class="sd">    non_blocking: bool</span>
+<span class="sd">        Asynchronous if copying from CPU to GPU.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">non_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
+        <span class="c1"># assert isinstance(device, ch.device), \</span>
+        <span class="c1">#    f&#39;Make sure device is a ch.device (not a {type(device)})&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">non_blocking</span> <span class="o">=</span> <span class="n">non_blocking</span>
+
+<div class="viewcode-block" id="ToDevice.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToDevice.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">to_device</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">is_contiguous</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">ch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">):</span>
+                    <span class="n">dst</span> <span class="o">=</span> <span class="n">dst</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="n">dst</span> <span class="o">=</span> <span class="n">dst</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">dst</span><span class="p">[:</span><span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">non_blocking</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">non_blocking</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">dst</span>
+
+        <span class="k">return</span> <span class="n">to_device</span></div>
+
+<div class="viewcode-block" id="ToDevice.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToDevice.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">),</span> <span class="n">AllocationQuery</span><span class="p">(</span><span class="n">previous_state</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">previous_state</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ToTorchImage"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToTorchImage">[docs]</a><span class="k">class</span> <span class="nc">ToTorchImage</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Change tensor to PyTorch format for images (B x C x H x W).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    channels_last : bool</span>
+<span class="sd">        Use torch.channels_last.</span>
+<span class="sd">    convert_back_int16 : bool</span>
+<span class="sd">        Convert to float16.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channels_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">convert_back_int16</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels_last</span> <span class="o">=</span> <span class="n">channels_last</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convert_int16</span> <span class="o">=</span> <span class="n">convert_back_int16</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_int16conv</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="ToTorchImage.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToTorchImage.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="n">do_conv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_int16conv</span>
+        <span class="k">def</span> <span class="nf">to_torch_image</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">ch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+            <span class="c1"># Returns a permuted view of the same tensor</span>
+            <span class="k">if</span> <span class="n">do_conv</span><span class="p">:</span>
+                <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">ch</span><span class="o">.</span><span class="n">float16</span><span class="p">)</span>
+                <span class="k">pass</span>
+            <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">permute</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+            <span class="c1"># If channels last, it&#39;s already contiguous so we&#39;re good</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels_last</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">inp</span><span class="o">.</span><span class="n">is_contiguous</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">ch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">inp</span>
+
+            <span class="c1"># Otherwise, need to fill the allocated memory with the contiguous tensor</span>
+            <span class="n">dst</span><span class="p">[:</span><span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">dst</span><span class="p">[:</span><span class="n">inp</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">to_torch_image</span></div>
+
+<div class="viewcode-block" id="ToTorchImage.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.ToTorchImage.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="n">alloc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">previous_state</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">new_type</span> <span class="o">=</span> <span class="n">previous_state</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="k">if</span> <span class="n">new_type</span> <span class="ow">is</span> <span class="n">ch</span><span class="o">.</span><span class="n">int16</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">convert_int16</span><span class="p">:</span>
+            <span class="n">new_type</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">float16</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">enable_int16conv</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels_last</span><span class="p">:</span>
+            <span class="n">alloc</span> <span class="o">=</span> <span class="n">AllocationQuery</span><span class="p">((</span><span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">new_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">new_type</span><span class="p">),</span> <span class="n">alloc</span></div></div>
+
+
+<div class="viewcode-block" id="Convert"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.Convert">[docs]</a><span class="k">class</span> <span class="nc">Convert</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert to target data type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_dtype: numpy.dtype or torch.dtype</span>
+<span class="sd">        Target data type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dtype</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_dtype</span> <span class="o">=</span> <span class="n">target_dtype</span>
+
+<div class="viewcode-block" id="Convert.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.Convert.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">inp</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_dtype</span><span class="p">)</span>
+
+        <span class="n">convert</span><span class="o">.</span><span class="n">is_parallel</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">convert</span></div>
+
+    <span class="c1"># TODO: something weird about device to allocate on</span>
+<div class="viewcode-block" id="Convert.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.Convert.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_dtype</span><span class="p">),</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="View"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.View">[docs]</a><span class="k">class</span> <span class="nc">View</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;View array using np.view or torch.view.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_dtype: numpy.dtype or torch.dtype</span>
+<span class="sd">        Target data type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_dtype</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_dtype</span> <span class="o">=</span> <span class="n">target_dtype</span>
+
+<div class="viewcode-block" id="View.generate_code"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.View.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">inp</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_dtype</span><span class="p">)</span>
+
+        <span class="n">convert</span><span class="o">.</span><span class="n">is_parallel</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">convert</span></div>
+
+<div class="viewcode-block" id="View.declare_state_and_memory"><a class="viewcode-back" href="../../../api/transforms.html#ffcv.transforms.View.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AllocationQuery</span><span class="p">]]:</span>
+        <span class="k">return</span> <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_dtype</span><span class="p">,</span> <span class="n">jit_mode</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="kc">None</span></div></div>
+</pre></div>
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

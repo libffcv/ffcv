@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Training CIFAR-10 in 36 seconds on a single A100 &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Large-Scale Linear Regression" href="linear_regression.html" />
+    <link rel="prev" title="Examples" href="../examples.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a></li>
+        
+          <li><a href="../examples.html">Examples</a></li>
+        
+      <li>Training CIFAR-10 in 36 seconds on a single A100</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ffcv_examples/cifar10.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="training-cifar-10-in-36-seconds-on-a-single-a100">
+<h1>Training CIFAR-10 in 36 seconds on a single A100<a class="headerlink" href="#training-cifar-10-in-36-seconds-on-a-single-a100" title="Permalink to this heading">¶</a></h1>
+<p>In this example, we’ll show how to use FFCV and the ResNet-9 architecture in
+order to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds on a single NVIDIA A100 GPU.</p>
+<p>We also provide the code <a class="reference external" href="https://github.com/libffcv/ffcv/blob/main/examples/cifar/train_cifar.py">here</a> and the corresponding script <a class="reference external" href="https://github.com/libffcv/ffcv/blob/main/examples/cifar/train_cifar.sh">here</a>.</p>
+<p>Here, we show a step by step walkthrough.
+First, we import <code class="docutils literal notranslate"><span class="pre">torch</span></code> and necessary components from <code class="docutils literal notranslate"><span class="pre">ffcv</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">torch</span> <span class="k">as</span> <span class="nn">ch</span>
+<span class="kn">import</span> <span class="nn">torchvision</span>
+
+<span class="kn">from</span> <span class="nn">ffcv.fields</span> <span class="kn">import</span> <span class="n">IntField</span><span class="p">,</span> <span class="n">RGBImageField</span>
+<span class="kn">from</span> <span class="nn">ffcv.fields.decoders</span> <span class="kn">import</span> <span class="n">IntDecoder</span><span class="p">,</span> <span class="n">SimpleRGBImageDecoder</span>
+<span class="kn">from</span> <span class="nn">ffcv.loader</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">OrderOption</span>
+<span class="kn">from</span> <span class="nn">ffcv.pipeline.operation</span> <span class="kn">import</span> <span class="n">Operation</span>
+<span class="kn">from</span> <span class="nn">ffcv.transforms</span> <span class="kn">import</span> <span class="n">RandomHorizontalFlip</span><span class="p">,</span> <span class="n">Cutout</span><span class="p">,</span> \
+    <span class="n">RandomTranslate</span><span class="p">,</span> <span class="n">Convert</span><span class="p">,</span> <span class="n">ToDevice</span><span class="p">,</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">ToTorchImage</span>
+<span class="kn">from</span> <span class="nn">ffcv.transforms.common</span> <span class="kn">import</span> <span class="n">Squeeze</span>
+<span class="kn">from</span> <span class="nn">ffcv.writer</span> <span class="kn">import</span> <span class="n">DatasetWriter</span>
+</pre></div>
+</div>
+<section id="step-1-create-an-ffcv-compatible-cifar-10-dataset">
+<h2>Step 1: Create an FFCV-compatible CIFAR-10 dataset<a class="headerlink" href="#step-1-create-an-ffcv-compatible-cifar-10-dataset" title="Permalink to this heading">¶</a></h2>
+<p>First, we’ll use <code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetWriter</span></code>
+to convert <code class="docutils literal notranslate"><span class="pre">torchvision.datasets.CIFAR10</span></code> to FFCV format.
+(See <a class="reference internal" href="../writing_datasets.html#writing-a-dataset-to-ffcv-format"><span class="std std-ref">Writing datasets</span></a> for more details.)
+We use a single <a class="reference internal" href="../api/fields.html#ffcv.fields.RGBImageField" title="ffcv.fields.RGBImageField"><code class="xref py py-class docutils literal notranslate"><span class="pre">RGBImageField</span></code></a> to store the image and a single <code class="docutils literal notranslate"><span class="pre">IntField</span></code> to store the label.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">datasets</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span><span class="s1">&#39;/tmp&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">CIFAR10</span><span class="p">(</span><span class="s1">&#39;/tmp&#39;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">ds</span><span class="p">)</span> <span class="ow">in</span> <span class="n">datasets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/tmp/cifar_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.beton&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">RGBImageField</span><span class="p">(),</span>
+        <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">IntField</span><span class="p">()</span>
+    <span class="p">})</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">from_indexed_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-create-data-loaders">
+<h2>Step 2: Create data loaders<a class="headerlink" href="#step-2-create-data-loaders" title="Permalink to this heading">¶</a></h2>
+<p>Next, we construct FFCV dataloaders from the <code class="docutils literal notranslate"><span class="pre">.beton</span></code> dataset file created above.
+(See <a class="reference internal" href="../making_dataloaders.html#making-an-ffcv-dataloader"><span class="std std-ref">Making an FFCV dataloader</span></a> for more details.)</p>
+<p>For the training set, we use a set of standard data augmentations: random horizontal flip,
+random translation, and Cutout.
+Note that the transformation pipeline can consist of both standard transforms from <code class="docutils literal notranslate"><span class="pre">ffcv</span></code> and other sources such as any <code class="docutils literal notranslate"><span class="pre">torch.nn.Module</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note that statistics are wrt to uin8 range, [0,255].</span>
+<span class="n">CIFAR_MEAN</span> <span class="o">=</span> <span class="p">[</span><span class="mf">125.307</span><span class="p">,</span> <span class="mf">122.961</span><span class="p">,</span> <span class="mf">113.8575</span><span class="p">]</span>
+<span class="n">CIFAR_STD</span> <span class="o">=</span> <span class="p">[</span><span class="mf">51.5865</span><span class="p">,</span> <span class="mf">50.847</span><span class="p">,</span> <span class="mf">51.255</span><span class="p">]</span>
+
+<span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">512</span>
+
+<span class="n">loaders</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">]:</span>
+    <span class="n">label_pipeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">IntDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">(),</span> <span class="n">ToDevice</span><span class="p">(</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">),</span> <span class="n">Squeeze</span><span class="p">()]</span>
+    <span class="n">image_pipeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">SimpleRGBImageDecoder</span><span class="p">()]</span>
+
+    <span class="c1"># Add image transforms and normalization</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">:</span>
+        <span class="n">image_pipeline</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">RandomHorizontalFlip</span><span class="p">(),</span>
+            <span class="n">RandomTranslate</span><span class="p">(</span><span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+            <span class="n">Cutout</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">CIFAR_MEAN</span><span class="p">))),</span> <span class="c1"># Note Cutout is done before normalization.</span>
+        <span class="p">])</span>
+    <span class="n">image_pipeline</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+        <span class="n">ToTensor</span><span class="p">(),</span>
+        <span class="n">ToDevice</span><span class="p">(</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">,</span> <span class="n">non_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="n">ToTorchImage</span><span class="p">(),</span>
+        <span class="n">Convert</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">float16</span><span class="p">),</span>
+        <span class="n">torchvision</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">CIFAR_MEAN</span><span class="p">,</span> <span class="n">CIFAR_STD</span><span class="p">),</span>
+    <span class="p">])</span>
+
+    <span class="c1"># Create loaders</span>
+    <span class="n">loaders</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;/tmp/cifar_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.beton&#39;</span><span class="p">,</span>
+                            <span class="n">batch_size</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">,</span>
+                            <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+                            <span class="n">order</span><span class="o">=</span><span class="n">OrderOption</span><span class="o">.</span><span class="n">RANDOM</span><span class="p">,</span>
+                            <span class="n">drop_last</span><span class="o">=</span><span class="p">(</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">),</span>
+                            <span class="n">pipelines</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;image&#39;</span><span class="p">:</span> <span class="n">image_pipeline</span><span class="p">,</span>
+                                       <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">label_pipeline</span><span class="p">})</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-setup-model-architecture-and-optimization-parameters">
+<h2>Step 3: Setup model architecture and optimization parameters<a class="headerlink" href="#step-3-setup-model-architecture-and-optimization-parameters" title="Permalink to this heading">¶</a></h2>
+<p>For the model, we use a custom ResNet-9 architecture from <a class="reference external" href="https://github.com/wbaek/torchskeleton">KakaoBrain</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Mul</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weight</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Mul</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">weight</span>
+
+<span class="k">class</span> <span class="nc">Flatten</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Residual</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Residual</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">=</span> <span class="n">module</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">conv_bn</span><span class="p">(</span><span class="n">channels_in</span><span class="p">,</span> <span class="n">channels_out</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">channels_in</span><span class="p">,</span> <span class="n">channels_out</span><span class="p">,</span>
+                         <span class="n">kernel_size</span><span class="o">=</span><span class="n">kernel_size</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="n">stride</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="n">padding</span><span class="p">,</span>
+                         <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">channels_out</span><span class="p">),</span>
+            <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="n">NUM_CLASSES</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="n">conv_bn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">conv_bn</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">Residual</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">conv_bn</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">),</span> <span class="n">conv_bn</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))),</span>
+    <span class="n">conv_bn</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">MaxPool2d</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+    <span class="n">Residual</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">conv_bn</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="n">conv_bn</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">))),</span>
+    <span class="n">conv_bn</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">AdaptiveMaxPool2d</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+    <span class="n">Flatten</span><span class="p">(),</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="n">NUM_CLASSES</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">Mul</span><span class="p">(</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">memory_format</span><span class="o">=</span><span class="n">ch</span><span class="o">.</span><span class="n">channels_last</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">ch.channels_last</span></code> option when we put the model on GPU.</p>
+<p>Next, we define the optimizer and hyperparameters.
+We use standard SGD on the cross entropy loss with label smoothing and a cyclic learning rate schedule (triangular).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">torch.cuda.amp</span> <span class="kn">import</span> <span class="n">GradScaler</span><span class="p">,</span> <span class="n">autocast</span>
+<span class="kn">from</span> <span class="nn">torch.nn</span> <span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
+<span class="kn">from</span> <span class="nn">torch.optim</span> <span class="kn">import</span> <span class="n">SGD</span><span class="p">,</span> <span class="n">lr_scheduler</span>
+
+<span class="n">EPOCHS</span> <span class="o">=</span> <span class="mi">24</span>
+
+<span class="n">opt</span> <span class="o">=</span> <span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">5e-4</span><span class="p">)</span>
+<span class="n">iters_per_epoch</span> <span class="o">=</span> <span class="mi">50000</span> <span class="o">//</span> <span class="n">BATCH_SIZE</span>
+<span class="n">lr_schedule</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">((</span><span class="n">EPOCHS</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">iters_per_epoch</span><span class="p">),</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">iters_per_epoch</span><span class="p">,</span> <span class="n">EPOCHS</span> <span class="o">*</span> <span class="n">iters_per_epoch</span><span class="p">],</span>
+                        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">scheduler</span> <span class="o">=</span> <span class="n">lr_scheduler</span><span class="o">.</span><span class="n">LambdaLR</span><span class="p">(</span><span class="n">opt</span><span class="p">,</span> <span class="n">lr_schedule</span><span class="o">.</span><span class="fm">__getitem__</span><span class="p">)</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">GradScaler</span><span class="p">()</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">CrossEntropyLoss</span><span class="p">(</span><span class="n">label_smoothing</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-train-and-evaluate-the-model">
+<h2>Step 4: Train and evaluate the model<a class="headerlink" href="#step-4-train-and-evaluate-the-model" title="Permalink to this heading">¶</a></h2>
+<p>Finally, we’re ready to train our model.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="k">for</span> <span class="n">ep</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">EPOCHS</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">ims</span><span class="p">,</span> <span class="n">labs</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">loaders</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]):</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">autocast</span><span class="p">():</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">ims</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">labs</span><span class="p">)</span>
+
+        <span class="n">scaler</span><span class="o">.</span><span class="n">scale</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="n">scaler</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span>
+        <span class="n">scaler</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+        <span class="n">scheduler</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">ch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="n">total_correct</span><span class="p">,</span> <span class="n">total_num</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+    <span class="k">for</span> <span class="n">ims</span><span class="p">,</span> <span class="n">labs</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">loaders</span><span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">]):</span>
+        <span class="k">with</span> <span class="n">autocast</span><span class="p">():</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">ims</span><span class="p">)</span> <span class="o">+</span> <span class="n">model</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">fliplr</span><span class="p">(</span><span class="n">ims</span><span class="p">)))</span> <span class="o">/</span> <span class="mf">2.</span> <span class="c1"># Test-time augmentation</span>
+            <span class="n">total_correct</span> <span class="o">+=</span> <span class="n">out</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">labs</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="n">total_num</span> <span class="o">+=</span> <span class="n">ims</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Accuracy: </span><span class="si">{</span><span class="n">total_correct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_num</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">%&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="wrapping-up">
+<h2>Wrapping up<a class="headerlink" href="#wrapping-up" title="Permalink to this heading">¶</a></h2>
+<p>It’s that simple! In this tutorial, we used FFCV to train a CIFAR-10 classifier to 92.6% accuracy in 36 seconds.</p>
+<p>For a different example using FFCV to speed up training, see <a class="reference internal" href="linear_regression.html#large-scale-linear-regression"><span class="std std-ref">Large-Scale Linear Regression</span></a>.</p>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

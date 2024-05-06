@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Large-Scale Linear Regression &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fast custom image transforms" href="custom_transforms.html" />
+    <link rel="prev" title="Training CIFAR-10 in 36 seconds on a single A100" href="cifar10.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a></li>
+        
+          <li><a href="../examples.html">Examples</a></li>
+        
+      <li>Large-Scale Linear Regression</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="../_sources/ffcv_examples/linear_regression.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="large-scale-linear-regression">
+<h1>Large-Scale Linear Regression<a class="headerlink" href="#large-scale-linear-regression" title="Permalink to this heading">¶</a></h1>
+<p>In this example, we’ll see how to run large-scale regularized linear
+regression with FFCV (by “large-scale” here we mean a dataset that <em>definitely</em>
+doesn’t fit in GPU memory, and may barely even fit in RAM).</p>
+<p>See <a class="reference external" href="https://github.com/libffcv/ffcv/blob/main/examples/docs_examples/linear_regression.py">here</a> for the script corresponding to this tutorial.</p>
+<section id="setup-generating-a-fake-dataset">
+<h2>Setup: Generating a fake dataset<a class="headerlink" href="#setup-generating-a-fake-dataset" title="Permalink to this heading">¶</a></h2>
+<p>Let’s start by generating a fake dataset on which we’ll run linear regression.
+We’ll generate the independent variables (also known as the covariates or
+inputs) as random uniform vectors, and the dependent variable (also known as the
+responses or outputs) as the noised product of the dependent variable and a
+fixed weight vector:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># 1,000,000 inputs each of dimension 10,000 = 40GB of data</span>
+<span class="n">N</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="mi">1000000</span><span class="p">,</span> <span class="mi">10000</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">D</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)</span>
+<span class="c1"># Ground-truth vector</span>
+<span class="n">W</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">D</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+<span class="c1"># Response variables</span>
+<span class="n">Y</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">W</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="c1"># Save the dataset:</span>
+<span class="n">pkl</span><span class="o">.</span><span class="n">dump</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Y</span><span class="p">),</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/linreg_data.pkl&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="basic-code-template">
+<h2>Basic code template<a class="headerlink" href="#basic-code-template" title="Permalink to this heading">¶</a></h2>
+<p>Our goal is to, given <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Y</span></code>, recover the true parameter <code class="docutils literal notranslate"><span class="pre">W</span></code>. We will
+accomplish this via <em>SGD</em> on the squared-loss:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span> <span class="k">as</span> <span class="nn">ch</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># TODO!</span>
+
+<span class="c1"># Calculate data mean and variance for normalization</span>
+<span class="k">def</span> <span class="nf">calculate_stats</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+    <span class="n">mean</span><span class="p">,</span> <span class="n">stdev</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+    <span class="k">for</span> <span class="n">x_batch</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+        <span class="n">mean</span> <span class="o">+=</span> <span class="n">x_batch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+        <span class="n">stdev</span> <span class="o">+=</span> <span class="n">x_batch</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">N</span>
+    <span class="k">return</span> <span class="n">mean</span><span class="p">,</span> <span class="n">ch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">stdev</span> <span class="o">-</span> <span class="n">mean</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">stdev</span> <span class="o">=</span> <span class="n">calculate_stats</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">stdev</span> <span class="o">=</span> <span class="n">mean</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span> <span class="n">stdev</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+<span class="n">w_est</span><span class="p">,</span> <span class="n">b_est</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">D</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span> <span class="n">ch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span> <span class="c1"># Initial guess for W</span>
+<span class="n">num_epochs</span> <span class="o">=</span> <span class="mi">10</span> <span class="c1"># Number of full passes over the data to do</span>
+
+<span class="n">lr</span> <span class="o">=</span> <span class="mf">5e-2</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
+    <span class="n">total_loss</span><span class="p">,</span> <span class="n">num_examples</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>
+        <span class="n">x_batch</span> <span class="o">=</span> <span class="n">x_batch</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">y_batch</span> <span class="o">=</span> <span class="n">y_batch</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="c1"># Normalize the data for stability</span>
+        <span class="n">x_batch</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_batch</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">stdev</span>
+        <span class="n">residual</span> <span class="o">=</span> <span class="n">x_batch</span> <span class="o">@</span> <span class="n">w_est</span> <span class="o">+</span> <span class="n">b_est</span> <span class="o">-</span> <span class="n">y_batch</span>
+        <span class="c1"># Gradients</span>
+        <span class="n">w_grad</span> <span class="o">=</span> <span class="n">x_batch</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">residual</span> <span class="o">/</span> <span class="n">x_batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b_grad</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">residual</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># import ipdb; ipdb.set_trace()</span>
+        <span class="n">w_est</span> <span class="o">=</span> <span class="n">w_est</span> <span class="o">-</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">w_grad</span>
+        <span class="n">b_est</span> <span class="o">=</span> <span class="n">b_est</span> <span class="o">-</span> <span class="n">lr</span> <span class="o">*</span> <span class="n">b_grad</span>
+        <span class="n">total_loss</span> <span class="o">+=</span> <span class="n">residual</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">num_examples</span> <span class="o">+=</span> <span class="n">x_batch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch time:&#39;</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Average loss: </span><span class="si">{</span><span class="n">total_loss</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">num_examples</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1"> | &#39;</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s1">&#39;Norm diff&#39;</span><span class="p">,</span> <span class="n">ch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w_est</span> <span class="o">/</span> <span class="n">stdev</span> <span class="o">-</span> <span class="n">ch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">W</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">())</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Total script running time: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start_time</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">s&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Note that in general, using vanilla gradient descent to solve regularized
+linear regression is typically a very bad idea, and users are better served
+implementing an algorithm based on <em>conjugate gradients</em> or
+<em>variance-reduced gradient methods</em>. That said, the exact same principles
+here apply to any algorithm, so we use gradient descent to keep the code as
+clean as possible.</p>
+</div>
+</section>
+<section id="naive-approach-pytorch-tensordataset">
+<h2>Naive approach: PyTorch TensorDataset<a class="headerlink" href="#naive-approach-pytorch-tensordataset" title="Permalink to this heading">¶</a></h2>
+<p>The only thing that remains unspecified in our implementation above is the
+<code class="docutils literal notranslate"><span class="pre">train_loader</span></code>. The standard way of making a loader here would be to use
+PyTorch’s built-in <code class="docutils literal notranslate"><span class="pre">TensorDataset</span></code> class, as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">TensorDataset</span><span class="p">,</span> <span class="n">DataLoader</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">pkl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/linreg_data.pkl&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">))</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">TensorDataset</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="n">ch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">Y</span><span class="p">))</span>
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># ... rest of code as above</span>
+</pre></div>
+</div>
+<p>The resulting code is runnable and correct. It will use <em>40GB</em> of memory, since the
+entire tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> will be kept in RAM. Running our script in an environment
+with a single A100 GPU and 8 CPU cores takes <em>16 seconds</em> per epoch.</p>
+</section>
+<section id="speeding-things-up-with-ffcv">
+<h2>Speeding things up with FFCV<a class="headerlink" href="#speeding-things-up-with-ffcv" title="Permalink to this heading">¶</a></h2>
+<p>We’ll now try to improve on these results by replacing the standard PyTorch
+data loading pipeline with FFCV. The first step is to rewrite <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Y</span></code> as
+a FFCV dataset (as detailed in the <a class="reference internal" href="../writing_datasets.html#writing-a-dataset-to-ffcv-format"><span class="std std-ref">Writing a dataset to FFCV format</span></a>
+guide):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.fields</span> <span class="kn">import</span> <span class="n">NDArrayField</span><span class="p">,</span> <span class="n">FloatField</span>
+
+<span class="k">class</span> <span class="nc">LinearRegressionDataset</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">DatasetWriter</span><span class="p">(</span><span class="s1">&#39;/tmp/linreg_data.beton&#39;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s1">&#39;covariate&#39;</span><span class="p">:</span> <span class="n">NDArrayField</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">D</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)),</span>
+    <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">NDArrayField</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;float32&#39;</span><span class="p">)),</span>
+<span class="p">},</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">writer</span><span class="o">.</span><span class="n">from_indexed_dataset</span><span class="p">(</span><span class="n">LinearRegressionDataset</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>This allows us to replace the TensorDataset from the previous section with an
+FFCV data loader:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ffcv.loader</span> <span class="kn">import</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">OrderOption</span>
+<span class="kn">from</span> <span class="nn">ffcv.fields.decoders</span> <span class="kn">import</span> <span class="n">NDArrayDecoder</span>
+<span class="kn">from</span> <span class="nn">ffcv.transforms</span> <span class="kn">import</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">Squeeze</span><span class="p">,</span> <span class="n">ToDevice</span>
+
+<span class="n">train_loader</span> <span class="o">=</span> <span class="n">Loader</span><span class="p">(</span><span class="s1">&#39;/tmp/linreg_data.beton&#39;</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">OrderOption</span><span class="o">.</span><span class="n">RANDOM</span><span class="p">,</span>
+            <span class="n">pipelines</span><span class="o">=</span><span class="p">{</span>
+                <span class="s1">&#39;covariate&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">NDArrayDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">(),</span> <span class="n">ToDevice</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">))],</span>
+                <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">NDArrayDecoder</span><span class="p">(),</span> <span class="n">ToTensor</span><span class="p">(),</span> <span class="n">Squeeze</span><span class="p">(),</span> <span class="n">ToDevice</span><span class="p">(</span><span class="n">ch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s1">&#39;cuda:0&#39;</span><span class="p">))]</span>
+            <span class="p">})</span>
+</pre></div>
+</div>
+<p><strong>With just this simple substitution, our code goes from 16 seconds per epoch on
+an A100 GPU to 6 seconds</strong>.</p>
+<p>As expected, GPU utilization also increases dramatically since data loading is
+no longer a bottleneck—this allows us to make optimizations elsewhere and make
+the code even faster!</p>
+</section>
+<section id="more-speed-less-memory">
+<h2>More speed, less memory<a class="headerlink" href="#more-speed-less-memory" title="Permalink to this heading">¶</a></h2>
+<p>We conclude this guide by suggesting a few ways to make our linear regression
+program even faster, and to reduce its memory footprint:</p>
+<ul class="simple">
+<li><p>In our example above, FFCV <em>caches</em> the entire dataset in-memory: which means
+that, in the event of insufficient RAM, the program will not error our (unlike
+the TensorDataset example, which will raise a Segmentation Fault), but it will
+become significantly slower. An alternative discussed in the <a class="reference internal" href="../parameter_tuning.html#tuning-guide"><span class="std std-ref">Tuning Guide</span></a>
+that we didn’t explore here is to initialize the loader with <code class="docutils literal notranslate"><span class="pre">os_cache=False</span></code>
+and <code class="docutils literal notranslate"><span class="pre">order=OrderOption.QUASI_RANDOM</span></code>—this will disable caching of the full
+dataset (and thus can operate with very little memory!), and will read examples
+in an order which is nearly random but still minimizes underlying disk reads.</p></li>
+<li><p>We can also optimize the main loop itself: for example, the gradient updates
+should be performed as in-place operations, as should the normalization. Since
+data loading is no longer the main bottleneck, such optimizations will result in
+improved performance.</p></li>
+</ul>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

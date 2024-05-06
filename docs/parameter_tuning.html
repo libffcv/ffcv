@@ -1,0 +1,257 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tuning Guide &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The Bottleneck Doctor" href="bottleneck_doctor.html" />
+    <link rel="prev" title="Working with Image Data in FFCV" href="working_with_images.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+          <li><a href="performance_guide.html">Performance Guide</a></li>
+        
+      <li>Tuning Guide</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/parameter_tuning.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="tuning-guide">
+<h1>Tuning Guide<a class="headerlink" href="#tuning-guide" title="Permalink to this heading">¶</a></h1>
+<p>FFCV is a generic library and achieving the very best performance may require
+tuning some options to fit the particular use case and computing resources.</p>
+<p>In order to help users with that task, we consider a couple of common use cases and provide recommendations for setting parameters.</p>
+<section id="scenario-small-dataset">
+<h2>Scenario: Small dataset<a class="headerlink" href="#scenario-small-dataset" title="Permalink to this heading">¶</a></h2>
+<p>If the dataset you are working on is small or if you are lucky enough to have a machine with large amounts of RAM, we recommend the following settings for <code class="xref py py-class docutils literal notranslate"><span class="pre">ffcv.loader.Loader</span></code>:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">os_cache=True</span></code>. The first epoch will be a little bit slower as the operating system is not able to pre-fetch the data as well but once the dataset has been completely cached in RAM then it will read directly from there with no overhead.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">order</span></code> to <code class="docutils literal notranslate"><span class="pre">OrderOption.RANDOM</span></code> or <code class="docutils literal notranslate"><span class="pre">OrderOption.QUASI_RANDOM</span></code>. They should both perform very similarly (<code class="docutils literal notranslate"><span class="pre">QUASI_RANDOM</span></code> might be marginally better).</p></li>
+</ul>
+</section>
+<section id="scenario-large-scale-datasets">
+<h2>Scenario: Large scale datasets<a class="headerlink" href="#scenario-large-scale-datasets" title="Permalink to this heading">¶</a></h2>
+<p>If your dataset is too large to be cached on the machine we recommend:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">os_cache=False</span></code>. Since the data can’t be cached, FFCV will have to read it over and over. Having FFCV take over the operating system for caching is beneficial as it knows in advance the which samples will be needed in the future and can load them ahead of time.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">order</span></code>, we recommend using the <code class="docutils literal notranslate"><span class="pre">QUASI_RANDOM</span></code> traversal order if you need randomness but perfect uniform sampling isn’t mission critical. This will optimize the order to minimize the reads on the underlying storage while maintaining very good randomness properties. If you have experience with the <code class="docutils literal notranslate"><span class="pre">shuffle()</span></code> function of <code class="docutils literal notranslate"><span class="pre">webdataset</span></code> and the quality of the randomness wasn’t sufficient, we still suggest you give <code class="docutils literal notranslate"><span class="pre">QUASI_RANDOM</span></code> a try as it should be significantly better. Using <code class="docutils literal notranslate"><span class="pre">RANDOM</span></code> is unfeasible in this situation because it needs to load the entire dataset in RAM, causing an out-of-memory exception.</p></li>
+</ul>
+</section>
+<section id="scenario-multi-gpu-training-1-model-multiple-gpus">
+<h2>Scenario: Multi-GPU training (1 model, multiple GPUs)<a class="headerlink" href="#scenario-multi-gpu-training-1-model-multiple-gpus" title="Permalink to this heading">¶</a></h2>
+<p>FFCV’s <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> class offers a flag <code class="docutils literal notranslate"><span class="pre">distributed</span></code> that will make the loader behave similarly to the PyTorch’s <code class="docutils literal notranslate"><span class="pre">DistributedSampler</span></code> used with their <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code>. If that’s what your code is using, switching to FFCV should just be a matter of replacing the data loader.</p>
+<p>FFCV should also work fine with PyTorch’s <code class="docutils literal notranslate"><span class="pre">DataParallel</span></code> wrapper but we agree with the developers and recommend you use <code class="docutils literal notranslate"><span class="pre">DistributedDataParallel</span></code> with FFCV’s <code class="docutils literal notranslate"><span class="pre">distributed</span></code> flag enabled.</p>
+<p>The same recommendations above related to dataset size still apply here, but we emphasize that <code class="docutils literal notranslate"><span class="pre">os_cache=True</span></code> is particularly beneficial in this scenario. Indeed, as multiple processes will access the same dataset, having the caching at the OS level allows for data sharing between them, reducing overall memory consumption.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><cite>QUASI_RANDOM</cite> isn’t currently supported with <code class="docutils literal notranslate"><span class="pre">distributed=True</span></code>. While
+this is technically possible to implement, we haven’t yet invested the
+necessary time yet. It is on the medium-term roadmap, and we also welcome
+pull requests!</p>
+</div>
+<p>We encourage users to try different values for the <code class="docutils literal notranslate"><span class="pre">num_workers</span></code> parameters. As FFCV is usually very CPU resource efficient it is sometimes beneficial to use fewer workers to avoid scheduling and cache inefficiencies.</p>
+</section>
+<section id="scenario-grid-search-1-model-per-gpu">
+<h2>Scenario: Grid search (1 model per GPU)<a class="headerlink" href="#scenario-grid-search-1-model-per-gpu" title="Permalink to this heading">¶</a></h2>
+<p>This use case is similar to the previous. One should still have one process per GPU and if training all models on the same dataset, <code class="docutils literal notranslate"><span class="pre">os_cache=True</span></code> is preferred to allow cache sharing between the jobs. Note that if the dataset is bigger than the amount of main memory, <code class="docutils literal notranslate"><span class="pre">os_cache=False</span></code> might still perform better and we encourage users to try both.</p>
+</section>
+<section id="scenario-extreme-grid-search-2-models-per-gpu">
+<h2>Scenario: Extreme grid search (2+ models per GPU)<a class="headerlink" href="#scenario-extreme-grid-search-2-models-per-gpu" title="Permalink to this heading">¶</a></h2>
+<p>Unlike other solutions, FFCV is thread based and not process based. As a result, users are able to train multiple models on a single GPU. This is particularly useful for small models that can’t leverage the compute power of powerful GPUs. To do so, users have to do the following:</p>
+<ul class="simple">
+<li><p>Run a <strong>single</strong> process per GPU</p></li>
+<li><p>The main thread of that process should start one thread for each model which will be trained concurrently</p></li>
+<li><p>Each thread creates its own FFCV <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> and model and trains normally</p></li>
+<li><p>As for regular grid search, <code class="docutils literal notranslate"><span class="pre">os_cache=True</span></code> is mostly the best choice here, but it doesn’t hurt to try disabling it for very large scale datasets</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is a common mistake to assume that running multiple processes on the same GPU will improve speed. For security reasons and unless Nvidia MPS service is enabled, a GPU can only be used by a single process at a time. If you run more processes, GPU time will be shared between them but they will never run concurrently.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We have experienced some CUDNN bugs while running multiple models on the same
+GPU. It seems to originate from scheduling concurrently multiple BatchNorm
+layers. If you encounter that issue a simple fix is to put a lock around the
+forward pass of your models. This will make sure that no two forward passes are
+scheduled concurrently. This shouldn’t impact performance too much as CUDA
+calls are asynchronous anyway.</p>
+</div>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

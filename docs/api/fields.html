@@ -1,0 +1,462 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ffcv.fields module &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ffcv.fields.decoders module" href="decoders.html" />
+    <link rel="prev" title="ffcv.loader module" href="loader.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a></li>
+        
+          <li><a href="../api_reference.html">API Reference</a></li>
+        
+      <li>ffcv.fields module</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/fields.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="ffcv-fields-module">
+<h1>ffcv.fields module<a class="headerlink" href="#ffcv-fields-module" title="Permalink to this heading">¶</a></h1>
+<p>Fields define the type and the storage method of each of the attributes of a
+training sample. See the <a class="reference internal" href="../writing_datasets.html#writing-a-dataset-to-ffcv-format"><span class="std std-ref">Writing a dataset to FFCV format</span></a> and
+<a class="reference internal" href="../making_dataloaders.html#making-an-ffcv-dataloader"><span class="std std-ref">Making an FFCV dataloader</span></a> guides for information on usage.</p>
+<span class="target" id="module-ffcv.fields"></span><dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.Field">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">Field</span></span><a class="reference internal" href="../_modules/ffcv/fields/base.html#Field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract Base Class for implementing fields (e.g., images, integers).</p>
+<p>Each dataset entry is comprised of one or more fields (for example, standard
+object detection datasets may have one field for images, and one for
+bounding boxes). Fields are responsible for implementing encode and get_decoder_class
+functions that determine how they will be written and read from the dataset file,
+respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is possible to have multiple potential decoder for a given Field. <code class="docutils literal notranslate"><span class="pre">RGBImageField</span></code> one example. Users can specify which decoder to use in the <code class="docutils literal notranslate"><span class="pre">piplines</span></code> argument of the <code class="docutils literal notranslate"><span class="pre">Loader</span></code> class.</p>
+</div>
+<p>See <span class="xref std std-ref">here</span> for information on how to implement a subclass of Field.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.Field.metadata_type">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.Field.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.Field.from_binary">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ARG_TYPE</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><span class="pre">Field</span></a></span></span><a class="reference internal" href="../_modules/ffcv/fields/base.html#Field.from_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.Field.from_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.Field.to_binary">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ARG_TYPE</span></span></span><a class="reference internal" href="../_modules/ffcv/fields/base.html#Field.to_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.Field.to_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.Field.encode">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metadata_destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/base.html#Field.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.Field.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.Field.get_decoder_class">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_decoder_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Operation</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ffcv/fields/base.html#Field.get_decoder_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.Field.get_decoder_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.BytesField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">BytesField</span></span><a class="reference internal" href="../_modules/ffcv/fields/bytes.html#BytesField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.BytesField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> supporting variable-length byte
+arrays.</p>
+<p>Intended for use with data such as text or raw data which may not have a
+fixed size. Data is written sequentially while saving pointers and read by
+pointer lookup.</p>
+<p>The writer expects to be passed a 1D uint8 numpy array of variable length for each sample.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.BytesField.metadata_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.BytesField.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.BytesField.from_binary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype([('f0',</span> <span class="pre">'u1',</span> <span class="pre">(1024,))])</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.base.Field"><span class="pre">Field</span></a></span></span><a class="reference internal" href="../_modules/ffcv/fields/bytes.html#BytesField.from_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.BytesField.from_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.BytesField.to_binary">
+<span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/bytes.html#BytesField.to_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.BytesField.to_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.BytesField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/bytes.html#BytesField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.BytesField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.BytesField.get_decoder_class">
+<span class="sig-name descname"><span class="pre">get_decoder_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Operation</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ffcv/fields/bytes.html#BytesField.get_decoder_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.BytesField.get_decoder_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.IntField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">IntField</span></span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#IntField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.IntField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> supporting (scalar) integer
+values.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.IntField.metadata_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.IntField.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.IntField.from_binary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype([('f0',</span> <span class="pre">'u1',</span> <span class="pre">(1024,))])</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.base.Field"><span class="pre">Field</span></a></span></span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#IntField.from_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.IntField.from_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.IntField.to_binary">
+<span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#IntField.to_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.IntField.to_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.IntField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#IntField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.IntField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.IntField.get_decoder_class">
+<span class="sig-name descname"><span class="pre">get_decoder_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Operation</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#IntField.get_decoder_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.IntField.get_decoder_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.FloatField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">FloatField</span></span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#FloatField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.FloatField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> supporting (scalar) floating-point (float64)
+values.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.FloatField.metadata_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.FloatField.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.FloatField.from_binary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype([('f0',</span> <span class="pre">'u1',</span> <span class="pre">(1024,))])</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.base.Field"><span class="pre">Field</span></a></span></span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#FloatField.from_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.FloatField.from_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.FloatField.to_binary">
+<span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#FloatField.to_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.FloatField.to_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.FloatField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#FloatField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.FloatField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.FloatField.get_decoder_class">
+<span class="sig-name descname"><span class="pre">get_decoder_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Operation</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ffcv/fields/basics.html#FloatField.get_decoder_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.FloatField.get_decoder_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.RGBImageField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">RGBImageField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">write_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_resolution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smart_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">jpeg_quality</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compress_probability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/rgb_image.html#RGBImageField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.RGBImageField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> supporting RGB image data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>write_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – How to write the image data to the dataset file. Should be either ‘raw’
+(<code class="docutils literal notranslate"><span class="pre">uint8</span></code> pixel values), ‘jpg’ (compress to JPEG format), ‘smart’
+(decide between saving pixel values and JPEG compressing based on image
+size), and ‘proportion’ (JPEG compress a random subset of the data with
+size specified by the <code class="docutils literal notranslate"><span class="pre">compress_probability</span></code> argument). By default: ‘raw’.</p></li>
+<li><p><strong>max_resolution</strong> (<em>int</em><em>, </em><em>optional</em>) – If specified, will resize images to have maximum side length equal to
+this value before saving, by default None</p></li>
+<li><p><strong>smart_threshold</strong> (<em>int</em><em>, </em><em>optional</em>) – When <cite>write_mode=’smart</cite>, will compress an image if it would take more than <cite>smart_threshold</cite> times to use RAW instead of jpeg.</p></li>
+<li><p><strong>jpeg_quality</strong> (<em>int</em><em>, </em><em>optional</em>) – The quality parameter for JPEG encoding (ignored for
+<code class="docutils literal notranslate"><span class="pre">write_mode='raw'</span></code>), by default 90</p></li>
+<li><p><strong>compress_probability</strong> (<em>float</em><em>, </em><em>optional</em>) – Ignored unless <code class="docutils literal notranslate"><span class="pre">write_mode='proportion'</span></code>; in the latter case it is the
+probability with which image is JPEG-compressed, by default 0.5.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.RGBImageField.metadata_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.RGBImageField.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.RGBImageField.get_decoder_class">
+<span class="sig-name descname"><span class="pre">get_decoder_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Operation</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ffcv/fields/rgb_image.html#RGBImageField.get_decoder_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.RGBImageField.get_decoder_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.RGBImageField.from_binary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype([('f0',</span> <span class="pre">'u1',</span> <span class="pre">(1024,))])</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.base.Field"><span class="pre">Field</span></a></span></span><a class="reference internal" href="../_modules/ffcv/fields/rgb_image.html#RGBImageField.from_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.RGBImageField.from_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.RGBImageField.to_binary">
+<span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/rgb_image.html#RGBImageField.to_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.RGBImageField.to_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.RGBImageField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/rgb_image.html#RGBImageField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.RGBImageField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.NDArrayField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">NDArrayField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#NDArrayField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.NDArrayField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> supporting
+multi-dimensional fixed size matrices of any numpy type.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.NDArrayField.metadata_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.NDArrayField.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.NDArrayField.from_binary">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">binary</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dtype([('f0',</span> <span class="pre">'u1',</span> <span class="pre">(1024,))])</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.base.Field"><span class="pre">Field</span></a></span></span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#NDArrayField.from_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.NDArrayField.from_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.NDArrayField.to_binary">
+<span class="sig-name descname"><span class="pre">to_binary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#NDArrayField.to_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.NDArrayField.to_binary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.NDArrayField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#NDArrayField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.NDArrayField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.NDArrayField.get_decoder_class">
+<span class="sig-name descname"><span class="pre">get_decoder_class</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Operation</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#NDArrayField.get_decoder_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.NDArrayField.get_decoder_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.JSONField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">JSONField</span></span><a class="reference internal" href="../_modules/ffcv/fields/json.html#JSONField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.JSONField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.BytesField" title="ffcv.fields.BytesField"><code class="xref py py-class docutils literal notranslate"><span class="pre">BytesField</span></code></a> that encodes JSON data.</p>
+<p>The writer expects to be passed a dict that is compatible with the JSON specification.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Because FFCV is based on tensors/ndarrays the reader and therefore the loader can’t give return JSON to the user. This is why we provide <a class="reference internal" href="#ffcv.fields.JSONField.unpack" title="ffcv.fields.JSONField.unpack"><code class="xref py py-class docutils literal notranslate"><span class="pre">unpack</span></code></a> which does the conversion. It’s up to the user to call it in the main body of the loop</p>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="ffcv.fields.JSONField.metadata_type">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metadata_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dtype</span></em><a class="headerlink" href="#ffcv.fields.JSONField.metadata_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.JSONField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/json.html#JSONField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.JSONField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.JSONField.unpack">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unpack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/json.html#JSONField.unpack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.JSONField.unpack" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert back the output of a <a class="reference internal" href="#ffcv.fields.JSONField" title="ffcv.fields.JSONField"><code class="xref py py-class docutils literal notranslate"><span class="pre">JSONField</span></code></a> field produced by <code class="xref py py-class docutils literal notranslate"><span class="pre">Loader</span></code> into an actual JSON.</p>
+<p>It works both on an entire batch and will return an array of python dicts or a single sample and will simply return a dict.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="ffcv.fields.TorchTensorField">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ffcv.fields.</span></span><span class="sig-name descname"><span class="pre">TorchTensorField</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#TorchTensorField"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.TorchTensorField" title="Permalink to this definition">¶</a></dt>
+<dd><p>A subclass of <a class="reference internal" href="#ffcv.fields.Field" title="ffcv.fields.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">Field</span></code></a> supporting
+multi-dimensional fixed size matrices of any torch type.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ffcv.fields.TorchTensorField.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">destination</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">malloc</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ffcv/fields/ndarray.html#TorchTensorField.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ffcv.fields.TorchTensorField.encode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

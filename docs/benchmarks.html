@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ImageNet Benchmarks &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api_reference.html" />
+    <link rel="prev" title="ImageNet Fast Training" href="ffcv_examples/imagenet.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="index.html">Docs</a></li>
+        
+      <li>ImageNet Benchmarks</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+            
+            <a href="_sources/benchmarks.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <section id="imagenet-benchmarks">
+<h1>ImageNet Benchmarks<a class="headerlink" href="#imagenet-benchmarks" title="Permalink to this heading">¶</a></h1>
+<p>We benchmark our system using the <a class="reference external" href="https://www.image-net.org">ImageNet</a> dataset,
+covering dataset size (storage), data loading,
+and end-to-end training.
+As we demonstrate below, FFCV significantly outperforms existing systems such as
+<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader">Pytorch DataLoader</a>, <a class="reference external" href="https://github.com/webdataset/webdataset">Webdataset</a>, and <a class="reference external" href="https://docs.nvidia.com/deeplearning/dali/user-guide/docs/">DALI</a>, while being much easier to use and extend.</p>
+<section id="dataset-sizes">
+<h2>Dataset sizes<a class="headerlink" href="#dataset-sizes" title="Permalink to this heading">¶</a></h2>
+<p>In order to provide an idea of how the image encoding settings influence the resulting dataset, we generated multiple ImageNet datasets with various options. We present the results below. For more details about the image encoding options, please refer to <a class="reference internal" href="working_with_images.html#working-with-image-data-in-ffcv"><span class="std std-ref">Working with Image Data in FFCV</span></a>.</p>
+<p>We vary between three encoding options (JPEG, Mix (<code class="docutils literal notranslate"><span class="pre">proportion</span></code>), and RAW) and
+four sizes (256px, 384px, 512px, 1600px).</p>
+<a class="reference internal image-reference" href="_images/dataset_sizes.svg"><img alt="Alternative text" class="align-center" src="_images/dataset_sizes.svg" width="60%" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<table class="docutils align-default" id="id4">
+<caption><span class="caption-text">Dataset sizes</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 16.7%" />
+<col style="width: 16.7%" />
+<col style="width: 16.7%" />
+<col style="width: 16.7%" />
+<col style="width: 16.7%" />
+<col style="width: 16.7%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Image Format</p></th>
+<th class="head"><p>Quality</p></th>
+<th class="head"><p>Size &#64; 256px</p></th>
+<th class="head"><p>Size &#64; 384px</p></th>
+<th class="head"><p>Size &#64; 512px</p></th>
+<th class="head"><p>Size &#64; 1600px</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>JPEG</p></td>
+<td><p>50</p></td>
+<td><p>9.23 GB</p></td>
+<td><p>16.14 GB</p></td>
+<td><p>26.35 GB</p></td>
+<td><p>30.75 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>JPEG</p></td>
+<td><p>90</p></td>
+<td><p>22.01 GB</p></td>
+<td><p>40.31 GB</p></td>
+<td><p>65.47 GB</p></td>
+<td><p>74.98 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>JPEG</p></td>
+<td><p>100</p></td>
+<td><p>57.00 GB</p></td>
+<td><p>110.21 GB</p></td>
+<td><p>176.65 GB</p></td>
+<td><p>198.53 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mix</p></td>
+<td><p>50</p></td>
+<td><p>49.59 GB</p></td>
+<td><p>102.29 GB</p></td>
+<td><p>173.92 GB</p></td>
+<td><p>221.76 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>Mix</p></td>
+<td><p>90</p></td>
+<td><p>58.36 GB</p></td>
+<td><p>124.74 GB</p></td>
+<td><p>202.04 GB</p></td>
+<td><p>251.66 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>Mix</p></td>
+<td><p>100</p></td>
+<td><p>84.91 GB</p></td>
+<td><p>176.43 GB</p></td>
+<td><p>285.67 GB</p></td>
+<td><p>350.72 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>RAW</p></td>
+<td><p>N.A</p></td>
+<td><p>169.79 GB</p></td>
+<td><p>371.20 GB</p></td>
+<td><p>616.18 GB</p></td>
+<td><p>788.97 GB</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-loading">
+<h2>Data loading<a class="headerlink" href="#data-loading" title="Permalink to this heading">¶</a></h2>
+<p>Next, we measured the data loading performance of FFCV on some of the generated datasets from above when loaded from:</p>
+<ul class="simple">
+<li><p>RAM, simulating the case where the dataset is smaller than the amount of RAM available for caching.</p></li>
+<li><p>EBS (network attached drives on AWS), simulating the worst case scenario one would encounter on large datasets that are too big to be cached and even be stored on local storage.</p></li>
+</ul>
+<p>We compare our results against existing data loading platforms:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader">Pytorch DataLoader</a>: This is the default option that comes with the Pytorch library and uses individual JPEG files as the source.</p></li>
+<li><p><a class="reference external" href="https://github.com/webdataset/webdataset">Webdataset</a>: This loader requires pre-processed files aggregated in multiple big <cite>.tar</cite> archives.</p></li>
+<li><p><a class="reference external" href="https://docs.nvidia.com/deeplearning/dali/user-guide/docs/">DALI</a>: Data loading pipeline developed by Nvidia. In this experiment we used the default file format which is the same as that of the Pytorch DataLoader.</p></li>
+</ul>
+<p>The specific instantiation of DALI that we apply is the PyTorch ImageNet example DALI code found in the <a class="reference external" href="https://github.com/NVIDIA/DeepLearningExamples/tree/master/PyTorch/Classification/ConvNets/resnet50v1.5">NVIDIA DeepLearningExamples repository</a>.
+We use the DGX-1 configuration and remove all the model optimization, benchmarking only the dataloader.</p>
+<a class="reference internal image-reference" href="_images/benchmarking_results.svg"><img alt="Alternative text" class="align-center" src="_images/benchmarking_results.svg" width="100%" /></a>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Data loading benchmark results (ImageNet)</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>Framework</p></th>
+<th class="head"><p>Data Source</p></th>
+<th class="head"><p>Resolution</p></th>
+<th class="head"><p>Mode</p></th>
+<th class="head"><p>All cores throughput (images/sec)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FFCV</p></td>
+<td><p>RAM</p></td>
+<td><p>512</p></td>
+<td><p>JPEG 90%</p></td>
+<td><p>31278</p></td>
+</tr>
+<tr class="row-odd"><td><p>FFCV</p></td>
+<td><p>RAM</p></td>
+<td><p>256</p></td>
+<td><p>RAW</p></td>
+<td><p>172801</p></td>
+</tr>
+<tr class="row-even"><td><p>FFCV</p></td>
+<td><p>EBS</p></td>
+<td><p>512</p></td>
+<td><p>RAW</p></td>
+<td><p>1956</p></td>
+</tr>
+<tr class="row-odd"><td><p>FFCV</p></td>
+<td><p>EBS</p></td>
+<td><p>512</p></td>
+<td><p>JPEG 90%</p></td>
+<td><p>16631</p></td>
+</tr>
+<tr class="row-even"><td><p>FFCV</p></td>
+<td><p>EBS</p></td>
+<td><p>256</p></td>
+<td><p>RAW</p></td>
+<td><p>6870</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The benchmarks were run on an AWS <code class="docutils literal notranslate"><span class="pre">p3dn.24xlarge</span></code> instance.</p>
+<p>For a fair comparison the baseline frameworks were evaluated on similarly resized datasets.</p>
+<p>The data loading pipeline consists of:</p>
+<ul class="simple">
+<li><p>Loading the images</p></li>
+<li><p>Random resized crop to 224x224 px</p></li>
+<li><p>Random horizontal flip</p></li>
+</ul>
+</div>
+</section>
+<section id="end-to-end-training">
+<h2>End-to-end training<a class="headerlink" href="#end-to-end-training" title="Permalink to this heading">¶</a></h2>
+<p>Training ResNet-18s and ResNet-50s on ImageNet using code <a class="reference external" href="https://github.com/libffcv/ffcv-imagenet/tree/main/">here</a>,
+we plot the results below:</p>
+<a class="reference internal image-reference" href="_images/headline.svg"><img alt="Alternative text" class="align-center" src="_images/headline.svg" width="90%" /></a>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>For the same accuracy, we obtain much faster ImageNet training time than
+the tested baselines. All testing was performed on a <em>p4d.24xlarge</em> AWS instance
+with 8 A100s, and were given a training run before to warm up.
+We tested two distinct benchmarks:</p>
+<ul class="simple">
+<li><p>ImageNet (Resnet-50 8xA100): Train a ResNet-50 on ImageNet with 8 A100s using data parallelism.</p></li>
+<li><p>ImageNet (Resnet-18 1xA100): Train a ResNet-18 on ImageNet with 1 A100.</p></li>
+</ul>
+<p>To make the benchmark realistic, we mimic standard cluster conditions by training 8 models at once, each on a separate GPU. Such training parallelism situations are also highly relevant for tasks like grid searching or finding confidence intervals for training results.</p>
+<p>We detail the tested systems below:</p>
+<ul class="simple">
+<li><p><strong>FFCV</strong>: We train using the code and system detailed  <a class="reference external" href="https://github.com/libffcv/ffcv-imagenet/tree/main/">in our repository</a>.</p></li>
+<li><p><strong>PyTorch Example</strong>: This is the popular ImageNet training code found
+<a class="reference external" href="https://github.com/pytorch/examples/blob/master/imagenet/main.py">the PyTorch repository</a>.
+we measured the time to complete an epoch of training (after warmup) and then
+used that to extrapolate how long the implemented schedule would take. We took
+accuracies from
+<a class="reference external" href="https://pytorch.org/hub/pytorch_vision_resnet/">PyTorch model hub</a>,
+assuming a 90 epoch schedule (a lower bound; the original ResNet paper used 120).
+We modified the PyTorch example to add half precision training (via PyTorch nativeAMP).</p></li>
+<li><p><strong>PyTorch Lightning</strong>: Another popular training library, we used the example
+code from <a class="reference external" href="https://github.com/PyTorchLightning/pytorch-lightning/blob/master/pl_examples/domain_templates/imagenet.py">the Lightning repository</a>,
+removed the import on line 46, and called the file with the DDP accelerator and
+half precision. We measured single epoch time (after warmup) and
+then, similar to the PyTorch example, assumed a 90 epoch schedule and correctness:
+that the resulting model would obtain the accuracy of a standard ResNet-50 trained
+on 90 epochs (i.e. the number listed in <a class="reference external" href="https://pytorch.org/hub/pytorch_vision_resnet/">PyTorch hub</a>).</p></li>
+<li><p><strong>NVIDIA PyTorch</strong>: NVIDIA’s PyTorch ImageNet implementation, number and time lifted
+from the
+<a class="reference external" href="https://github.com/NVIDIA/DeepLearningExamples/blob/master/PyTorch/Classification/ConvNets/resnet50v1.5/README.md#results">website</a>.</p></li>
+<li><p><strong>TIMM A3</strong>: The TIMM A3 ResNet-50 from
+<a class="reference external" href="https://arxiv.org/abs/2110.00476">ResNet Strikes Back</a>.
+The paper originally used 4 V100s in training, so we assumed perfect scaling and
+lower bounded the training time by dividing the reported training time
+(15 hours) by 4 (V100s are at most
+<a class="reference external" href="https://lambdalabs.com/blog/nvidia-a100-vs-v100-benchmarks/">twice as slow</a>
+as A100s and we used 8 GPUs instead of 4).</p></li>
+</ul>
+</section>
+</section>
+
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>

@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ffcv.fields.ndarray &mdash; FFCV  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/custom.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/css/theme.min.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/style.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <a class="site-nav-toggle hidden-lg-up"><i class="icon-menu"></i></a>
+            <a class="site-title" href="../../../index.html">
+                FFCV
+            </a>
+        </div>
+    </header>
+
+
+<div class="breadcrumbs-outer hidden-xs-down">
+    <div class="container">
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a></li>
+        
+          <li><a href="../../index.html">Module code</a></li>
+        
+      <li>ffcv.fields.ndarray</li>
+    
+    
+      <li class="breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+</div>
+    </div>
+</div>
+    <div class="main-outer">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-lg-3 site-nav">
+                    
+<div role="search">
+    <form class="search" action="../../../search.html" method="get">
+        <div class="icon-input">
+            <input type="text" name="q" placeholder="Search" />
+            <span class="icon-search"></span>
+        </div>
+        <input type="submit" value="Go" class="d-hidden" />
+        <input type="hidden" name="check_keywords" value="yes" />
+        <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+                    <div class="site-nav-tree">
+                        
+                            
+                            
+                                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../basics.html">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../writing_datasets.html">Writing a dataset to FFCV format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../making_dataloaders.html">Making an FFCV dataloader</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../performance_guide.html">Performance Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../working_with_images.html">Working with Image Data in FFCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../parameter_tuning.html">Tuning Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../bottleneck_doctor.html">The Bottleneck Doctor</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/cifar10.html">Training CIFAR-10 in 36 seconds on a single A100</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/linear_regression.html">Large-Scale Linear Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/custom_transforms.html">Fast custom image transforms</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/transform_with_inds.html">Custom transforms with indices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ffcv_examples/imagenet.html">ImageNet Fast Training</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks.html">ImageNet Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#dataset-sizes">Dataset sizes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#data-loading">Data loading</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../benchmarks.html#end-to-end-training">End-to-end training</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api_reference.html">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/writer.html">ffcv.writer module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/transforms.html">ffcv.transforms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/loader.html">ffcv.loader module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/fields.html">ffcv.fields module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/decoders.html">ffcv.fields.decoders module</a></li>
+</ul>
+</li>
+</ul>
+
+                            
+                        
+                    </div>
+                </div>
+                <div class="col-12 col-lg-9">
+                    <div class="document">
+                        
+                            
+  <h1>Source code for ffcv.fields.ndarray</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">replace</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span> <span class="k">as</span> <span class="nn">ch</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">ARG_TYPE</span>
+<span class="kn">from</span> <span class="nn">..pipeline.operation</span> <span class="kn">import</span> <span class="n">Operation</span>
+<span class="kn">from</span> <span class="nn">..pipeline.state</span> <span class="kn">import</span> <span class="n">State</span>
+<span class="kn">from</span> <span class="nn">..pipeline.compiler</span> <span class="kn">import</span> <span class="n">Compiler</span>
+<span class="kn">from</span> <span class="nn">..pipeline.allocation_query</span> <span class="kn">import</span> <span class="n">AllocationQuery</span>
+<span class="kn">from</span> <span class="nn">..libffcv</span> <span class="kn">import</span> <span class="n">memcpy</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..memory_managers.base</span> <span class="kn">import</span> <span class="n">MemoryManager</span>
+
+<div class="viewcode-block" id="NDArrayDecoder"><a class="viewcode-back" href="../../../api/decoders.html#ffcv.fields.decoders.NDArrayDecoder">[docs]</a><span class="k">class</span> <span class="nc">NDArrayDecoder</span><span class="p">(</span><span class="n">Operation</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Default decoder for :class:`~ffcv.fields.NDArrayField`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NDArrayDecoder.declare_state_and_memory"><a class="viewcode-back" href="../../../api/decoders.html#ffcv.fields.decoders.NDArrayDecoder.declare_state_and_memory">[docs]</a>    <span class="k">def</span> <span class="nf">declare_state_and_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">previous_state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">State</span><span class="p">,</span> <span class="n">AllocationQuery</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">replace</span><span class="p">(</span><span class="n">previous_state</span><span class="p">,</span> <span class="n">jit_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+            <span class="n">AllocationQuery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="NDArrayDecoder.generate_code"><a class="viewcode-back" href="../../../api/decoders.html#ffcv.fields.decoders.NDArrayDecoder.generate_code">[docs]</a>    <span class="k">def</span> <span class="nf">generate_code</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+        <span class="n">my_range</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">get_iterator</span><span class="p">()</span>
+        <span class="n">mem_read</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">memory_read</span>
+        <span class="n">my_memcpy</span> <span class="o">=</span> <span class="n">Compiler</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">memcpy</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">decoder</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">storage_state</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="n">my_range</span><span class="p">(</span><span class="n">indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">sample_id</span> <span class="o">=</span> <span class="n">indices</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+                <span class="n">ptr</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">sample_id</span><span class="p">]</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">mem_read</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">storage_state</span><span class="p">)</span>
+                <span class="n">my_memcpy</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">destination</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">destination</span>
+
+        <span class="k">return</span> <span class="n">decoder</span></div></div>
+
+<span class="n">NDArrayArgsType</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">([</span>
+    <span class="p">(</span><span class="s1">&#39;shape&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;u8&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>  <span class="c1"># 32 is the max number of dimensions for numpy</span>
+    <span class="p">(</span><span class="s1">&#39;type_length&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;u8&#39;</span><span class="p">),</span>  <span class="c1"># length of the dtype description</span>
+<span class="p">])</span>
+
+<div class="viewcode-block" id="NDArrayField"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.NDArrayField">[docs]</a><span class="k">class</span> <span class="nc">NDArrayField</span><span class="p">(</span><span class="n">Field</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A subclass of :class:`~ffcv.fields.Field` supporting</span>
+<span class="sd">    multi-dimensional fixed size matrices of any numpy type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_size</span> <span class="o">=</span> <span class="n">dtype</span><span class="o">.</span><span class="n">itemsize</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">uint16</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Pytorch currently doesn&#39;t support uint16&quot;</span>
+            <span class="s2">&quot;we recommend storing as int16 and reinterpret your data later&quot;</span>
+            <span class="s2">&quot;in your pipeline&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">metadata_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s1">&#39;&lt;u8&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NDArrayField.from_binary"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.NDArrayField.from_binary">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_binary</span><span class="p">(</span><span class="n">binary</span><span class="p">:</span> <span class="n">ARG_TYPE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">:</span>
+        <span class="n">header_size</span> <span class="o">=</span> <span class="n">NDArrayArgsType</span><span class="o">.</span><span class="n">itemsize</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">binary</span><span class="p">[:</span><span class="n">header_size</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">NDArrayArgsType</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">type_length</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="s1">&#39;type_length&#39;</span><span class="p">]</span>
+        <span class="n">type_data</span> <span class="o">=</span> <span class="n">binary</span><span class="p">[</span><span class="n">header_size</span><span class="p">:][:</span><span class="n">type_length</span><span class="p">]</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
+        <span class="n">type_desc</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">type_data</span><span class="p">)</span>
+        <span class="n">type_desc</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">type_desc</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">type_desc</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">type_desc</span><span class="p">)[</span><span class="s1">&#39;f0&#39;</span><span class="p">]</span>
+        <span class="n">shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">])</span>
+        <span class="k">while</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">shape</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">NDArrayField</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="NDArrayField.to_binary"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.NDArrayField.to_binary">[docs]</a>    <span class="k">def</span> <span class="nf">to_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ARG_TYPE</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">ARG_TYPE</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">NDArrayArgsType</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;&lt;u8&#39;</span><span class="p">)</span>
+        <span class="n">header</span><span class="p">[</span><span class="s1">&#39;shape&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="n">encoded_type</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">descr</span><span class="p">)</span>
+        <span class="n">encoded_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">encoded_type</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;ascii&#39;</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;&lt;u1&#39;</span><span class="p">)</span>
+        <span class="n">header</span><span class="p">[</span><span class="s1">&#39;type_length&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoded_type</span><span class="p">)</span>
+        <span class="n">to_write</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">header</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s1">&#39;&lt;u1&#39;</span><span class="p">),</span> <span class="n">encoded_type</span><span class="p">])</span>
+        <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][:</span><span class="n">to_write</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="n">to_write</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="NDArrayField.encode"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.NDArrayField.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">malloc</span><span class="p">):</span>
+        <span class="n">destination</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">data_region</span> <span class="o">=</span> <span class="n">malloc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">element_size</span><span class="p">)</span>
+        <span class="n">data_region</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="s1">&#39;&lt;u1&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="NDArrayField.get_decoder_class"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.NDArrayField.get_decoder_class">[docs]</a>    <span class="k">def</span> <span class="nf">get_decoder_class</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Operation</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">NDArrayDecoder</span></div></div>
+
+
+<div class="viewcode-block" id="TorchTensorField"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.TorchTensorField">[docs]</a><span class="k">class</span> <span class="nc">TorchTensorField</span><span class="p">(</span><span class="n">NDArrayField</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A subclass of :class:`~ffcv.fields.Field` supporting</span>
+<span class="sd">    multi-dimensional fixed size matrices of any torch type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span><span class="n">ch</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="n">shape</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span><span class="o">.</span><span class="n">dtype</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="n">shape</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="TorchTensorField.encode"><a class="viewcode-back" href="../../../api/fields.html#ffcv.fields.decoders.TorchTensorField.encode">[docs]</a>    <span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">malloc</span><span class="p">):</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">destination</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">malloc</span><span class="p">)</span></div></div>
+</pre></div>
+
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'',
+            LANGUAGE:'en',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/sphinx_highlight.js"></script>
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+    <div class="footer" role="contentinfo">
+        <div class="container">
+            &#169; Copyright 2022, ffcv.
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.0.0.
+        </div>
+    </div>  
+
+</body>
+</html>
