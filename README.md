@@ -92,7 +92,7 @@ write_path = '/output/path/for/converted/ds.beton'
 # Pass a type for each data field
 writer = DatasetWriter(write_path, {
     # Tune options to optimize dataset size, throughput at train-time
-    'image': RGBImageField(max_resolution=256, jpeg_quality=jpeg_quality),
+    'image': RGBImageField(max_resolution=256),
     'label': IntField()
 })
 
