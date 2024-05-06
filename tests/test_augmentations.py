@@ -35,7 +35,7 @@ def run_test(length, pipeline, should_compile=False, aug_name=''):
     with NamedTemporaryFile() as handle:
         name = handle.name
         writer = DatasetWriter(name, {
-            'image': RGBImageField(write_mode='smart', 
+            'image': RGBImageField(write_mode='smart',
                                 max_resolution=32),
             'label': IntField(),
         }, num_workers=2)
@@ -60,12 +60,12 @@ def run_test(length, pipeline, should_compile=False, aug_name=''):
         for it_num, ((images, labels), (original_images, original_labels)) in enumerate(zip(loader, unaugmented_loader)):
             tot_indices += labels.shape[0]
             tot_images += images.shape[0]
-            
+
             for label, original_label in zip(labels, original_labels):
                 assert_that(label).is_equal_to(original_label)
-            
+
             if SAVE_IMAGES and it_num == 0:
-                save_image(make_grid(ch.concat([images, original_images])/255., images.shape[0]), 
+                save_image(make_grid(ch.concat([images, original_images])/255., images.shape[0]),
                         os.path.join(IMAGES_TMP_PATH, aug_name + '-' + str(uuid.uuid4()) + '.jpeg'))
 
         assert_that(tot_indices).is_equal_to(len(my_dataset))
@@ -80,15 +80,54 @@ def test_cutout():
             ToTorchImage()
         ], comp, 'cutout')
 
+def test_random_cutout():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomCutout(0.75, 8),
+            ToTensor(),
+            ToTorchImage()
+        ], comp, 'random_cutout')
 
-def test_flip():
+
+def test_random_erasing():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomErasing(.75, max_count=3),
+            ToTensor(),
+            ToTorchImage()
+        ], comp, 'random_erasing')
+
+
+def test_random_erasing_slow():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomErasing(.75, fast_fill=False),
+            ToTensor(),
+            ToTorchImage()
+        ], comp, 'random_erasing_slow')
+
+
+def test_horizontal_flip():
     for comp in [True, False]:
         run_test(100, [
             SimpleRGBImageDecoder(),
             RandomHorizontalFlip(1.0),
             ToTensor(),
             ToTorchImage()
-        ], comp, 'flip')
+        ], comp, 'hflip')
+
+
+def test_vertical_flip():
+    for comp in [True, False]:
+        run_test(100, [
+            SimpleRGBImageDecoder(),
+            RandomVerticalFlip(1.0),
+            ToTensor(),
+            ToTorchImage()
+        ], comp, 'vflip')
 
 
 def test_module_wrapper():
@@ -129,7 +168,7 @@ def test_random_resized_crop():
     for comp in [True, False]:
         run_test(100, [
             SimpleRGBImageDecoder(),
-            RandomResizedCrop(scale=(0.08, 1.0), 
+            RandomResizedCrop(scale=(0.08, 1.0),
                             ratio=(0.75, 4/3),
                             size=32),
             ToTensor(),

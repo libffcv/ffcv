@@ -9,6 +9,7 @@ from re import sub
 from typing import Any, Callable, Mapping, Sequence, Type, Union, Literal
 from collections import defaultdict
 from collections.abc import Collection
+from copy import deepcopy
 from enum import Enum, unique, auto
 
 from ffcv.fields.base import Field
@@ -40,7 +41,7 @@ ORDER_TYPE = Union[
 
 ]
 
-ORDER_MAP: Mapping[ORDER_TYPE, TraversalOrder] = {
+ORDER_MAP: Mapping[ORDER_TYPE, Type[TraversalOrder]] = {
     OrderOption.RANDOM: Random,
     OrderOption.SEQUENTIAL: Sequential,
     OrderOption.QUASI_RANDOM: QuasiRandom
@@ -122,8 +123,8 @@ class Loader:
             'order': order,
             'distributed': distributed,
             'seed': seed,
-            'indices': indices,
-            'pipelines': pipelines,
+            'indices': deepcopy(indices),
+            'pipelines': deepcopy(pipelines),
             'drop_last': drop_last,
             'batches_ahead': batches_ahead,
             'recompile': recompile
@@ -158,7 +159,7 @@ class Loader:
         if order in ORDER_MAP:
             self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
         elif issubclass(order, TraversalOrder):
-            self.traversal_order: TraversalOrder = order(self, **order_kwargs)
+            self.traversal_order: TraversalOrder = order(self)
         else:
             raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
 
