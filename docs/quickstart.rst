@@ -19,8 +19,7 @@ PyTorch datasets and `WebDatasets <https://github.com/webdataset/webdataset>`_):
     writer = DatasetWriter(write_path, {
         # Tune options to optimize dataset size, throughput at train-time
         'image': RGBImageField(
-            max_resolution=256,
-            jpeg_quality=jpeg_quality
+            max_resolution=256
         ),
         'label': IntField()
     })

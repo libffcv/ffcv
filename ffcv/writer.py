@@ -2,7 +2,9 @@ import ctypes
 import warnings
 from functools import partial
 from multiprocessing import Process, Queue, Value, cpu_count, shared_memory
-from os import SEEK_END, path
+from typing import Callable, List, Mapping
+from os import SEEK_END, path, sched_getaffinity
+import numpy as np
 from time import sleep
 from typing import Callable, List, Mapping
 
@@ -143,7 +145,7 @@ class DatasetWriter():
         self.num_workers = num_workers
         # We use all cores by default
         if self.num_workers < 1:
-            self.num_workers = cpu_count()
+            self.num_workers = len(sched_getaffinity(0))
 
         if not is_power_of_2(page_size):
             raise ValueError(f'page_size isnt a power of 2')

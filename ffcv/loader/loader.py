@@ -2,7 +2,7 @@
 FFCV loader
 """
 import enum
-from os import environ
+from os import environ, sched_getaffinity
 import ast
 from multiprocessing import cpu_count
 from re import sub
@@ -102,6 +102,7 @@ class Loader:
                  drop_last: bool = True,
                  batches_ahead: int = 3,
                  recompile: bool = False,  # Recompile at every epoch
+                 order_kwargs: dict = dict(),
                  ):
 
         if distributed and order == OrderOption.RANDOM and (seed is None):
@@ -140,7 +141,7 @@ class Loader:
         self.recompile = recompile
 
         if self.num_workers < 1:
-            self.num_workers = cpu_count()
+            self.num_workers = len(sched_getaffinity(0))
 
         Compiler.set_num_threads(self.num_workers)
 
@@ -181,7 +182,7 @@ class Loader:
             elif spec is None:
                 continue  # This is a disabled field
             else:
-                msg  = f"The pipeline for {output_name} has to be "
+                msg = f"The pipeline for {output_name} has to be "
                 msg += f"either a PipelineSpec or a sequence of operations"
                 raise ValueError(msg)
             custom_pipeline_specs[output_name] = spec

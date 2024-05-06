@@ -7,7 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         ffmpeg
 
-RUN conda create -n ffcv python=3.9 \
+RUN conda update conda && \
+        conda create -n ffcv python=3.9 \
         cupy \
         pkg-config \
         compilers \
