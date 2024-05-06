@@ -48,7 +48,8 @@ def handle_sample(sample, dest_ix, field_names, metadata, allocator, fields):
             allocator.set_current_sample(dest_ix)
             # We extract the sample in question from the dataset
             # We write each field individually to the metadata region
-            for field_name, field, field_value in zip(field_names, fields.values(), sample):
+            # TODO: this is brittle and leads to silent failures if lengths are mismatched.
+            for field_name, field, field_value in zip(field_names, fields.values(), sample):  
                 destination = metadata[field_name][dest_ix: dest_ix + 1]
                 field.encode(destination, field_value, allocator.malloc)
             # We managed to write all the data without reaching
@@ -118,6 +119,24 @@ def worker_job_indexed_dataset(input_queue, metadata_sm, metadata_type, fields,
             with done_number.get_lock():
                 done_number.value += len(chunk)
 
+    allocations_queue.put(allocator.allocations)
+
+
+def worker_job_iterable_dataset(input_queue, metadata_sm, metadata_type, fields,
+               allocator, done_number, allocations_queue, dataset):
+    metadata = np.frombuffer(metadata_sm.buf, dtype=metadata_type)
+    field_names = metadata_type.names
+
+    # This `with` block ensures that all the pages allocated have been written
+    # onto the file
+    with allocator:
+        # pop the solo dummy chunk off the queue.
+        chunk = input_queue.get()
+        del chunk  
+        for dest_ix, sample in enumerate(dataset):
+            handle_sample(sample, dest_ix, field_names, metadata, allocator, fields)
+    with done_number.get_lock():
+        done_number.value = 1
     allocations_queue.put(allocator.allocations)
 
 
@@ -263,7 +282,6 @@ class DatasetWriter():
         for p in processes:
             content = allocations_queue.get()
             allocation_list.extend(content)
-
         self.finalize(allocation_list)
         self.metadata_sm.close()
         self.metadata_sm.unlink()
@@ -300,6 +318,21 @@ class DatasetWriter():
 
         self._write_common(len(indices), chunks(indices, chunksize),
                            worker_job_indexed_dataset, (dataset, ))
+
+
+    def from_iterable_dataset(self, dataset):
+        """Read dataset from iterable dataset and write to .beton.
+
+        Shuffled indices not allowed, and for simplicity we only use
+        one worker.
+        """
+        # this will create one chunk that is unused by the worker job.
+        # we have to make sure the done number is updated to match the 
+        # num_samples=len(indices)
+        indices = [[0, 0]]
+        chunksize = 100
+        self._write_common(len(indices), chunks(indices, chunksize),
+                           worker_job_iterable_dataset, (dataset, ))
 
 
     def from_webdataset(self, shards: List[str], pipeline: Callable):
