@@ -117,7 +117,7 @@ class Loader:
             'fname': fname,
             'batch_size': batch_size,
             'num_workers': num_workers,
-            'os_cache': cache_type,
+            'cache_type': cache_type,
             'order': order,
             'distributed': distributed,
             'seed': seed,
@@ -158,10 +158,12 @@ class Loader:
             self.memory_manager: MemoryManager = SharedMemoryManager(self.reader)
         else:
             raise ValueError("Unknown cache type. Use 0 for process cache, 1 for os cache, or 2 for no cache.")
-
+        
         if order in ORDER_MAP:
             self.traversal_order: TraversalOrder = ORDER_MAP[order](self)
         elif isinstance(order, TraversalOrder):
+            self.traversal_order: TraversalOrder = order(self)
+        elif issubclass(order, TraversalOrder):
             self.traversal_order: TraversalOrder = order(self)
         else:
             raise ValueError(f"Order {order} is not a supported order type or a subclass of TraversalOrder")
@@ -195,7 +197,7 @@ class Loader:
                 raise ValueError(msg)
             custom_pipeline_specs[output_name] = spec
 
-        # Adding the default pipelines
+        # Adding the default pipelines, WARN: disable default pipelines
         for f_ix, (field_name, field) in enumerate(self.reader.handlers.items()):
             self.field_name_to_f_ix[field_name] = f_ix
 
