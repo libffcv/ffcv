@@ -1,3 +1,4 @@
+import tracemalloc
 from itertools import product
 from time import time
 from collections import defaultdict
@@ -46,6 +47,8 @@ def run_all(runs=3, warm_up=1, pattern='*'):
 
         for args in it_args:
             # with redirect_stderr(FakeSink()):
+            # Start tracing memory allocations
+            tracemalloc.start()
             if True:
                 benchmark: Benchmark = cls(**args)
                 with benchmark:
@@ -57,7 +60,9 @@ def run_all(runs=3, warm_up=1, pattern='*'):
                         start = time()
                         benchmark.run()
                         timings.append(time() - start)
-                
+            # Stop tracing memory allocations
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()    
             median_time = np.median(timings)
             
             throughput = None
@@ -70,7 +75,9 @@ def run_all(runs=3, warm_up=1, pattern='*'):
             results[suite_name].append({
                 **args,
                 'time': median_time,
-                f'throughput ({unit})': f"{throughput:.2f}"
+                f'throughput ({unit})': f"{throughput:.2f}",
+                'current_memory (MB)': current / 10**6,
+                'peak_memory (MB)': peak / 10**6,
             })
         it_args.close()
     it_suite.close()

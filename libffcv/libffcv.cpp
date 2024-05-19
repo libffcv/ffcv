@@ -232,12 +232,11 @@ extern "C" {
         }
         // decompress the cropped image
         unsigned char *tmp_buffer = NULL;
-        size_t buf_size=tjBufSize(crop_width, crop_height, TJPF_RGB);
+        // size_t buf_size=tjBufSize(crop_width, crop_height, TJPF_RGB);
+        size_t buf_size=tj3JPEGBufSize(width, height, TJPF_RGB);
+        
         tmp_buffer = (unsigned char *)malloc(buf_size);
-        // if(buf_size>malloc_usable_size(tmp_buffer)){
-        //     free(tmp_buffer);
-        //     tmp_buffer = (unsigned char *)malloc(buf_size);
-        // }
+        
         result =  tj3Decompress8(tj_decompressor, input_buffer, input_size, tmp_buffer,
                  0,  TJPF_RGB);
         
