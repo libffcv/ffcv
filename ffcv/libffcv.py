@@ -52,7 +52,7 @@ def imdecode(source: np.ndarray, dst: np.ndarray,
 ctypes_imcropresizedecode = lib.imcropresizedecode
 ctypes_imcropresizedecode.argtypes = [
     c_void_p, c_uint64, 
-    c_void_p, c_void_p, 
+    c_void_p, 
     c_uint32, c_uint32,
     c_uint32, c_uint32,
     c_uint32, c_uint32,

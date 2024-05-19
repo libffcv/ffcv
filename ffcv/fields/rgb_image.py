@@ -169,7 +169,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         self.max_height = np.uint64(heights.max())
         output_shape = (self.output_size[0], self.output_size[1], 3)
         my_dtype = np.dtype('<u1')
-        if self.use_ffcv:
+        if self.use_crop_decode:
             max_shape = ((np.uint64(widths)*np.uint64(heights)*3).max(),)
         else:
             max_shape = (1,) # we don't need the buffer memory

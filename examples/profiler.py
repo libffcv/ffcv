@@ -95,7 +95,7 @@ def main(args):
         batches_ahead=2, distributed=False,seed=0,)
     
     decoder = loader.pipeline_specs['image'].decoder    
-    decoder.use_crop_decode_(args.use_ffcv)
+    decoder.use_crop_decode = (args.use_ffcv)
         
     # warmup
     load_one_epoch(args,loader)
