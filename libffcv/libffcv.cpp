@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <turbojpeg.h>
+#include <malloc.h>
 #include <pthread.h>
 #include <iostream>
 
@@ -190,7 +191,6 @@ extern "C" {
 
 
     EXPORT int imcropresizedecode(unsigned char *input_buffer, __uint64_t input_size, 
-                      unsigned char *tmp_buffer,                               
                       unsigned char *output_buffer,
                       __uint32_t tar_height, __uint32_t tar_width,
                       __uint32_t crop_height, __uint32_t crop_width,
@@ -231,6 +231,13 @@ extern "C" {
             return -1;
         }
         // decompress the cropped image
+        unsigned char *tmp_buffer = NULL;
+        size_t buf_size=tjBufSize(crop_width, crop_height, TJPF_RGB);
+        tmp_buffer = (unsigned char *)malloc(buf_size);
+        // if(buf_size>malloc_usable_size(tmp_buffer)){
+        //     free(tmp_buffer);
+        //     tmp_buffer = (unsigned char *)malloc(buf_size);
+        // }
         result =  tj3Decompress8(tj_decompressor, input_buffer, input_size, tmp_buffer,
                  0,  TJPF_RGB);
         
@@ -251,6 +258,7 @@ extern "C" {
             .rowRange(dy,crop_height)
             ),
                    dest_matrix, dest_matrix.size(), 0, 0, interpolation);
+        free(tmp_buffer);
         return result;
     }
 }

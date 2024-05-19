@@ -81,7 +81,7 @@ def load_one_epoch(args,loader):
 def main(args):
     # pipe = ThreeAugmentPipeline()
     pipe = {
-        'image': [CenterCropRGBImageDecoder((args.img_size,args.img_size),224/256),
+        'image': [RandomResizedCropRGBImageDecoder((args.img_size,args.img_size)),
             RandomHorizontalFlip(),
             ToTensor(), 
             # ToDevice(torch.device('cuda')),
@@ -92,8 +92,11 @@ def main(args):
     }
     loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, 
          pipelines=pipe,order=ffcv.loader.OrderOption.RANDOM, 
-        batches_ahead=0, distributed=False,seed=0,)
+        batches_ahead=2, distributed=False,seed=0,)
     
+    decoder = loader.pipeline_specs['image'].decoder    
+    decoder.use_crop_decode_(args.use_ffcv)
+        
     # warmup
     load_one_epoch(args,loader)
     
@@ -107,6 +110,7 @@ if __name__ == '__main__':
     parser.add_argument("-r", "--repeat", type=int, default=5, help="number of samples to record one step for profile.")
     parser.add_argument("-b", "--batch_size", type=int, default=256, help="batch size")
     parser.add_argument("-p", "--data_path", type=str, help="data path", required=True)
+    parser.add_argument("--use_ffcv",default=False,action="store_true")
     parser.add_argument("--num_workers", type=int, default=60, help="number of workers")
     parser.add_argument("--exp", default=False, action="store_true", help="run experiments")
     parser.add_argument("--img_size", type=int, default=224, help="image size")
@@ -123,12 +127,12 @@ if __name__ == '__main__':
     else:
         data = []
         with open(args.write_path,"a") as file:
-            for num_workers in [10,20,30,40,50,60]:
-                for cache in [True,False]:
-                    for bs in [64,128,256]:
+            for num_workers in [10,20,40]:
+                for use_ffcv in [False,True]:
+                    for bs in [128,256,512]:
                         args.num_workers=num_workers
-                        args.cache = cache
                         args.batch_size = bs
+                        args.use_ffcv=use_ffcv
                         row = args.__dict__
                         for res  in main(args):
                             row.update(res)
@@ -138,6 +142,4 @@ if __name__ == '__main__':
         import pandas as pd
         df = pd.DataFrame(data)
         print(df)
-
-
     exit(0)

@@ -59,13 +59,13 @@ ctypes_imcropresizedecode.argtypes = [
     c_uint32,
 ]
 
-def imcropresizedecode(source: np.ndarray,  tmp: np.ndarray, dst: np.ndarray,
+def imcropresizedecode(source: np.ndarray, dst: np.ndarray,
              crop_height: int, crop_width: int,
              offset_y=0, offset_x=0,
              interpolation=cv2.INTER_CUBIC):
     return ctypes_imcropresizedecode(
         source.ctypes.data, source.size, 
-                tmp.ctypes.data, dst.ctypes.data,     
+                dst.ctypes.data,     
                 dst.shape[0], dst.shape[1],           
                 crop_height, crop_width, 
                 offset_y, offset_x,

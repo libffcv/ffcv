@@ -66,16 +66,11 @@ def run_all(runs=3, warm_up=1, pattern='*'):
                 throughput = args['n'] / median_time
                 
             unit = 'it/sec'
-            if throughput < 1:
-                unit = 'sec/it'
-                throughput = 1 /throughput
-                
-            throughput = np.round(throughput * 10) / 10
              
             results[suite_name].append({
                 **args,
                 'time': median_time,
-                'throughput': str(throughput) + ' ' + unit
+                f'throughput ({unit})': f"{throughput:.2f}"
             })
         it_args.close()
     it_suite.close()

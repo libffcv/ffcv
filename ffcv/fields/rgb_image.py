@@ -156,6 +156,10 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         super().__init__()
         self.output_size = output_size
         self.interpolation = interpolation
+        self.use_crop_decode = True
+    
+    def use_crop_decode_(self, value):
+        self.use_crop_decode = value
 
     def declare_state_and_memory(self, previous_state: State) -> Tuple[State, AllocationQuery]:
         widths = self.metadata['width']
@@ -165,7 +169,10 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
         self.max_height = np.uint64(heights.max())
         output_shape = (self.output_size[0], self.output_size[1], 3)
         my_dtype = np.dtype('<u1')
-        max_shape = ((np.uint64(widths)*np.uint64(heights)*3).max(),)
+        if self.use_ffcv:
+            max_shape = ((np.uint64(widths)*np.uint64(heights)*3).max(),)
+        else:
+            max_shape = (1,) # we don't need the buffer memory
         return (
             replace(previous_state, jit_mode=True,
                     shape=output_shape, dtype=my_dtype),
@@ -190,6 +197,7 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
 
         scale = self.scale
         ratio = self.ratio
+        use_crop_decode = self.use_crop_decode
         interpolation = self.interpolation
         if isinstance(scale, tuple):
             scale = np.array(scale)
@@ -206,12 +214,23 @@ class ResizedCropRGBImageDecoder(SimpleRGBImageDecoder, metaclass=ABCMeta):
                 width = np.uint32(field['width'])
 
                 i, j, h, w = get_crop_c(height, width, scale, ratio)
-                # return destination[:len(batch_indices)]
+                
                 if field['mode'] == jpg:
                     temp_buffer = temp_storage[dst_ix]
-                    res = imcropresizedecode_c(image_data,  temp_buffer, destination[dst_ix],                               
-                                h,w, 
-                                i, j, interpolation)
+                    if use_crop_decode:
+                        imcropresizedecode_c(image_data,  destination[dst_ix],                               
+                                    h,w, 
+                                    i, j, interpolation)
+                    else:
+                        ## decode the whole image
+                        imdecode_c(image_data, temp_buffer,
+                                    height, width, height, width, 0, 0, 1, 1, False, False)
+                        ## crop and resize the image
+                        selected_size = 3 * height * width
+                        temp_buffer = temp_buffer.reshape(-1)[:selected_size]
+                        temp_buffer = temp_buffer.reshape(height, width, 3)
+                        resize_crop_c(temp_buffer, i, i + h, j, j + w,
+                              destination[dst_ix])
                 elif field['mode'] == raw:
                     temp_buffer = image_data.reshape(height, width, 3)
                     resize_crop_c(temp_buffer, i, i + h, j, j + w,
@@ -356,7 +375,7 @@ class RGBImageField(Field):
         ccode = None # compressed code
 
         if write_mode == 'smart':
-            write_mode = 'png'
+            write_mode = 'raw'
             if self.smart_threshold is not None:
                 if image.nbytes > self.smart_threshold:
                     write_mode = 'jpg'
@@ -364,7 +383,7 @@ class RGBImageField(Field):
             if np.random.rand() < self.proportion:
                 write_mode = 'jpg'
             else:
-                write_mode = 'png'
+                write_mode = 'raw'
 
         destination['mode'] = IMAGE_MODES[write_mode]
         destination['height'], destination['width'] = image.shape[:2]

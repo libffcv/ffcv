@@ -25,6 +25,20 @@ to want faster model training. Below we present premade codebases for training
 on ImageNet and CIFAR, including both (a) extensible codebases and (b)
 numerous premade training configurations.
 
+## Make Dataset
+We provide a script to make the dataset `examples/write_dataset.py`, which provides three mode:
+- `jpg`: The script will compress all the images to jpg format.
+- `png`: The script will compress all the images to png format. This format is too slow.
+- `raw`: The script will not compress the images.
+- `smart`: The script will compress the images larger than the `threshold`.
+- `proportion`: The script will compress a random subset of the data with size specified by the `compress_probability` argument.
+
+```
+python examples/write_dataset.py --cfg.write_mode=smart --cfg.threshold=206432  --cfg.jpeg_quality=90  \
+    --cfg.num_workers=40 --cfg.max_resolution=500 \
+    --cfg.data_dir=$IMAGENET_DIR/train \
+    --cfg.write_path=$write_path 
+```
 ### ImageNet
 We provide a self-contained script for training ImageNet <it>fast</it>.
 Above we plot the training time versus
@@ -67,6 +81,7 @@ Compared to the original FFCV, this library has the following new features:
   - `0`: os cache
   - `1`: process cache
   - `2`: Shared Memory 
-  - `3`: redis: not implemented yet. May be used for large-scale datasets.
   
 - **lossless compression**: PNG is supported for lossless compression. We use `RGBImageField(mode='png')` to enable the lossless compression.
+
+- **few memory**: We optimize the memory usage and accelerate data loading.
