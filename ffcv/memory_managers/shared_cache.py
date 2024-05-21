@@ -13,31 +13,38 @@ from multiprocessing.shared_memory import SharedMemory
 import torch.distributed as dist
 
 class SharedMemoryContext(MemoryContext):
+    cache_dict = {}
     def __init__(self, manager:MemoryManager):
         self.manager = manager
         file_name = self.manager.reader.file_name
         name= file_name.split('/')[-1]
-        print("loading", name)
         
-
-        self.mmap = np.memmap(file_name, 'uint8', mode='r')
-        size= len(self.mmap)
+        mmap = np.memmap(file_name, 'uint8', mode='r')
+        size= len(mmap)
+        
+        def _initiate_shared_memory(create):
+            print("initialize shared memory for ", name)
+            mem = SharedMemory(name=name, create=create, size=size)
+            shared_mmap = np.frombuffer(mem.buf, dtype=np.uint8)
+            if create:
+                shared_mmap[:] = mmap[:]
+                SharedMemoryContext.cache_dict[name] = mem
+            return shared_mmap
+            
         
         if dist.is_initialized():
             if dist.get_rank()==0:
-                mem = SharedMemory(name=name, create=True, size=size)
+                if name in SharedMemoryContext.cache_dict:
+                    self.mmap = _initiate_shared_memory(False)
+                else:
+                    self.mmap = _initiate_shared_memory(True)
             else:
-                mem = SharedMemory(name=name, create=False, size=size)            
+                self.mmap = _initiate_shared_memory(False)         
         else:
-            mem = SharedMemory(name=name, create=True, size=size)
-        self.mem = mem
-        self.mmap = np.frombuffer(mem.buf, dtype=np.uint8)
+            self.mmap = _initiate_shared_memory(True)
+
         if dist.is_initialized():
-            if dist.get_rank()==0:
-                self.mmap[:] = np.fromfile(file_name, 'uint8')
             dist.barrier()
-        else:
-            self.mmap[:] = np.fromfile(file_name, 'uint8')
 
     @property
     def state(self):
