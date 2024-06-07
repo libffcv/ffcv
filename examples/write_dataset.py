@@ -16,7 +16,9 @@ from PIL import Image
 from torch.utils.data import Subset
 from ffcv.writer import DatasetWriter
 from ffcv.fields import IntField, RGBImageField
+import torchvision
 from torchvision.datasets import  ImageFolder
+import torchvision.datasets as torch_datasets
 
 from argparse import ArgumentParser
 from fastargs import Section, Param
@@ -68,7 +70,14 @@ Section('cfg', 'arguments to give the writer').params(
 def main(dataset, data_dir, write_path, max_resolution, num_workers,
          chunk_size, subset, jpeg_quality, write_mode,
          compress_probability, threshold):
-    my_dataset = ImageFolder(root=data_dir)
+    if dataset == 'imagenet':
+        my_dataset = ImageFolder(root=data_dir)
+    elif dataset == 'cifar':
+        tfms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
+        my_dataset = torch_datasets.CIFAR10(root=data_dir, train=True, download=True)
+    else:
+        raise ValueError('Unknown dataset')
+        
     
     if subset > 0: my_dataset = Subset(my_dataset, range(subset))
     writer = DatasetWriter(write_path, {

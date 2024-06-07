@@ -5,6 +5,7 @@ from PIL import Image# a trick to solve loading lib problem
 from ffcv.fields.rgb_image import * 
 from ffcv.transforms import  RandomHorizontalFlip, NormalizeImage,  ToTensor, ToTorchImage, ToDevice
 import numpy as np
+import torchvision
 
 from ffcv import Loader
 import ffcv
@@ -67,13 +68,16 @@ class ramqdm(tqdm):
 def load_one_epoch(args,loader):
     start = time.time()
     l=ramqdm(loader)
-    for batch in l:
-        pass
+    
+    for x1,y in l:
+        x_std = x1.float().flatten(1).std(1)
+        if x_std.min() <= 0:
+            torchvision.utils.save_image(x1.float(), "invalid_sample.png", normalize=True)
+            assert x_std.min() > 0, "invalid sample"
     end = time.time()
     res = l.summary()
     throughput=loader.reader.num_samples/(end-start)
     res['throughput'] = throughput
-    x1,y = batch
     x1 = x1.float()
     print("Mean: ", x1.mean().item(), "Std: ", x1.std().item())
     return res
@@ -91,8 +95,8 @@ def main(args):
         ]
     }
     loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, 
-         pipelines=pipe,order=ffcv.loader.OrderOption.RANDOM, 
-        batches_ahead=2, distributed=False,seed=0,)
+         pipelines=pipe, 
+        batches_ahead=2, distributed=False,seed=0,drop_last=True)
     
     decoder = loader.pipeline_specs['image'].decoder    
     decoder.use_crop_decode = (args.use_ffcv)
@@ -108,7 +112,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="FFCV Profiler")
     parser.add_argument("-r", "--repeat", type=int, default=5, help="number of samples to record one step for profile.")
-    parser.add_argument("-b", "--batch_size", type=int, default=256, help="batch size")
+    parser.add_argument("-b", "--batch_size", type=int, default=64, help="batch size")
     parser.add_argument("-p", "--data_path", type=str, help="data path", required=True)
     parser.add_argument("--use_ffcv",default=False,action="store_true")
     parser.add_argument("--num_workers", type=int, default=60, help="number of workers")
@@ -137,6 +141,7 @@ if __name__ == '__main__':
                         for res  in main(args):
                             row.update(res)
                             file.write(json.dumps(row)+"\n")
+                            file.flush()
                             print(row)
                         data.append(row)
         import pandas as pd

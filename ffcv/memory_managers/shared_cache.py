@@ -1,3 +1,5 @@
+import filecmp
+import os
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -21,27 +23,29 @@ class SharedMemoryContext(MemoryContext):
         
         mmap = np.memmap(file_name, 'uint8', mode='r')
         size= len(mmap)
+        rank = dist.get_rank()
         
-        def _initiate_shared_memory(create):
-            print("initialize shared memory for ", name)
-            mem = SharedMemory(name=name, create=create, size=size)
-            shared_mmap = np.frombuffer(mem.buf, dtype=np.uint8)
-            if create:
+        print(f"initialize shared memory for {name} in rank {rank}")
+        file = os.path.join('/dev/shm',name)
+        create = False if os.path.exists(file) else True
+        self.mem = SharedMemory(name=name, create=create, size=size)
+        shared_mmap = np.frombuffer(self.mem.buf, dtype=np.uint8)
+        if create:
+            result = filecmp.cmp(file, file_name)
+            if not result:
+                print("copying file to shared memory")
                 shared_mmap[:] = mmap[:]
-                SharedMemoryContext.cache_dict[name] = mem
-            return shared_mmap
-            
-        
-        if dist.is_initialized():
-            if dist.get_rank()==0:
-                if name in SharedMemoryContext.cache_dict:
-                    self.mmap = _initiate_shared_memory(False)
-                else:
-                    self.mmap = _initiate_shared_memory(True)
-            else:
-                self.mmap = _initiate_shared_memory(False)         
-        else:
-            self.mmap = _initiate_shared_memory(True)
+        self.mmap = shared_mmap
+        # if dist.is_initialized():
+        #     if dist.get_rank()==0:
+        #         if name in SharedMemoryContext.cache_dict:
+        #             self.mmap = _initiate_shared_memory(False)
+        #         else:
+        #             self.mmap = _initiate_shared_memory(True)
+        #     else:
+        #         self.mmap = _initiate_shared_memory(False)         
+        # else:
+        #     self.mmap = _initiate_shared_memory(True)
 
         if dist.is_initialized():
             dist.barrier()
