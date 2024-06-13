@@ -89,7 +89,7 @@ def main(args):
             RandomHorizontalFlip(),
             ToTensor(), 
             # ToDevice(torch.device('cuda')),
-            # ToTorchImage(),
+            ToTorchImage(),
             # NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16),            
             # Convert(torch.float16),
         ]
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     parser.add_argument("-b", "--batch_size", type=int, default=64, help="batch size")
     parser.add_argument("-p", "--data_path", type=str, help="data path", required=True)
     parser.add_argument("--use_ffcv",default=False,action="store_true")
-    parser.add_argument("--num_workers", type=int, default=60, help="number of workers")
+    parser.add_argument("--num_workers", type=int, default=10, help="number of workers")
     parser.add_argument("--exp", default=False, action="store_true", help="run experiments")
     parser.add_argument("--img_size", type=int, default=224, help="image size")
     parser.add_argument("--write_path", type=str, help='path to write result',default=None)

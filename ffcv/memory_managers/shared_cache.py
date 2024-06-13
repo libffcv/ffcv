@@ -14,6 +14,14 @@ if TYPE_CHECKING:
 from multiprocessing.shared_memory import SharedMemory
 import torch.distributed as dist
 
+class MasterSharedMemory(SharedMemory):
+    def __del__(self) -> None:
+        if dist.is_initialized() and dist.get_rank() == 0:
+            print("deleting shared memory")
+            super().__del__()
+        else:
+            super().__del__()
+
 class SharedMemoryContext(MemoryContext):
     cache_dict = {}
     def __init__(self, manager:MemoryManager):
@@ -23,32 +31,22 @@ class SharedMemoryContext(MemoryContext):
         
         mmap = np.memmap(file_name, 'uint8', mode='r')
         size= len(mmap)
-        rank = dist.get_rank()
-        
-        print(f"initialize shared memory for {name} in rank {rank}")
+        rank = dist.get_rank() if dist.is_initialized() else 0
+        print_args = {'force':True} if dist.is_initialized() else {}
+        print(f"[rank {rank}] initialize shared memory for {name}",**print_args)
         file = os.path.join('/dev/shm',name)
         create = False if os.path.exists(file) else True
-        self.mem = SharedMemory(name=name, create=create, size=size)
+        self.mem = MasterSharedMemory(name=name, create=create, size=size)
         shared_mmap = np.frombuffer(self.mem.buf, dtype=np.uint8)
-        if create:
+        if rank == True:
             result = filecmp.cmp(file, file_name)
             if not result:
-                print("copying file to shared memory")
+                print(f"[rank {rank}] copying file to shared memory",**print_args)
                 shared_mmap[:] = mmap[:]
-        self.mmap = shared_mmap
-        # if dist.is_initialized():
-        #     if dist.get_rank()==0:
-        #         if name in SharedMemoryContext.cache_dict:
-        #             self.mmap = _initiate_shared_memory(False)
-        #         else:
-        #             self.mmap = _initiate_shared_memory(True)
-        #     else:
-        #         self.mmap = _initiate_shared_memory(False)         
-        # else:
-        #     self.mmap = _initiate_shared_memory(True)
-
+        
         if dist.is_initialized():
             dist.barrier()
+        self.mmap = shared_mmap
 
     @property
     def state(self):
