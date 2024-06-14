@@ -150,12 +150,13 @@ def apply_cj(
     apply_bri,
     bri_ratio,
     apply_cont,
-    cont_ratio,
+    cont_ratio:np.float32,
     apply_sat,
-    sat_ratio,
+    sat_ratio:np.float32,
     apply_hue,
-    hue_factor,
+    hue_factor:np.float32,
 ):
+    
 
     gray = (
         np.float32(0.2989) * im[..., 0]
@@ -200,7 +201,7 @@ def apply_cj(
                 cosA + v1 * v3,
             ],
         ]
-        hue_matrix = np.array(hue_matrix, dtype=np.float64).T
+        hue_matrix = np.array(hue_matrix, dtype=np.float32).T
         for row in nb.prange(im.shape[0]):
             im[row] = im[row] @ hue_matrix
     return np.clip(im, 0, 255).astype(np.uint8)
@@ -301,15 +302,15 @@ class RandomColorJitter(Operation):
                         continue
 
                     images[i] = apply_cj(
-                        images[i].astype("float64"),
+                        images[i].astype("float32"),
                         apply_bri,
-                        np.random.uniform(bri[0], bri[1]),
+                        np.float32(np.random.uniform(bri[0], bri[1])),
                         apply_cont,
-                        np.random.uniform(cont[0], cont[1]),
+                        np.float32(np.random.uniform(cont[0], cont[1])),
                         apply_sat,
-                        np.random.uniform(sat[0], sat[1]),
+                        np.float32(np.random.uniform(sat[0], sat[1])),
                         apply_hue,
-                        np.random.uniform(hue[0], hue[1]),
+                        np.float32(np.random.uniform(hue[0], hue[1])),
                     )
                 return images
 
@@ -335,7 +336,7 @@ class RandomColorJitter(Operation):
                 if values[i] > jitter_prob:
                     continue
                 images[i] = apply_cj(
-                    images[i].astype("float64"),
+                    images[i].astype("float32"),
                     apply_bri,
                     bris[i],
                     apply_cont,
