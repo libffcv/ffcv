@@ -14,16 +14,25 @@ if TYPE_CHECKING:
 from multiprocessing.shared_memory import SharedMemory
 import torch.distributed as dist
 
+# import _posixshmem
 class MasterSharedMemory(SharedMemory):
-    def __del__(self) -> None:
-        if dist.is_initialized() and dist.get_rank() == 0:
-            print("deleting shared memory")
-            super().__del__()
-        else:
-            super().__del__()
+    def close(self):
+        """Closes access to the shared memory from this instance but does
+        not destroy the shared memory block."""
+        rank = dist.get_rank() if dist.is_initialized() else 0
+        print(f"[rank {rank}] deleting shared memory",force=True)
+        if rank != 0: return
+        if self._buf is not None:
+            self._buf.release()
+            self._buf = None
+        if self._mmap is not None:
+            self._mmap.close()
+            self._mmap = None
+        if self._fd >= 0:
+            os.close(self._fd)
+            self._fd = -1
 
 class SharedMemoryContext(MemoryContext):
-    cache_dict = {}
     def __init__(self, manager:MemoryManager):
         self.manager = manager
         file_name = self.manager.reader.file_name
@@ -31,21 +40,23 @@ class SharedMemoryContext(MemoryContext):
         
         mmap = np.memmap(file_name, 'uint8', mode='r')
         size= len(mmap)
+        
         rank = dist.get_rank() if dist.is_initialized() else 0
         print_args = {'force':True} if dist.is_initialized() else {}
-        print(f"[rank {rank}] initialize shared memory for {name}",**print_args)
         file = os.path.join('/dev/shm',name)
-        create = False if os.path.exists(file) else True
-        self.mem = MasterSharedMemory(name=name, create=create, size=size)
-        shared_mmap = np.frombuffer(self.mem.buf, dtype=np.uint8)
-        if rank == True:
-            result = filecmp.cmp(file, file_name)
-            if not result:
-                print(f"[rank {rank}] copying file to shared memory",**print_args)
-                shared_mmap[:] = mmap[:]
-        
+
+        if rank == 0:
+            create = not (os.path.exists(file) and filecmp.cmp(file, file_name))
+            self.mem = MasterSharedMemory(name=name, create=create, size=size)
+            print(f"[rank {rank}] copying file to shared memory",**print_args)
+            shared_mmap = np.frombuffer(self.mem.buf, dtype=np.uint8)
+            shared_mmap[:] = mmap[:]
         if dist.is_initialized():
             dist.barrier()
+        if rank != 0:
+            self.mem = MasterSharedMemory(name=name, create=False, size=size)
+            shared_mmap = np.frombuffer(self.mem.buf, dtype=np.uint8)
+        print(f"[rank {rank}] opening shared memory",**print_args)
         self.mmap = shared_mmap
 
     @property
